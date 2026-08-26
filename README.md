@@ -15,3 +15,13 @@ npm run dev
 
 Para interrumpir la ejecución del servidor local
 *Ctrl + c* en la terminal
+
+
+### Por si quieren hacer un proyecto nuevo (en este caso no hace falta)
+```
+npx create-vite
+```
+Ahí pueden elegir opciones, yo puse:
+- React
+- JavaScript
+- ESLint
