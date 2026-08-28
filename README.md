@@ -10,6 +10,7 @@ git clone git@github.com:Facundo177/folium-web-app.git
 
 Para iniciar proyecto en local
 ```
+npm install
 npm run dev
 ```
 
