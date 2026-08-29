@@ -1,0 +1,25 @@
+body {
+  background-color: theme("colors.background");
+  color: theme("colors.on-background");
+}
+
+/* Minimalist Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: theme("colors.outline-variant");
+  border-radius: theme("borderRadius.full");
+}
+::-webkit-scrollbar-thumb:hover {
+  background: theme("colors.outline");
+}
+
+.book-row-hover:hover {
+  background-color: theme("colors.surface-container-low");
+  transition: background-color 0.2s ease;
+}
