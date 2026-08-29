@@ -1,4 +1,5 @@
 import { useState } from "react";
+import SideNavigationBar from "../components/SideNavigationBar";
 
 export const Ejemplo = () => {
   const [books, setBooks] = useState([
@@ -43,127 +44,136 @@ export const Ejemplo = () => {
   };
 
   return (
-    <div style={styles.page}>
-      <header style={styles.header}>
-        <h1 style={{ margin: 0 }}>📚 Mi Biblioteca</h1>
-      </header>
+    <>
+      <div style={styles.page}>
+        <header style={styles.header}>
+          <h1 style={{ margin: 0 }}>📚 Mi Biblioteca</h1>
+        </header>
 
-      <main style={styles.container}>
-        {/* Formulario para agregar libros */}
-        <section style={styles.card}>
-          <h2 style={styles.cardTitle}>Agregar Libro</h2>
-          <form onSubmit={handleSubmit} style={styles.form}>
-            <div style={styles.formGroup}>
-              <label htmlFor="title" style={styles.label}>
-                Título
-              </label>
-              <input
-                id="title"
-                type="text"
-                placeholder="Ej. Cien años de soledad"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                style={styles.input}
-                required
-              />
-            </div>
+        <div className="flex flex-row">
 
-            <div style={styles.formGroup}>
-              <label htmlFor="author" style={styles.label}>
-                Autor
-              </label>
-              <input
-                id="author"
-                type="text"
-                placeholder="Ej. Gabriel García Márquez"
-                value={author}
-                onChange={(e) => setAuthor(e.target.value)}
-                style={styles.input}
-                required
-              />
-            </div>
+          <SideNavigationBar />
 
-            <div style={styles.formGroup}>
-              <label htmlFor="status" style={styles.label}>
-                Estado de lectura
-              </label>
-              <select
-                id="status"
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-                style={styles.input}
-              >
-                <option value="Pendiente">Pendiente</option>
-                <option value="Leyendo">Leyendo</option>
-                <option value="Leído">Leído</option>
-              </select>
-            </div>
+          <main style={styles.container}>
+            {/* Formulario para agregar libros */}
+            <section style={styles.card}>
+              <h2 style={styles.cardTitle}>Agregar Libro</h2>
+              <form onSubmit={handleSubmit} style={styles.form}>
+                <div style={styles.formGroup}>
+                  <label htmlFor="title" style={styles.label}>
+                    Título
+                  </label>
+                  <input
+                    id="title"
+                    type="text"
+                    placeholder="Ej. Cien años de soledad"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    style={styles.input}
+                    required
+                  />
+                </div>
 
-            <button type="submit" style={styles.btnPrimary}>
-              Guardar Libro
-            </button>
-          </form>
-        </section>
+                <div style={styles.formGroup}>
+                  <label htmlFor="author" style={styles.label}>
+                    Autor
+                  </label>
+                  <input
+                    id="author"
+                    type="text"
+                    placeholder="Ej. Gabriel García Márquez"
+                    value={author}
+                    onChange={(e) => setAuthor(e.target.value)}
+                    style={styles.input}
+                    required
+                  />
+                </div>
 
-        {/* Lista de libros guardados */}
-        <section style={styles.card}>
-          <h2 style={styles.cardTitle}>Colección ({books.length})</h2>
-          <div style={{ overflowX: "auto" }}>
-            <table style={styles.table}>
-              <thead>
-                <tr>
-                  <th style={styles.th}>Título</th>
-                  <th style={styles.th}>Autor</th>
-                  <th style={styles.th}>Estado</th>
-                  <th style={styles.th}>Acción</th>
-                </tr>
-              </thead>
-              <tbody>
-                {books.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan="4"
-                      style={{
-                        ...styles.td,
-                        textAlign: "center",
-                        color: "#6b7280",
-                      }}
-                    >
-                      No hay libros guardados.
-                    </td>
-                  </tr>
-                ) : (
-                  books.map((book) => (
-                    <tr key={book.id}>
-                      <td style={styles.td}>{book.title}</td>
-                      <td style={styles.td}>{book.author}</td>
-                      <td style={styles.td}>
-                        <span
+                <div style={styles.formGroup}>
+                  <label htmlFor="status" style={styles.label}>
+                    Estado de lectura
+                  </label>
+                  <select
+                    id="status"
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value)}
+                    style={styles.input}
+                  >
+                    <option value="Pendiente">Pendiente</option>
+                    <option value="Leyendo">Leyendo</option>
+                    <option value="Leído">Leído</option>
+                  </select>
+                </div>
+
+                <button type="submit" style={styles.btnPrimary}>
+                  Guardar Libro
+                </button>
+              </form>
+            </section>
+
+            {/* Lista de libros guardados */}
+            <section style={styles.card}>
+              <h2 style={styles.cardTitle}>Colección ({books.length})</h2>
+              <div style={{ overflowX: "auto" }}>
+                <table style={styles.table}>
+                  <thead>
+                    <tr>
+                      <th style={styles.th}>Título</th>
+                      <th style={styles.th}>Autor</th>
+                      <th style={styles.th}>Estado</th>
+                      <th style={styles.th}>Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {books.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan="4"
                           style={{
-                            ...styles.badge,
-                            ...getBadgeStyle(book.status),
+                            ...styles.td,
+                            textAlign: "center",
+                            color: "#6b7280",
                           }}
                         >
-                          {book.status}
-                        </span>
-                      </td>
-                      <td style={styles.td}>
-                        <button
-                          onClick={() => handleDelete(book.id)}
-                          style={styles.btnDanger}
-                        >
-                          Eliminar
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      </main>
-    </div>
+                          No hay libros guardados.
+                        </td>
+                      </tr>
+                    ) : (
+                      books.map((book) => (
+                        <tr key={book.id}>
+                          <td style={styles.td}>{book.title}</td>
+                          <td style={styles.td}>{book.author}</td>
+                          <td style={styles.td}>
+                            <span
+                              style={{
+                                ...styles.badge,
+                                ...getBadgeStyle(book.status),
+                              }}
+                            >
+                              {book.status}
+                            </span>
+                          </td>
+                          <td style={styles.td}>
+                            <button
+                              onClick={() => handleDelete(book.id)}
+                              style={styles.btnDanger}
+                            >
+                              Eliminar
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </main>
+
+        </div>
+
+      </div>
+    </>
   );
 };
 
