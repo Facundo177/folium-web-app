@@ -3,7 +3,7 @@ import "./App.css";
 import Inventory from "./pages/Inventory";
 import Error404 from "./pages/Error404";
 import Ejemplo from "./pages/Ejemplo";
-// import SideNavigationBar from "./components/SideNavigationBar";
+import SideNavigationBar from "./components/SideNavigationBar";
 // import { useState } from "react";
 import { Login } from "./pages/Login";
 
@@ -16,9 +16,9 @@ function App() {
   return (
     <>
       <div className="antialiased min-h-screen flex font-body-md text-body-md selection:bg-tertiary-fixed selection:text-on-tertiary-fixed">
-        {/* <header>
+        <header>
           <SideNavigationBar />
-        </header> */}
+        </header>
 
         <main style={{ width: "100%" }}>
           <BrowserRouter>

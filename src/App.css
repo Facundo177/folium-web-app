@@ -1,6 +1,6 @@
 body {
-  background-color: theme("colors.background");
-  color: theme("colors.on-background");
+  background-color: var(--color-background);
+  color: var(--color-on-background);
 }
 
 /* Minimalist Scrollbar */
@@ -12,15 +12,15 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: theme("colors.outline-variant");
-  border-radius: theme("borderRadius.full");
+  background: var(--color-outline-variant);
+  border-radius: var(--radius-full);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: theme("colors.outline");
+  background: var(--color-outline);
 }
 
 .book-row-hover:hover {
-  background-color: theme("colors.surface-container-low");
+  background-color: var(--color-surface-container-low);
   transition: background-color 0.2s ease;
 }
 
