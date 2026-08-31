@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 export default function SideNavigationBar() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
 
   const toggleSidebar = () => setIsOpen(!isOpen);
 
@@ -19,18 +19,24 @@ export default function SideNavigationBar() {
       {/* Botón Hamburguesa (Visible en móviles o pantallas pequeñas) */}
       <button 
         onClick={toggleSidebar}
-        className="fixed top-4 left-4 z-100 p-2 bg-surface-container rounded-md text-on-surface shadow-sm"
+        className="fixed top-3 left-4 z-100 p-2 bg-surface-container rounded-md text-on-surface shadow-sm"
         aria-label="Abrir menú"
       >
+      {isOpen ? 
+        <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> 
+            <path d="M19 5L4.99998 19M5.00001 5L19 19" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> </g>
+        </svg> 
+        :
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
         </svg>
+      }
       </button>
 
       {/* Fondo oscuro al abrir en móvil (Backdrop) */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-secondary/50 z-40 md:hidden" 
+          className="fixed inset-0 bg-secondary/50 z-40" // md:hidden 
           onClick={toggleSidebar}
         />
       )}
