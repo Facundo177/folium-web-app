@@ -1,6 +1,6 @@
 
-import DescriptionOfInventory from "../components/DescriptionOfInventory";
-import InventoryTable from "../components/InventoryTable";
+import DescriptionOfInventory from "../components/InventoryComponents/DescriptionOfInventory";
+import InventoryTable from "../components/InventoryComponents/InventoryTable";
 // import PageHeader from "../components/PageHeader";
 // import StatsRow from "../components/StatsRow";
 import TopNavigationBar from "../components/TopNavigationBar";

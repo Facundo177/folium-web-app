@@ -99,8 +99,12 @@ export const InventoryTable= () => {
                 {/* Title & Author */}
                 <td className="py-stack-sm px-gutter">
                   <div className="flex flex-col">
-                    <span className="text-title-lg text-on-surface font-medium">{book.title}</span>
-                    <span className="text-body-md text-on-surface-variant">{book.author}</span>
+                    <span className="text-title-lg text-on-surface font-medium">
+                      {book.title}
+                    </span>
+                    <span className="text-body-md text-on-surface-variant">
+                      {book.author}
+                    </span>
                   </div>
                 </td>
                 {/* ISBN */}
