@@ -1,16 +1,8 @@
-import LoginForm from "../components/LoginComponents/LoginForm"
+import AuthLayout from "../components/LoginComponents/AuthLayout"
 
 export const Login = () => {
 
-
     return(
-        <>
-            <LoginForm/>
-        
-        </>
+            <AuthLayout/>
     )
-
-
-
-
 }

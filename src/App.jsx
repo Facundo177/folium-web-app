@@ -1,47 +1,57 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import "./App.css";
 import Inventory from "./pages/Inventory";
 import Error404 from "./pages/Error404";
-import SideNavigationBar from "./components/SideNavigationBar";
-import Ejemplo from "./pages/Ejemplo";
-// import { useState } from "react";
 import { Login } from "./pages/Login";
 import BookDetail from "./pages/BookDetail";
+import UserLayout from "./components/Layouts/UserLayout";
+import { useState } from "react";
 
 function App() {
-  // const [isLogged, setIsLogged] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   return (
     <>
-      <div className="antialiased min-h-screen flex font-body-md text-body-md selection:bg-tertiary-fixed selection:text-on-tertiary-fixed">
-        <header>
-          <SideNavigationBar />
-        </header>
+      <BrowserRouter>
+        <Routes>
+          <Route
+            index
+            element={
+              isLoggedIn ? (
+                isAdmin ? (
+                  <Navigate to="admin" replace />
+                ) : (
+                  <Navigate to="user" replace />
+                )
+              ) : (
+                <Navigate to="login" replace />
+              )
+            }
+          />
 
-        <main style={{ width: "100%" }}>
-          <BrowserRouter>
-            <Routes>
-              <Route index element={<Ejemplo />} />
+          <Route path="user" element={<UserLayout />}>
+            <Route index element={<Navigate to="inventory" replace />} />
+            <Route path="inventory">
+              <Route index element={<Inventory />} />
+              <Route path="book/:ISBN" element={<BookDetail />} />
+            </Route>
+          </Route>
 
-              <Route path="dashboard">
-                <Route index element={<></>} />
-                <Route path="settings" element={<></>} />
-              </Route>
+          <Route path="admin">
+            <Route path="dashboard">
+              <Route index element={<></>} />
+              <Route path="settings" element={<></>} />
+            </Route>
+          </Route>
 
-              <Route path="login" element={<Login />} />
+          <Route path="login" element={<Login />} />
+          <Route path="*" element={<Error404 />} />
+          <Route />
+        </Routes>
+      </BrowserRouter>
 
-              <Route path="inventory">
-                <Route index element={<Inventory />} />
-                <Route path="book/:ISBN" element={<BookDetail />} />
-              </Route>
-
-              <Route path="*" element={<Error404 />} />
-            </Routes>
-          </BrowserRouter>
-        </main>
-
-        <footer></footer>
-      </div>
+      <footer></footer>
     </>
   );
 }
