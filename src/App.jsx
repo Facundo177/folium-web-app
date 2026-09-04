@@ -6,6 +6,7 @@ import { Login } from "./pages/Login";
 import BookDetail from "./pages/BookDetail";
 import UserLayout from "./components/Layouts/UserLayout";
 import { useState } from "react";
+import AdminLayout from "./components/Layouts/AdminLayout";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -38,7 +39,8 @@ function App() {
             </Route>
           </Route>
 
-          <Route path="admin">
+          <Route path="admin" element={<AdminLayout />}>
+            <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard">
               <Route index element={<></>} />
               <Route path="settings" element={<></>} />
