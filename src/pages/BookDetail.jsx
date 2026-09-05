@@ -1,4 +1,4 @@
-import { useParams } from "react-router";
+import { useParams } from "react-router-dom";
 import BookCover from "../components/BookDetailComponents/BookCover";
 import BookDetailHeader from "../components/BookDetailComponents/BookDetailHeader";
 import BookInfo from "../components/BookDetailComponents/BookInfo";
