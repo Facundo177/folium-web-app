@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 export default function SideNavigationBar() {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   const toggleSidebar = () => setIsOpen(!isOpen);
 
