@@ -32,6 +32,13 @@ function App() {
           />
 
           <Route path="user" element={<UserLayout />}>
+            <Route index element={<Navigate to="favourites" replace />} />
+            <Route path="favourites">
+              <Route index element={<></>} />
+            </Route>
+          </Route>
+
+          <Route path="librarian" element={<UserLayout />}>
             <Route index element={<Navigate to="inventory" replace />} />
             <Route path="inventory">
               <Route index element={<Inventory />} />
