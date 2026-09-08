@@ -7,6 +7,7 @@ import BookDetail from "./pages/BookDetail";
 import UserLayout from "./components/Layouts/UserLayout";
 import { useState } from "react";
 import AdminLayout from "./components/Layouts/AdminLayout";
+import FoliumLanding from "./pages/FoliumLanding";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -16,9 +17,8 @@ function App() {
     <>
       <BrowserRouter>
         <Routes>
-          <Route
-            index
-            element={
+          <Route index element={<FoliumLanding/>} />
+            {/* element={
               isLoggedIn ? (
                 isAdmin ? (
                   <Navigate to="admin" replace />
@@ -28,13 +28,12 @@ function App() {
               ) : (
                 <Navigate to="login" replace />
               )
-            }
-          />
+            } */}
 
           <Route path="user" element={<UserLayout />}>
             <Route index element={<Navigate to="favourites" replace />} />
             <Route path="favourites">
-              <Route index element={<></>} />
+              
             </Route>
           </Route>
 
