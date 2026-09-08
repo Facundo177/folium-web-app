@@ -18,6 +18,8 @@ export default function FoliumLanding() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
         </svg>
       </div>
+
+
     </div>
   );
 }
@@ -131,13 +133,14 @@ function BackgroundElements() {
         className="absolute top-[30%] left-[8%] md:left-[15%] opacity-[0.04] text-tertiary-container -rotate-[10deg] select-none whitespace-nowrap"
         style={{ fontFamily: "'Great Vibes', 'Cedarville Cursive', cursive", fontSize: '4rem' }}
       >
-        Ex Libris et Memoria
+        Carpe librum
+        
       </div>
       <div 
         className="absolute bottom-[20%] right-[5%] md:right-[15%] opacity-[0.04] text-tertiary-container -rotate-[8deg] select-none whitespace-nowrap"
         style={{ fontFamily: "'Great Vibes', 'Cedarville Cursive', cursive", fontSize: '3.5rem' }}
       >
-        silentium archivii
+        Ex Libris et Memoria
       </div>
     </div>
   );
