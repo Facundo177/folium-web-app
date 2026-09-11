@@ -8,16 +8,24 @@ import UserLayout from "./components/Layouts/UserLayout";
 import { useState } from "react";
 import AdminLayout from "./components/Layouts/AdminLayout";
 import FoliumLanding from "./pages/FoliumLanding";
+import ProtectedRoute from "./components/Authentication/ProtectedRoute";
+import BookCatalog from "./pages/BookCatalog";
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // Replace this with your actual auth state (e.g., from Redux, Context, or a hook)
+  // const { isAuthenticated } = useAuth(); 
+
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
 
   return (
-    <>
       <BrowserRouter>
         <Routes>
+          {/* Public Routes */}
           <Route index element={<FoliumLanding/>} />
+          <Route path="register" element={<></>} />
+          <Route path="login" element={<Login />} />
+          <Route path="book/:ISBN" element={<BookDetail />} />
             {/* element={
               isLoggedIn ? (
                 isAdmin ? (
@@ -30,18 +38,20 @@ function App() {
               )
             } */}
 
+
+          {/* Protected Routes Wrapper */}
+        <Route element={<ProtectedRoute isAuthenticated={isAuthenticated} />}>
+        
           <Route path="user" element={<UserLayout />}>
-            <Route index element={<Navigate to="favourites" replace />} />
-            <Route path="favourites">
-              
-            </Route>
+            <Route index element={<Navigate to="catalog" replace />} />
+            <Route path="catalog" element={<BookCatalog/>} />
+            <Route path="favourites" element={<></>} />
           </Route>
 
           <Route path="librarian" element={<UserLayout />}>
             <Route index element={<Navigate to="inventory" replace />} />
             <Route path="inventory">
               <Route index element={<Inventory />} />
-              <Route path="book/:ISBN" element={<BookDetail />} />
             </Route>
           </Route>
 
@@ -53,15 +63,12 @@ function App() {
             </Route>
           </Route>
 
-          <Route path="register" element={<Login />} />
-          <Route path="login" element={<Login />} />
-          <Route path="*" element={<Error404 />} />
-          <Route />
+        </Route>
+          
+        <Route path="*" element={<Error404 />} />
+
         </Routes>
       </BrowserRouter>
-
-      <footer></footer>
-    </>
   );
 }
 
