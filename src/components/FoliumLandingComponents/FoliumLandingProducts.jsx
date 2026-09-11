@@ -1,4 +1,12 @@
+import { useNavigate } from "react-router-dom";
+
 export default function FoliumLandingProducts() {
+
+  const navigate = useNavigate();
+
+  const handleUserButtonClick = () => navigate("/user");
+  const handleLibrarianButtonClick = () => navigate("/librarian");
+
   return (
     <section className="bg-background py-stack-lg px-margin-edge font-sans">
       {/* Encabezado de la Sección */}
@@ -61,7 +69,9 @@ export default function FoliumLandingProducts() {
             </li>
           </ul>
 
-          <button className="w-full border border-tertiary-container text-tertiary-container text-label-caps uppercase tracking-wider py-4 px-6 flex justify-between items-center hover:bg-tertiary-container/5 transition-colors">
+          <button 
+          className="w-full border border-tertiary-container text-tertiary-container text-label-caps uppercase tracking-wider py-4 px-6 flex justify-between items-center hover:bg-tertiary-container/5 transition-colors"
+          onClick={handleUserButtonClick}>
             Explorar catálogo y reseñas
             <ArrowRightIcon />
           </button>
@@ -109,7 +119,9 @@ export default function FoliumLandingProducts() {
             </li>
           </ul>
 
-          <button className="w-full bg-tertiary-container text-on-tertiary text-label-caps uppercase tracking-wider py-4 px-6 flex justify-between items-center hover:opacity-90 transition-opacity">
+          <button 
+          className="w-full bg-tertiary-container text-on-tertiary text-label-caps uppercase tracking-wider py-4 px-6 flex justify-between items-center hover:opacity-90 transition-opacity"
+          onClick={handleLibrarianButtonClick}>
             Conocer la solución institucional
             <ArrowRightIcon />
           </button>

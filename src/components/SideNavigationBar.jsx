@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import MenuToX from './BasicUIComponents/MenuToX';
 
 export default function SideNavigationBar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -22,7 +23,10 @@ export default function SideNavigationBar() {
         className="fixed top-3 left-4 z-100 p-2 bg-surface-container rounded-md text-on-surface shadow-sm"
         aria-label="Abrir menú"
       >
-      {isOpen ? 
+
+      <MenuToX open={isOpen}/>
+
+      {/* {isOpen ? 
         <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"> 
             <path d="M19 5L4.99998 19M5.00001 5L19 19" stroke="#000000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> </g>
         </svg> 
@@ -30,7 +34,7 @@ export default function SideNavigationBar() {
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
         </svg>
-      }
+      } */}
       </button>
 
       {/* Fondo oscuro al abrir en móvil (Backdrop) */}

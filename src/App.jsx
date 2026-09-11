@@ -53,6 +53,7 @@ function App() {
             </Route>
           </Route>
 
+          <Route path="register" element={<Login />} />
           <Route path="login" element={<Login />} />
           <Route path="*" element={<Error404 />} />
           <Route />
