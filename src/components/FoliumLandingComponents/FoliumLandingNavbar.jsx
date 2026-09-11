@@ -5,7 +5,6 @@ export default function FoliumLandingNavbar() {
   const navigate = useNavigate();
 
   const handleLoginButton = () => navigate("/login");
-  const handleLoginButton = () => navigate("/login");
 
   return (
     <header className="relative z-20 w-full flex justify-between items-center py-stack-sm px-margin-edge border-b border-outline-variant/30 bg-background/80 backdrop-blur-sm">
