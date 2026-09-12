@@ -1,7 +1,7 @@
 import FoliumSmallLogo from "../BasicUIComponents/FoliumSmallLogo";
 
 export default function FoliumLandingNavbar() {
-  
+
   return (
     <header className="relative z-20 w-full flex justify-between items-center py-stack-sm px-margin-edge border-b border-outline-variant/30 bg-background/80 backdrop-blur-sm">
       
