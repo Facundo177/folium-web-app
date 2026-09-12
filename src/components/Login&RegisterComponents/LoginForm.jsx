@@ -1,35 +1,45 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import PasswordEye from "../BasicUIComponents/PasswordEye";
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
     <div className="w-full max-w-[400px] flex flex-col items-center">
-      
       {/* Toggle Iniciar sesión / Crear cuenta */}
       <div className="w-full bg-surface-container rounded-lg p-1 flex mb-12">
         <button className="flex-1 bg-surface-container-lowest text-on-surface text-body-md font-medium py-2 rounded shadow-sm">
           Iniciar sesión
         </button>
-        <button className="flex-1 text-on-surface-variant text-body-md font-medium py-2 rounded hover:text-on-surface transition-colors">
+        <Link
+          to="/register"
+          className="flex-1 text-on-surface-variant text-body-md font-medium py-2 rounded hover:text-on-surface transition-colors text-center"
+        >
           Crear cuenta
-        </button>
+        </Link>
       </div>
 
       {/* Textos de Bienvenida */}
       <div className="w-full mb-8">
-        <h2 className="text-headline-md font-serif text-on-surface mb-2">Bienvenido de nuevo</h2>
-        <p className="text-body-md text-on-surface-variant">Ingresa tus datos para continuar.</p>
+        <h2 className="text-headline-md font-serif text-on-surface mb-2">
+          Bienvenido de nuevo
+        </h2>
+        <p className="text-body-md text-on-surface-variant">
+          Ingresa tus datos para continuar.
+        </p>
       </div>
 
       {/* Formulario */}
       <form className="w-full flex flex-col gap-5">
-        
         {/* Campo Correo */}
         <div className="flex flex-col gap-2">
-          <label className="text-label-caps text-on-surface font-bold">CORREO ELECTRÓNICO</label>
-          <input 
-            type="email" 
+          <label className="text-label-caps text-on-surface font-bold">
+            CORREO ELECTRÓNICO
+          </label>
+          <input
+            required
+            type="email"
             placeholder="tu@correo.com"
             className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-outline transition-colors placeholder:text-on-surface-variant"
           />
@@ -37,72 +47,47 @@ export default function LoginForm() {
 
         {/* Campo Contraseña */}
         <div className="flex flex-col gap-2">
-          <label className="text-label-caps text-on-surface font-bold">CONTRASEÑA</label>
+          <label className="text-label-caps text-on-surface font-bold">
+            CONTRASEÑA
+          </label>
           <div className="relative">
-            <input 
-              type={showPassword ? "text" : "password"} 
+            <input
+              required
+              type={showPassword ? "text" : "password"}
               placeholder="••••••••"
               className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-outline transition-colors placeholder:text-outline"
             />
-            <button 
+            <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface-variant transition-colors"
             >
-              <EyeIcon />
+              <PasswordEye open={showPassword}/>
             </button>
           </div>
         </div>
 
         {/* Botón Submit */}
-        <button 
+        <button
           type="submit"
           className="w-full bg-on-tertiary-fixed-variant text-on-tertiary text-body-lg font-medium py-3 rounded-lg mt-2 hover:opacity-90 transition-opacity"
         >
           Entrar
         </button>
-
       </form>
 
-      {/* Enlace al registro */}
       <p className="text-body-md text-on-surface-variant mt-8">
-        ¿No tienes cuenta? <a href="#registro" className="text-on-tertiary-fixed-variant underline underline-offset-4 hover:text-on-tertiary-container transition-colors">Regístrate gratis</a>
+        ¿Olvidaste tu contraseña?{" "}
+        <a
+          href="#"
+          className="text-on-tertiary-fixed-variant underline underline-offset-4 hover:text-on-tertiary-container transition-colors"
+        >
+          Recuperar contraseña
+        </a>
       </p>
-
     </div>
   );
 }
-
-// Icono del "Ojo" para revelar contraseña
-const EyeIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-    <circle cx="12" cy="12" r="3" />
-  </svg>
-);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

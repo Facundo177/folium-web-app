@@ -2,7 +2,6 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import "./App.css";
 import Inventory from "./pages/Inventory";
 import Error404 from "./pages/Error404";
-import { Login } from "./pages/Login";
 import BookDetail from "./pages/BookDetail";
 import UserLayout from "./components/Layouts/UserLayout";
 import { useState } from "react";
@@ -10,22 +9,31 @@ import AdminLayout from "./components/Layouts/AdminLayout";
 import FoliumLanding from "./pages/FoliumLanding";
 import ProtectedRoute from "./components/Authentication/ProtectedRoute";
 import BookCatalog from "./pages/BookCatalog";
+import AuthLayout from "./components/Layouts/AuthLayout";
+import LoginForm from "./components/Login&RegisterComponents/LoginForm";
+import RegisterForm from "./components/Login&RegisterComponents/RegisterForm";
 
 function App() {
   // Replace this with your actual auth state (e.g., from Redux, Context, or a hook)
   // const { isAuthenticated } = useAuth(); 
 
   const [isAuthenticated, setIsAuthenticated] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
+  // const [isAdmin, setIsAdmin] = useState(false);
 
   return (
       <BrowserRouter>
         <Routes>
           {/* Public Routes */}
           <Route index element={<FoliumLanding/>} />
-          <Route path="register" element={<></>} />
-          <Route path="login" element={<Login />} />
-          <Route path="book/:ISBN" element={<BookDetail />} />
+          <Route element={<AuthLayout/>}>
+            <Route path="register" element={<RegisterForm />} />
+            <Route path="login" element={<LoginForm />} />
+          </Route>
+          <Route path="book">
+            <Route index element={<Navigate to="9780140449266" replace />} /> 
+            {/* The Count of Monte Cristo */}
+            <Route path=":ISBN" element={<BookDetail />} />
+          </Route>
             {/* element={
               isLoggedIn ? (
                 isAdmin ? (

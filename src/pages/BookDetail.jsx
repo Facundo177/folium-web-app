@@ -8,6 +8,8 @@ import RecentActivity from "../components/BookDetailComponents/RecentActivity";
 export default function BookDetail() {
   let params = useParams();
 
+  const imgSrc = `https://covers.openlibrary.org/b/isbn/${params.ISBN}-L.jpg`;
+
   // consultar todos los datos del libro a la API 
   // usando el ISBN pasado por parámetro
 
@@ -19,7 +21,7 @@ export default function BookDetail() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-stack-lg">
         {/* Columna Izquierda (1/3) */}
         <div className="md:col-span-1 flex flex-col gap-stack-lg">
-          <BookCover />
+          <BookCover imageSrc={imgSrc}/>
           <CurrentStock />
         </div>
 
