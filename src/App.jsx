@@ -12,6 +12,8 @@ import BookCatalog from "./pages/BookCatalog";
 import AuthLayout from "./components/Layouts/AuthLayout";
 import LoginForm from "./components/Login&RegisterComponents/LoginForm";
 import RegisterForm from "./components/Login&RegisterComponents/RegisterForm";
+import FoliumBot from "./chatbot/FoliumBot";
+import BotLayout from "./components/Layouts/BotLayout";
 
 function App() {
   // Replace this with your actual auth state (e.g., from Redux, Context, or a hook)
@@ -24,6 +26,8 @@ function App() {
       <BrowserRouter>
         <Routes>
           {/* Public Routes */}
+          <Route element={<BotLayout/>}>
+
           <Route index element={<FoliumLanding/>} />
           <Route element={<AuthLayout/>}>
             <Route path="register" element={<RegisterForm />} />
@@ -74,6 +78,8 @@ function App() {
         </Route>
           
         <Route path="*" element={<Error404 />} />
+
+                  </Route>
 
         </Routes>
       </BrowserRouter>

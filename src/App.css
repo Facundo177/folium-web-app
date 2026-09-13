@@ -46,3 +46,86 @@ body {
     padding: 0;
     z-index: 10;
   }
+
+
+
+
+
+
+
+  /* ========================================================
+   Sobreescritura de estilos para react-chatbot-kit (Folium)
+   ======================================================== */
+
+/* Contenedor principal y fuente base */
+.react-chatbot-kit-chat-container {
+  font-family: var(--font-sans);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  border: 1px solid var(--color-outline-variant);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+/* Área de mensajes (Fondo general) */
+.react-chatbot-kit-chat-message-container {
+  background-color: var(--color-background);
+  padding: var(--spacing-gutter);
+}
+
+/* Cabecera del bot */
+.react-chatbot-kit-chat-header {
+  background-color: var(--color-surface-container-lowest);
+  color: var(--color-on-surface);
+  font-family: var(--font-serif);
+  font-size: var(--text-title-lg);
+  font-weight: 600;
+  border-bottom: 1px solid var(--color-outline-variant);
+  padding: var(--spacing-stack-sm) var(--spacing-gutter);
+}
+
+/* Input de texto */
+.react-chatbot-kit-chat-input {
+  background-color: var(--color-surface-container-lowest);
+  color: var(--color-on-surface);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius);
+  font-family: var(--font-sans);
+}
+.react-chatbot-kit-chat-input::placeholder {
+  color: var(--color-outline);
+}
+.react-chatbot-kit-chat-input-container {
+  background-color: var(--color-surface-container-lowest);
+  border-top: 1px solid var(--color-outline-variant);
+}
+
+/* Burbuja del mensaje del USUARIO */
+.react-chatbot-kit-user-chat-message {
+  background-color: var(--color-surface-container);
+  color: var(--color-on-surface);
+  font-size: var(--text-body-md);
+  border-radius: var(--radius-xl);
+}
+/* Flecha de la burbuja del usuario */
+.react-chatbot-kit-user-chat-message-arrow {
+  border-left: 8px solid var(--color-surface-container);
+}
+
+/* Burbuja del mensaje del BOT */
+.react-chatbot-kit-chat-bot-message {
+  color: var(--color-on-tertiary);
+  font-size: var(--text-body-md);
+  border-radius: var(--radius-xl);
+}
+/* Flecha de la burbuja del bot */
+.react-chatbot-kit-chat-bot-message-arrow {
+  border-right: 8px solid var(--color-tertiary-container);
+}
+
+/* Avatar del Bot */
+.react-chatbot-kit-chat-bot-avatar-container {
+  background-color: var(--color-tertiary-container);
+}
+.react-chatbot-kit-chat-bot-avatar-icon {
+  fill: var(--color-on-tertiary);
+}
