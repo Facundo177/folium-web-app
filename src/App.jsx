@@ -12,7 +12,6 @@ import BookCatalog from "./pages/BookCatalog";
 import AuthLayout from "./components/Layouts/AuthLayout";
 import LoginForm from "./components/Login&RegisterComponents/LoginForm";
 import RegisterForm from "./components/Login&RegisterComponents/RegisterForm";
-import FoliumBot from "./chatbot/FoliumBot";
 import BotLayout from "./components/Layouts/BotLayout";
 
 function App() {
@@ -38,6 +37,8 @@ function App() {
             {/* The Count of Monte Cristo */}
             <Route path=":ISBN" element={<BookDetail />} />
           </Route>
+
+
             {/* element={
               isLoggedIn ? (
                 isAdmin ? (
