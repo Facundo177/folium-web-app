@@ -17,14 +17,14 @@ export default function FoliumBot() {
   const toggleBot = () => setIsOpen(!isOpen);
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 font-sans flex flex-col items-end">
+    <div className="fixed bottom-6 right-6 z-[100] font-sans">
       
       {/* 
         Contenedor del Chat con efecto de expansión desde el botón (origin-bottom-right)
         Conservamos el historial al no desmontar el componente.
       */}
       <div 
-        className={`mb-4 shadow-2xl rounded-2xl overflow-hidden border border-outline-variant bg-background transition-all duration-300 ease-out transform origin-bottom-right ${
+        className={`absolute bottom-16 right-0 shadow-2xl rounded-2xl overflow-hidden border border-outline-variant bg-background transition-all duration-300 ease-out transform origin-bottom-right ${
           isOpen 
             ? 'opacity-100 scale-100 pointer-events-auto translate-y-0' 
             : 'opacity-0 scale-0 pointer-events-none translate-y-12'
@@ -40,7 +40,7 @@ export default function FoliumBot() {
       {/* Botón Flotante (Toggle) */}
       <button
         onClick={toggleBot}
-        className="relative z-10 w-14 h-14 bg-tertiary-container text-on-tertiary rounded-full shadow-lg flex items-center justify-center hover:opacity-90 transition-transform hover:scale-105 active:scale-95"
+        className="w-14 h-14 bg-tertiary-container text-on-tertiary rounded-full shadow-lg flex items-center justify-center hover:opacity-90 transition-transform hover:scale-105 active:scale-95"
         aria-label={isOpen ? "Cerrar asistente" : "Abrir asistente"}
       >
         {isOpen ? <CloseIcon /> : <LibrarianBotIcon />}

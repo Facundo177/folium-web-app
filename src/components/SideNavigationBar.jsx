@@ -20,7 +20,7 @@ export default function SideNavigationBar() {
       {/* Botón Hamburguesa (Visible en móviles o pantallas pequeñas) */}
       <button 
         onClick={toggleSidebar}
-        className="fixed top-3 left-4 z-100 p-2 bg-surface-container rounded-md text-on-surface shadow-sm"
+        className="fixed top-3 left-4 z-150 p-2 bg-surface-container rounded-md text-on-surface shadow-sm"
         aria-label="Abrir menú"
       >
 
@@ -40,14 +40,14 @@ export default function SideNavigationBar() {
       {/* Fondo oscuro al abrir en móvil (Backdrop) */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-secondary/50 z-40" // md:hidden 
+          className="fixed inset-0 bg-secondary/50 z-90" // md:hidden 
           onClick={toggleSidebar}
         />
       )}
 
       {/* Sidebar */}
       <aside 
-        className={`fixed inset-y-0 left-0 z-50 w-72 bg-surface-container-lowest border-r border-outline-variant flex flex-col transition-transform duration-300 ease-in-out 
+        className={`fixed inset-y-0 left-0 z-100 w-72 bg-surface-container-lowest border-r border-outline-variant flex flex-col transition-transform duration-300 ease-in-out 
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
         {/* Header / Logo */}

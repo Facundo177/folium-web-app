@@ -66,17 +66,17 @@ export default function Book3DCarousel() {
     if (absOffset > 3) return { display: 'none' };
 
     // Cálculos de 3D Cover Flow
-    const scale = 1 - absOffset * 0.15; // Se achica un 15% por cada lugar de distancia
+    const scale = 1 - absOffset * 0.25; // Se achica un % por cada lugar de distancia
     const translateX = `${offset * 55}%`; // Se desplaza hacia los lados
-    const rotateY = `${-direction * 45}deg`; // Gira 45 grados mirando hacia el centro
+    const rotateY = `${-direction * 15}deg`; // Gira x grados mirando hacia el centro
     const opacity = 1 - absOffset * 0.35; // Se vuelve más transparente
     const zIndex = 50 - absOffset; // El central siempre está por encima
-
+    
     return {
       transform: `translateX(${translateX}) scale(${scale}) perspective(1000px) rotateY(${rotateY})`,
       zIndex: zIndex,
       opacity: opacity,
-      transition: 'all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1)',
+      transition: 'all 0.3s',
       // Efecto de reflejo en el suelo compatible con Webkit
       WebkitBoxReflect: 'below 2px linear-gradient(transparent, transparent 70%, rgba(255,255,255,0.3))'
     };
