@@ -6,12 +6,12 @@ import BookDetail from "./pages/BookDetail";
 import UserLayout from "./components/Layouts/UserLayout";
 import LibrarianLayout from "./components/Layouts/LibrarianLayout";
 import FoliumLanding from "./pages/FoliumLanding";
-import ProtectedRoute from "./components/Authentication/ProtectedRoute";
 import BookCatalog from "./pages/BookCatalog";
 import AuthLayout from "./components/Layouts/AuthLayout";
 import LoginForm from "./components/Login&RegisterComponents/LoginForm";
 import RegisterForm from "./components/Login&RegisterComponents/RegisterForm";
 import BotLayout from "./components/Layouts/BotLayout";
+import ProtectedRoute from "./auth/ProtectedRoute";
 
 function App() {
   // Replace this with your actual auth state (e.g., from Redux, Context, or a hook)
