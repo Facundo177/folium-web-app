@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import ArrowLeftIcon from "./ArrowLeftIcon";
 
 export default function GoBackButton(){
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const location = useLocation();
 
     const handleBack = () => {

@@ -14,7 +14,7 @@ class MessageParser {
     // Función auxiliar para buscar coincidencias en arrays de palabras clave
     const includesAny = (keywords) => keywords.some(word => normalizedMessage.includes(word));
 
-    if (includesAny(['catalogo', 'catalog', 'explorar', 'explore', 'descubrir', 'discover', 'libros', 'books', 'leer', 'read'])) {
+    if (includesAny(['catalogo', 'catalog', 'explorar', 'explore', 'descubrir', 'discover', 'libros', 'books', 'leer', 'read', 'recomendaciones'])) {
       this.actionProvider.handleCatalog();
       
     } else if (includesAny(['inventario', 'inventory', 'stock', 'estante', 'shelf', 'ubicacion', 'location', 'fisico', 'physical', 'gestionar'])) {
