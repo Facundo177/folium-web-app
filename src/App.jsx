@@ -39,48 +39,42 @@ function App() {
           </Route>
 
 
-            {/* element={
-              isLoggedIn ? (
-                isAdmin ? (
-                  <Navigate to="admin" replace />
-                ) : (
-                  <Navigate to="user" replace />
-                )
-              ) : (
-                <Navigate to="login" replace />
-              )
-            } */}
 
 
-          {/* Protected Routes Wrapper */}
-        <Route element={<ProtectedRoute isAuthenticated={isAuthenticated} />}>
-        
-          <Route path="user" element={<UserLayout />}>
-            <Route index element={<Navigate to="catalog" replace />} />
-            <Route path="catalog" element={<BookCatalog/>} />
-            <Route path="favourites" element={<></>} />
-          </Route>
-
-          <Route path="librarian" element={<UserLayout />}>
-            <Route index element={<Navigate to="inventory" replace />} />
-            <Route path="inventory">
-              <Route index element={<Inventory />} />
+          {/* Shared Protected Routes (Any logged in user) */}
+          <Route element={<ProtectedRoute allowedRoles={['USER', 'LIBRARIAN', 'ADMIN']} />}>
+            <Route path="user" element={<UserLayout />}>
+              <Route index element={<Navigate to="catalog" replace />} />
+              <Route path="catalog" element={<BookCatalog/>} />
+              <Route path="favourites" element={<></>} />
             </Route>
           </Route>
 
-          <Route path="admin" element={<AdminLayout />}>
-            <Route index element={<Navigate to="dashboard" replace />} />
-            <Route path="dashboard">
-              <Route index element={<></>} />
-              <Route path="settings" element={<></>} />
+          {/* Librarian Only Routes */}
+          <Route element={<ProtectedRoute allowedRoles={['LIBRARIAN', 'ADMIN']} />}>
+            <Route path="librarian" element={<UserLayout />}>
+              <Route index element={<Navigate to="inventory" replace />} />
+              <Route path="inventory">
+                <Route index element={<Inventory />} />
+              </Route>
             </Route>
           </Route>
 
-        </Route>
-          
+          {/* Admin Only Routes */}
+          <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
+            <Route path="admin" element={<AdminLayout />}>
+              <Route index element={<Navigate to="dashboard" replace />} />
+              <Route path="dashboard">
+                <Route index element={<></>} />
+                <Route path="settings" element={<></>} />
+              </Route>
+            </Route>
+          </Route>
+
+
         <Route path="*" element={<Error404 />} />
 
-                  </Route>
+        </Route>
 
         </Routes>
       </BrowserRouter>
