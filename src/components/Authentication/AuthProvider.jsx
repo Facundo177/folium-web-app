@@ -15,7 +15,8 @@ export const AuthProvider = ({ children }) => {
         const response = await api.get('/auth/me'); 
         setUser(response.data); // Expecting { id, name, role: 'LIBRARIAN' } etc.
       } catch (error) {
-        setUser(null);
+          setUser(null);
+          console.log(error);
       } finally {
         setIsLoading(false);
       }

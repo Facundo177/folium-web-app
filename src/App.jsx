@@ -4,8 +4,7 @@ import Inventory from "./pages/Inventory";
 import Error404 from "./pages/Error404";
 import BookDetail from "./pages/BookDetail";
 import UserLayout from "./components/Layouts/UserLayout";
-import { useState } from "react";
-import AdminLayout from "./components/Layouts/AdminLayout";
+import LibrarianLayout from "./components/Layouts/LibrarianLayout";
 import FoliumLanding from "./pages/FoliumLanding";
 import ProtectedRoute from "./components/Authentication/ProtectedRoute";
 import BookCatalog from "./pages/BookCatalog";
@@ -17,9 +16,6 @@ import BotLayout from "./components/Layouts/BotLayout";
 function App() {
   // Replace this with your actual auth state (e.g., from Redux, Context, or a hook)
   // const { isAuthenticated } = useAuth(); 
-
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
-  // const [isAdmin, setIsAdmin] = useState(false);
 
   return (
       <BrowserRouter>
@@ -39,10 +35,8 @@ function App() {
           </Route>
 
 
-
-
           {/* Shared Protected Routes (Any logged in user) */}
-          <Route element={<ProtectedRoute allowedRoles={['USER', 'LIBRARIAN', 'ADMIN']} />}>
+          <Route element={<ProtectedRoute allowedRoles={['USER', 'LIBRARIAN']} />}>
             <Route path="user" element={<UserLayout />}>
               <Route index element={<Navigate to="catalog" replace />} />
               <Route path="catalog" element={<BookCatalog/>} />
@@ -51,24 +45,29 @@ function App() {
           </Route>
 
           {/* Librarian Only Routes */}
-          <Route element={<ProtectedRoute allowedRoles={['LIBRARIAN', 'ADMIN']} />}>
+          <Route element={<ProtectedRoute allowedRoles={['LIBRARIAN']} />}>
             <Route path="librarian" element={<UserLayout />}>
               <Route index element={<Navigate to="inventory" replace />} />
               <Route path="inventory">
                 <Route index element={<Inventory />} />
               </Route>
             </Route>
-          </Route>
 
-          {/* Admin Only Routes */}
-          <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
-            <Route path="admin" element={<AdminLayout />}>
+            <Route path="admin" element={<LibrarianLayout />}>
               <Route index element={<Navigate to="dashboard" replace />} />
               <Route path="dashboard">
                 <Route index element={<></>} />
                 <Route path="settings" element={<></>} />
               </Route>
             </Route>
+
+
+
+          </Route>
+
+          {/* Admin Only Routes */}
+          <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
+            
           </Route>
 
 
