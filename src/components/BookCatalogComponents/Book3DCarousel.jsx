@@ -191,3 +191,74 @@ const ChevronLeftIcon = () => (
 const ChevronRightIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
 );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* 3D COVERFLOW ENGINE */
+            let currentIndex = 0;
+            const items = Array.from(document.querySelectorAll('.coverflow-item'));
+            const totalItems = items.length;
+
+            function renderCoverflow() {
+      const isMobile = window.innerWidth < 640;
+            const spacing = isMobile ? 130 : 210;
+
+      items.forEach((item, idx) => {
+        const offset = idx - currentIndex;
+            const absOffset = Math.abs(offset);
+
+            if (offset === 0) {
+                item.style.transform = `translateX(0px) translateZ(120px) rotateY(0deg) scale(1.08)`;
+            item.style.zIndex = 30;
+            item.style.opacity = '1';
+            item.style.filter = 'brightness(1)';
+            item.classList.add('is-active');
+            item.style.pointerEvents = 'auto';
+        } else if (offset < 0) {
+          const tx = (offset * spacing) - 40;
+            const tz = -Math.min(absOffset * 100, 320);
+            item.style.transform = `translateX(${tx}px) translateZ(${tz}px) rotateY(38deg) scale(${Math.max(0.85 - absOffset * 0.05, 0.7)})`;
+            item.style.zIndex = 20 - absOffset;
+          item.style.opacity = absOffset > 2 ? '0.2' : absOffset === 2 ? '0.55' : '0.85';
+            item.style.filter = isDarkMode ? `brightness(${Math.max(0.45, 0.9 - absOffset * 0.2)})` : `brightness(${Math.max(0.75, 0.95 - absOffset * 0.1)})`;
+            item.classList.remove('is-active');
+            item.style.pointerEvents = 'auto';
+        } else {
+          const tx = (offset * spacing) + 40;
+            const tz = -Math.min(absOffset * 100, 320);
+            item.style.transform = `translateX(${tx}px) translateZ(${tz}px) rotateY(-38deg) scale(${Math.max(0.85 - absOffset * 0.05, 0.7)})`;
+            item.style.zIndex = 20 - absOffset;
+          item.style.opacity = absOffset > 2 ? '0.2' : absOffset === 2 ? '0.55' : '0.85';
+            item.style.filter = isDarkMode ? `brightness(${Math.max(0.45, 0.9 - absOffset * 0.2)})` : `brightness(${Math.max(0.75, 0.95 - absOffset * 0.1)})`;
+            item.classList.remove('is-active');
+            item.style.pointerEvents = 'auto';
+        }
+      });
+
+            const indicatorBtns = document.querySelectorAll('#coverflow-indicators button');
+      indicatorBtns.forEach((btn, idx) => {
+        if (idx === currentIndex) {
+                btn.className = isDarkMode
+                    ? "h-1.5 rounded-full transition-all duration-300 w-8 bg-butcher"
+                    : "h-1.5 rounded-full transition-all duration-300 w-8 bg-vampire";
+        } else {
+                btn.className = isDarkMode
+                    ? "h-1.5 rounded-full transition-all duration-300 w-2.5 bg-rooster hover:bg-butcher"
+                    : "h-1.5 rounded-full transition-all duration-300 w-2.5 bg-butcher/40 hover:bg-vampire";
+        }
+      });
+    }

@@ -12,8 +12,19 @@ import LoginForm from "./components/Login&RegisterComponents/LoginForm";
 import RegisterForm from "./components/Login&RegisterComponents/RegisterForm";
 import BotLayout from "./components/Layouts/BotLayout";
 import ProtectedRoute from "./auth/ProtectedRoute";
+import CatalogView from "./pages/CatalogView";
+import { useEffect, useState } from "react";
 
 function App() {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  // Alternar tema oscuro en el tag HTML
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
   // Replace this with your actual auth state (e.g., from Redux, Context, or a hook)
   // const { isAuthenticated } = useAuth(); 
 
@@ -40,6 +51,7 @@ function App() {
             <Route path="user" element={<UserLayout />}>
               <Route index element={<Navigate to="catalog" replace />} />
               <Route path="catalog" element={<BookCatalog/>} />
+              <Route path="catalog/new" element={<CatalogView/>} />
               <Route path="favourites" element={<></>} />
             </Route>
           </Route>
