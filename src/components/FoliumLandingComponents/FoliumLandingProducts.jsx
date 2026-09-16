@@ -1,11 +1,4 @@
-import { useNavigate } from "react-router-dom";
-
-export default function FoliumLandingProducts() {
-
-  const navigate = useNavigate();
-
-  const handleUserButtonClick = () => navigate("/user");
-  const handleLibrarianButtonClick = () => navigate("/librarian");
+export default function FoliumLandingProducts({handleUserButtonClick, handleLibrarianButtonClick}) {
 
   return (
     <section className="bg-background py-stack-lg px-margin-edge font-sans">

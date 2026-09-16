@@ -1,3 +1,5 @@
+import CloseIcon from "../BasicUIComponents/CloseIcon";
+
 export default function BookModal({ book, onClose, showToast }) {
   if (!book) return null;
 
@@ -16,7 +18,7 @@ export default function BookModal({ book, onClose, showToast }) {
           className="absolute top-4 right-4 text-antique dark:text-[#f4ecd8] hover:text-vampire dark:hover:text-[#f4ecd8] transition-colors"
           onClick={onClose}
         >
-          <span className="material-symbols-outlined text-[24px]">close</span>
+          <CloseIcon/>
         </button>
         
         <div className="flex items-center gap-2">

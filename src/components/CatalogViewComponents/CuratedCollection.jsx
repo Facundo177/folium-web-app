@@ -1,3 +1,6 @@
+import ArrowRightIcon from "../BasicUIComponents/ArrowRightIcon";
+import StarIcon from "../BasicUIComponents/StarIcon";
+
 const gothicBooks = [
   {
     id: 1,
@@ -52,9 +55,7 @@ export default function CuratedCollection({ onOpenModal, showToast }) {
               </span>
               <button className="px-4 py-2 rounded bg-[#ede6d8] dark:bg-rooster/80 border border-[#d8cfbe] dark:border-rooster font-cinzel text-xs font-semibold tracking-wider flex items-center gap-1.5 uppercase">
                 Ver serie completa{" "}
-                <span className="material-symbols-outlined text-[16px]">
-                  arrow_forward
-                </span>
+                <ArrowRightIcon/>
               </button>
             </div>
           </div>
@@ -75,9 +76,7 @@ export default function CuratedCollection({ onOpenModal, showToast }) {
                       className="w-8 h-8 rounded-full bg-sheep/90 text-butcher hover:text-rose-400 border border-rooster flex items-center justify-center shadow-sm transition-colors"
                       onClick={() => showToast(`Guardado en favoritos`)}
                     >
-                      <span className="material-symbols-outlined text-[18px]">
-                        favorite
-                      </span>
+                      <StarIcon/>
                     </button>
                   </div>
                   <div className="my-auto text-center py-6">

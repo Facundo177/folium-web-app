@@ -14,14 +14,14 @@ export default function FoliumLandingBackground() {
 
       {/* Caligrafía cursiva (Filigrana - Requiere fuente Great Vibes u otra cursiva en tu HTML) */}
       <div 
-        className="absolute top-[30%] left-[8%] md:left-[15%] opacity-[0.04] text-tertiary-container -rotate-[10deg] select-none whitespace-nowrap"
+        className="absolute top-[20%] left-[8%] md:left-[15%] opacity-[0.04] text-tertiary-container -rotate-[10deg] select-none whitespace-nowrap"
         style={{ fontFamily: "'Great Vibes', 'Cedarville Cursive', cursive", fontSize: '4rem' }}
       >
         Carpe librum
         
       </div>
       <div 
-        className="absolute bottom-[20%] right-[5%] md:right-[15%] opacity-[0.04] text-tertiary-container -rotate-[8deg] select-none whitespace-nowrap"
+        className="absolute bottom-[10%] right-[5%] md:right-[15%] opacity-[0.04] text-tertiary-container -rotate-[8deg] select-none whitespace-nowrap"
         style={{ fontFamily: "'Great Vibes', 'Cedarville Cursive', cursive", fontSize: '3.5rem' }}
       >
         Ex Libris et Memoria

@@ -1,6 +1,6 @@
 export default function ScrollIndicator(){
     return(
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-stack-sm z-10">
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden sm:flex flex-col items-center gap-stack-sm z-10">
           <span className="text-label-caps text-on-surface-variant">
             Desplazar
           </span>

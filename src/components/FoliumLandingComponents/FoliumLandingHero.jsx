@@ -12,7 +12,7 @@ export default function FoliumLandingHero() {
 
       {/* Tipografía Principal (Escalada mediante clamp para ocupar el centro) */}
       <h1 className="font-serif text-tertiary-container leading-none mb-stack-sm" style={{ fontSize: 'clamp(4rem, 12vw, 8rem)' }}>
-        <div className="w-100">
+        <div className="w-80 sm:w-100">
         <FoliumFullLogo />
         </div>
       </h1>
