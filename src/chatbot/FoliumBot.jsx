@@ -6,6 +6,7 @@ import config from './config';
 import MessageParser from './MessageParser';
 import ActionProvider from './ActionProvider';
 import { useState } from 'react';
+import { useAuth } from '../auth/AuthProvider';
 
 // 2. Solución Vite/ESM: Extraemos el componente '.default' si Vite lo envolvió en un objeto, 
 // de lo contrario, usamos el módulo normalmente.
@@ -13,8 +14,19 @@ const Chatbot = ChatbotModule.default ? ChatbotModule.default : ChatbotModule;
 
 export default function FoliumBot() {
   const [isOpen, setIsOpen] = useState(false);
+  const { user } = useAuth(); // Obtenemos al usuario actual
 
   const toggleBot = () => setIsOpen(!isOpen);
+
+  // Sobrescribimos el estado inicial de la configuración para inyectar el rol
+  const dynamicConfig = {
+    ...config,
+    state: {
+      ...config.state,
+      // Si hay usuario guardamos su rol, si no, es 'GUEST'
+      userRole: user ? user.role : 'GUEST', 
+    }
+  };
 
   return (
     <div className="fixed bottom-6 right-6 z-[100] font-sans">
@@ -31,7 +43,7 @@ export default function FoliumBot() {
         }`}
       >
         <Chatbot
-          config={config}
+          config={dynamicConfig} // Pasamos la config con el rol inyectado
           messageParser={MessageParser}
           actionProvider={ActionProvider}
         />

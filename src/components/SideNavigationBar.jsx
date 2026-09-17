@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import MenuToX from './BasicUIComponents/MenuToX';
+import HeartIcon from './BasicUIComponents/HeartIcon';
 
 export default function SideNavigationBar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -8,8 +9,8 @@ export default function SideNavigationBar() {
 
   // Lista de navegación principal
   const mainNavItems = [
-    { name: 'DASHBOARD', icon: <DashboardIcon />, active: false },
-    { name: 'INVENTORY', icon: <BookIcon />, active: true },
+    { name: 'FAVOURITES', icon: <HeartIcon />, active: true },
+    { name: 'INVENTORY', icon: <BookIcon />, active: false },
     { name: 'ORDERS', icon: <OrdersIcon />, active: false },
     { name: 'CUSTOMERS', icon: <CustomersIcon />, active: false },
     { name: 'REPORTS', icon: <ReportsIcon />, active: false },

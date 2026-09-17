@@ -6,7 +6,7 @@ const mock = new MockAdapter(api, { delayResponse: 800 });
 
 // --- CONFIGURACIÓN DE PRUEBA ---
 // Cambia este objeto para probar diferentes escenarios.
-// Roles disponibles en tu app: 'USER', 'LIBRARIAN', 'ADMIN'
+// Roles disponibles en tu app: 'USER', 'LIBRARIAN'
 const fakeUser = { 
   id: 1, 
   name: "Facundo Gaitán", 

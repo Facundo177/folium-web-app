@@ -3,7 +3,7 @@ import BookCover from "../components/BookDetailComponents/BookCover";
 import BookDetailHeader from "../components/BookDetailComponents/BookDetailHeader";
 import BookInfo from "../components/BookDetailComponents/BookInfo";
 import CurrentStock from "../components/BookDetailComponents/CurrentStock";
-import RecentActivity from "../components/BookDetailComponents/RecentActivity";
+import BookReviews from "../components/BookDetailComponents/BookReviews";
 
 export default function BookDetail() {
   let params = useParams();
@@ -28,7 +28,8 @@ export default function BookDetail() {
         {/* Columna Derecha (2/3) */}
         <div className="md:col-span-2 flex flex-col gap-stack-lg">
           <BookInfo ISBN={params.ISBN} />
-          <RecentActivity />
+          {/* <RecentActivity /> */}
+          <BookReviews/>
         </div>
       </div>
     </div>
