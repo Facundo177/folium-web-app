@@ -52,8 +52,6 @@ function App() {
             <Route path="user" element={<UserLayout />}>
               <Route index element={<Navigate to="catalog" replace />} />
               <Route path="catalog" element={<BookCatalog/>} />
-              <Route path="catalog/new" element={<CatalogView/>} />
-              <Route path="catalog/search" element={<CatalogSearchPage/>} />
               <Route path="favourites" element={<></>} />
             </Route>
           </Route>
