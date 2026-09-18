@@ -12,6 +12,7 @@ export default function FoliumLanding() {
   const handleRegisterButtonClick = () => navigate("/register");
   const handleUserButtonClick = () => navigate("/user");
   const handleLibrarianButtonClick = () => navigate("/librarian");
+  const handleCatalogButtonClick = () => navigate("/user/catalog");
 
   return (
     <div>
@@ -24,7 +25,7 @@ export default function FoliumLanding() {
         />
 
         <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-margin-edge mt-stack-lg md:mt-0">
-          <FoliumLandingHero />
+          <FoliumLandingHero handleCatalogButtonClick={handleCatalogButtonClick} />
         </main>
 
         <ScrollIndicator />

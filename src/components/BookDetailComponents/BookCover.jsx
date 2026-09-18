@@ -3,7 +3,7 @@ export default function BookCover({
   alt = "The Count of Monte Cristo Cover",
 }) {
   return (
-    <div className="border border-outline-variant rounded-DEFAULT bg-surface-container-lowest p-gutter flex flex-col justify-center items-center h-full min-h-[300px] shadow-sm">
+    <div className="border border-outline-variant rounded-DEFAULT bg-surface-container-lowest p-gutter flex flex-col justify-center items-center h-full shadow-sm">
       <img
         src={imageSrc}
         alt={alt}

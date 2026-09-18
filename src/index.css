@@ -8,7 +8,7 @@
 @theme {
   /* Mapeo de Colores */
   --color-on-primary-fixed: #1c1b1b;
-  --color-tertiary-container: #40000c;
+  --color-tertiary-container: #60000c;
   --color-surface-container: #efeded;
   --color-inverse-primary: #c8c6c5;
   --color-on-tertiary-fixed-variant: #7d2a33;
@@ -20,7 +20,7 @@
   --color-inverse-on-surface: #f2f0f0;
   --color-surface-bright: #fbf9f8;
   --color-surface-container-highest: #e4e2e2;
-  --color-on-tertiary-fixed: #40000c;
+  --color-on-tertiary-fixed: #60000c;
   --color-tertiary: #000000;
   --color-on-secondary: #ffffff;
   --color-background: #fbf9f8;

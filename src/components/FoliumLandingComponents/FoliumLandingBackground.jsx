@@ -13,7 +13,7 @@ export default function FoliumLandingBackground() {
       </svg>
 
       {/* Caligrafía cursiva (Filigrana - Requiere fuente Great Vibes u otra cursiva en tu HTML) */}
-      <div 
+      {/* <div 
         className="absolute top-[20%] left-[8%] md:left-[15%] opacity-[0.04] text-tertiary-container -rotate-[10deg] select-none whitespace-nowrap"
         style={{ fontFamily: "'Great Vibes', 'Cedarville Cursive', cursive", fontSize: '4rem' }}
       >
@@ -25,7 +25,7 @@ export default function FoliumLandingBackground() {
         style={{ fontFamily: "'Great Vibes', 'Cedarville Cursive', cursive", fontSize: '3.5rem' }}
       >
         Ex Libris et Memoria
-      </div>
+      </div> */}
     </div>
   );
 }

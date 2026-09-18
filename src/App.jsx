@@ -12,9 +12,9 @@ import LoginForm from "./components/Login&RegisterComponents/LoginForm";
 import RegisterForm from "./components/Login&RegisterComponents/RegisterForm";
 import BotLayout from "./components/Layouts/BotLayout";
 import ProtectedRoute from "./auth/ProtectedRoute";
-import CatalogView from "./pages/CatalogView";
+
 import { useEffect, useState } from "react";
-import CatalogSearchPage from "./pages/CatalogSearchPage";
+
 
 function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -26,6 +26,8 @@ function App() {
       document.documentElement.classList.remove('dark');
     }
   }, [isDarkMode]);
+
+
   // Replace this with your actual auth state (e.g., from Redux, Context, or a hook)
   // const { isAuthenticated } = useAuth(); 
 

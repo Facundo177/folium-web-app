@@ -8,12 +8,12 @@ export default function AuthSidebar({ handleLandingButtonClick }) {
       <div>
         <button
           onClick={handleLandingButtonClick}
-          className="cursor-pointer hover:shadow-2xl w-full flex items-center gap-3 mb-16 bg-inverse-surface p-2"
+          className="w-full flex items-center gap-3 bg-inverse-surface p-3 rounded-lg border border-outline-variant/10 cursor-pointer hover:bg-outline/20 transition-colors"
         >
           <div className="w-5 h-10 bg-inverse-surface rounded flex items-center justify-center">
             <ArrowLeftIcon />
           </div>
-          <div className="w-10 h-10 bg-inverse-surface rounded flex items-center justify-center border">
+          <div className="w-10 h-10 bg-inverse-surface rounded flex items-center justify-center">
             <FoliumSmallLogo />
           </div>
           <div className="flex flex-col">
@@ -27,7 +27,7 @@ export default function AuthSidebar({ handleLandingButtonClick }) {
         </button>
 
         {/* Hero Text */}
-        <h2 className="text-display-lg-mobile md:text-display-lg font-serif text-on-primary mb-6 leading-tight">
+        <h2 className="text-display-lg-mobile md:text-display-lg font-serif text-on-primary mb-6 mt-6 leading-tight">
           Tu catálogo,
           <br />
           siempre contigo.

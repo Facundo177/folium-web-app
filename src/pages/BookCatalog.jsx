@@ -6,9 +6,6 @@ import BorrowingInstructions from "../components/BookCatalogComponents/Borrowing
 import BookCoverFlow from "../components/CatalogViewComponents/BookCoverFlow";
 import CatalogSearchPage from "./CatalogSearchPage";
 import CuratedCollection from "../components/CatalogViewComponents/CuratedCollection";
-import FilterDrawer from "../components/CatalogViewComponents/FilterDrawer";
-import FavoritesDrawer from "../components/CatalogViewComponents/FavouritesDrawer";
-import BookModal from "../components/CatalogViewComponents/BookModal";
 import Toast from "../components/BasicUIComponents/Toast";
 
 export default function BookCatalog() {
