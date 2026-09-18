@@ -14,6 +14,7 @@ import BotLayout from "./components/Layouts/BotLayout";
 import ProtectedRoute from "./auth/ProtectedRoute";
 import CatalogView from "./pages/CatalogView";
 import { useEffect, useState } from "react";
+import CatalogSearchPage from "./pages/CatalogSearchPage";
 
 function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -52,6 +53,7 @@ function App() {
               <Route index element={<Navigate to="catalog" replace />} />
               <Route path="catalog" element={<BookCatalog/>} />
               <Route path="catalog/new" element={<CatalogView/>} />
+              <Route path="catalog/search" element={<CatalogSearchPage/>} />
               <Route path="favourites" element={<></>} />
             </Route>
           </Route>
