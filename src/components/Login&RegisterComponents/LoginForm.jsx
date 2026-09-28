@@ -1,15 +1,14 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useOutletContext } from "react-router-dom";
 import PasswordEye from "../BasicUIComponents/PasswordEye";
 import { useAuth } from "../../auth/AuthProvider";
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  const { username, password, setUsername, setPassword } = useOutletContext();
   const { login } = useAuth();
   const navigate = useNavigate();
 

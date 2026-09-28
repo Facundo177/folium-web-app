@@ -1,7 +1,13 @@
 import FoliumSmallLogo from "../BasicUIComponents/FoliumSmallLogo";
 import ArrowLeftIcon from "../BasicUIComponents/ArrowLeftIcon";
 
-export default function AuthSidebar({ handleLandingButtonClick }) {
+const demoAccounts = [
+  { name: "Admin Sistema", role: "Admin", username: "admin", password: "admin1234" },
+  { name: "María Fernández", role: "Librarian", username: "mfernandez", password: "biblio1234" },
+  { name: "Lucas Rodríguez", role: "Lector", username: "lrodriguez", password: "lector1234" },
+];
+
+export default function AuthSidebar({ handleLandingButtonClick, onDemoAccountSelect }) {
   return (
     <div className="flex flex-col justify-between h-full bg-primary-container text-on-primary p-12">
       {/* Header / Logo */}
@@ -45,31 +51,24 @@ export default function AuthSidebar({ handleLandingButtonClick }) {
         </h3>
 
         <div className="flex flex-col gap-3">
-          {/* Tarjeta Lector */}
-          <div className="bg-inverse-surface p-4 rounded-lg border border-outline-variant/10 cursor-pointer hover:bg-outline/20 transition-colors">
-            <p className="text-body-md text-on-primary font-medium">
-              E. P. Smith{" "}
-              <span className="text-on-primary-container font-normal">
-                · Lector
-              </span>
-            </p>
-            <p className="text-body-md text-on-primary-container mt-1">
-              usuario@biblioteca.com / 1234
-            </p>
-          </div>
-
-          {/* Tarjeta Admin */}
-          <div className="bg-inverse-surface p-4 rounded-lg border border-outline-variant/10 cursor-pointer hover:bg-outline/20 transition-colors">
-            <p className="text-body-md text-on-primary font-medium">
-              Administrador{" "}
-              <span className="text-on-primary-container font-normal">
-                · Admin
-              </span>
-            </p>
-            <p className="text-body-md text-on-primary-container mt-1">
-              admin@biblioteca.com / admin
-            </p>
-          </div>
+          {demoAccounts.map((account) => (
+            <button
+              key={account.username}
+              type="button"
+              onClick={() => onDemoAccountSelect(account)}
+              className="w-full text-left bg-inverse-surface p-4 rounded-lg border border-outline-variant/10 cursor-pointer hover:bg-outline/20 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-primary"
+            >
+              <p className="text-body-md text-on-primary font-medium">
+                {account.name}{" "}
+                <span className="text-on-primary-container font-normal">
+                  · {account.role}
+                </span>
+              </p>
+              <p className="text-body-md text-on-primary-container mt-1">
+                {account.username} / {account.password}
+              </p>
+            </button>
+          ))}
         </div>
       </div>
     </div>
