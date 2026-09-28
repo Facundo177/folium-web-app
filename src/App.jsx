@@ -17,7 +17,7 @@ import { useEffect, useState } from "react";
 
 
 function App() {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode] = useState(false);
   // Alternar tema oscuro en el tag HTML
   useEffect(() => {
     if (isDarkMode) {
@@ -50,7 +50,7 @@ function App() {
 
 
           {/* Shared Protected Routes (Any logged in user) */}
-          <Route element={<ProtectedRoute allowedRoles={['USER', 'LIBRARIAN']} />}>
+          <Route element={<ProtectedRoute allowedRoles={['USER', 'LIBRARIAN', 'ADMIN']} />}>
             <Route path="user" element={<UserLayout />}>
               <Route index element={<Navigate to="catalog" replace />} />
               <Route path="catalog" element={<BookCatalog/>} />
@@ -58,8 +58,8 @@ function App() {
             </Route>
           </Route>
 
-          {/* Librarian Only Routes */}
-          <Route element={<ProtectedRoute allowedRoles={['LIBRARIAN']} />}>
+          {/* Librarian & Admin Routes */}
+          <Route element={<ProtectedRoute allowedRoles={['LIBRARIAN', 'ADMIN']} />}>
             <Route path="librarian" element={<UserLayout />}>
               <Route index element={<Navigate to="inventory" replace />} />
               <Route path="inventory">
@@ -74,14 +74,6 @@ function App() {
                 <Route path="settings" element={<></>} />
               </Route>
             </Route>
-
-
-
-          </Route>
-
-          {/* Admin Only Routes */}
-          <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
-            
           </Route>
 
 
