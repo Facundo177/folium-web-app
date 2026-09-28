@@ -7,6 +7,7 @@ import UserLayout from "./components/Layouts/UserLayout";
 import LibrarianLayout from "./components/Layouts/LibrarianLayout";
 import FoliumLanding from "./pages/FoliumLanding";
 import BookCatalog from "./pages/BookCatalog";
+import Test from "./pages/Test";
 import AuthLayout from "./components/Layouts/AuthLayout";
 import LoginForm from "./components/Login&RegisterComponents/LoginForm";
 import RegisterForm from "./components/Login&RegisterComponents/RegisterForm";
@@ -42,6 +43,7 @@ function App() {
             <Route path="register" element={<RegisterForm />} />
             <Route path="login" element={<LoginForm />} />
           </Route>
+          {import.meta.env.DEV && <Route path="test" element={<Test />} />}
           <Route path="book">
             <Route index element={<Navigate to="9780140449266" replace />} /> 
             {/* The Count of Monte Cristo */}
