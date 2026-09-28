@@ -4,7 +4,14 @@ import { itemService } from '../api/services/itemService';
 /**
  * Hook para gestionar el inventario de ejemplares físicos.
  * Encapsula el estado (items, isLoading, error) y las llamadas a itemService.
- *
+ * 
+ * {
+ *  books,      // items que ya están en el estado del hook 
+ *  isLoading,  // true mientras se está haciendo la petición
+ *  error,      // mensaje si falló; null si no hay error
+ *  refetch     // función para volver a pedirlo
+ * }
+ * 
  * Uso:
  *   const { items, isLoading, error, refetch } = useInventory();
  */

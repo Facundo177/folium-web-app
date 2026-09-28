@@ -4,7 +4,14 @@ import { bookService } from '../api/services/bookService';
 /**
  * Hook para gestionar el catálogo de libros.
  * Encapsula el estado (books, isLoading, error) y las llamadas a bookService.
- *
+ * 
+ * {
+ *  books,      // libros que ya están en el estado del hook 
+ *  isLoading,  // true mientras se está haciendo la petición
+ *  error,      // mensaje si falló; null si no hay error
+ *  refetch     // función para volver a pedirlo
+ * }
+ * 
  * Uso:
  *   const { books, isLoading, error, refetch } = useBooks({ search: 'Borges' });
  */
