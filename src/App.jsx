@@ -7,6 +7,7 @@ import UserLayout from "./components/Layouts/UserLayout";
 import LibrarianLayout from "./components/Layouts/LibrarianLayout";
 import FoliumLanding from "./pages/FoliumLanding";
 import BookCatalog from "./pages/BookCatalog";
+import Test from "./pages/Test";
 import AuthLayout from "./components/Layouts/AuthLayout";
 import LoginForm from "./components/Login&RegisterComponents/LoginForm";
 import RegisterForm from "./components/Login&RegisterComponents/RegisterForm";
@@ -17,7 +18,7 @@ import { useEffect, useState } from "react";
 
 
 function App() {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode] = useState(false);
   // Alternar tema oscuro en el tag HTML
   useEffect(() => {
     if (isDarkMode) {
@@ -42,6 +43,7 @@ function App() {
             <Route path="register" element={<RegisterForm />} />
             <Route path="login" element={<LoginForm />} />
           </Route>
+          {import.meta.env.DEV && <Route path="test" element={<Test />} />}
           <Route path="book">
             <Route index element={<Navigate to="9780140449266" replace />} /> 
             {/* The Count of Monte Cristo */}
@@ -50,7 +52,7 @@ function App() {
 
 
           {/* Shared Protected Routes (Any logged in user) */}
-          <Route element={<ProtectedRoute allowedRoles={['USER', 'LIBRARIAN']} />}>
+          <Route element={<ProtectedRoute allowedRoles={['USER', 'LIBRARIAN', 'ADMIN']} />}>
             <Route path="user" element={<UserLayout />}>
               <Route index element={<Navigate to="catalog" replace />} />
               <Route path="catalog" element={<BookCatalog/>} />
@@ -58,8 +60,8 @@ function App() {
             </Route>
           </Route>
 
-          {/* Librarian Only Routes */}
-          <Route element={<ProtectedRoute allowedRoles={['LIBRARIAN']} />}>
+          {/* Librarian & Admin Routes */}
+          <Route element={<ProtectedRoute allowedRoles={['LIBRARIAN', 'ADMIN']} />}>
             <Route path="librarian" element={<UserLayout />}>
               <Route index element={<Navigate to="inventory" replace />} />
               <Route path="inventory">
@@ -74,14 +76,6 @@ function App() {
                 <Route path="settings" element={<></>} />
               </Route>
             </Route>
-
-
-
-          </Route>
-
-          {/* Admin Only Routes */}
-          <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
-            
           </Route>
 
 

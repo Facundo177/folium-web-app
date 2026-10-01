@@ -1,9 +1,42 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useOutletContext } from "react-router-dom";
 import PasswordEye from "../BasicUIComponents/PasswordEye";
+import { useAuth } from "../../auth/AuthProvider";
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { username, password, setUsername, setPassword } = useOutletContext();
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setIsLoading(true);
+    try {
+      const loggedUser = await login(username, password);
+
+      // Redirección condicional según rol:
+      if (loggedUser?.role === "ADMIN") {
+        navigate("/admin/dashboard", { replace: true });
+      } else if (loggedUser?.role === "LIBRARIAN") {
+        navigate("/librarian/inventory", { replace: true });
+      } else {
+        // Lector (USER) o por defecto
+        navigate("/user/catalog", { replace: true });
+      }
+    } catch (err) {
+      setError(
+        err.response?.data?.detail ||
+          "Credenciales incorrectas. Verificá tu usuario y contraseña."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="w-full max-w-[400px] flex flex-col items-center">
@@ -31,16 +64,18 @@ export default function LoginForm() {
       </div>
 
       {/* Formulario */}
-      <form className="w-full flex flex-col gap-5">
-        {/* Campo Correo */}
+      <form className="w-full flex flex-col gap-5" onSubmit={handleSubmit}>
+        {/* Campo Usuario */}
         <div className="flex flex-col gap-2">
           <label className="text-label-caps text-on-surface font-bold">
-            CORREO ELECTRÓNICO
+            USUARIO
           </label>
           <input
             required
-            type="email"
-            placeholder="tu@correo.com"
+            type="text"
+            placeholder="tu_usuario"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-outline transition-colors placeholder:text-on-surface-variant"
           />
         </div>
@@ -55,6 +90,8 @@ export default function LoginForm() {
               required
               type={showPassword ? "text" : "password"}
               placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-outline transition-colors placeholder:text-outline"
             />
             <button
@@ -62,17 +99,25 @@ export default function LoginForm() {
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface-variant transition-colors"
             >
-              <PasswordEye open={showPassword}/>
+              <PasswordEye open={showPassword} />
             </button>
           </div>
         </div>
 
+        {/* Mensaje de error */}
+        {error && (
+          <p className="text-body-sm text-error bg-error-container px-3 py-2 rounded-lg">
+            {error}
+          </p>
+        )}
+
         {/* Botón Submit */}
         <button
           type="submit"
-          className="w-full bg-on-tertiary-fixed-variant text-on-tertiary text-body-lg font-medium py-3 rounded-lg mt-2 hover:opacity-90 transition-opacity"
+          disabled={isLoading}
+          className="w-full bg-on-tertiary-fixed-variant text-on-tertiary text-body-lg font-medium py-3 rounded-lg mt-2 hover:opacity-90 transition-opacity disabled:opacity-60"
         >
-          Entrar
+          {isLoading ? "Ingresando..." : "Entrar"}
         </button>
       </form>
 
