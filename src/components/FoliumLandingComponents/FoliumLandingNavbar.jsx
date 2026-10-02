@@ -1,5 +1,6 @@
 import FoliumSmallLogo from "../BasicUIComponents/FoliumSmallLogo";
 
+
 export default function FoliumLandingNavbar({
   handleLoginButtonClick,
   handleRegisterButtonClick,
@@ -14,6 +15,7 @@ export default function FoliumLandingNavbar({
         <span className="font-serif text-headline-md text-on-surface group-hover:text-tertiary-container transition-colors">
           folium
         </span>
+
       </div>
 
       {/* Enlaces Centrales (Ocultos en móviles) */}

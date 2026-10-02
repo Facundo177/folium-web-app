@@ -102,6 +102,8 @@ export default function SideNavigationBar() {
               <SupportIcon />
               <span className="text-label-caps mt-1">SUPPORT</span>
             </a>
+
+
           </div>
 
           {/* Perfil de Usuario */}

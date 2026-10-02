@@ -126,6 +126,7 @@ El proyecto utiliza Tailwind v4 con variables CSS personalizadas que definen la 
 
 ### Instalación y Ejecución
 1.  Clonar el repositorio.
+    
     Con SSH:
     ```bash
     git clone git@github.com:Facundo177/folium-web-app.git
