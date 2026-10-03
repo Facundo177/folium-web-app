@@ -1,16 +1,10 @@
 export default function BookInfo({
-  ISBN = '9780140449266',
-  title = 'The Count of Monte Cristo',
-  author = 'Alexandre Dumas',
-  publicationDate = '1844',
-  publisher = 'Penguin Classics',
-  language = 'English (Trans.)',
-  description = `A sweeping epic of revenge, justice, and redemption. This particular edition features a 
-          contemporary translation that preserves the romanticism of Dumas' original serialized prose. 
-          Condition notes indicate slight foxing on the endpapers, consistent with its archival status, 
-          but binding remains exceptionally tight. A cornerstone piece for any serious collection of 
-          19th-century French literature.`,
-  tags = ['Fiction', 'Adventure', 'Classic'],
+  ISBN = '',
+  title = '',
+  author = '',
+  publicationDate = '',
+  description = ``,
+  tags = [],
 }) {
 
   return (
@@ -26,7 +20,7 @@ export default function BookInfo({
       </div>
 
       {/* Grid de Metadatos */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-stack-sm mb-stack-md">
+      <div className="grid grid-cols-2 md:grid-cols-2 gap-stack-sm mb-stack-md">
         <div className="border border-outline-variant bg-surface-container-lowest p-3">
           <p className="text-label-caps text-on-surface-variant mb-1">
             ISBN-13
@@ -43,22 +37,6 @@ export default function BookInfo({
             {publicationDate}
           </p>
         </div>
-        <div className="border border-outline-variant bg-surface-container-lowest p-3">
-          <p className="text-label-caps text-on-surface-variant mb-1">
-            Publisher
-          </p>
-          <p className="text-body-md text-on-surface">
-            {publisher}
-          </p>
-        </div>
-        <div className="border border-outline-variant bg-surface-container-lowest p-3">
-          <p className="text-label-caps text-on-surface-variant mb-1">
-            Language
-          </p>
-          <p className="text-body-md text-on-surface">
-            {language}
-          </p>
-        </div>
       </div>
 
       {/* Nota del Curador */}
@@ -67,13 +45,13 @@ export default function BookInfo({
           Curator's Note / Summary
         </h3>
         <p className="text-body-md text-on-surface mb-stack-md leading-relaxed">
-          {description}
+          {description || "No description available."}
         </p>
         {/* Etiquetas (Tags) */}
-        <div className="flex gap-2">
-            {tags.map((tag, key) => (
+        <div className="flex gap-2 flex-wrap">
+            {tags.map((tag) => (
                 <span 
-                    key={key}
+                    key={tag}
                     className="border border-outline-variant bg-surface-container px-3 py-1 text-label-caps text-on-surface-variant rounded-sm"
                 >
                     {tag}

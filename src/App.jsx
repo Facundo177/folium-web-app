@@ -45,15 +45,16 @@ function App() {
             <Route path="login" element={<LoginForm />} />
           </Route>
           {import.meta.env.DEV && <Route path="test" element={<Test />} />}
-          <Route path="book">
-            <Route index element={<Navigate to="/user/catalog" replace />} /> 
-            {/* The Count of Monte Cristo */}
-            <Route path=":id" element={<BookDetail />/* Se cambio ISBN por id */} /> 
-          </Route>
+          
 
 
           {/* Shared Protected Routes (Any logged in user) */}
           <Route element={<ProtectedRoute allowedRoles={['USER', 'LIBRARIAN', 'ADMIN']} />}>
+          <Route path="book">
+            <Route index element={<Navigate to="/user/catalog" replace />} /> 
+              {/* The Count of Monte Cristo */}
+              <Route path=":id" element={<BookDetail />/* Se cambio ISBN por id */} /> 
+            </Route>
             <Route path="user" element={<UserLayout />}>
               <Route index element={<Navigate to="catalog" replace />} />
               <Route path="catalog" element={<BookCatalog/>} />
