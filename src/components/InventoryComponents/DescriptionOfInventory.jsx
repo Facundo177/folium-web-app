@@ -1,4 +1,11 @@
-export default function DescriptionOfInventory() {
+import {ITEM_STATUS} from "../../api/constants";
+
+export default function DescriptionOfInventory({ items = [] }) {
+
+  const total = items.length;
+   const available = items.filter((i) => i.status === ITEM_STATUS.AVAILABLE).length;
+   const loaned = items.filter((i) => i.status === ITEM_STATUS.LOANED).length;
+
   return (
     <div className="w-full font-sans pb-4">
       
@@ -22,11 +29,11 @@ export default function DescriptionOfInventory() {
       {/* Metrics Cards Section */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-stack-md">
         
-        {/* Card 1: Total Libros */}
+        {/* Card 1: Total Libros */}{/* TODO(lunes): rótulos no coinciden con el dato */}
         <div className="bg-surface-container-lowest border border-outline-variant rounded-DEFAULT p-gutter flex justify-between items-center shadow-sm">
           <div className="flex flex-col">
             <span className="text-label-caps text-on-surface-variant mb-2">TOTAL LIBROS</span>
-            <span className="text-headline-md text-on-surface">12,450</span>
+            <span className="text-headline-md text-on-surface">{total}</span>
           </div>
           <div className="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-on-surface-variant">
             <PagesIcon />
@@ -38,7 +45,7 @@ export default function DescriptionOfInventory() {
           <div className="flex flex-col">
             <span className="text-label-caps text-on-surface-variant mb-2">STOCK BAJO</span>
             {/* Usa el color rojo oscuro de tu tema para el número */}
-            <span className="text-headline-md text-on-tertiary-fixed-variant">42</span>
+            <span className="text-headline-md text-on-tertiary-fixed-variant">{available}</span>
           </div>
           {/* Usa el fondo rosado/rojo claro para el contenedor del ícono */}
           <div className="w-12 h-12 rounded-xl bg-error-container flex items-center justify-center text-on-tertiary-fixed-variant">
@@ -50,7 +57,7 @@ export default function DescriptionOfInventory() {
         <div className="bg-surface-container-lowest border border-outline-variant rounded-DEFAULT p-gutter flex justify-between items-center shadow-sm">
           <div className="flex flex-col">
             <span className="text-label-caps text-on-surface-variant mb-2">PEDIDOS PENDIENTES</span>
-            <span className="text-headline-md text-on-surface">18</span>
+            <span className="text-headline-md text-on-surface">{loaned}</span>
           </div>
           <div className="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-on-surface-variant">
             <TruckIcon />

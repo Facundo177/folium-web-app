@@ -14,6 +14,7 @@ import RegisterForm from "./components/Login&RegisterComponents/RegisterForm";
 import BotLayout from "./components/Layouts/BotLayout";
 import ProtectedRoute from "./auth/ProtectedRoute";
 
+
 import { useEffect, useState } from "react";
 
 
@@ -45,9 +46,9 @@ function App() {
           </Route>
           {import.meta.env.DEV && <Route path="test" element={<Test />} />}
           <Route path="book">
-            <Route index element={<Navigate to="9780140449266" replace />} /> 
+            <Route index element={<Navigate to="/user/catalog" replace />} /> 
             {/* The Count of Monte Cristo */}
-            <Route path=":ISBN" element={<BookDetail />} />
+            <Route path=":id" element={<BookDetail />/* Se cambio ISBN por id */} /> 
           </Route>
 
 

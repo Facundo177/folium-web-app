@@ -1,112 +1,45 @@
 import { useState, useMemo } from "react";
 import FilterSidebar from "../components/CatalogSearchComponents/FilterSidebar";
 import CatalogBookCard from "../components/CatalogSearchComponents/CatalogBookCard";
+import { useBooks } from "../hooks/useBooks";
+import { adaptBook } from "../api/adapters";
 
 
-// Base de datos simulada
-const catalogData = [
-  {
-    id: 1,
-    title: "Drácula",
-    author: "Bram Stoker",
-    price: 46999,
-    category: "Gótico",
-    tag: "TOP 25",
-    coverTitle: "Archival Tome",
-    binding: "Tafilete Carmesí",
-  },
-  {
-    id: 2,
-    title: "Frankenstein",
-    author: "Mary Shelley",
-    price: 30900,
-    category: "Terror Romántico",
-    tag: "Londres 1818",
-    coverTitle: "Modern Prometheus",
-    binding: "Pergamino Lino",
-  },
-  {
-    id: 3,
-    title: "El gato negro",
-    author: "Edgar Allan Poe",
-    price: 52900,
-    category: "Gótico",
-    tag: "TOP 25",
-    coverTitle: "Tales of the Grotesque",
-    binding: "Tela Negra",
-  },
-  {
-    id: 4,
-    title: "La llamada de Cthulhu",
-    author: "H.P. Lovecraft",
-    price: 46900,
-    category: "Fantasía Oscura",
-    tag: "TOP 25",
-    coverTitle: "Cthulhu Mythos",
-    binding: "Custodia Especial",
-  },
-  {
-    id: 5,
-    title: "El banquete",
-    author: "Platón",
-    price: 35499,
-    category: "Filosofía",
-    tag: "TOP 25",
-    coverTitle: "Diálogos",
-    binding: "Bilingüe Griego",
-  },
-  {
-    id: 6,
-    title: "Crimen y castigo",
-    author: "Fiódor Dostoyevski",
-    price: 42500,
-    category: "Novela Psicológica",
-    tag: "Rusia 1866",
-    coverTitle: "Mensajero Ruso",
-    binding: "Cuero Ruso",
-  },
-  {
-    id: 7,
-    title: "El extranjero",
-    author: "Albert Camus",
-    price: 28900,
-    category: "Filosofía",
-    tag: "Gallimard",
-    coverTitle: "L'Absurde",
-    binding: "Edición Blanche",
-  },
-  {
-    id: 8,
-    title: "Ficciones",
-    author: "Jorge Luis Borges",
-    price: 49000,
-    category: "Fantasía Oscura",
-    tag: "Sur 1944",
-    coverTitle: "Babel Laberintos",
-    binding: "Edición Príncipe",
-  },
-];
+
 
 export default function CatalogSearchPage() {
+  const { books, isLoading, error } = useBooks();
   const [searchTerm, setSearchTerm] = useState("");
   const [priceRange, setPriceRange] = useState({ min: 120, max: 299610 });
   const [activeCategory, setActiveCategory] = useState(null);
 
+    const adaptedBooks = useMemo(() => books.map(adaptBook), [books]);
+
+    const categories = useMemo(
+    () => [...new Set(adaptedBooks.flatMap((b) => b.genres))].sort(),
+    [adaptedBooks]
+  );
+
   // Filtrado en tiempo real
   const filteredBooks = useMemo(() => {
-    return catalogData.filter((book) => {
-      const matchText =
-        book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        book.author.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchPrice =
-        book.price >= priceRange.min && book.price <= priceRange.max;
-      const matchCategory = activeCategory
-        ? book.category === activeCategory
-        : true;
-
-      return matchText && matchPrice && matchCategory;
+  const term = searchTerm.toLowerCase();
+  return adaptedBooks.filter((book) => {
+    const matchText =
+      book.title.toLowerCase().includes(term) ||
+      book.author.toLowerCase().includes(term);
+    const matchCategory = activeCategory
+      ? book.genres.includes(activeCategory)
+      : true;
+    return matchText && matchCategory;
     });
-  }, [searchTerm, priceRange, activeCategory]);
+  }, [adaptedBooks, searchTerm, activeCategory]);
+
+  
+
+  if (isLoading) return <p className="pt-24 px-6 text-on-primary">Cargando catálogo…</p>;
+  if (error) return <p className="pt-24 px-6 text-on-primary">{error}</p>;
+
+  
 
   return (
     <div className="min-h-screen bg-primary-container text-on-primary font-sans pt-24 px-6 md:px-12">
@@ -138,6 +71,7 @@ export default function CatalogSearchPage() {
         {/* Barra Lateral Izquierda (Filtros) */}
         <aside className="w-full lg:w-64 flex-shrink-0">
           <FilterSidebar
+            categories={categories}
             priceRange={priceRange}
             setPriceRange={setPriceRange}
             activeCategory={activeCategory}
