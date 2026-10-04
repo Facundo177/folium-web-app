@@ -27,7 +27,7 @@ export default function CatalogView() {
   };
 
   return (
-    <div className="min-h-screen bg-parchment dark:bg-sheep font-body-md text-antique dark:text-butcher antialiased transition-colors duration-300">
+    <div className="min-h-screen bg-parchment dark:bg-sheep font-body-md text-antique dark:text-butcher antialiased bg-on-primary-fixed transition-colors duration-300">
       <BookCoverFlow onOpenModal={handleOpenModal} showToast={showToast} />
 
       <div className="w-full bg-parchment-soft/80 dark:bg-sheep/80 transition-colors duration-300 py-4 z-40 relative">

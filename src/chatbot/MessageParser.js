@@ -10,7 +10,7 @@ class MessageParser {
     const normalizedMessage = message
       .toLowerCase()
       .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "");
+      .replace(/[\u0300-\u036f]/g, ""); 
 
     const role = this.state.userRole;
 

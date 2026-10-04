@@ -111,13 +111,13 @@ export default function BookCoverFlow({ onOpenModal, showToast }) {
   };
 
   return (
-    <section className="relative w-full min-h-screen content-center bg-[#fcfbfa] dark:bg-[#130f0e] pt-8 pb-14 px-4 sm:px-8 relative overflow-hidden transition-colors duration-300">
+    <section className="relative w-full min-h-screen content-center  pt-8 pb-14 px-4 sm:px-8 relative overflow-hidden transition-colors duration-300 bg-on-primary-fixed">
       <div className="max-w-container-max mx-auto flex flex-col items-center">
         <div className="relative w-full py-4 select-none">
           {/* Controles de Navegación (Flechas laterales) */}
           <button
             onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
-            className="absolute left-0 sm:left-8 top-1/2 -translate-y-1/2 w-12 h-12 bg-[#ede6d3] border border-[#d8d0bb] text-[#5c1616] rounded-md shadow-md flex items-center justify-center hover:bg-[#e4dcbc] transition-colors z-50 cursor-pointer"
+            className="opacity-50 absolute left-0 sm:left-8 top-1/2 -translate-y-1/2 w-12 h-12 bg-[#ede6d3] border border-[#d8d0bb] text-[#5c1616] rounded-md shadow-md flex items-center justify-center hover:bg-[#e4dcbc] transition-colors z-50 cursor-pointer"
           >
             <ChevronLeftIcon />
           </button>
@@ -128,7 +128,7 @@ export default function BookCoverFlow({ onOpenModal, showToast }) {
                 Math.min(heroBooks.length - 1, prev + 1),
               )
             }
-            className="absolute right-0 sm:right-8 top-1/2 -translate-y-1/2 w-12 h-12 bg-[#ede6d3] border border-[#d8d0bb] text-[#5c1616] rounded-md shadow-md flex items-center justify-center hover:bg-[#e4dcbc] transition-colors z-50 cursor-pointer"
+            className=" opacity-50 absolute right-0 sm:right-8 top-1/2 -translate-y-1/2 w-12 h-12 bg-[#ede6d3] border border-[#d8d0bb] text-[#5c1616] rounded-md shadow-md flex items-center justify-center hover:bg-[#e4dcbc] transition-colors z-50 cursor-pointer"
           >
             <ChevronRightIcon />
           </button>

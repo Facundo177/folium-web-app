@@ -135,3 +135,67 @@
   }
   
 }
+
+@layer components {
+  .folium-sidebar {
+    width: 84px;
+    transition: width 0.35s ease;
+  }
+
+  .folium-sidebar:hover {
+    width: 264px;
+  }
+
+ /*  / Retrasos de aparición para elementos internos / */
+  .folium-sidebar .hide-on-collapse {
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .folium-sidebar:hover .hide-on-collapse {
+    opacity: 1;
+    transition: opacity 0.25s 0.1s;
+  }
+
+  /* / Barra de Búsqueda Animada / */
+  .folium-sidebar .search-container {
+    width: 44px;
+    transition: width 0.35s ease;
+  }
+
+  .folium-sidebar:hover .search-container {
+    width: 100%;
+  }
+
+  .folium-sidebar .search-input {
+    background: transparent;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .folium-sidebar:hover .search-input {
+    opacity: 1;
+    transition: opacity 0.25s 0.1s;
+  }
+
+  /* / Fan-out de los botones de acción (Tema, Ajustes) */ 
+  .folium-sidebar .actions-container {
+    position: relative;
+    height: 44px;
+    transition: height 0.35s ease;
+  }
+
+  .folium-sidebar .action-btn {
+    position: absolute;
+    left: 0;
+    transition: top 0.35s ease, left 0.35s ease;
+  }
+
+  .folium-sidebar:hover .action-btn:nth-child(2) {
+    left: 52px;
+  }
+
+  .folium-sidebar:hover .action-btn:nth-child(3) {
+    left: 104px;
+  }
+}
