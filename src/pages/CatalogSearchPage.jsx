@@ -10,7 +10,6 @@ import { adaptBook } from "../api/adapters";
 export default function CatalogSearchPage() {
   const { books, isLoading, error } = useBooks();
   const [searchTerm, setSearchTerm] = useState("");
-  const [priceRange, setPriceRange] = useState({ min: 120, max: 299610 });
   const [activeCategory, setActiveCategory] = useState(null);
 
     const adaptedBooks = useMemo(() => books.map(adaptBook), [books]);
@@ -42,7 +41,7 @@ export default function CatalogSearchPage() {
   
 
   return (
-    <div className="min-h-screen bg-primary-container text-on-primary font-sans pt-24 px-6 md:px-12">
+    <div className="min-h-screen bg-background dark:bg-primary-container text-on-primary font-sans pt-24 px-6 md:px-12 ">
       {/* Barra de Búsqueda Superior */}
       <div className="max-w-[1400px] mx-auto mb-10">
         <div className="flex items-center bg-inverse-surface border border-outline-variant rounded-md px-4 py-3 shadow-inner focus-within:border-on-tertiary-container transition-colors">
@@ -72,8 +71,6 @@ export default function CatalogSearchPage() {
         <aside className="w-full lg:w-64 flex-shrink-0">
           <FilterSidebar
             categories={categories}
-            priceRange={priceRange}
-            setPriceRange={setPriceRange}
             activeCategory={activeCategory}
             setActiveCategory={setActiveCategory}
           />

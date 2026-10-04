@@ -111,7 +111,7 @@ export default function BookCoverFlow({ onOpenModal, showToast }) {
   };
 
   return (
-    <section className="relative w-full min-h-screen content-center  pt-8 pb-14 px-4 sm:px-8 relative overflow-hidden transition-colors duration-300 bg-on-primary-fixed">
+    <section className="relative w-full min-h-screen content-center  pt-8 pb-14 px-4 sm:px-8 overflow-hidden transition-colors duration-300">
       <div className="max-w-container-max mx-auto flex flex-col items-center">
         <div className="relative w-full py-4 select-none">
           {/* Controles de Navegación (Flechas laterales) */}
