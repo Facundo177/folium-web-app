@@ -1,6 +1,6 @@
 export default function FoliumLandingBackground() {
   return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+    <div className="absolute inset-0 pointer-events-none overflow-hidden gradient-background-pink">
       {/* Resplandor radial central (Veladura usando tu color tertiary-container) */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[50rem] h-[30rem] bg-tertiary-container opacity-[0.03] rounded-full blur-[100px]" />
       <div className="absolute top-0 left-1/4 w-[30rem] h-[30rem] bg-tertiary-container opacity-[0.02] rounded-full blur-[120px]" />

@@ -1,33 +1,38 @@
 
 import { useState } from 'react';
 import { 
-  LayoutDashboard, 
   Library, 
   BookMarked, 
   Settings, 
   UserCircle,
   Menu, // Icono hamburguesa
-  X     // Icono cerrar
+  X,
+  Heart,     // Icono cerrar
 } from 'lucide-react';
 
 import { ThemeToggle } from './ThemeToggle';
+import { useNavigate } from 'react-router-dom';
 
 export default function Sidebar({ isDarkMode, setIsDarkMode }) {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const navItems = [
-    { id: 'dashboard', label: 'Panel Principal', icon: LayoutDashboard },
-    { id: 'catalog', label: 'Catálogo General', icon: Library },
-    { id: 'loans', label: 'Préstamos Activos', icon: BookMarked },
+    { id: 'catalog', label: 'Catálogo General', icon: Library, navigateTo: '/user/catalog' },
+    { id: 'loans', label: 'Préstamos Activos', icon: BookMarked, navigateTo: '/user/loans' },
+    { id: 'favourites', label: 'Favoritos', icon: Heart,
+      navigateTo: '/user/favourites'
+     },
   ];
+
+  const navigate = useNavigate();
 
   return (
     <>
       {/* BOTÓN HAMBURGUESA (Visible solo en móvil) */}
       <button 
         onClick={() => setIsMobileOpen(true)}
-        className="lg:hidden fixed top-4 left-4 z-40 p-2.5 bg-inverse-surface border border-outline-variant/30 rounded-lg text-on-primary shadow-lg hover:bg-tertiary-container/20 transition-colors"
+        className="lg:hidden fixed top-4 left-4 z-50 p-2.5 bg-inverse-surface border border-outline-variant/30 rounded-lg text-on-primary shadow-lg hover:bg-tertiary-container/20 transition-colors"
       >
         <Menu className="w-6 h-6 text-on-primary-container" />
       </button>
@@ -35,7 +40,7 @@ export default function Sidebar({ isDarkMode, setIsDarkMode }) {
       {/* OVERLAY FONDO OSCURO (Visible solo en móvil al abrir) */}
       {isMobileOpen && (
         <div 
-          className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity"
+          className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 transition-opacity"
           onClick={() => setIsMobileOpen(false)}
         />
       )}
@@ -46,7 +51,7 @@ export default function Sidebar({ isDarkMode, setIsDarkMode }) {
 
       {/* SIDEBAR PRINCIPAL */}
       <aside className={`
-        folium-sidebar flex flex-col gap-4 p-5 overflow-hidden flex-shrink-0 bg-inverse-surface shadow-2xl z-50
+        folium-sidebar flex flex-col gap-4 p-5 overflow-hidden flex-shrink-0 bg-[#F9F5C3] dark:bg-[#303031] shadow-2xl z-50
         
         lg:sticky lg:top-6 lg:h-[calc(100vh-48px)] lg:ml-6 lg:rounded-xl lg:border lg:border-outline-variant/20 lg:translate-x-0
         
@@ -66,7 +71,8 @@ export default function Sidebar({ isDarkMode, setIsDarkMode }) {
         </div>
 
         {/* Perfil del Usuario */}
-        <div className="flex items-center gap-4 relative cursor-pointer group/profile">
+        <div className="flex items-center gap-4 relative cursor-pointer group/profile"
+        onClick={() => navigate('/user/profile')}>
           <div className="w-11 h-11 flex-shrink-0 bg-primary-container rounded-full flex items-center justify-center border border-outline-variant/30">
             <UserCircle className="w-6 h-6 text-on-primary-container" />
           </div>
@@ -85,6 +91,7 @@ export default function Sidebar({ isDarkMode, setIsDarkMode }) {
               onClick={() => {
                 setActiveTab(item.id);
                 setIsMobileOpen(false); // Cierra el menú al seleccionar en móvil
+                navigate(item.navigateTo);
               }}
               className={`relative flex items-center gap-4 h-12 w-full rounded-xl transition-colors ${
                 activeTab === item.id 

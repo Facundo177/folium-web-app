@@ -117,7 +117,7 @@ export default function BookCoverFlow({ onOpenModal, showToast }) {
           {/* Controles de Navegación (Flechas laterales) */}
           <button
             onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
-            className="opacity-50 absolute left-0 sm:left-8 top-1/2 -translate-y-1/2 w-12 h-12 bg-[#ede6d3] border border-[#d8d0bb] text-[#5c1616] rounded-md shadow-md flex items-center justify-center hover:bg-[#e4dcbc] transition-colors z-50 cursor-pointer"
+            className="opacity-70 absolute left-0 sm:left-8 top-1/2 -translate-y-1/2 w-12 h-12 bg-[#ede6d3] border border-[#d8d0bb] text-[#5c1616] rounded-md shadow-md flex items-center justify-center hover:bg-[#e4dcbc] transition-colors z-40 cursor-pointer"
           >
             <ChevronLeftIcon />
           </button>
@@ -128,7 +128,7 @@ export default function BookCoverFlow({ onOpenModal, showToast }) {
                 Math.min(heroBooks.length - 1, prev + 1),
               )
             }
-            className=" opacity-50 absolute right-0 sm:right-8 top-1/2 -translate-y-1/2 w-12 h-12 bg-[#ede6d3] border border-[#d8d0bb] text-[#5c1616] rounded-md shadow-md flex items-center justify-center hover:bg-[#e4dcbc] transition-colors z-50 cursor-pointer"
+            className=" opacity-70 absolute right-0 sm:right-8 top-1/2 -translate-y-1/2 w-12 h-12 bg-[#ede6d3] border border-[#d8d0bb] text-[#5c1616] rounded-md shadow-md flex items-center justify-center hover:bg-[#e4dcbc] transition-colors z-40 cursor-pointer"
           >
             <ChevronRightIcon />
           </button>

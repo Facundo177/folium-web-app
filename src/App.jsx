@@ -15,6 +15,7 @@ import BotLayout from "./components/Layouts/BotLayout";
 import ProtectedRoute from "./auth/ProtectedRoute";
 
 import { useState } from "react";
+import UserProfile from "./pages/UserProfile";
 
 function App() {
   const [isDarkMode, setIsDarkMode] = useState(true);
@@ -62,6 +63,8 @@ function App() {
               <Route index element={<Navigate to="catalog" replace />} />
               <Route path="catalog" element={<BookCatalog />} />
               <Route path="favourites" element={<></>} />
+              <Route path="loans" element={<></>} />
+              <Route path="profile" element={<UserProfile/>} />
             </Route>
             
           </Route>
