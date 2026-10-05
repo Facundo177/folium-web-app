@@ -32,11 +32,11 @@ export default function RegisterForm() {
       <div className="w-full bg-surface-container rounded-lg p-1 flex mb-10">
         <Link
           to="/login"
-          className="flex-1 text-on-surface-variant text-body-md font-medium py-2 rounded hover:text-on-surface transition-colors text-center"
+          className="flex-1 text-on-surface-variant text-body-md font-medium py-2 rounded hover:text-on-surface transition-colors text-center bg-on-primary-fixed-variant/10 "
         >
           Iniciar sesión
         </Link>
-        <button className="flex-1 bg-surface-container-lowest text-on-surface text-body-md font-medium py-2 rounded shadow-sm">
+        <button className="flex-1 bg-surface-container-lowest text-on-surface text-body-md font-medium py-2 rounded shadow-sm border border-on-primary-fixed-variant">
           Crear cuenta
         </button>
       </div>

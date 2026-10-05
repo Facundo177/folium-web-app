@@ -42,12 +42,12 @@ export default function LoginForm() {
     <div className="w-full max-w-[400px] flex flex-col items-center">
       {/* Toggle Iniciar sesión / Crear cuenta */}
       <div className="w-full bg-surface-container rounded-lg p-1 flex mb-12">
-        <button className="flex-1 bg-surface-container-lowest text-on-surface text-body-md font-medium py-2 rounded shadow-sm">
+        <button className="flex-1 bg-surface-container-lowest text-on-surface text-body-md font-medium py-2 rounded shadow-sm border border-on-primary-fixed-variant">
           Iniciar sesión
         </button>
         <Link
           to="/register"
-          className="flex-1 text-on-surface-variant text-body-md font-medium py-2 rounded hover:text-on-surface transition-colors text-center"
+          className="flex-1 text-on-surface-variant text-body-md font-medium py-2 rounded hover:text-on-surface transition-colors text-center bg-on-primary-fixed-variant/10"
         >
           Crear cuenta
         </Link>
