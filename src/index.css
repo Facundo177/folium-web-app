@@ -15,135 +15,106 @@
 
 
 @theme {
-
   /* =======================================================
-     COLORES — DARK MODE
+     MODO CLARO (POR DEFECTO)
      ======================================================= */
 
   /* -------------------------------------------------------
-     PRIMARY
+     BACKGROUND (Fondos base - Pergamino)
      ------------------------------------------------------- */
+  --color-background: #f0e5d0;
+  --color-on-background: #110e0d;
 
-  --color-primary: #e5e2e1;
-  --color-on-primary: #292727;
+  /* -------------------------------------------------------
+     SURFACES (Tarjetas, Paneles, Modales)
+     ------------------------------------------------------- */
+  --color-surface: #fbf9f8;
+  --color-on-surface: #1b1c1c;
+  --color-on-surface-variant: #35210f; /* Antique Brown para textos secundarios */
 
-  --color-primary-container: #302e2e;
-  --color-on-primary-container: #e5e2e1;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f4efe6;
+  --color-surface-container: #b0b0b0;
+  --color-surface-container-high: #e4ddcf;
+  --color-surface-container-highest: #d6cbbe;
+
+  --color-surface-variant: #e4ddcf;
+  --color-surface-tint: #c8c6c5;
+
+  /* -------------------------------------------------------
+     PRIMARY (Acciones principales, Botones primarios)
+     ------------------------------------------------------- */
+  --color-primary: #110e0d; /* Black Sheep */
+  --color-on-primary: #ffffff;
+
+  --color-primary-container: #200c0c; /* Black Rooster */
+  --color-on-primary-container: #f4ecd8;
 
   --color-primary-fixed: #e5e2e1;
   --color-primary-fixed-dim: #c8c6c5;
-
   --color-on-primary-fixed: #1c1b1b;
   --color-on-primary-fixed-variant: #474746;
 
-
   /* -------------------------------------------------------
-     SECONDARY
+     SECONDARY (Elementos secundarios)
      ------------------------------------------------------- */
+  --color-secondary: #55412f; /* Antique Brown */
+  --color-on-secondary: #ffffff;
 
-  --color-secondary: #c7c6c5;
-  --color-on-secondary: #292929;
-
-  --color-secondary-container: #303030;
-  --color-on-secondary-container: #dedddb;
+  --color-secondary-container: #e4ddcf;
+  --color-on-secondary-container: #110e0d;
 
   --color-secondary-fixed: #e3e2e0;
   --color-secondary-fixed-dim: #c7c6c5;
-
   --color-on-secondary-fixed: #1a1c1b;
   --color-on-secondary-fixed-variant: #464746;
 
-
   /* -------------------------------------------------------
-     TERTIARY — BORDÓ / ACENTO
+     TERTIARY (Acentos - Rojo Folium)
      ------------------------------------------------------- */
+  --color-tertiary: #640606; /* Vampire Hunter */
+  --color-on-tertiary: #ffffff;
 
-  --color-tertiary: #ffb3b6;
-  --color-on-tertiary: #40000c;
-
-  --color-tertiary-container: #5a101c;
+  --color-tertiary-container: #7d2a33;
   --color-on-tertiary-container: #ffdada;
 
   --color-tertiary-fixed: #ffdada;
   --color-tertiary-fixed-dim: #ffb3b6;
-
   --color-on-tertiary-fixed: #40000c;
   --color-on-tertiary-fixed-variant: #7d2a33;
-
-
-  /* -------------------------------------------------------
-     BACKGROUND
-     ------------------------------------------------------- */
-
-  --color-background: #121212;
-  --color-on-background: #e6e2e1;
-
-
-  /* -------------------------------------------------------
-     SURFACES
-     ------------------------------------------------------- */
-
-  --color-surface: #121212;
-  --color-on-surface: #e6e2e1;
-
-  --color-on-surface-variant: #c5c2c1;
-
-  --color-surface-container-lowest: #0d0d0d;
-  --color-surface-container-low: #181818;
-  --color-surface-container: #1c1c1c;
-
-  --color-surface-container-high: #222222;
-  --color-surface-container-highest: #292929;
-
-  --color-surface-bright: #313131;
-  --color-surface-dim: #0d0d0d;
-
-  --color-surface-variant: #292929;
-  --color-surface-tint: #c8c6c5;
-
 
   /* -------------------------------------------------------
      OUTLINE / BORDES
      ------------------------------------------------------- */
-
-  --color-outline: #8f9190;
-  --color-outline-variant: #454747;
-
+  --color-outline: #858383;
+  --color-outline-variant: #cfc2b2;
 
   /* -------------------------------------------------------
      ERROR
      ------------------------------------------------------- */
-
-  --color-error: #ffb4ab;
-  --color-on-error: #690005;
-
-  --color-error-container: #93000a;
-  --color-on-error-container: #ffdad6;
-
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #410002;
 
   /* -------------------------------------------------------
-     INVERSE
+     INVERSE (Para Tooltips o Snacksbars)
      ------------------------------------------------------- */
-
-  --color-inverse-surface: #e6e2e1;
-  --color-inverse-on-surface: #303030;
-  --color-inverse-primary: #5e5e5d;
-
+  --color-inverse-surface: #1b1c1c;
+  --color-inverse-on-surface: #fbf9f8;
+  --color-inverse-primary: #c8c6c5;
 
   /* =======================================================
      BORDER RADIUS
      ======================================================= */
-
   --radius: 0.125rem;
   --radius-lg: 0.25rem;
   --radius-xl: 0.5rem;
   --radius-full: 0.75rem;
 
-
   /* =======================================================
      ESPACIADO
      ======================================================= */
-
   --spacing-stack-sm: 12px;
   --spacing-margin-edge: 32px;
   --spacing-container-max: 1280px;
@@ -152,28 +123,19 @@
   --spacing-stack-md: 24px;
   --spacing-stack-lg: 48px;
 
-
   /* =======================================================
      FUENTES
      ======================================================= */
-
   --font-serif: "EB Garamond", serif;
   --font-sans: "Hanken Grotesk", sans-serif;
-
 
   /* =======================================================
      TIPOGRAFÍA — TAILWIND V4
      ======================================================= */
-
-  /* Headline Medium */
-
   --text-headline-md: 32px;
   --text-headline-md--line-height: 40px;
   --text-headline-md--font-weight: 500;
   --text-headline-md--font-family: var(--font-serif);
-
-
-  /* Label Caps */
 
   --text-label-caps: 12px;
   --text-label-caps--line-height: 16px;
@@ -181,24 +143,15 @@
   --text-label-caps--font-weight: 700;
   --text-label-caps--font-family: var(--font-sans);
 
-
-  /* Body Medium */
-
   --text-body-md: 14px;
   --text-body-md--line-height: 20px;
   --text-body-md--font-weight: 400;
   --text-body-md--font-family: var(--font-sans);
 
-
-  /* Body Large */
-
   --text-body-lg: 16px;
   --text-body-lg--line-height: 24px;
   --text-body-lg--font-weight: 400;
   --text-body-lg--font-family: var(--font-sans);
-
-
-  /* Display Large */
 
   --text-display-lg: 48px;
   --text-display-lg--line-height: 56px;
@@ -206,24 +159,15 @@
   --text-display-lg--font-weight: 500;
   --text-display-lg--font-family: var(--font-serif);
 
-
-  /* Headline Small */
-
   --text-headline-sm: 24px;
   --text-headline-sm--line-height: 32px;
   --text-headline-sm--font-weight: 500;
   --text-headline-sm--font-family: var(--font-serif);
 
-
-  /* Title Large */
-
   --text-title-lg: 20px;
   --text-title-lg--line-height: 28px;
   --text-title-lg--font-weight: 600;
   --text-title-lg--font-family: var(--font-sans);
-
-
-  /* Display Large — Mobile */
 
   --text-display-lg-mobile: 32px;
   --text-display-lg-mobile--line-height: 40px;
@@ -231,33 +175,26 @@
   --text-display-lg-mobile--font-weight: 500;
   --text-display-lg-mobile--font-family: var(--font-serif);
 
-
   /* =======================================================
      ANIMACIONES
      ======================================================= */
-
   --animate-fade-in: fade-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 
-
   @keyframes fade-in {
-
     0% {
       opacity: 0;
       transform: translateY(12px);
     }
-
     100% {
       opacity: 1;
       transform: translateY(0);
     }
-
   }
-
 }
 
-
-
-
+/* =======================================================
+   MODO OSCURO (Reemplazo dinámico de variables)
+   ======================================================= */
 
 /* 1. Habilitar el uso de "dark:" basado en la clase .dark para Tailwind v4 */
 @custom-variant dark (&:where(.dark, .dark *));
@@ -265,208 +202,60 @@
 /* 2. Reemplazo de las variables de color cuando el modo oscuro está activo */
 @layer base {
   .dark {
-    --color-background: #1b1c1c;
-    --color-on-background: #fbf9f8;
+    /* BACKGROUND */
+    --color-background: #110e0d;
+    --color-on-background: #f4ecd8;
     
-    --color-surface: #1b1c1c;
-    --color-on-surface: #fbf9f8;
-    --color-surface-container: #303031;
-    --color-surface-container-low: #1c1b1b;
+    /* SURFACES */
+    --color-surface: #130f0e;
+    --color-on-surface: #f4ecd8;
+    --color-on-surface-variant: #b59785; /* Butcher paper */
     
-    /* Superficie Inversa (Pasa a ser clara en modo oscuro para los contrastes) */
-    --color-inverse-surface: #e4e2e2;
-    --color-inverse-on-surface: #303031;
+    --color-surface-container-lowest: #000000;
+    --color-surface-container-low: #181210;
+    --color-surface-container: #1b1513;
+    --color-surface-container-high: #221a16;
+    --color-surface-container-highest: #2c2017;
     
-    /* Contenedores Principales (Paneles, Sidebars) */
-    --color-primary-container: #303031;
-    --color-on-primary-container: #e5e2e1;
-    --color-primary: #ffffff;
-    --color-on-primary: #1b1c1c;
-    
-    /* Acentos (Rojos Folium) */
-    --color-tertiary-container: #7d2a33;
-    --color-on-tertiary-container: #ffdada;
-    --color-tertiary: #ffb3b6;
+    --color-surface-variant: #251b16;
+
+    /* PRIMARY */
+    --color-primary: #f4ecd8;
+    --color-on-primary: #110e0d;
+    --color-primary-container: #340c0c;
+    --color-on-primary-container: #f4ecd8;
+
+    /* SECONDARY */
+    --color-secondary: #b59785;
+    --color-on-secondary: #110e0d;
+    --color-secondary-container: #2c2017;
+    --color-on-secondary-container: #e4ddcf;
+
+    /* TERTIARY (Acentos Rojos) */
+    --color-tertiary: #ffb3b6; /* Rojo más brillante para contraste oscuro */
     --color-on-tertiary: #40000c;
-    
-    /* Bordes y Líneas (Outlines) */
-    --color-outline: #858383;
-    --color-outline-variant: #464746;
+    --color-tertiary-container: #4a0e14;
+    --color-on-tertiary-container: #ffdad6;
+
+    /* OUTLINES */
+    --color-outline: #55412f;
+    --color-outline-variant: #340c0c;
+
+    /* ERROR */
+    --color-error: #ffb4ab;
+    --color-on-error: #690005;
+    --color-error-container: #93000a;
+    --color-on-error-container: #ffdad6;
+
+    /* INVERSE */
+    --color-inverse-surface: #e4ddcf;
+    --color-inverse-on-surface: #110e0d;
+    --color-inverse-primary: #55412f;
   }
 }
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* Importación de tipografías desde Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
-
-
-@import "tailwindcss";
-
-@theme {
-  /* Mapeo de Colores */
-  --color-on-primary-fixed: #1c1b1b;
-  --color-tertiary-container: #60000c;
-  --color-surface-container: #efeded;
-  --color-inverse-primary: #c8c6c5;
-  --color-on-tertiary-fixed-variant: #7d2a33;
-  --color-on-tertiary: #ffffff;
-  --color-on-primary-fixed-variant: #474746;
-  --color-primary-fixed-dim: #c8c6c5;
-  --color-secondary-fixed: #e3e2e0;
-  --color-primary-fixed: #e5e2e1;
-  --color-inverse-on-surface: #f2f0f0;
-  --color-surface-bright: #fbf9f8;
-  --color-surface-container-highest: #e4e2e2;
-  --color-on-tertiary-fixed: #60000c;
-  --color-tertiary: #000000;
-  --color-on-secondary: #ffffff;
-  --color-background: #F5E9E7;
-  --color-on-surface-variant: #444748;
-  --color-secondary-fixed-dim: #c7c6c5;
-  --color-on-secondary-fixed: #1a1c1b;
-  --color-on-primary-container: #858383;
-  --color-on-background: #1b1c1c;
-  --color-on-error: #ffffff;
-  --color-error: #ba1a1a;
-  --color-surface-container-lowest: #ffffff;
-  --color-primary: #000000;
-  --color-on-secondary-container: #626361;
-  --color-on-tertiary-container: #ca656c;
-  --color-tertiary-fixed-dim: #ffb3b6;
-  --color-tertiary-fixed: #ffdada;
-  --color-secondary: #5e5e5d;
-  --color-on-error-container: #93000a;
-  --color-on-surface: #1b1c1c;
-  --color-surface-container-high: #e9e8e7;
-  --color-surface-tint: #5f5e5e;
-  --color-surface-dim: #dbdad9;
-  --color-surface-container-low: #f5f3f3;
-  --color-error-container: #ffdad6;
-  --color-on-secondary-fixed-variant: #464746;
-  --color-on-primary: #ffffff;
-  --color-surface-variant: #e4e2e2;
-  --color-surface: #fbf9f8;
-  --color-outline: #747878;
-  --color-inverse-surface: #303031;
-  --color-outline-variant: #c4c7c7;
-  --color-primary-container: #1c1b1b;
-  --color-secondary-container: #e0dfde;
-
-  /* Border Radius */
-  --radius: 0.125rem;
-  --radius-lg: 0.25rem;
-  --radius-xl: 0.5rem;
-  --radius-full: 0.75rem;
-
-  /* Espaciado (Spacing) */
-  --spacing-stack-sm: 12px;
-  --spacing-margin-edge: 32px;
-  --spacing-container-max: 1280px;
-  --spacing-base: 8px;
-  --spacing-gutter: 24px;
-  --spacing-stack-md: 24px;
-  --spacing-stack-lg: 48px;
-
-  /* Fuentes Base */
-  --font-serif: "EB Garamond", serif;
-  --font-sans: "Hanken Grotesk", sans-serif;
-
-  /* Configuración NAtiva de Estilos de Texto en Tailwind v4 */
-  --text-headline-md: 32px;
-  --text-headline-md--line-height: 40px;
-  --text-headline-md--font-weight: 500;
-  --text-headline-md--font-family: var(--font-serif);
-
-  --text-label-caps: 12px;
-  --text-label-caps--line-height: 16px;
-  --text-label-caps--letter-spacing: 0.08em;
-  --text-label-caps--font-weight: 700;
-  --text-label-caps--font-family: var(--font-sans);
-
-  --text-body-md: 14px;
-  --text-body-md--line-height: 20px;
-  --text-body-md--font-weight: 400;
-  --text-body-md--font-family: var(--font-sans);
-
-  --text-body-lg: 16px;
-  --text-body-lg--line-height: 24px;
-  --text-body-lg--font-weight: 400;
-  --text-body-lg--font-family: var(--font-sans);
-
-  --text-display-lg: 48px;
-  --text-display-lg--line-height: 56px;
-  --text-display-lg--letter-spacing: -0.01em;
-  --text-display-lg--font-weight: 500;
-  --text-display-lg--font-family: var(--font-serif);
-
-  --text-headline-sm: 24px;
-  --text-headline-sm--line-height: 32px;
-  --text-headline-sm--font-weight: 500;
-  --text-headline-sm--font-family: var(--font-serif);
-
-  --text-title-lg: 20px;
-  --text-title-lg--line-height: 28px;
-  --text-title-lg--font-weight: 600;
-  --text-title-lg--font-family: var(--font-sans);
-
-  --text-display-lg-mobile: 32px;
-  --text-display-lg-mobile--line-height: 40px;
-  --text-display-lg-mobile--letter-spacing: -0.01em;
-  --text-display-lg-mobile--font-weight: 500;
-  --text-display-lg-mobile--font-family: var(--font-serif);
-
-
-
-
-  --animate-fade-in: fade-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-
-  @keyframes fade-in {
-    0% {
-      opacity: 0;
-      transform: translateY(12px);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-}
 
 /* ========================================================
    Animaciones y Estilos de la Sidebar (Folium)
@@ -529,5 +318,170 @@
     .folium-sidebar .action-btn:nth-child(3) { left: 104px; }
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Importación de tipografías desde Google Fonts */
+/* @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
+
+
+@import "tailwindcss";
+
+@theme { */
+  /* Mapeo de Colores */
+  /* --color-on-primary-fixed: #1c1b1b;
+  --color-tertiary-container: #60000c;
+  --color-surface-container: #efeded;
+  --color-inverse-primary: #c8c6c5;
+  --color-on-tertiary-fixed-variant: #7d2a33;
+  --color-on-tertiary: #ffffff;
+  --color-on-primary-fixed-variant: #474746;
+  --color-primary-fixed-dim: #c8c6c5;
+  --color-secondary-fixed: #e3e2e0;
+  --color-primary-fixed: #e5e2e1;
+  --color-inverse-on-surface: #f2f0f0;
+  --color-surface-bright: #fbf9f8;
+  --color-surface-container-highest: #e4e2e2;
+  --color-on-tertiary-fixed: #60000c;
+  --color-tertiary: #000000;
+  --color-on-secondary: #ffffff;
+  --color-background: #F5E9E7;
+  --color-on-surface-variant: #444748;
+  --color-secondary-fixed-dim: #c7c6c5;
+  --color-on-secondary-fixed: #1a1c1b;
+  --color-on-primary-container: #858383;
+  --color-on-background: #1b1c1c;
+  --color-on-error: #ffffff;
+  --color-error: #ba1a1a;
+  --color-surface-container-lowest: #ffffff;
+  --color-primary: #000000;
+  --color-on-secondary-container: #626361;
+  --color-on-tertiary-container: #ca656c;
+  --color-tertiary-fixed-dim: #ffb3b6;
+  --color-tertiary-fixed: #ffdada;
+  --color-secondary: #5e5e5d;
+  --color-on-error-container: #93000a;
+  --color-on-surface: #1b1c1c;
+  --color-surface-container-high: #e9e8e7;
+  --color-surface-tint: #5f5e5e;
+  --color-surface-dim: #dbdad9;
+  --color-surface-container-low: #f5f3f3;
+  --color-error-container: #ffdad6;
+  --color-on-secondary-fixed-variant: #464746;
+  --color-on-primary: #ffffff;
+  --color-surface-variant: #e4e2e2;
+  --color-surface: #fbf9f8;
+  --color-outline: #747878;
+  --color-inverse-surface: #303031;
+  --color-outline-variant: #c4c7c7;
+  --color-primary-container: #1c1b1b;
+  --color-secondary-container: #e0dfde; */
+
+  /* Border Radius */
+  /* --radius: 0.125rem;
+  --radius-lg: 0.25rem;
+  --radius-xl: 0.5rem;
+  --radius-full: 0.75rem; */
+
+  /* Espaciado (Spacing) */
+  /* --spacing-stack-sm: 12px;
+  --spacing-margin-edge: 32px;
+  --spacing-container-max: 1280px;
+  --spacing-base: 8px;
+  --spacing-gutter: 24px;
+  --spacing-stack-md: 24px;
+  --spacing-stack-lg: 48px; */
+
+  /* Fuentes Base */
+  /* --font-serif: "EB Garamond", serif;
+  --font-sans: "Hanken Grotesk", sans-serif; */
+
+  /* Configuración NAtiva de Estilos de Texto en Tailwind v4 */
+  /* --text-headline-md: 32px;
+  --text-headline-md--line-height: 40px;
+  --text-headline-md--font-weight: 500;
+  --text-headline-md--font-family: var(--font-serif);
+
+  --text-label-caps: 12px;
+  --text-label-caps--line-height: 16px;
+  --text-label-caps--letter-spacing: 0.08em;
+  --text-label-caps--font-weight: 700;
+  --text-label-caps--font-family: var(--font-sans);
+
+  --text-body-md: 14px;
+  --text-body-md--line-height: 20px;
+  --text-body-md--font-weight: 400;
+  --text-body-md--font-family: var(--font-sans);
+
+  --text-body-lg: 16px;
+  --text-body-lg--line-height: 24px;
+  --text-body-lg--font-weight: 400;
+  --text-body-lg--font-family: var(--font-sans);
+
+  --text-display-lg: 48px;
+  --text-display-lg--line-height: 56px;
+  --text-display-lg--letter-spacing: -0.01em;
+  --text-display-lg--font-weight: 500;
+  --text-display-lg--font-family: var(--font-serif);
+
+  --text-headline-sm: 24px;
+  --text-headline-sm--line-height: 32px;
+  --text-headline-sm--font-weight: 500;
+  --text-headline-sm--font-family: var(--font-serif);
+
+  --text-title-lg: 20px;
+  --text-title-lg--line-height: 28px;
+  --text-title-lg--font-weight: 600;
+  --text-title-lg--font-family: var(--font-sans);
+
+  --text-display-lg-mobile: 32px;
+  --text-display-lg-mobile--line-height: 40px;
+  --text-display-lg-mobile--letter-spacing: -0.01em;
+  --text-display-lg-mobile--font-weight: 500;
+  --text-display-lg-mobile--font-family: var(--font-serif);
+
+
+
+
+  --animate-fade-in: fade-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+  @keyframes fade-in {
+    0% {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+} */
+
+
+
+
+
+
+
+
 
 

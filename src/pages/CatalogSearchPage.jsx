@@ -41,7 +41,7 @@ export default function CatalogSearchPage() {
   
 
   return (
-    <div className="min-h-screen bg-background dark:bg-primary-container text-on-primary font-sans pt-24 px-6 md:px-12 ">
+    <div className="min-h-screen text-on-primary font-sans pt-24 px-6 md:px-12 ">
       {/* Barra de Búsqueda Superior */}
       <div className="max-w-[1400px] mx-auto mb-10">
         <div className="flex items-center bg-inverse-surface border border-outline-variant rounded-md px-4 py-3 shadow-inner focus-within:border-on-tertiary-container transition-colors">

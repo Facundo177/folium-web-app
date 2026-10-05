@@ -29,10 +29,10 @@ export default function RegisterForm() {
   return (
     <div className="w-full max-w-[450px] flex flex-col items-center">
       {/* Toggle Iniciar sesión / Crear cuenta */}
-      <div className="w-full bg-surface-container rounded-lg p-1 flex mb-10">
+      <div className="w-full bg-on-primary-fixed-variant/10 rounded-lg p-1 flex mb-10">
         <Link
           to="/login"
-          className="flex-1 text-on-surface-variant text-body-md font-medium py-2 rounded hover:text-on-surface transition-colors text-center bg-on-primary-fixed-variant/10 "
+          className="flex-1 text-on-surface-variant text-body-md font-medium py-2 rounded hover:text-on-surface transition-colors text-center"
         >
           Iniciar sesión
         </Link>
@@ -66,7 +66,7 @@ export default function RegisterForm() {
               onChange={handleChange}
               placeholder="Ej. Gabriel"
               required
-              className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-outline transition-colors placeholder:text-outline-variant"
+              className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-outline transition-colors placeholder:text-on-surface-variant/50"
             />
           </div>
           <div className="flex flex-col gap-2">
@@ -80,7 +80,7 @@ export default function RegisterForm() {
               onChange={handleChange}
               placeholder="Ej. García"
               required
-              className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-outline transition-colors placeholder:text-outline-variant"
+              className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-outline transition-colors placeholder:text-on-surface-variant/50"
             />
           </div>
         </div>
@@ -98,7 +98,7 @@ export default function RegisterForm() {
               onChange={handleChange}
               placeholder="Sin puntos ni espacios"
               required
-              className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-outline transition-colors placeholder:text-outline-variant"
+              className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-outline transition-colors placeholder:text-on-surface-variant/50"
             />
           </div>
           <div className="flex flex-col gap-2">
@@ -111,7 +111,7 @@ export default function RegisterForm() {
               value={formData.fechaNacimiento}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-outline transition-colors text-on-surface-variant"
+              className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md focus:outline-none focus:border-outline transition-colors placeholder:text-on-surface-variant/50"
             />
           </div>
         </div>
@@ -128,7 +128,7 @@ export default function RegisterForm() {
             onChange={handleChange}
             placeholder="tu@correo.com"
             required
-            className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-outline transition-colors placeholder:text-outline-variant"
+            className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-outline transition-colors placeholder:text-on-surface-variant/50"
           />
         </div>
 
@@ -145,7 +145,7 @@ export default function RegisterForm() {
               onChange={handleChange}
               placeholder="••••••••"
               required
-              className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-outline transition-colors placeholder:text-outline-variant"
+              className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-outline transition-colors placeholder:text-on-surface-variant/50"
             />
             <button
               type="button"

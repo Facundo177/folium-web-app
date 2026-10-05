@@ -41,13 +41,13 @@ export default function LoginForm() {
   return (
     <div className="w-full max-w-[400px] flex flex-col items-center">
       {/* Toggle Iniciar sesión / Crear cuenta */}
-      <div className="w-full bg-surface-container rounded-lg p-1 flex mb-12">
+      <div className="w-full bg-on-primary-fixed-variant/10 rounded-lg p-1 flex mb-12">
         <button className="flex-1 bg-surface-container-lowest text-on-surface text-body-md font-medium py-2 rounded shadow-sm border border-on-primary-fixed-variant">
           Iniciar sesión
         </button>
         <Link
           to="/register"
-          className="flex-1 text-on-surface-variant text-body-md font-medium py-2 rounded hover:text-on-surface transition-colors text-center bg-on-primary-fixed-variant/10"
+          className="flex-1 text-on-surface-variant text-body-md font-medium py-2 rounded hover:text-on-surface transition-colors text-center "
         >
           Crear cuenta
         </Link>
@@ -76,7 +76,7 @@ export default function LoginForm() {
             placeholder="tu_usuario"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-outline transition-colors placeholder:text-on-surface-variant"
+            className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-outline transition-colors placeholder:text-on-surface-variant/50"
           />
         </div>
 
@@ -92,7 +92,7 @@ export default function LoginForm() {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-outline transition-colors placeholder:text-outline"
+              className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-outline transition-colors placeholder:text-on-surface-variant/50"
             />
             <button
               type="button"
