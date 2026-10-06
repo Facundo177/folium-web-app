@@ -48,7 +48,7 @@ export default function FoliumLandingNavbar({
         </button>
         <button
           onClick={handleRegisterButtonClick}
-          className="cursor-pointer px-5 py-3 bg-tertiary-container text-on-tertiary text-label-caps rounded-DEFAULT hover:opacity-90 transition-opacity shadow-sm"
+          className="cursor-pointer px-5 py-3 bg-tertiary-container border border-on-tertiary-container text-on-tertiary-container text-label-caps rounded-DEFAULT hover:opacity-90 transition-opacity shadow-sm"
         >
           Registrarse
         </button>

@@ -75,7 +75,7 @@
   --color-tertiary: #640606; /* Vampire Hunter */
   --color-on-tertiary: #ffffff;
 
-  --color-tertiary-container: #7d2a33;
+  --color-tertiary-container: #60000c;
   --color-on-tertiary-container: #ffdada;
 
   --color-tertiary-fixed: #ffdada;
@@ -208,12 +208,12 @@
     
     /* SURFACES */
     --color-surface: #130f0e;
-    --color-on-surface: #f4ecd8;
-    --color-on-surface-variant: #b59785; /* Butcher paper */
+    --color-on-surface: #F0D8D8;
+    --color-on-surface-variant: #eee6e2; /* Butcher paper */
     
-    --color-surface-container-lowest: #000000;
+    --color-surface-container-lowest: #2B2121;
     --color-surface-container-low: #181210;
-    --color-surface-container: #1b1513;
+    --color-surface-container: #575351;
     --color-surface-container-high: #221a16;
     --color-surface-container-highest: #2c2017;
     
@@ -238,7 +238,7 @@
     --color-on-tertiary-container: #ffdad6;
 
     /* OUTLINES */
-    --color-outline: #55412f;
+    --color-outline: #a78a70;
     --color-outline-variant: #340c0c;
 
     /* ERROR */

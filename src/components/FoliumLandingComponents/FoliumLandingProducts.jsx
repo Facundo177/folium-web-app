@@ -4,7 +4,7 @@ export default function FoliumLandingProducts({handleUserButtonClick, handleLibr
     <section className="bg-background py-stack-lg px-margin-edge font-sans">
       {/* Encabezado de la Sección */}
       <div className="max-w-4xl mx-auto text-center mb-stack-lg">
-        <span className="text-label-caps text-tertiary-container tracking-[0.2em] uppercase">
+        <span className="text-label-caps text-on-surface-variant tracking-[0.2em] uppercase">
           Dos perspectivas, una sola vocación
         </span>
 
@@ -12,7 +12,7 @@ export default function FoliumLandingProducts({handleUserButtonClick, handleLibr
           El puente entre lectores devotos y custodios del saber.
         </h2>
 
-        <p className="font-serif italic text-title-lg text-on-surface-variant max-w-3xl mx-auto">
+        <p className="font-serif italic font-extrabold text-title-lg text-on-surface-variant max-w-3xl mx-auto">
           Una arquitectura concebida tanto para la contemplación literaria como
           para la rigurosa administración bibliográfica.
         </p>
@@ -26,7 +26,7 @@ export default function FoliumLandingProducts({handleUserButtonClick, handleLibr
             <span className="text-label-caps text-on-surface-variant tracking-wider uppercase">
               Para lectores y comunidad
             </span>
-            <div className="w-10 h-10 p-1 rounded-full bg-error-container/30 flex items-center justify-center text-tertiary-container">
+            <div className="w-10 h-10 p-1 rounded-full bg-surface-tint flex items-center justify-center text-tertiary-container">
               <ReaderIcon />
             </div>
           </div>
@@ -43,19 +43,19 @@ export default function FoliumLandingProducts({handleUserButtonClick, handleLibr
 
           <ul className="flex flex-col gap-4 mb-stack-lg flex-1">
             <li className="flex items-start gap-3 text-body-md text-on-surface-variant">
-              <span className="text-tertiary-container text-lg leading-none">
+              <span className="text-on-surface text-lg leading-none">
                 ✦
               </span>
               Catálogo colaborativo y recomendaciones
             </li>
             <li className="flex items-start gap-3 text-body-md text-on-surface-variant">
-              <span className="text-tertiary-container text-lg leading-none">
+              <span className="text-on-surface text-lg leading-none">
                 ✦
               </span>
               Anotaciones al margen y reseñas verificadas
             </li>
             <li className="flex items-start gap-3 text-body-md text-on-surface-variant">
-              <span className="text-tertiary-container text-lg leading-none">
+              <span className="text-on-surface text-lg leading-none">
                 ✦
               </span>
               Colección personal de favoritos
@@ -63,7 +63,7 @@ export default function FoliumLandingProducts({handleUserButtonClick, handleLibr
           </ul>
 
           <button 
-          className="w-full border border-tertiary-container text-tertiary-container text-label-caps uppercase tracking-wider py-4 px-6 flex justify-between items-center hover:bg-tertiary-container/5 transition-colors"
+          className="w-full border border-on-surface-variant text-on-surface-variant text-label-caps uppercase tracking-wider py-4 px-6 flex justify-between items-center hover:bg-tertiary-container/5 transition-colors bg-surface-variant"
           onClick={handleUserButtonClick}>
             Explorar catálogo y reseñas
             <ArrowRightIcon />
@@ -73,7 +73,7 @@ export default function FoliumLandingProducts({handleUserButtonClick, handleLibr
         {/* Tarjeta 2: Bibliotecas */}
         <div className="bg-surface-container-lowest border border-outline-variant p-stack-md md:p-stack-lg flex flex-col shadow-sm">
           <div className="flex justify-between items-center mb-stack-sm">
-            <span className="text-label-caps text-tertiary-container tracking-wider uppercase">
+            <span className="text-label-caps text-on-surface-variant tracking-wider uppercase">
               Para bibliotecas y archivos
             </span>
             <div className="w-10 h-10 p-1.5 rounded-full bg-tertiary-container flex items-center justify-center text-on-tertiary">
@@ -93,19 +93,19 @@ export default function FoliumLandingProducts({handleUserButtonClick, handleLibr
 
           <ul className="flex flex-col gap-4 mb-stack-lg flex-1">
             <li className="flex items-start gap-3 text-body-md text-on-surface-variant">
-              <span className="text-tertiary-container text-lg leading-none">
+              <span className="text-on-surface text-lg leading-none">
                 ✦
               </span>
               Catalogación normalizada MARC21 & RDA
             </li>
             <li className="flex items-start gap-3 text-body-md text-on-surface-variant">
-              <span className="text-tertiary-container text-lg leading-none">
+              <span className="text-on-surface text-lg leading-none">
                 ✦
               </span>
               Trazabilidad y auditoría de fondos en tiempo real
             </li>
             <li className="flex items-start gap-3 text-body-md text-on-surface-variant">
-              <span className="text-tertiary-container text-lg leading-none">
+              <span className="text-on-surface text-lg leading-none">
                 ✦
               </span>
               Automatización de préstamos y reportes
@@ -113,7 +113,7 @@ export default function FoliumLandingProducts({handleUserButtonClick, handleLibr
           </ul>
 
           <button 
-          className="w-full bg-tertiary-container text-on-tertiary text-label-caps uppercase tracking-wider py-4 px-6 flex justify-between items-center hover:opacity-90 transition-opacity"
+          className="w-full bg-tertiary-container border border-on-tertiary-container text-on-tertiary-container text-label-caps uppercase tracking-wider py-4 px-6 flex justify-between items-center hover:opacity-90 transition-opacity"
           onClick={handleLibrarianButtonClick}>
             Conocer la solución institucional
             <ArrowRightIcon />
