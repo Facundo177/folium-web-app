@@ -63,7 +63,7 @@ export default function CatalogBookCard({ book }) {
         </p>
 
         {/* Botón Comprar/Reservar */}
-        <button onClick={(e) => e.stopPropagation()} className="mt-auto w-full bg-tertiary-container hover:bg-on-tertiary-fixed-variant text-on-tertiary py-2.5 rounded-sm flex items-center justify-center gap-2 text-xs font-bold tracking-widest uppercase transition-colors">
+        <button onClick={(e) => e.stopPropagation()} className="mt-auto w-full bg-tertiary-container hover:bg-on-tertiary-fixed-variant text-on-tertiary border border-on-tertiary py-2.5 rounded-sm flex items-center justify-center gap-2 text-xs font-bold tracking-widest uppercase transition-colors">
           Reservar
           <span className="material-symbols-outlined text-[16px]">lock</span>
         </button>

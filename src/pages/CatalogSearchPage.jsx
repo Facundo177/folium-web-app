@@ -86,20 +86,7 @@ export default function CatalogSearchPage() {
                 • Filtros Activos: {activeCategory || "Todos"}
               </span>
             </span>
-            <div className="flex items-center gap-2 text-xs text-outline uppercase tracking-wider">
-              <span>Ordenar por:</span>
-              <select className="bg-transparent border-none outline-none cursor-pointer font-bold text-on-tertiary-container">
-                <option className="bg-inverse-surface">
-                  Relevancia Archival
-                </option>
-                <option className="bg-inverse-surface">
-                  Precio: Menor a Mayor
-                </option>
-                <option className="bg-inverse-surface">
-                  Precio: Mayor a Menor
-                </option>
-              </select>
-            </div>
+
           </div>
 
           {/* Grilla de Libros */}
@@ -111,9 +98,9 @@ export default function CatalogSearchPage() {
             </div>
           ) : (
             <div className="w-full py-24 flex flex-col items-center justify-center text-center opacity-70 animate-fade-in">
-              <span className="material-symbols-outlined text-5xl mb-4 text-outline">
+              {/* <span className="material-symbols-outlined text-5xl mb-4 text-outline">
                 menu_book
-              </span>
+              </span> */}
               <p className="text-sm uppercase tracking-widest font-bold text-outline">
                 Ningún volumen coincide con los criterios estipulados.
               </p>

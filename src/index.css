@@ -100,7 +100,7 @@
   /* -------------------------------------------------------
      INVERSE (Para Tooltips o Snacksbars)
      ------------------------------------------------------- */
-  --color-inverse-surface: #1b1c1c;
+  --color-inverse-surface: #5a1f1e;
   --color-inverse-on-surface: #fbf9f8;
   --color-inverse-primary: #c8c6c5;
 
@@ -233,7 +233,7 @@
 
     /* TERTIARY (Acentos Rojos) */
     --color-tertiary: #ffb3b6; /* Rojo más brillante para contraste oscuro */
-    --color-on-tertiary: #40000c;
+    --color-on-tertiary: #ffffff;
     --color-tertiary-container: #4a0e14;
     --color-on-tertiary-container: #ffdad6;
 

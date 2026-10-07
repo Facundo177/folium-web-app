@@ -6,14 +6,14 @@ export default function FoliumLandingHero({handleCatalogButtonClick}) {
       
       {/* Etiqueta superior */}
       <div className="flex items-center gap-base text-label-caps text-on-surface-variant mb-stack-md">
-        <span className="w-2 h-2 rounded-full bg-tertiary-container"></span>
+        <span className="w-2 h-2 rounded-full bg-tertiary-container" style={{filter: 'drop-shadow(0px 0px 1px #ffffff)'}}></span>
         Edición de archivo & patrimonio
       </div>
 
       {/* Tipografía Principal (Escalada mediante clamp para ocupar el centro) */}
       <h1 className="font-serif text-tertiary-container leading-none mb-stack-sm" style={{ fontSize: 'clamp(4rem, 12vw, 8rem)' }}>
         <div className="w-80 sm:w-100 sm:pl-6 ">
-        <FoliumFullLogo />
+        <FoliumFullLogo/>
         </div>
       </h1>
 
