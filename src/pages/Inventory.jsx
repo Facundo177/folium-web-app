@@ -28,7 +28,7 @@ export const Inventory = () => {
   return (
     <>
       <main className="flex-1 flex flex-col min-h-screen">
-        <TopNavigationBar />
+        {/* <TopNavigationBar /> */}
 
         <div className="flex-1 p-margin-edge md:p-stack-lg max-w-[1280px] mx-auto w-full">
           {/* <PageHeader />

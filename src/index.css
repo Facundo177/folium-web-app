@@ -16,93 +16,59 @@
 
 @theme {
   /* =======================================================
-     MODO CLARO (POR DEFECTO)
+     MODO CLARO (POR DEFECTO) - Biblioteca Clásica
      ======================================================= */
 
-  /* -------------------------------------------------------
-     BACKGROUND (Fondos base - Pergamino)
-     ------------------------------------------------------- */
-  --color-background: #f0e5d0;
-  --color-on-background: #110e0d;
+  /* BACKGROUND */
+  --color-background: #f0e3cc; /* Parchment más luminoso para el fondo */
+  --color-on-background: #322325; /* ESPRESSO */
 
-  /* -------------------------------------------------------
-     SURFACES (Tarjetas, Paneles, Modales)
-     ------------------------------------------------------- */
-  --color-surface: #fbf9f8;
-  --color-on-surface: #1b1c1c;
-  --color-on-surface-variant: #35210f; /* Antique Brown para textos secundarios */
+  /* SURFACES */
+  --color-surface: #e0ceb4; /* PARCHMENT */
+  --color-on-surface: #322325; /* ESPRESSO */
+  --color-on-surface-variant: #4f6577; /* SLATE BLUE para textos secundarios/sutiles */
 
-  --color-surface-container-lowest: #ffffff;
-  --color-surface-container-low: #f4efe6;
-  --color-surface-container: #b0b0b0;
-  --color-surface-container-high: #e4ddcf;
-  --color-surface-container-highest: #d6cbbe;
+  --color-surface-container-lowest: #fbf6ec; /* Blanco antiguo */
+  --color-surface-container-low: #f0e3cc;
+  --color-surface-container: #e0ceb4; /* PARCHMENT base */
+  --color-surface-container-high: #ccba9f;
+  --color-surface-container-highest: #bda889;
 
-  --color-surface-variant: #e4ddcf;
-  --color-surface-tint: #c8c6c5;
+  --color-surface-variant: #ccba9f;
+  --color-surface-tint: #ba874b; /* ANTIQUE GOLD */
 
-  /* -------------------------------------------------------
-     PRIMARY (Acciones principales, Botones primarios)
-     ------------------------------------------------------- */
-  --color-primary: #110e0d; /* Black Sheep */
-  --color-on-primary: #ffffff;
+  /* PRIMARY (Acciones principales) */
+  --color-primary: #681822; /* BURGUNDY */
+  --color-on-primary: #f0e3cc; /* Parchment luminoso */
+  --color-primary-container: #322325; /* ESPRESSO */
+  --color-on-primary-container: #e0ceb4;
 
-  --color-primary-container: #200c0c; /* Black Rooster */
-  --color-on-primary-container: #f4ecd8;
+  /* SECONDARY (Elementos secundarios y botones) */
+  --color-secondary: #4f6577; /* SLATE BLUE */
+  --color-on-secondary: #f0e3cc;
+  --color-secondary-container: #ba874b; /* ANTIQUE GOLD */
+  --color-on-secondary-container: #322325;
 
-  --color-primary-fixed: #e5e2e1;
-  --color-primary-fixed-dim: #c8c6c5;
-  --color-on-primary-fixed: #1c1b1b;
-  --color-on-primary-fixed-variant: #474746;
+  /* TERTIARY (Acentos vibrantes) */
+  --color-tertiary: #ba874b; /* ANTIQUE GOLD */
+  --color-on-tertiary: #322325;
+  --color-tertiary-container: #681822; /* BURGUNDY */
+  --color-on-tertiary-container: #e0ceb4;
 
-  /* -------------------------------------------------------
-     SECONDARY (Elementos secundarios)
-     ------------------------------------------------------- */
-  --color-secondary: #55412f; /* Antique Brown */
-  --color-on-secondary: #ffffff;
+  /* OUTLINE / BORDES */
+  --color-outline: #ba874b; /* ANTIQUE GOLD */
+  --color-outline-variant: #ccba9f; /* Parchment oscurecido */
 
-  --color-secondary-container: #e4ddcf;
-  --color-on-secondary-container: #110e0d;
-
-  --color-secondary-fixed: #e3e2e0;
-  --color-secondary-fixed-dim: #c7c6c5;
-  --color-on-secondary-fixed: #1a1c1b;
-  --color-on-secondary-fixed-variant: #464746;
-
-  /* -------------------------------------------------------
-     TERTIARY (Acentos - Rojo Folium)
-     ------------------------------------------------------- */
-  --color-tertiary: #640606; /* Vampire Hunter */
-  --color-on-tertiary: #ffffff;
-
-  --color-tertiary-container: #60000c;
-  --color-on-tertiary-container: #ffdada;
-
-  --color-tertiary-fixed: #ffdada;
-  --color-tertiary-fixed-dim: #ffb3b6;
-  --color-on-tertiary-fixed: #40000c;
-  --color-on-tertiary-fixed-variant: #7d2a33;
-
-  /* -------------------------------------------------------
-     OUTLINE / BORDES
-     ------------------------------------------------------- */
-  --color-outline: #858383;
-  --color-outline-variant: #cfc2b2;
-
-  /* -------------------------------------------------------
-     ERROR
-     ------------------------------------------------------- */
+  /* ERROR */
   --color-error: #ba1a1a;
   --color-on-error: #ffffff;
   --color-error-container: #ffdad6;
   --color-on-error-container: #410002;
 
-  /* -------------------------------------------------------
-     INVERSE (Para Tooltips o Snacksbars)
-     ------------------------------------------------------- */
-  --color-inverse-surface: #5a1f1e;
-  --color-inverse-on-surface: #fbf9f8;
-  --color-inverse-primary: #c8c6c5;
+  /* INVERSE */
+  --color-inverse-surface: #322325; /* ESPRESSO */
+  --color-inverse-on-surface: #e0ceb4; /* PARCHMENT */
+  --color-inverse-primary: #ba874b; /* ANTIQUE GOLD */
 
   /* =======================================================
      BORDER RADIUS
@@ -201,56 +167,51 @@
 
 /* 2. Reemplazo de las variables de color cuando el modo oscuro está activo */
 @layer base {
+
   .dark {
     /* BACKGROUND */
-    --color-background: #110e0d;
-    --color-on-background: #f4ecd8;
+    --color-background: #1c1314; /* Espresso muy profundo */
+    --color-on-background: #e0ceb4; /* PARCHMENT */
     
     /* SURFACES */
-    --color-surface: #130f0e;
-    --color-on-surface: #F0D8D8;
-    --color-on-surface-variant: #eee6e2; /* Butcher paper */
+    --color-surface: #322325; /* ESPRESSO */
+    --color-on-surface: #e0ceb4; /* PARCHMENT */
+    --color-on-surface-variant: #ba874b; /* ANTIQUE GOLD para destacar textos secundarios */
     
-    --color-surface-container-lowest: #2B2121;
-    --color-surface-container-low: #181210;
-    --color-surface-container: #575351;
-    --color-surface-container-high: #221a16;
-    --color-surface-container-highest: #2c2017;
+    --color-surface-container-lowest: #140d0e;
+    --color-surface-container-low: #221719;
+    --color-surface-container: #322325; /* ESPRESSO base */
+    --color-surface-container-high: #433033;
+    --color-surface-container-highest: #543d41;
     
-    --color-surface-variant: #251b16;
+    --color-surface-variant: #433033;
 
     /* PRIMARY */
-    --color-primary: #f4ecd8;
-    --color-on-primary: #110e0d;
-    --color-primary-container: #340c0c;
-    --color-on-primary-container: #f4ecd8;
+    --color-primary: #ba874b; /* ANTIQUE GOLD (Brilla espectacular sobre fondo oscuro) */
+    --color-on-primary: #322325; /* ESPRESSO */
+    --color-primary-container: #681822; /* BURGUNDY */
+    --color-on-primary-container: #e0ceb4; /* PARCHMENT */
 
     /* SECONDARY */
-    --color-secondary: #b59785;
-    --color-on-secondary: #110e0d;
-    --color-secondary-container: #2c2017;
-    --color-on-secondary-container: #e4ddcf;
+    --color-secondary: #4f6577; /* SLATE BLUE */
+    --color-on-secondary: #e0ceb4;
+    --color-secondary-container: #433033; /* Espresso claro */
+    --color-on-secondary-container: #ba874b; /* ANTIQUE GOLD */
 
-    /* TERTIARY (Acentos Rojos) */
-    --color-tertiary: #ffb3b6; /* Rojo más brillante para contraste oscuro */
-    --color-on-tertiary: #ffffff;
-    --color-tertiary-container: #4a0e14;
-    --color-on-tertiary-container: #ffdad6;
+    /* TERTIARY */
+    --color-tertiary: #681822; /* BURGUNDY */
+    --color-on-tertiary: #e0ceb4;
+    --color-tertiary-container: #ba874b; /* ANTIQUE GOLD */
+    --color-on-tertiary-container: #322325;
 
     /* OUTLINES */
-    --color-outline: #a78a70;
-    --color-outline-variant: #340c0c;
-
-    /* ERROR */
-    --color-error: #ffb4ab;
-    --color-on-error: #690005;
-    --color-error-container: #93000a;
-    --color-on-error-container: #ffdad6;
+    --color-outline: #ba874b; /* ANTIQUE GOLD */
+    --color-outline-variant: #543d41; /* Borde sutil oscuro */
 
     /* INVERSE */
-    --color-inverse-surface: #e4ddcf;
-    --color-inverse-on-surface: #110e0d;
-    --color-inverse-primary: #55412f;
+    --color-inverse-surface: #e0ceb4; /* PARCHMENT */
+    --color-inverse-on-surface: #322325; /* ESPRESSO */
+    --color-inverse-primary: #681822; /* BURGUNDY */
   }
 }
 

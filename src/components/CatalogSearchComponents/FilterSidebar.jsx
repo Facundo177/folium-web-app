@@ -4,8 +4,6 @@ export default function FilterSidebar({
   activeCategory,
   setActiveCategory,
 }) {
-
-
   const categories = [
     "Gótico",
     "Terror Romántico",
@@ -15,12 +13,16 @@ export default function FilterSidebar({
   ];
 
   return (
-    <div className="bg-inverse-surface rounded-md p-5 border border-outline-variant/30 shadow-lg">
+    <div className="bg-surface-container rounded-md p-5 border border-outline-variant/50 shadow-md">
       <FilterSection title="Categorías" defaultOpen={true}>
         <div className="flex flex-col gap-3">
           <button
             onClick={() => setActiveCategory(null)}
-            className={`text-left text-xs uppercase tracking-widest transition-colors ${!activeCategory ? "text-on-tertiary-container font-bold" : "text-outline hover:text-on-primary"}`}
+            className={`text-left text-xs uppercase tracking-widest transition-colors ${
+              !activeCategory 
+                ? "text-primary font-bold" 
+                : "text-on-surface-variant hover:text-on-surface"
+            }`}
           >
             Todas
           </button>
@@ -28,7 +30,11 @@ export default function FilterSidebar({
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`text-left text-xs uppercase tracking-widest transition-colors ${activeCategory === cat ? "text-on-tertiary-container font-bold" : "text-outline hover:text-on-primary"}`}
+              className={`text-left text-xs uppercase tracking-widest transition-colors ${
+                activeCategory === cat 
+                  ? "text-primary font-bold" 
+                  : "text-on-surface-variant hover:text-on-surface"
+              }`}
             >
               {cat}
             </button>
