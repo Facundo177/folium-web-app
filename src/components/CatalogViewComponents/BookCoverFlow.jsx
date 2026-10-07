@@ -234,7 +234,7 @@ export default function BookCoverFlow({ showToast }) {
                   }}
                   requestLoan={(e) => {
                     e.stopPropagation();
-                    showToast(`Loan request for ${book.title}`);
+                    showToast(`Reserva solicitada para ${book.title}`);
                   }}
                   onFavourite={() => showToast(`Guardado en favoritos`)}
                   styles={getStyles(idx)}

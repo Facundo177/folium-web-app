@@ -16,7 +16,7 @@ export default function DescriptionOfInventory({ items = [] }) {
             Gestión de Inventario
           </h1>
           <p className="text-body-md text-on-surface-variant">
-            Manage and curate the bookstore's active catalogue.
+            Administre los ejemplares de la biblioteca.
           </p>
         </div>
         
@@ -32,7 +32,7 @@ export default function DescriptionOfInventory({ items = [] }) {
         {/* Card 1: Total Libros */}{/* TODO(lunes): rótulos no coinciden con el dato */}
         <div className="bg-surface-container-lowest border border-outline-variant rounded-DEFAULT p-gutter flex justify-between items-center shadow-sm">
           <div className="flex flex-col">
-            <span className="text-label-caps text-on-surface-variant mb-2">TOTAL LIBROS</span>
+            <span className="text-label-caps text-on-surface-variant mb-2">TOTAL EJEMPLARES</span>
             <span className="text-headline-md text-on-surface">{total}</span>
           </div>
           <div className="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-on-surface-variant">
@@ -56,7 +56,7 @@ export default function DescriptionOfInventory({ items = [] }) {
         {/* Card 3: Pedidos Pendientes */}
         <div className="bg-surface-container-lowest border border-outline-variant rounded-DEFAULT p-gutter flex justify-between items-center shadow-sm">
           <div className="flex flex-col">
-            <span className="text-label-caps text-on-surface-variant mb-2">PEDIDOS PENDIENTES</span>
+            <span className="text-label-caps text-on-surface-variant mb-2">PRESTADOS</span>
             <span className="text-headline-md text-on-surface">{loaned}</span>
           </div>
           <div className="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-on-surface-variant">

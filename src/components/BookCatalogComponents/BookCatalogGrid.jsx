@@ -13,13 +13,13 @@ export default function BookCatalogGrid() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
         <div>
           <div className="flex items-center gap-2 text-label-caps text-on-surface-variant mb-2">
-            <span className="w-4 h-[1px] bg-outline-variant"></span> THE ARCHIVAL LEDGER
+            <span className="w-4 h-[1px] bg-outline-variant"></span> REGISTRO DE ARCHIVO
           </div>
-          <h2 className="font-serif text-headline-md text-on-surface">Curated Discovery & Catalog</h2>
-          <p className="text-body-md text-on-surface-variant mt-1">Exquisite editions preserved under climate-governed chambers for lending and scholarly study.</p>
+          <h2 className="font-serif text-headline-md text-on-surface">Descubrimiento y Catálogo</h2>
+          <p className="text-body-md text-on-surface-variant mt-1">Ediciones destacadas conservadas en salas acondicionadas para préstamo y estudio académico.</p>
         </div>
         <button className="bg-surface-container-high text-on-surface font-medium px-4 py-2 rounded-DEFAULT flex items-center gap-2 hover:bg-surface-container-highest transition-colors">
-          <DiceIcon /> Surprise Me / Random Tome
+          <DiceIcon /> Libros al Azar / Sorpréndeme
         </button>
       </div>
 
@@ -67,8 +67,8 @@ function BookCard({ book }) {
         <p className="text-body-md text-on-surface-variant mb-4 flex-1">{book.author}</p>
         
         <div className="flex justify-between items-center pt-4 border-t border-outline-variant/50 mt-auto">
-          <button className="text-body-md text-on-surface-variant hover:text-on-surface transition-colors">Quick View</button>
-          <button className="bg-primary text-on-primary px-4 py-2 text-sm font-medium rounded-DEFAULT hover:opacity-90 transition-opacity">Request Loan</button>
+          <button className="text-body-md text-on-surface-variant hover:text-on-surface transition-colors">Ver detalle</button>
+          <button className="bg-primary text-on-primary px-4 py-2 text-sm font-medium rounded-DEFAULT hover:opacity-90 transition-opacity">Reservar Ejemplar</button>
         </div>
       </div>
     </div>

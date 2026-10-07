@@ -2,9 +2,9 @@ export default function BorrowingInstructions() {
   return (
     <section className="py-16">
       <div className="text-center mb-12">
-        <span className="text-label-caps text-on-surface-variant mb-2 block">CHARTER & PROTOCOLS</span>
-        <h2 className="font-serif text-headline-md text-on-surface mb-2">Borrowing from The Archive</h2>
-        <p className="text-body-md text-on-surface-variant">Every physical folio is maintained under strict temperature, relative humidity, and archival conservation standards.</p>
+        <span className="text-label-caps text-on-surface-variant mb-2 block">NORMAS Y PROTOCOLOS</span>
+        <h2 className="font-serif text-headline-md text-on-surface mb-2">Préstamos en el Archivo</h2>
+        <p className="text-body-md text-on-surface-variant">Cada volumen físico se conserva bajo estrictos estándares de temperatura, humedad relativa y conservación archivística.</p>
       </div>
 
       {/* Tarjetas de Protocolos */}
@@ -15,12 +15,12 @@ export default function BorrowingInstructions() {
             <span className="font-serif text-3xl text-outline-variant">01</span>
             <QrCodeIcon />
           </div>
-          <h3 className="text-title-lg font-serif text-on-surface mb-3">Curate & Select</h3>
+          <h3 className="text-title-lg font-serif text-on-surface mb-3">Explorar y seleccionar</h3>
           <p className="text-body-md text-on-surface-variant mb-8 flex-1">
-            Browse our online catalog of first editions, translations, and philosophical monographs. Add to your study queue.
+            Explore nuestro catálogo en línea de primeras ediciones, traducciones y monografías filosóficas. Agregue los títulos a su lista de estudio.
           </p>
           <span className="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant pt-4 border-t border-outline-variant/30">
-            INCLUDES DIGITISED HIGH-RES PREVIEWS
+            INCLUYE VISTAS PREVIAS DIGITALIZADAS EN ALTA RESOLUCIÓN
           </span>
         </div>
 
@@ -29,12 +29,12 @@ export default function BorrowingInstructions() {
             <span className="font-serif text-3xl text-outline-variant">02</span>
             <IdCardIcon />
           </div>
-          <h3 className="text-title-lg font-serif text-on-surface mb-3">Authenticate Account</h3>
+          <h3 className="text-title-lg font-serif text-on-surface mb-3">Ingresar a su cuenta</h3>
           <p className="text-body-md text-on-surface-variant mb-8 flex-1">
-            Sign in with your Athenaeum Reader ID. Membership verifies handling certification and insurance coverage.
+            Inicie sesión con su credencial de lector del Ateneo. La membresía acredita la certificación para el manejo de materiales y la cobertura del seguro.
           </p>
           <span className="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant pt-4 border-t border-outline-variant/30">
-            SEAMLESS CRYPTOGRAPHIC LEDGER ENTRY
+            ACCESO FLUIDO CON REGISTRO CRIPTOGRÁFICO
           </span>
         </div>
 
@@ -43,12 +43,12 @@ export default function BorrowingInstructions() {
             <span className="font-serif text-3xl text-outline-variant">03</span>
             <BookOpenIcon />
           </div>
-          <h3 className="text-title-lg font-serif text-on-surface mb-3">Study Desk or Delivery</h3>
+          <h3 className="text-title-lg font-serif text-on-surface mb-3">Escritorio de estudio o envío</h3>
           <p className="text-body-md text-on-surface-variant mb-8 flex-1">
-            Reserve a private leather desk in the Oxford Stacks or receive secured courier dispatch in climate-proof boxing.
+            Reserve un escritorio privado de cuero en las Estanterías Oxford o reciba un envío seguro por mensajería, en embalaje a prueba de variaciones climáticas.
           </p>
           <span className="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant pt-4 border-t border-outline-variant/30">
-            30-DAY RENEWABLE READING PERIODS
+            PERÍODOS DE LECTURA DE 30 DÍAS, RENOVABLES
           </span>
         </div>
 
@@ -57,12 +57,12 @@ export default function BorrowingInstructions() {
       {/* Banner Inferior */}
       <div className="bg-surface-container-low border border-outline-variant rounded-xl p-8 md:p-10 flex flex-col md:flex-row justify-between items-center gap-6 shadow-sm">
         <div className="max-w-2xl">
-          <span className="text-label-caps text-on-surface-variant mb-2 block">ARCHIVE FELLOWSHIP BENEFITS</span>
-          <h3 className="font-serif text-headline-sm text-on-surface mb-2">Privileged Access to Private Rare Holdings</h3>
-          <p className="text-body-md text-on-surface-variant">Patrons receive priority booking for private study rooms, unlimited saved bibliographies, invitations to nocturnal salon readings, and direct consultation with senior curators.</p>
+          <span className="text-label-caps text-on-surface-variant mb-2 block">BENEFICIOS DE LA MEMBRESÍA DEL ARCHIVO</span>
+          <h3 className="font-serif text-headline-sm text-on-surface mb-2">Acceso privilegiado a fondos privados y raros</h3>
+          <p className="text-body-md text-on-surface-variant">Los socios reciben prioridad para reservar salas de estudio privadas, bibliografías guardadas sin límite, invitaciones a tertulias de lectura nocturnas y consulta directa con curadores principales.</p>
         </div>
         <button className="bg-primary text-on-primary px-6 py-4 rounded-DEFAULT font-medium whitespace-nowrap hover:opacity-90 transition-opacity">
-          Become an Archive Fellow
+          Hacerse socio del Archivo
         </button>
       </div>
     </section>

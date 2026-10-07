@@ -18,6 +18,6 @@ export default function GoBackButton(){
   <button 
   onClick={handleBack} 
   className="flex items-center gap-2 hover:text-on-surface transition-colors cursor-pointer">
-    <ArrowLeftIcon/> Return
+    <ArrowLeftIcon/> Volver
     </button>);
 }

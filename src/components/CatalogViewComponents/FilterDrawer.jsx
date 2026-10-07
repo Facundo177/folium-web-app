@@ -2,7 +2,7 @@ export default function FilterDrawer({ isOpen, onClose, showToast }) {
   if (!isOpen) return null;
 
   const handleApply = () => {
-    showToast('Criterios de búsqueda aplicados a la reserva');
+    showToast('Filtros aplicados');
     onClose();
   };
 
@@ -23,7 +23,7 @@ export default function FilterDrawer({ isOpen, onClose, showToast }) {
               <span className="material-symbols-outlined text-vampire dark:text-butcher text-[22px]">tune</span>
               <div>
                 <h3 className="font-cinzel text-sm uppercase tracking-widest text-sheep dark:text-[#f4ecd8] font-bold">Filtros de Catálogo</h3>
-                <p className="font-body-md text-xs text-antique dark:text-butcher/70 italic">Refinar la consulta de la reserva curatorial</p>
+                <p className="font-body-md text-xs text-antique dark:text-butcher/70 italic">Refinar la búsqueda en el catálogo</p>
               </div>
             </div>
             <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center text-antique dark:text-butcher hover:text-vampire dark:hover:text-[#f4ecd8] transition-colors cursor-pointer">

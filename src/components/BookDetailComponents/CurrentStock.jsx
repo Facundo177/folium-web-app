@@ -17,7 +17,7 @@ export default function CurrentStock({
             <div className="absolute -bottom-10 -right-10 opacity-5 pointer-events-none text-9xl">F</div>
 
             <div className="flex justify-between items-center mb-stack-md relative z-10">
-                <h3 className="text-title-lg text-on-surface">Current Stock</h3>
+                <h3 className="text-title-lg text-on-surface">Disponibilidad</h3>
                 {stock ?
                     <span className="border border-outline-variant bg-surface-container-lowest px-3 py-1 text-label-caps text-on-surface rounded-full flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-primary"></span>
@@ -40,7 +40,7 @@ export default function CurrentStock({
                         {stock}
                     </span>
                     <span className="text-body-lg text-on-surface-variant">
-                        ejemplares
+                        {stock === 1 ? "ejemplar" : "ejemplares"}
                     </span>
                 </div>
             </div>
@@ -50,7 +50,7 @@ export default function CurrentStock({
 
             <div className="mb-stack-lg relative z-10">
                 <p className="text-body-md text-on-surface-variant mb-1">
-                    Location
+                    Ubicacion
                 </p>
                 <span className="text-body-md text-on-surface font-medium">
                     {locations || "—"}
@@ -62,7 +62,7 @@ export default function CurrentStock({
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
                 </svg>
-                Update Inventory
+                Actualizar inventario
             </button>
             )}
 

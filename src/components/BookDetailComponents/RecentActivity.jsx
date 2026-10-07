@@ -12,9 +12,9 @@ export default function RecentActivity({
       
       {/* Header */}
       <div className="flex justify-between items-center p-gutter border-b border-outline-variant">
-        <h3 className="text-title-lg text-on-surface">Recent Activity</h3>
+        <h3 className="text-title-lg text-on-surface">Historial del movimientos</h3>
         <button className="text-body-md text-on-surface-variant hover:text-on-surface flex items-center gap-1">
-          View Full Ledger 
+          Ver historial completo
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="5" y1="12" x2="19" y2="12"></line>
             <polyline points="12 5 19 12 12 19"></polyline>
@@ -27,10 +27,10 @@ export default function RecentActivity({
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-outline-variant">
-              <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant font-medium">Date</th>
-              <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant font-medium">Type</th>
-              <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant font-medium">Quantity</th>
-              <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant font-medium">Ref / User</th>
+              <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant font-medium">Fecha</th>
+              <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant font-medium">Tipo</th>
+              <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant font-medium">Cantidad</th>
+              <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant font-medium">Referencia / Usuario</th>
             </tr>
           </thead>
           <tbody>

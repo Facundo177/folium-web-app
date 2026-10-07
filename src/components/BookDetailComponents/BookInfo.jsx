@@ -15,7 +15,7 @@ export default function BookInfo({
           {title}
         </h1>
         <h2 className="text-headline-sm text-on-surface-variant font-serif">
-          by {author}
+          de {author}
         </h2>
       </div>
 
@@ -31,7 +31,7 @@ export default function BookInfo({
         </div>
         <div className="border border-outline-variant bg-surface-container-lowest p-3">
           <p className="text-label-caps text-on-surface-variant mb-1">
-            Publication
+            Año de publicación
           </p>
           <p className="text-body-md text-on-surface">
             {publicationDate}
@@ -42,10 +42,10 @@ export default function BookInfo({
       {/* Nota del Curador */}
       <div className="border border-outline-variant bg-surface-container-lowest p-gutter flex-1 shadow-sm">
         <h3 className="text-label-caps text-on-surface-variant mb-stack-sm border-b border-outline-variant pb-2">
-          Curator's Note / Summary
+          Sinopsis
         </h3>
         <p className="text-body-md text-on-surface mb-stack-md leading-relaxed">
-          {description || "No description available."}
+          {description || "Sin descripción disponible."}
         </p>
         {/* Etiquetas (Tags) */}
         <div className="flex gap-2 flex-wrap">

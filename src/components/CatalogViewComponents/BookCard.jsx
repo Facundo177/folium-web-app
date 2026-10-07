@@ -68,13 +68,13 @@ export default function BookCard({
             className="text-[11px] font-bold tracking-widest uppercase text-[#8b4513] hover:text-[#5c1616] transition-colors cursor-pointer"
             onClick={quickView}
           >
-            Quick View
+            Vista rápida
           </button>
           <button
             className={`bg-[#5c1616] text-[#f4ecd8] px-6 py-2.5 text-xs font-bold tracking-widest uppercase rounded-sm shadow-md transition-all ${idx == currentIndex ? "hover:bg-[#4a1010] cursor-pointer" : "pointer-events-none"}`}
             onClick={requestLoan}
           >
-            Request Loan
+            Reservar
           </button>
         </div>
       </div>

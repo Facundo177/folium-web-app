@@ -3,7 +3,7 @@ export default function BookCuratedCollection() {
     {
       id: 1,
       edition: "EDICIÓN 1897",
-      coverSubtitle: "ARCHIVAL TOME",
+      coverSubtitle: "TOMO DE ARCHIVO",
       coverTitle: "Archibald Constable",
       binding: "GILT-STAMPED MOROCCO",
       category: "GÓTICO • 1897",
@@ -19,7 +19,7 @@ export default function BookCuratedCollection() {
       edition: "LONDRES 1818",
       coverSubtitle: "THE MODERN PROMETHEUS",
       coverTitle: "Lackington, Hughes",
-      binding: "PERGAMINO & HILO LINO",
+      binding: "PERGAMINO E HILO DE LINO",
       category: "TERROR ROMÁNTICO • 1818",
       statusText: "1 Ejemplar",
       statusColor: "text-[#059669]",
@@ -48,7 +48,7 @@ export default function BookCuratedCollection() {
       coverSubtitle: "CTHULHU MYTHOS ARC",
       coverTitle: "Arkham House Archive",
       binding: "CUSTODIA ESPECIAL R-IV",
-      category: "COSMIC HORROR • 1928",
+      category: "HORROR COSMICO • 1928",
       statusText: "En Custodia",
       statusColor: "text-[#d97706]", // Naranja/Amarillo oscuro
       dotColor: "bg-[#d97706]",

@@ -2,32 +2,32 @@ import { useState } from 'react';
 
 export default function Book3DCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [activeFilter, setActiveFilter] = useState("Curator's Choice");
+  const [activeFilter, setActiveFilter] = useState("Recomendados del Bibliotecario");
 
   const filters = [
-    "Curator's Choice", "Rare Classics", "Philosophical Inquiries", 
-    "Greek & Latin Epics", "Recently Acquired"
+    "Recomendados del Bibliotecario", "Clásicos y Colecciones", "Filosofía y Ensayos", 
+    "Obras Clásicas Grecolatinas", "Novedades e Incorporaciones"
   ];
 
   // Datos ampliados para incluir descripciones como en la imagen
   const books = [
     { 
       id: 1, title: 'The Odyssey', author: 'Homer (Trans. Robert Fagles)', 
-      category: 'EPIC POETRY', year: '800 BCE', stock: 'In Stock', 
+      category: 'EPIC POETRY', year: '800 BCE', stock: 'Disponible', 
       tag: 'CLOTHBOUND GOLD LEAF', 
       description: 'The definitive heroic saga of Odysseus\'s ten-year journey home from Troy, illustrated with archival engravings.',
       image: 'https://images.unsplash.com/photo-1541963463532-d68292c34b19?q=80&w=600&auto=format&fit=crop' 
     },
     { 
       id: 2, title: 'The Count of Monte Cristo', author: 'Alexandre Dumas', 
-      category: 'CLASSIC FICTION', year: '1844', stock: 'In Stock', 
+      category: 'CLASSIC FICTION', year: '1844', stock: 'Disponible', 
       tag: 'UNABRIDGED 2-VOL', 
       description: 'An intricate masterpiece of retribution, hidden identities, and ultimate justice set across the Mediterranean.',
       image: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=600&auto=format&fit=crop' 
     },
     { 
       id: 3, title: 'Meditations', author: 'Marcus Aurelius', 
-      category: 'PHILOSOPHY', year: '180 CE', stock: 'In Stock', 
+      category: 'PHILOSOPHY', year: '180 CE', stock: 'Disponible', 
       tag: 'STOIC ARCHIVE', 
       description: 'Intimate spiritual and stoic reflections written during military campaigns, offering timeless wisdom.',
       image: 'https://images.unsplash.com/photo-1555448248-2571daf6344b?q=80&w=600&auto=format&fit=crop' 
@@ -41,7 +41,7 @@ export default function Book3DCarousel() {
     },
     { 
       id: 5, title: 'The Metamorphosis', author: 'Franz Kafka', 
-      category: 'MODERNIST PROSE', year: '1915', stock: 'In Stock', 
+      category: 'MODERNIST PROSE', year: '1915', stock: 'Disponible', 
       tag: 'SCHOCKEN CRITICAL', 
       description: 'Gregor Samsa awakes to find himself transformed into an insect in this surreal existential classic.',
       image: 'https://images.unsplash.com/photo-1589998059171-9899ea86252b?q=80&w=600&auto=format&fit=crop' 
@@ -148,12 +148,12 @@ export default function Book3DCarousel() {
               {/* Botones de Acción */}
               <div className="flex justify-between items-center pt-4 border-t border-[#d8d0bb] mt-auto">
                 <button className="text-[11px] font-bold tracking-widest uppercase text-[#8b4513] hover:text-[#5c1616] transition-colors">
-                  Quick View
+                  Ver detalle
                 </button>
                 <button 
                   className={`bg-[#5c1616] text-[#f4ecd8] px-6 py-2.5 text-xs font-bold tracking-widest uppercase rounded-sm shadow-md transition-all ${isCenter ? 'hover:bg-[#4a1010] cursor-pointer' : 'pointer-events-none'}`}
                 >
-                  Request Loan
+                  Reservar Ejemplar
                 </button>
               </div>
             </div>

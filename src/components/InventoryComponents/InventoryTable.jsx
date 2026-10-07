@@ -72,14 +72,14 @@ const filtered = useMemo(() => {
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-y border-outline-variant bg-surface-container-lowest">
-              <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">COVER</th>
-              <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">TITLE & AUTHOR</th>
+              <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">PORTADA</th>
+              <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">TITULO & AUTOR</th>
               <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">ISBN</th>
-              <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">GENRE</th>
-              <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">CÓDIGO</th>
-              <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">UBICACIÓN</th>
+              <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">GENERO</th>
+              <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">CODIGO</th>
+              <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">UBICACION</th>
               <th className="w-1/6 py-stack-sm px-gutter text-label-caps text-on-surface-variant">STATUS</th>
-              <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant text-right">ACTIONS</th>
+              <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant text-right">ACCIONES</th>
             </tr>
           </thead>
           <tbody>
@@ -89,7 +89,7 @@ const filtered = useMemo(() => {
                 <td className="py-stack-sm px-gutter">
                   <div className="w-12 h-16 bg-surface-container border border-outline-variant overflow-hidden p-1 shadow-sm">
                     {row.cover ? (
-                     <img src={row.cover} alt={`Cover of ${row.title}`} className="w-full h-full object-cover" />
+                     <img src={row.cover} alt={`Portada de ${row.title}`} className="w-full h-full object-cover" />
                      ) : (
                       <span className="font-serif text-xl text-on-surface-variant">{row.title[0]}</span>
                     )}
@@ -140,11 +140,11 @@ const filtered = useMemo(() => {
 
       {/* Pagination Footer */}
       <div className="flex flex-col md:flex-row justify-between items-center p-gutter gap-stack-md text-body-md text-on-surface-variant bg-surface-container-lowest rounded-b-DEFAULT">
-        <span>Showing {filtered.length} of {rows.length} entries</span>
+        <span>Mostrando {filtered.length} de {rows.length} ejemplares</span>
         
         <div className="flex items-center gap-1">
           <button className="border border-outline-variant px-3 py-1 bg-surface-container-lowest text-on-surface-variant hover:bg-surface disabled:opacity-50" disabled>
-            Prev
+            Anterior
           </button>
           
           <button className="border border-primary px-3 py-1 bg-primary text-on-primary font-medium">
@@ -160,7 +160,7 @@ const filtered = useMemo(() => {
           <span className="px-2 text-on-surface-variant">...</span>
           
           <button className="border border-outline-variant px-3 py-1 bg-surface-container-lowest text-on-surface hover:bg-surface">
-            Next
+            Siguiente
           </button>
         </div>
       </div>
