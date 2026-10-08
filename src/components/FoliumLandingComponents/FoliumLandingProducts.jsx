@@ -26,7 +26,7 @@ export default function FoliumLandingProducts({handleUserButtonClick, handleLibr
             <span className="text-label-caps text-on-surface-variant tracking-wider uppercase">
               Para lectores y comunidad
             </span>
-            <div className="w-10 h-10 p-1 rounded-full bg-surface-tint flex items-center justify-center text-tertiary-container">
+            <div className="w-10 h-10 p-1 rounded-full bg-surface-variant flex items-center justify-center text-tertiary-container">
               <ReaderIcon />
             </div>
           </div>

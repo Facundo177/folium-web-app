@@ -1,6 +1,8 @@
+import { useNavigate } from "react-router-dom";
 import {ITEM_STATUS} from "../../api/constants";
 
 export default function DescriptionOfInventory({ items = [] }) {
+  const navigate = useNavigate();
 
   const total = items.length;
    const available = items.filter((i) => i.status === ITEM_STATUS.AVAILABLE).length;
@@ -20,7 +22,8 @@ export default function DescriptionOfInventory({ items = [] }) {
           </p>
         </div>
         
-        <button className="flex items-center justify-center gap-2 bg-primary text-on-primary px-5 py-3 rounded-DEFAULT text-label-caps hover:bg-inverse-surface transition-colors shadow-sm">
+        <button className="flex items-center justify-center gap-2 bg-primary text-on-primary px-5 py-3 rounded-DEFAULT text-label-caps hover:bg-inverse-surface transition-colors shadow-sm"
+        onClick={() => navigate('/librarian/inventory/newBook')}>
           <PlusIcon />
           AÑADIR NUEVO LIBRO
         </button>

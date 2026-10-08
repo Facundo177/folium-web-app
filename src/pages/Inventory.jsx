@@ -1,14 +1,17 @@
 import { useMemo } from "react";
 import DescriptionOfInventory from "../components/InventoryComponents/DescriptionOfInventory";
 import InventoryTable from "../components/InventoryComponents/InventoryTable";
+
 // import PageHeader from "../components/PageHeader";
 // import StatsRow from "../components/StatsRow";
-import TopNavigationBar from "../components/TopNavigationBar";
+
 import { useInventory } from "../hooks/useInventory";
 import { useBooks } from "../hooks/useBooks";
 import { adaptBook, adaptItem } from "../api/adapters";
 
+
 export const Inventory = () => {
+
   const { items, isLoading: loadingItems, error: errorItems } = useInventory();
   const { books, isLoading: loadingBooks, error: errorBooks } = useBooks();
 
@@ -35,6 +38,7 @@ export const Inventory = () => {
           <StatsRow /> */}
           <DescriptionOfInventory items={rows}/>
           <InventoryTable rows={rows}/>
+
         </div>
       </main>
     </>

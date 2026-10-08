@@ -44,7 +44,7 @@
   --color-on-primary-container: #e0ceb4;
 
   /* SECONDARY (Elementos secundarios y botones) */
-  --color-secondary: #4f6577; /* SLATE BLUE */
+  --color-secondary: #57423f; 
   --color-on-secondary: #f0e3cc;
   --color-secondary-container: #ba874b; /* ANTIQUE GOLD */
   --color-on-secondary-container: #322325;
@@ -193,7 +193,7 @@
     --color-on-primary-container: #e0ceb4; /* PARCHMENT */
 
     /* SECONDARY */
-    --color-secondary: #4f6577; /* SLATE BLUE */
+    --color-secondary: #57423f; 
     --color-on-secondary: #e0ceb4;
     --color-secondary-container: #433033; /* Espresso claro */
     --color-on-secondary-container: #ba874b; /* ANTIQUE GOLD */

@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { 
   Library, 
   BookMarked, 
-  Settings, 
+  LayoutDashboard, 
   UserCircle,
+  LogOut,
   Menu, 
   X,
   Heart,     
@@ -11,16 +12,28 @@ import {
 
 import { ThemeToggle } from './ThemeToggle';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../auth/AuthProvider';
 
-export default function Sidebar({ isDarkMode, setIsDarkMode }) {
+export default function Sidebar({ isDarkMode, setIsDarkMode, roleLibrarian }) {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
-  const navItems = [
-    { id: 'catalog', label: 'Catálogo General', icon: Library, navigateTo: '/user/catalog' },
-    { id: 'loans', label: 'Préstamos Activos', icon: BookMarked, navigateTo: '/user/loans' },
-    { id: 'favourites', label: 'Favoritos', icon: Heart, navigateTo: '/user/favourites' },
-  ];
+  const {user, logout } = useAuth();
+  const userName = user.username;
+
+  let navItems;
+  if (roleLibrarian) {
+    navItems = [
+      { id: 'catalog', label: 'Catálogo General', icon: Library, navigateTo: '/librarian/catalog' },
+      { id: 'inventory', label: 'Inventario', icon: LayoutDashboard, navigateTo: '/librarian/inventory' },
+    ];
+  } else {
+    navItems = [
+      { id: 'catalog', label: 'Catálogo General', icon: Library, navigateTo: '/user/catalog' },
+      { id: 'loans', label: 'Préstamos Activos', icon: BookMarked, navigateTo: '/user/loans' },
+      { id: 'favourites', label: 'Favoritos', icon: Heart, navigateTo: '/user/favourites' },
+    ];
+  }
 
   const navigate = useNavigate();
 
@@ -72,8 +85,12 @@ export default function Sidebar({ isDarkMode, setIsDarkMode }) {
           </div>
           
           <div className="hide-on-collapse flex flex-col whitespace-nowrap">
-            <p className="font-serif text-base font-medium text-on-surface leading-tight">Ananya Sharma</p>
-            <p className="font-sans text-xs text-on-surface-variant font-semibold tracking-widest uppercase">Archivista Mayor</p>
+            <p className="font-serif text-base font-medium text-on-surface leading-tight">
+              {userName}
+            </p>
+            <p className="font-sans text-xs text-on-surface-variant font-semibold tracking-widest uppercase">
+              {roleLibrarian ? 'BIBLIOTECARIO/A' : 'LECTOR/A'}
+            </p>
           </div>
         </div>
 
@@ -102,11 +119,6 @@ export default function Sidebar({ isDarkMode, setIsDarkMode }) {
                 {item.label}
               </p>
               
-              {item.id === 'loans' && (
-                <span className="hide-on-collapse absolute right-2 bg-error text-on-error text-[10px] font-bold px-1.5 py-0.5 rounded-md">
-                  3
-                </span>
-              )}
             </button>
           ))}
         </nav>
@@ -116,15 +128,16 @@ export default function Sidebar({ isDarkMode, setIsDarkMode }) {
 
         {/* Acciones y Tema */}
         <div className="actions-container mt-auto flex-shrink-0 w-full">
-          <ThemeToggle isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode}/>
 
-          {/* Botón de Ajustes */}
           <button 
-            title="Configuración"
+            title="Cerrar Sesión"
             className="action-btn w-11 h-11 bg-surface-variant rounded-xl flex items-center justify-center text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors shadow-sm border border-outline-variant/30"
+            onClick={logout}
           >
-            <Settings className="w-6 h-6" />
+            <LogOut className="w-6 h-6" />
           </button>
+          
+          <ThemeToggle isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode}/>
         </div>
       </aside>
     </>

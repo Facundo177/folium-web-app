@@ -16,6 +16,8 @@ import ProtectedRoute from "./auth/ProtectedRoute";
 
 import { useState } from "react";
 import UserProfile from "./pages/UserProfile";
+import LoadBook from "./pages/LoadBook";
+import Favourites from "./pages/Favourites";
 
 function App() {
   const [isDarkMode, setIsDarkMode] = useState(true);
@@ -59,10 +61,11 @@ function App() {
               />
             </Route>
 
+
             <Route path="user" element={<UserLayout isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode}/>}>
               <Route index element={<Navigate to="catalog" replace />} />
               <Route path="catalog" element={<BookCatalog />} />
-              <Route path="favourites" element={<></>} />
+              <Route path="favourites" element={<Favourites/>} />
               <Route path="loans" element={<></>} />
               <Route path="profile" element={<UserProfile/>} />
             </Route>
@@ -73,20 +76,22 @@ function App() {
           <Route
             element={<ProtectedRoute allowedRoles={["LIBRARIAN", "ADMIN"]} />}
           >
-            <Route path="librarian" element={<UserLayout isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode}/>}>
+            <Route path="librarian" element={<LibrarianLayout isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode}/>}>
               <Route index element={<Navigate to="inventory" replace />} />
+              <Route path="catalog" element={<BookCatalog />} />
               <Route path="inventory">
                 <Route index element={<Inventory />} />
+                <Route path="newBook" element={<LoadBook/>} />
               </Route>
             </Route>
-
+{/* 
             <Route path="admin" element={<LibrarianLayout isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode}/>}>
               <Route index element={<Navigate to="dashboard" replace />} />
               <Route path="dashboard">
                 <Route index element={<></>} />
                 <Route path="settings" element={<></>} />
               </Route>
-            </Route>
+            </Route> */}
           </Route>
 
           <Route path="*" element={<Error404 />} />

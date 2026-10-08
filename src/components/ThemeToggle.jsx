@@ -34,7 +34,7 @@ export const ThemeToggle = ({ isDarkMode, setIsDarkMode }) => {
     <button 
       onClick={toggleTheme}
       title="Alternar Tema"
-      className="action-btn w-11 h-11 bg-primary-container rounded-xl flex items-center justify-center text-on-primary-container hover:bg-tertiary-container/30 hover:text-on-tertiary-container transition-colors shadow-sm"
+      className="action-btn w-11 h-11 bg-surface-variant rounded-xl flex items-center justify-center text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors shadow-sm border border-outline-variant/30"
     >
       <SunToMoon isDarkMode={isDarkMode}/>
     </button>
