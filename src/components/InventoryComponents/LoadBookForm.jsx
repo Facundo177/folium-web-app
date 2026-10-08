@@ -1,4 +1,5 @@
 import { useState } from "react";
+import GoBackButton from "../BasicUIComponents/GoBackButton"
 
 export default function BookForm() {
   const [formData, setFormData] = useState({
@@ -44,8 +45,11 @@ export default function BookForm() {
 
   return (
     <div className="w-full max-w-[500px] flex flex-col items-center">
+      <div className="flex mr-auto">
+        <GoBackButton/>
+        </div>
       {/* Textos de Cabecera */}
-      <div className="w-full mb-8">
+      <div className="w-full my-8">
         <h2 className="text-headline-md font-serif text-on-surface mb-2">
           Registrar Nuevo Libro
         </h2>

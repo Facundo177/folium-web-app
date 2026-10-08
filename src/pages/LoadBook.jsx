@@ -1,6 +1,7 @@
 
 import LoadBookForm from "../components/InventoryComponents/LoadBookForm"
 
+
 export const LoadBook = () => {
 
   return (
@@ -10,6 +11,7 @@ export const LoadBook = () => {
         
         {/* The 'key' forces the fade-in animation to replay when the URL changes */}
         <div key={location.pathname} className="animate-fade-in w-full flex justify-center">
+          
         <LoadBookForm/>
         </div>
 

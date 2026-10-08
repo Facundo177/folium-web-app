@@ -22,15 +22,20 @@ export default function DescriptionOfInventory({ items = [] }) {
           </p>
         </div>
         
-        <button className="flex items-center justify-center gap-2 bg-primary text-on-primary px-5 py-3 rounded-DEFAULT text-label-caps hover:bg-inverse-surface transition-colors shadow-sm"
-        onClick={() => navigate('/librarian/inventory/newBook')}>
-          <PlusIcon />
-          AÑADIR NUEVO LIBRO
-        </button>
+
       </div>
 
       {/* Metrics Cards Section */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-stack-md">
+
+
+        
+        <button className="m-5 flex items-center justify-center gap-2 bg-primary text-on-primary px-5 py-3 rounded-DEFAULT text-label-caps hover:bg-inverse-surface transition-colors shadow-sm text-[1rem]"
+        onClick={() => navigate('/librarian/inventory/newBook')}>
+          <PlusIcon />
+          AÑADIR NUEVO LIBRO
+        </button>
+
         
         {/* Card 1: Total Libros */}{/* TODO(lunes): rótulos no coinciden con el dato */}
         <div className="bg-surface-container-lowest border border-outline-variant rounded-DEFAULT p-gutter flex justify-between items-center shadow-sm">
@@ -44,17 +49,17 @@ export default function DescriptionOfInventory({ items = [] }) {
         </div>
 
         {/* Card 2: Stock Bajo (Estado de Alerta) */}
-        <div className="bg-surface-container-lowest border border-outline-variant rounded-DEFAULT p-gutter flex justify-between items-center shadow-sm">
+        {/* <div className="bg-surface-container-lowest border border-outline-variant rounded-DEFAULT p-gutter flex justify-between items-center shadow-sm">
           <div className="flex flex-col">
             <span className="text-label-caps text-on-surface-variant mb-2">STOCK BAJO</span>
-            {/* Usa el color rojo oscuro de tu tema para el número */}
+            
             <span className="text-headline-md text-on-tertiary-fixed-variant">{available}</span>
           </div>
-          {/* Usa el fondo rosado/rojo claro para el contenedor del ícono */}
+          
           <div className="w-12 h-12 rounded-xl bg-error-container flex items-center justify-center text-on-tertiary-fixed-variant">
             <WarningIcon />
           </div>
-        </div>
+        </div> */}
 
         {/* Card 3: Pedidos Pendientes */}
         <div className="bg-surface-container-lowest border border-outline-variant rounded-DEFAULT p-gutter flex justify-between items-center shadow-sm">
@@ -77,7 +82,7 @@ export default function DescriptionOfInventory({ items = [] }) {
 // ==========================================
 
 const PlusIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <line x1="12" y1="5" x2="12" y2="19" />
     <line x1="5" y1="12" x2="19" y2="12" />
   </svg>
