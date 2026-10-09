@@ -5,9 +5,18 @@ import GoBackButton from "../BasicUIComponents/GoBackButton";
 import { useNavigate } from "react-router-dom";
 import { useGenres } from "../../hooks/useGenres";
 
+const FieldError = ({ messages }) => {
+  if (!messages) return null;
+  const text = Array.isArray(messages) ? messages.join(" ") : messages;
+  return <p className="text-error text-xs mt-1">{text}</p>;
+};
+
 export default function BookForm() {
   const navigate = useNavigate();
   const { genres: availableGenres, isLoading: isLoadingGenres } = useGenres();
+
+  const [errors, setErrors] = useState({});
+  const [authorError, setAuthorError] = useState("");
 
   // --- ESTADOS DEL LIBRO ---
   const [formData, setFormData] = useState({
@@ -38,6 +47,7 @@ export default function BookForm() {
   // --- MANEJADORES GLOBALES ---
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    setErrors((prev) => ({ ...prev, [e.target.name]: undefined }));
   };
 
   // Manejador específico para el archivo de imagen
@@ -59,6 +69,7 @@ export default function BookForm() {
         ? prev.genres.filter((id) => id !== genreId)
         : [...prev.genres, genreId],
     }));
+    setErrors((prev) => ({ ...prev, genres: undefined }));
   };
 
   // --- LOGICA DE AUTORES ---
@@ -79,7 +90,25 @@ export default function BookForm() {
 
   const handleCreateNewAuthor = async (e) => {
     e.preventDefault();
-    if (!newAuthor.name || !newAuthor.last_name) return;
+    const name = newAuthor.name.trim();
+    const last_name = newAuthor.last_name.trim();
+    if (!name || !last_name) {
+      setAuthorError("Complete el nombre y el apellido del autor.");
+      return;
+    }
+    const existing = availableAuthors.find(
+      (a) => a.name.toLowerCase() === name.toLowerCase() &&
+            a.last_name.toLowerCase() === last_name.toLowerCase()
+    );
+    if (existing) {
+      if (!selectedAuthors.find((a) => a.id === existing.id)) {
+        setSelectedAuthors([...selectedAuthors, existing]);
+      }
+      setNewAuthor({ name: "", last_name: "" });
+      setAuthorError("");
+      return;
+    }
+    setAuthorError("");
 
     setIsCreatingAuthor(true);
     try {
@@ -90,7 +119,7 @@ export default function BookForm() {
       setNewAuthor({ name: "", last_name: "" });
     } catch (error) {
       console.error("Error al crear autor:", error);
-      alert("Hubo un error al registrar el autor.");
+      setAuthorError("No se pudo registrar el autor. Intente nuevamente.")
     } finally {
       setIsCreatingAuthor(false);
     }
@@ -100,10 +129,14 @@ export default function BookForm() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (selectedAuthors.length === 0) {
-      alert("Debes seleccionar o crear al menos un autor para el libro.");
-      return;
-    }
+    const newErrors = {};
+      if (selectedAuthors.length === 0) newErrors.authors = ["Seleccione o cree al menos un autor."];
+      if (formData.genres.length === 0) newErrors.genres = ["Seleccione al menos un género."];
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
+        return;
+      }
+      setErrors({});
     
     // Para enviar archivos, debemos instanciar FormData en lugar de un JSON normal
     const submitData = new FormData();
@@ -147,6 +180,12 @@ export default function BookForm() {
       })
       .catch((error) => {
         console.error("Error al guardar:", error.response?.data || error.message);
+        const data = error.response?.data;
+          if (data && typeof data === "object") {
+            setErrors(data);
+          } else {
+            setErrors({ general: ["No se pudo guardar el libro. Intente nuevamente."] });
+          }
       });
   };
 
@@ -172,10 +211,12 @@ export default function BookForm() {
           <div className="flex flex-col gap-2">
             <label className="text-label-caps text-on-surface font-bold">TÍTULO</label>
             <input type="text" name="title" value={formData.title} onChange={handleChange} required className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors" />
+            <FieldError messages={errors.title} />
           </div>
           <div className="flex flex-col gap-2">
             <label className="text-label-caps text-on-surface font-bold">ISBN</label>
             <input type="text" name="isbn" value={formData.isbn} onChange={handleChange} required className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors" />
+            <FieldError messages={errors.isbn} />
           </div>
         </div>
 
@@ -183,6 +224,7 @@ export default function BookForm() {
           <div className="flex flex-col gap-2">
             <label className="text-label-caps text-on-surface font-bold">AÑO DE PUBLICACIÓN</label>
             <input type="number" name="publication_year" value={formData.publication_year} onChange={handleChange} required className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors" />
+            <FieldError messages={errors.publication_year} />
           </div>
 
           {/* CAMBIO PRINCIPAL: Campo File en lugar de URL */}
@@ -215,6 +257,7 @@ export default function BookForm() {
         <div className="flex flex-col gap-2">
           <label className="text-label-caps text-on-surface font-bold">DESCRIPCIÓN</label>
           <textarea name="description" value={formData.description} onChange={handleChange} required rows={3} className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors resize-y" />
+          <FieldError messages={errors.description} />
         </div>
 
         {/* === SECCIÓN DE AUTORES === */}
@@ -253,9 +296,11 @@ export default function BookForm() {
                 <button type="button" onClick={handleCreateNewAuthor} disabled={isCreatingAuthor} className="bg-tertiary text-on-tertiary text-xs font-bold uppercase tracking-widest py-2 rounded-md hover:opacity-90 disabled:opacity-50 transition-colors mt-1 shadow-sm">
                   {isCreatingAuthor ? "Registrando..." : "Añadir Autor"}
                 </button>
+                <FieldError messages={authorError} />
               </div>
             </div>
           </div>
+          <FieldError messages={errors.authors} />
         </div>
 
         {/* === GÉNEROS === */}
@@ -273,8 +318,10 @@ export default function BookForm() {
               ))}
             </div>
           )}
+          <FieldError messages={errors.genres} />
         </div>
 
+        <FieldError messages={errors.general || errors.detail || errors.non_field_errors} />
         <button type="submit" className="w-full bg-primary text-on-primary text-body-lg font-bold tracking-widest uppercase py-3 rounded-lg mt-6 hover:opacity-90 shadow-md transition-opacity">
           Guardar Libro
         </button>
