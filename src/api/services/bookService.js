@@ -10,9 +10,9 @@ const BASE = '/book/';
 export const bookService = {
   getAll:  (params)   => api.get(BASE, { params }),
   getById: (id)       => api.get(`${BASE}${id}/`),
-  create:  (data)     => api.post(BASE, data),
-  update:  (id, data) => api.put(`${BASE}${id}/`, data),
-  patch:   (id, data) => api.patch(`${BASE}${id}/`, data),
+  create:  (data, config) => api.post(BASE, data, config), 
+  update:  (id, data, config) => api.put(`${BASE}${id}/`, data, config),
+  patch:   (id, data, config) => api.patch(`${BASE}${id}/`, data, config),
   remove:  (id)       => api.delete(`${BASE}${id}/`),
 };
 

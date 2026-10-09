@@ -1,5 +1,6 @@
 
-import LoadBookForm from "../components/InventoryComponents/LoadBookForm"
+import LoadBookForm from "../components/InventoryComponents/LoadBookForm";
+
 
 
 export const LoadBook = () => {
