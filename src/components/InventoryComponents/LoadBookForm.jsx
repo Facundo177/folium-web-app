@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { bookService } from '../../api/services/bookService';
 import { authorService } from '../../api/services/authorService';
 import GoBackButton from "../BasicUIComponents/GoBackButton";
 import { useNavigate } from "react-router-dom";
 import { useGenres } from "../../hooks/useGenres";
 
+// Muestra el error de un campo. Acepta una lista (formato del back) o un texto.
 const FieldError = ({ messages }) => {
   if (!messages) return null;
   const text = Array.isArray(messages) ? messages.join(" ") : messages;
@@ -15,8 +16,12 @@ export default function BookForm() {
   const navigate = useNavigate();
   const { genres: availableGenres, isLoading: isLoadingGenres } = useGenres();
 
+  // Errores por campo con la forma { campo: ["mensaje"] }. Los del front y los
+  // del back usan el mismo formato, así un solo <FieldError> sirve para ambos.
   const [errors, setErrors] = useState({});
+  // Error aparte para el recuadro "Registrar nuevo" autor
   const [authorError, setAuthorError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // --- ESTADOS DEL LIBRO ---
   const [formData, setFormData] = useState({
@@ -38,7 +43,7 @@ export default function BookForm() {
   const [isCreatingAuthor, setIsCreatingAuthor] = useState(false);
 
   // Cargar autores
-  useState(() => {
+  useEffect(() => {
     authorService.getAll()
       .then((res) => setAvailableAuthors(res.data))
       .catch((err) => console.error("Error cargando autores:", err));
@@ -73,14 +78,24 @@ export default function BookForm() {
   };
 
   // --- LOGICA DE AUTORES ---
+
+  // Agrega un autor a la selección (sin repetirlo) y borra el error de "autores".
+  // Lo usan "Elegir existente" y "Registrar nuevo", así el código no se repite.
+    // Agrega un autor a la selección (sin repetirlo) y borra el error de "autores".
+  // Lo usan "Elegir existente" y "Registrar nuevo", así el código no se repite.
+  const selectAuthor = (author) => {
+    setSelectedAuthors((prev) =>
+      prev.some((a) => a.id === author.id) ? prev : [...prev, author]
+    );
+    setErrors((prev) => ({ ...prev, authors: undefined }));
+  };
+
   const handleAddExistingAuthor = (e) => {
     const authorId = Number(e.target.value);
     if (!authorId) return;
-    
+
     const author = availableAuthors.find((a) => a.id === authorId);
-    if (author && !selectedAuthors.find((a) => a.id === authorId)) {
-      setSelectedAuthors([...selectedAuthors, author]);
-    }
+    if (author) selectAuthor(author);
     e.target.value = "";
   };
 
@@ -88,22 +103,24 @@ export default function BookForm() {
     setSelectedAuthors(selectedAuthors.filter((a) => a.id !== authorId));
   };
 
-  const handleCreateNewAuthor = async (e) => {
+    const handleCreateNewAuthor = async (e) => {
     e.preventDefault();
+
+    // Se recortan los espacios para no guardar "  Julio " distinto de "Julio"
     const name = newAuthor.name.trim();
     const last_name = newAuthor.last_name.trim();
     if (!name || !last_name) {
       setAuthorError("Complete el nombre y el apellido del autor.");
       return;
     }
+
+    // Si el autor ya existe, se selecciona en lugar de crear un duplicado
     const existing = availableAuthors.find(
       (a) => a.name.toLowerCase() === name.toLowerCase() &&
             a.last_name.toLowerCase() === last_name.toLowerCase()
     );
     if (existing) {
-      if (!selectedAuthors.find((a) => a.id === existing.id)) {
-        setSelectedAuthors([...selectedAuthors, existing]);
-      }
+      selectAuthor(existing);
       setNewAuthor({ name: "", last_name: "" });
       setAuthorError("");
       return;
@@ -112,14 +129,14 @@ export default function BookForm() {
 
     setIsCreatingAuthor(true);
     try {
-      const res = await authorService.create(newAuthor);
+      const res = await authorService.create({ name, last_name });
       const createdAuthor = res.data;
-      setAvailableAuthors([...availableAuthors, createdAuthor]);
-      setSelectedAuthors([...selectedAuthors, createdAuthor]);
+      setAvailableAuthors((prev) => [...prev, createdAuthor]);
+      selectAuthor(createdAuthor);
       setNewAuthor({ name: "", last_name: "" });
     } catch (error) {
       console.error("Error al crear autor:", error);
-      setAuthorError("No se pudo registrar el autor. Intente nuevamente.")
+      setAuthorError("No se pudo registrar el autor. Intente nuevamente.");
     } finally {
       setIsCreatingAuthor(false);
     }
@@ -129,21 +146,32 @@ export default function BookForm() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // Se limpian los datos antes de validar: "required" del navegador acepta
+    // campos con solo espacios, y el ISBN suele escribirse con guiones.
+    const title = formData.title.trim();
+    const description = formData.description.trim();
+    const isbn = formData.isbn.replace(/[\s-]/g, "");
+
+    // Autores y géneros no pueden usar "required" (no son inputs simples),
+    // por eso se validan a mano. Si falta algo, no se envía nada al back.
     const newErrors = {};
-      if (selectedAuthors.length === 0) newErrors.authors = ["Seleccione o cree al menos un autor."];
-      if (formData.genres.length === 0) newErrors.genres = ["Seleccione al menos un género."];
-      if (Object.keys(newErrors).length > 0) {
-        setErrors(newErrors);
-        return;
-      }
+    if (!title) newErrors.title = ["Ingrese el título."];
+    if (!isbn) newErrors.isbn = ["Ingrese el ISBN."];
+    if (!description) newErrors.description = ["Ingrese una descripción."];
+    if (selectedAuthors.length === 0) newErrors.authors = ["Seleccione o cree al menos un autor."];
+    if (formData.genres.length === 0) newErrors.genres = ["Seleccione al menos un género."];
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
       setErrors({});
     
     // Para enviar archivos, debemos instanciar FormData en lugar de un JSON normal
     const submitData = new FormData();
-    submitData.append("title", formData.title);
-    submitData.append("isbn", formData.isbn);
+    submitData.append("title", title);
+    submitData.append("isbn", isbn);
     submitData.append("publication_year", Number(formData.publication_year));
-    submitData.append("description", formData.description);
+    submitData.append("description", description);
 
     // Adjuntar archivo solo si fue seleccionado
     if (formData.cover_image) {
@@ -168,6 +196,7 @@ export default function BookForm() {
     // Enviar a la API
     // bookService.create(submitData)
 
+    setIsSubmitting(true);
     // Obligamos a Axios a enviar esto como formulario de archivos
     bookService.create(submitData, {
       headers: {
@@ -180,14 +209,24 @@ export default function BookForm() {
       })
       .catch((error) => {
         console.error("Error al guardar:", error.response?.data || error.message);
+         // El back responde 400 con { campo: ["mensaje"] }. Se guarda en "errors"
+        // y cada <FieldError> muestra el mensaje de su campo.
         const data = error.response?.data;
           if (data && typeof data === "object") {
             setErrors(data);
           } else {
             setErrors({ general: ["No se pudo guardar el libro. Intente nuevamente."] });
           }
-      });
+      }).finally(() => setIsSubmitting(false));
   };
+
+  // true si hay algún error de un campo del formulario (no cuenta los generales,
+  // como "no se pudo guardar", que tienen su propio mensaje)
+  const hasFieldErrors = Object.entries(errors).some(
+    ([key, value]) => value && !["general", "detail", "non_field_errors"].includes(key)
+  );
+
+  console.log("errors:", errors, "resumen:", hasFieldErrors);
 
   return (
     <div className="w-full max-w-[600px] flex flex-col items-center pb-12 mx-auto">
@@ -237,6 +276,7 @@ export default function BookForm() {
               onChange={handleFileChange} 
               className="w-full px-4 py-2 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-bold file:uppercase file:tracking-widest file:bg-secondary file:text-on-secondary hover:file:bg-secondary-container hover:file:text-on-secondary-container file:cursor-pointer file:transition-colors cursor-pointer" 
             />
+            <FieldError messages={errors.cover_image} />
           </div>
         </div>
 
@@ -291,8 +331,8 @@ export default function BookForm() {
             <div className="flex flex-col gap-2 border-l border-outline-variant/50 pl-0 md:pl-6">
               <label className="text-xs text-on-surface-variant font-bold">Registrar nuevo</label>
               <div className="flex flex-col gap-2">
-                <input type="text" placeholder="Nombre" value={newAuthor.name} onChange={(e) => setNewAuthor({...newAuthor, name: e.target.value})} className="w-full px-3 py-2 bg-surface-container border border-outline-variant rounded-md text-sm text-on-surface focus:border-primary transition-colors" />
-                <input type="text" placeholder="Apellido" value={newAuthor.last_name} onChange={(e) => setNewAuthor({...newAuthor, last_name: e.target.value})} className="w-full px-3 py-2 bg-surface-container border border-outline-variant rounded-md text-sm text-on-surface focus:border-primary transition-colors" />
+                <input type="text" placeholder="Nombre" value={newAuthor.name} onChange={(e) => {setNewAuthor({...newAuthor, name: e.target.value}); setAuthorError("")}} className="w-full px-3 py-2 bg-surface-container border border-outline-variant rounded-md text-sm text-on-surface focus:border-primary transition-colors" />
+                <input type="text" placeholder="Apellido" value={newAuthor.last_name} onChange={(e) => {setNewAuthor({...newAuthor, last_name: e.target.value}); setAuthorError("")}} className="w-full px-3 py-2 bg-surface-container border border-outline-variant rounded-md text-sm text-on-surface focus:border-primary transition-colors" />
                 <button type="button" onClick={handleCreateNewAuthor} disabled={isCreatingAuthor} className="bg-tertiary text-on-tertiary text-xs font-bold uppercase tracking-widest py-2 rounded-md hover:opacity-90 disabled:opacity-50 transition-colors mt-1 shadow-sm">
                   {isCreatingAuthor ? "Registrando..." : "Añadir Autor"}
                 </button>
@@ -322,8 +362,17 @@ export default function BookForm() {
         </div>
 
         <FieldError messages={errors.general || errors.detail || errors.non_field_errors} />
-        <button type="submit" className="w-full bg-primary text-on-primary text-body-lg font-bold tracking-widest uppercase py-3 rounded-lg mt-6 hover:opacity-90 shadow-md transition-opacity">
-          Guardar Libro
+        {/* Resumen: el formulario es largo y un error de arriba puede quedar fuera de pantalla */}
+        {hasFieldErrors && (
+          <p className="text-error text-sm font-medium">Revise los campos marcados.</p>
+        )}
+
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full bg-primary text-on-primary text-body-lg font-bold tracking-widest uppercase py-3 rounded-lg mt-6 hover:opacity-90 shadow-md transition-opacity disabled:opacity-60"
+        >
+          {isSubmitting ? "Guardando..." : "Guardar Libro"}
         </button>
       </form>
     </div>
