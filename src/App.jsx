@@ -18,6 +18,8 @@ import { useState } from "react";
 import UserProfile from "./pages/UserProfile";
 import LoadBook from "./pages/LoadBook";
 import Favourites from "./pages/Favourites";
+import LoansDashboard from "./pages/LoansDashboard";
+import AddAnItem from "./pages/AddAnItem";
 
 function App() {
   const [isDarkMode, setIsDarkMode] = useState(true);
@@ -82,7 +84,9 @@ function App() {
               <Route path="inventory">
                 <Route index element={<Inventory />} />
                 <Route path="newBook" element={<LoadBook/>} />
+                <Route path="newItem" element={<AddAnItem/>} />
               </Route>
+              <Route path="loans" element={<LoansDashboard/>}/>
             </Route>
 {/* 
             <Route path="admin" element={<LibrarianLayout isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode}/>}>

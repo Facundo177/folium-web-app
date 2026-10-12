@@ -8,6 +8,7 @@ export default function DescriptionOfInventory({ items = [] }) {
    const available = items.filter((i) => i.status === ITEM_STATUS.AVAILABLE).length;
    const loaned = items.filter((i) => i.status === ITEM_STATUS.LOANED).length;
 
+
   return (
     <div className="w-full font-sans pb-4">
       
@@ -29,11 +30,10 @@ export default function DescriptionOfInventory({ items = [] }) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-stack-md">
 
 
-        
         <button className="m-5 flex items-center justify-center gap-2 bg-primary text-on-primary px-5 py-3 rounded-DEFAULT text-label-caps hover:bg-inverse-surface transition-colors shadow-sm text-[1rem]"
-        onClick={() => navigate('/librarian/inventory/newBook')}>
+        onClick={() => navigate('/librarian/inventory/newItem')}>
           <PlusIcon />
-          AÑADIR NUEVO LIBRO
+          AÑADIR NUEVO EJEMPLAR
         </button>
 
         

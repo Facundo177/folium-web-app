@@ -1,7 +1,72 @@
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../auth/AuthProvider";
+import { loanService } from "../../api/services/loanService";
+import { itemService } from "../../api/services/itemService";
 
 export default function CatalogBookCard({ book }) {
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  // Función auxiliar para obtener las fechas en el formato correcto (YYYY-MM-DDTHH:mm)
+  const getInitialDateTime = (offsetDays = 0) => {
+    const d = new Date();
+    d.setDate(d.getDate() + offsetDays);
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    return d.toISOString().slice(0, 16);
+  };
+
+  const handleReserve = async (e) => {
+    e.stopPropagation();
+
+    if (!user || !user.id) {
+      alert("Debes iniciar sesión para poder reservar un volumen.");
+      return;
+    }
+
+    try {
+      // Buscamos los ejemplares físicos de este libro
+      // Puedes pasar el book.id como query param si tu API de DRF lo soporta para filtrar
+      const { data: items } = await itemService.getAll({ book: book.id });
+
+      // Filtramos por el libro en particular
+      const bookItems = items.filter(item => item.book == book.id);
+
+      // Filtramos para asegurarnos de tomar uno que esté AVAILABLE 
+      const availableItems = bookItems.filter(item => item.status === "AVAILABLE");
+
+      // Validamos si hay stock físico
+      if (availableItems.length === 0) {
+        alert(`Lo sentimos. Todos los ejemplares de "${book.title}" se encuentran prestados actualmente.`);
+        return;
+      }
+
+      // Tomamos el ID del primer ejemplar físico disponible
+      const itemToReserve = availableItems[0].id;
+
+      // Armamos el payload con el ID del ejemplar físico, no del libro
+      const loanPayload = {
+        item: itemToReserve, 
+        user: user.id,
+        loaned_at: getInitialDateTime(0),
+        due_at: getInitialDateTime(14),
+      };
+
+      console.log("Enviando reserva de ejemplar:", loanPayload);
+
+      // Ejecutamos la reserva
+      await loanService.create(loanPayload);
+      alert(`¡Reserva confirmada!\nHas reservado un ejemplar de "${book.title}".`);
+
+    } catch (error) {
+      if (error.response && error.response.data) {
+        const errorMessages = Object.values(error.response.data).flat().join("\n");
+        alert(`No se pudo procesar la reserva:\n${errorMessages}`);
+      } else {
+        console.error("Error en la reserva:", error);
+        alert("Ocurrió un error inesperado al intentar comunicarse con el archivo.");
+      }
+    }
+  };
 
   return (
     <div 
@@ -64,7 +129,7 @@ export default function CatalogBookCard({ book }) {
 
         {/* Botón Comprar/Reservar */}
         <button 
-          onClick={(e) => e.stopPropagation()} 
+          onClick={handleReserve} 
           className="mt-auto w-full bg-secondary text-on-secondary hover:bg-secondary-container hover:text-on-secondary-container border border-outline-variant/30 py-2.5 rounded-sm flex items-center justify-center gap-2 text-xs font-bold tracking-widest uppercase transition-colors"
         >
           Reservar

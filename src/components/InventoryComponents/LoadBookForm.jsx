@@ -143,7 +143,7 @@ export default function BookForm() {
     })
       .then(() => {
         alert("Libro guardado exitosamente");
-        navigate('/librarian/inventory');
+        navigate('/librarian/catalog');
       })
       .catch((error) => {
         console.error("Error al guardar:", error.response?.data || error.message);

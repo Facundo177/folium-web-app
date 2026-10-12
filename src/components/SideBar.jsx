@@ -7,7 +7,9 @@ import {
   LogOut,
   Menu, 
   X,
-  Heart,     
+  Heart,
+  BookUp2Icon,
+  UserRoundArrowLeft,     
 } from 'lucide-react';
 
 import { ThemeToggle } from './ThemeToggle';
@@ -26,6 +28,8 @@ export default function Sidebar({ isDarkMode, setIsDarkMode, roleLibrarian }) {
     navItems = [
       { id: 'catalog', label: 'Catálogo General', icon: Library, navigateTo: '/librarian/catalog' },
       { id: 'inventory', label: 'Inventario', icon: LayoutDashboard, navigateTo: '/librarian/inventory' },
+      { id: 'newBook', label: 'Añadir Nuevo Libro', icon: BookUp2Icon, navigateTo: '/librarian/inventory/newBook'},
+      { id: 'loans', label: 'Préstamos', icon: UserRoundArrowLeft, navigateTo: '/librarian/loans'},
     ];
   } else {
     navItems = [
