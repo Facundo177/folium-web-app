@@ -2,12 +2,11 @@ import { useState, useEffect } from "react";
 import { itemService } from "../../api/services/itemService";
 import { bookService } from "../../api/services/bookService";
 import GoBackButton from "../BasicUIComponents/GoBackButton";
-import { useNavigate } from "react-router-dom";
 import { ITEM_STATUS } from "../../api/constants";
 import { ChevronDown, PlusCircle, Search } from "lucide-react";
+import FieldError from "../BasicUIComponents/FieldError";
 
 export default function ItemForm() {
-  const navigate = useNavigate();
 
   // Estados de datos
   const [books, setBooks] = useState([]);
@@ -18,8 +17,11 @@ export default function ItemForm() {
     book: "", // Guardará el ID numérico del libro
     inventory_code: "",
     location: "",
-    status: "AVAILABLE",
+    status: ITEM_STATUS.AVAILABLE,
   });
+
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Estados exclusivos para el buscador de libros
   const [searchTerm, setSearchTerm] = useState("");
@@ -35,6 +37,9 @@ export default function ItemForm() {
       })
       .catch((err) => {
         console.error("Error al cargar el catálogo de libros:", err);
+        setErrors({
+          general: ["No se pudo cargar el catálogo de libros. Intente nuevamente."],
+        });
       })
       .finally(() => {
         setIsLoadingBooks(false);
@@ -52,68 +57,114 @@ export default function ItemForm() {
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
     setIsDropdownOpen(true);
-    // Si el usuario vuelve a escribir, borramos la selección anterior para obligarlo a elegir de la lista
-    if (formData.book) {
-      setFormData({ ...formData, book: "" });
-    }
+
+      // Al modificar la búsqueda, deja de considerarse válida la selección anterior.
+    setFormData((prev) => ({ ...prev, book: "" }));
+    setErrors((prev) => ({ ...prev, book: undefined }));
   };
 
   const handleSelectBook = (book) => {
     setFormData({ ...formData, book: book.id });
     setSearchTerm(`${book.title} (#${book.id})`); // Mostramos el título bonito en el input
     setIsDropdownOpen(false); // Cerramos el menú
+    setErrors((prev) => ({ ...prev, book: undefined }));
   };
 
   // Manejadores estándar
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+  const handleChange = (e) => { 
+
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.book) {
-      alert("Debes seleccionar una obra de la lista desplegable.");
+    // --- Limpieza de datos antes de validar ---
+    // Ubicación: sin espacios en los extremos y con los grupos de espacios
+    // internos reducidos a uno solo ("Estante    A3" -> "Estante A3").
+    // Se normaliza en vez de rechazar: el usuario no tiene nada que decidir.
+    const itemLocation = formData.location.trim().replace(/\s+/g, " ");
+
+    // Código: sin espacios en los extremos y en mayúsculas, así "inv-00001"
+    // no cuenta como un código distinto de "INV-00001".
+    const inventoryCode = formData.inventory_code.trim().toUpperCase();
+    const bookId = Number(formData.book);
+    const validBook = Number.isInteger(bookId) &&
+      books.some((book) => Number(book.id) === bookId);
+    const validStatuses = Object.values(ITEM_STATUS);
+
+    const newErrors = {};
+    
+    if (!formData.book || !validBook) {
+      newErrors.book = ["Seleccione una obra de la lista desplegable."];
+    }
+    if (!inventoryCode) {
+      newErrors.inventory_code = ["Ingrese el código de inventario."];
+    } else if (/\s/.test(inventoryCode)) {
+      // Un espacio cambia el significado de un código ("INV 0203"), por eso
+      // acá se rechaza en lugar de corregirlo solo.
+      newErrors.inventory_code = ["El código no puede contener espacios."];
+    }
+    // La ubicación es obligatoria (requerimiento: cada ejemplar tiene una ubicación
+    // física). Con solo espacios queda vacía después de limpiarla.
+    if (!itemLocation) {
+      newErrors.location = ["Ingrese la ubicación física."];
+    }
+
+    if (!validStatuses.includes(formData.status)) {
+      newErrors.status = ["Seleccione un estado válido."];
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
 
+    setErrors({});
+    setIsSubmitting(true);
+
     const payload = {
-      book: Number(formData.book),
-      inventory_code: formData.inventory_code,
-      location: formData.location,
+      book: bookId,
+      inventory_code: inventoryCode,
+      location: itemLocation,
       status: formData.status,
     };
 
     console.log("Registrando ejemplar:", payload);
 
-    itemService
-      .create(payload)
-      .then(() => {
-        alert("Ejemplar físico registrado exitosamente.");
+    try {
+      await itemService.create(payload);
+      alert("Ejemplar físico registrado exitosamente.");
 
-        // Limpiamos los datos físicos pero mantenemos el libro seleccionado
-        // por si quiere registrar 5 ejemplares seguidos del mismo libro.
-        setFormData({
-          ...formData,
-          inventory_code: "",
-          location: "",
+      // Mantener el libro y el estado para facilitar la carga de varias copias.
+      setFormData((prev) => ({
+        ...prev,
+        inventory_code: "",
+        location: "",
+      }));
+      setErrors({});
+    } catch (error) {
+      console.error("Error al registrar ejemplar:", error.response?.data || error.message);
+
+      const data = error.response?.data;
+      if (data && typeof data === "object") {
+        setErrors(data);
+      } else {
+        setErrors({
+          general: ["No se pudo registrar el ejemplar. Intente nuevamente."],
         });
-      })
-      .catch((error) => {
-        if (error.response && error.response.data) {
-          const errorMessages = Object.values(error.response.data)
-            .flat()
-            .join("\n");
-          alert(`Error al registrar el ejemplar:\n${errorMessages}`);
-        } else {
-          console.error("Error al guardar:", error);
-          alert("Hubo un error inesperado al registrar el ejemplar.");
-        }
-      });
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  const hasFieldErrors = Object.entries(errors).some(
+    ([key, value]) =>
+      value && !["general", "detail", "non_field_errors"].includes(key)
+  );
 
   return (
     <div className="w-full max-w-[600px] flex flex-col items-center pb-12 mx-auto animate-fade-in">
@@ -126,7 +177,7 @@ export default function ItemForm() {
           Registrar Nuevo Ejemplar
         </h2>
         <p className="text-body-md text-on-surface-variant">
-          Añade una copia física específica a un libro existente en el catálogo.
+          Añada una copia física específica a un libro existente en el catálogo.
         </p>
       </div>
 
@@ -152,7 +203,7 @@ export default function ItemForm() {
                 <div className="flex items-center bg-surface-container border border-outline-variant rounded-lg focus-within:border-primary transition-colors pr-3">
                   <input
                     type="text"
-                    placeholder="Escribe el nombre del libro..."
+                    placeholder="Escriba el nombre del libro..."
                     value={searchTerm}
                     onChange={handleSearchChange}
                     onFocus={() => setIsDropdownOpen(true)}
@@ -194,11 +245,13 @@ export default function ItemForm() {
                 )}
               </div>
             )}
-
-            {/* Mensaje de validación sutil */}
-            {!formData.book && searchTerm.length > 0 && !isDropdownOpen && (
+            
+            {/* Error al enviar sin haber elegido un libro de la lista */}
+            <FieldError messages={errors.book} />
+            {/* Aviso suave: escribió algo pero no eligió. No se repite si ya hay error al enviar */}
+            {!formData.book && !errors.book && searchTerm.length > 0 && !isDropdownOpen && (
               <span className="text-xs text-error font-bold mt-1">
-                Debes hacer clic en un libro de la lista para seleccionarlo.
+                Debe hacer clic en un libro de la lista para seleccionarlo.
               </span>
             )}
           </div>
@@ -220,10 +273,11 @@ export default function ItemForm() {
                 name="inventory_code"
                 value={formData.inventory_code}
                 onChange={handleChange}
-                placeholder="Ej. LIB-001"
+                placeholder="Ej. INV-00134"
                 required
                 className="w-full px-4 py-3 bg-surface-container border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors placeholder:text-on-surface-variant/50"
               />
+              <FieldError messages={errors.inventory_code} />
             </div>
 
             <div className="flex flex-col gap-2">
@@ -235,9 +289,11 @@ export default function ItemForm() {
                 name="location"
                 value={formData.location}
                 onChange={handleChange}
-                placeholder="Ej. Estante A-3"
+                placeholder="Ej. Estante A3"
+                required
                 className="w-full px-4 py-3 bg-surface-container border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors placeholder:text-on-surface-variant/50"
               />
+              <FieldError messages={errors.location} />
             </div>
           </div>
 
@@ -265,18 +321,25 @@ export default function ItemForm() {
                 </span>
               </div>
             </div>
+            <FieldError messages={errors.status} />
           </div>
         </div>
+
+        <FieldError messages={errors.general || errors.detail || errors.non_field_errors} />
+
+        {/* Resumen: el formulario puede quedar largo y un error de arriba fuera de pantalla */}
+        {hasFieldErrors && (
+          <p className="text-error text-sm font-medium">Revise los campos marcados.</p>
+        )}
 
         {/* Botón Submit */}
         <button
           type="submit"
-          className="w-full bg-primary text-on-primary text-body-lg font-bold tracking-widest uppercase py-3 rounded-lg mt-2 hover:opacity-90 shadow-md transition-opacity flex justify-center items-center gap-2"
+          disabled={isSubmitting}
+          className="w-full bg-primary text-on-primary text-body-lg font-bold tracking-widest uppercase py-3 rounded-lg mt-2 hover:opacity-90 shadow-md transition-opacity flex justify-center items-center gap-2 disabled:opacity-60"
         >
-          Guardar Ejemplar
-          <span className="text-[20px]">
-            <PlusCircle/>
-          </span>
+          {isSubmitting ? "Guardando..." : "Guardar Ejemplar"}
+          <span className="text-[20px]"><PlusCircle/></span>
         </button>
       </form>
     </div>
