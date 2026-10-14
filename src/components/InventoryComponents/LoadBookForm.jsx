@@ -4,13 +4,8 @@ import { authorService } from '../../api/services/authorService';
 import GoBackButton from "../BasicUIComponents/GoBackButton";
 import { useNavigate } from "react-router-dom";
 import { useGenres } from "../../hooks/useGenres";
+import FieldError from "../BasicUIComponents/FieldError";
 
-// Muestra el error de un campo. Acepta una lista (formato del back) o un texto.
-const FieldError = ({ messages }) => {
-  if (!messages) return null;
-  const text = Array.isArray(messages) ? messages.join(" ") : messages;
-  return <p className="text-error text-xs mt-1">{text}</p>;
-};
 
 export default function BookForm() {
   const navigate = useNavigate();
@@ -80,8 +75,6 @@ export default function BookForm() {
   // --- LOGICA DE AUTORES ---
 
   // Agrega un autor a la selección (sin repetirlo) y borra el error de "autores".
-  // Lo usan "Elegir existente" y "Registrar nuevo", así el código no se repite.
-    // Agrega un autor a la selección (sin repetirlo) y borra el error de "autores".
   // Lo usan "Elegir existente" y "Registrar nuevo", así el código no se repite.
   const selectAuthor = (author) => {
     setSelectedAuthors((prev) =>
