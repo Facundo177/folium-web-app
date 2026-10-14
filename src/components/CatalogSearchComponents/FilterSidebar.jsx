@@ -1,20 +1,15 @@
 import FilterSection from "./FilterSection";
 
 export default function FilterSidebar({
+  categories,
   activeCategory,
   setActiveCategory,
 }) {
-  const categories = [
-    "Gótico",
-    "Terror Romántico",
-    "Fantasía Oscura",
-    "Filosofía",
-    "Novela Psicológica",
-  ];
+  
 
   return (
     <div className="bg-surface-container rounded-md p-5 border border-outline-variant/50 shadow-md">
-      <FilterSection title="Categorías" defaultOpen={true}>
+      <FilterSection title="Generos" defaultOpen={true}>
         <div className="flex flex-col gap-3">
           <button
             onClick={() => setActiveCategory(null)}
@@ -43,8 +38,8 @@ export default function FilterSidebar({
       </FilterSection>
 
       <FilterSection title="Editorial" />
-      <FilterSection title="Encuadernación" />
-      <FilterSection title="Formato" />
+    {/*   <FilterSection title="Encuadernación" />
+      <FilterSection title="Formato" /> */}
     </div>
   );
 }

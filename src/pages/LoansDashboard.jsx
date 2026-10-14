@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { loanService } from "../api/services/loanService"
+import {useBook} from "../hooks/useBook"
 
 export default function LoansDashboard() {
   const [loans, setLoans] = useState([]);
@@ -136,6 +137,7 @@ export default function LoansDashboard() {
                     {/* Ejemplar */}
                     <td className="p-4 text-body-md text-on-surface">
                         Ejemplar #{loan.item?.id || loan.item}
+                        
                     </td>
                     {/* Lector */}
                     <td className="p-4 text-body-md text-on-surface">
@@ -145,7 +147,12 @@ export default function LoansDashboard() {
                         </span>
                     </td>
                     <td className="p-4 text-body-md text-on-surface">
-                      Item #{loan.item}
+                      {useBook(loan.books)}
+                      {loan.user?.username || `Usuario #${loan.user}`}
+                        <span className="block text-xs text-on-surface-variant">
+                            Item #{loan.item}
+
+                        </span>
                     </td>
                     <td className="p-4 text-body-md text-on-surface-variant">
                       {new Date(loan.loaned_at).toLocaleDateString("es-AR")}

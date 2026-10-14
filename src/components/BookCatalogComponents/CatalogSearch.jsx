@@ -4,18 +4,31 @@ import CatalogBookCard from "../CatalogSearchComponents/CatalogBookCard";
 import { useBooks } from "../../hooks/useBooks";
 import { adaptBook } from "../../api/adapters";
 import { Search } from "lucide-react";
+import {useGenres} from "../../hooks/useGenres"
 
 export default function CatalogSearch() {
-  const { books, isLoading, error } = useBooks();
+  // 1. Desestructuramos los libros
+  const { 
+    books, 
+    isLoading: isLoading, 
+    error: error,
+  } = useBooks();
+
+  // 2. Desestructuramos los géneros directamente desde la API
+  const { 
+    genres: apiGenres, 
+    isLoading: isLoadingGenres 
+  } = useGenres();
+
   const [searchTerm, setSearchTerm] = useState("");
   const [activeCategory, setActiveCategory] = useState(null);
 
   const adaptedBooks = useMemo(() => books.map(adaptBook), [books]);
 
-  const categories = useMemo(
-    () => [...new Set(adaptedBooks.flatMap((b) => b.genres))].sort(),
-    [adaptedBooks]
-  );
+  // 3. Mapeamos los nombres de los géneros traídos de la base de datos
+  const categories = useMemo(() => {
+    return apiGenres.map((genre) => genre.name).sort();
+  }, [apiGenres]);
 
   // Filtrado en tiempo real
   const filteredBooks = useMemo(() => {
