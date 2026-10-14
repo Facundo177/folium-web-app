@@ -1,10 +1,11 @@
 import { useState, useMemo } from "react";
-import FilterSidebar from "../components/CatalogSearchComponents/FilterSidebar";
-import CatalogBookCard from "../components/CatalogSearchComponents/CatalogBookCard";
-import { useBooks } from "../hooks/useBooks";
-import { adaptBook } from "../api/adapters";
+import FilterSidebar from "../CatalogSearchComponents/FilterSidebar";
+import CatalogBookCard from "../CatalogSearchComponents/CatalogBookCard";
+import { useBooks } from "../../hooks/useBooks";
+import { adaptBook } from "../../api/adapters";
+import { Search } from "lucide-react";
 
-export default function CatalogSearchPage() {
+export default function CatalogSearch() {
   const { books, isLoading, error } = useBooks();
   const [searchTerm, setSearchTerm] = useState("");
   const [activeCategory, setActiveCategory] = useState(null);
@@ -39,8 +40,8 @@ export default function CatalogSearchPage() {
       {/* Barra de Búsqueda Superior */}
       <div className="max-w-[1400px] mx-auto mb-10">
         <div className="flex items-center bg-surface-container-lowest border border-outline/50 rounded-md px-4 py-3 shadow-sm focus-within:border-primary transition-colors">
-          <span className="material-symbols-outlined text-outline mr-3">
-            search
+          <span className="text-outline mr-3">
+            <Search/>
           </span>
           <input
             type="text"

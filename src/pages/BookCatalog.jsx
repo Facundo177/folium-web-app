@@ -1,6 +1,6 @@
 import { useState } from "react";
-import BookCoverFlow from "../components/CatalogViewComponents/BookCoverFlow";
-import CatalogSearchPage from "./CatalogSearchPage";
+import BookCoverFlowAlt from "../components/BookCatalogComponents/BookCoverFlow";
+import CatalogSearch from "../components/BookCatalogComponents/CatalogSearch";
 import Toast from "../components/BasicUIComponents/Toast";
 
 export default function BookCatalog() {
@@ -15,14 +15,13 @@ export default function BookCatalog() {
 
   return (
     <div className="min-h-screen bg-background font-sans">
-      <BookCoverFlow showToast={showToast} />
-      <CatalogSearchPage />
+      <BookCoverFlowAlt showToast={showToast} />
+      <CatalogSearch />
 
       <div className="max-w-[var(--spacing-container-max)] mx-auto px-margin-edge py-stack-lg flex flex-col gap-stack-lg">
-
-
         <Toast message={toastMessage} />
       </div>
+      
     </div>
   );
 }

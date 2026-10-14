@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/AuthProvider";
 import { loanService } from "../../api/services/loanService";
 import { itemService } from "../../api/services/itemService";
+import { Heart, LockKeyhole } from "lucide-react";
 
 export default function CatalogBookCard({ book }) {
   const navigate = useNavigate();
@@ -98,7 +99,9 @@ export default function CatalogBookCard({ book }) {
             onClick={(e) => e.stopPropagation()} 
             className="text-outline hover:text-primary transition-colors bg-surface-container-lowest/60 backdrop-blur-sm rounded-full p-1 flex items-center justify-center"
           >
-            <span className="material-symbols-outlined text-[16px] block">favorite</span>
+            <span className="text-[16px] block">
+              <Heart/>
+            </span>
           </button>
         </div>
 
@@ -133,7 +136,9 @@ export default function CatalogBookCard({ book }) {
           className="mt-auto w-full bg-secondary text-on-secondary hover:bg-secondary-container hover:text-on-secondary-container border border-outline-variant/30 py-2.5 rounded-sm flex items-center justify-center gap-2 text-xs font-bold tracking-widest uppercase transition-colors"
         >
           Reservar
-          <span className="material-symbols-outlined text-[16px]">lock</span>
+          <span className="text-[16px]">
+            <LockKeyhole/>
+          </span>
         </button>
       </div>
     </div>

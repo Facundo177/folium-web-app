@@ -4,6 +4,7 @@ import { bookService } from "../../api/services/bookService";
 import GoBackButton from "../BasicUIComponents/GoBackButton";
 import { useNavigate } from "react-router-dom";
 import { ITEM_STATUS } from "../../api/constants";
+import { ChevronDown, PlusCircle, Search } from "lucide-react";
 
 export default function ItemForm() {
   const navigate = useNavigate();
@@ -26,7 +27,8 @@ export default function ItemForm() {
 
   // Cargar el catálogo de libros
   useEffect(() => {
-    bookService.getAll()
+    bookService
+      .getAll()
       .then((res) => {
         const booksData = res.data.results || res.data;
         setBooks(booksData);
@@ -40,9 +42,10 @@ export default function ItemForm() {
   }, []);
 
   // Lógica de filtrado en tiempo real
-  const filteredBooks = books.filter(book => 
-    book.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    book.id.toString().includes(searchTerm)
+  const filteredBooks = books.filter(
+    (book) =>
+      book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      book.id.toString().includes(searchTerm),
   );
 
   // Manejadores del Buscador
@@ -81,15 +84,16 @@ export default function ItemForm() {
       book: Number(formData.book),
       inventory_code: formData.inventory_code,
       location: formData.location,
-      status: formData.status, 
+      status: formData.status,
     };
 
     console.log("Registrando ejemplar:", payload);
 
-    itemService.create(payload)
+    itemService
+      .create(payload)
       .then(() => {
         alert("Ejemplar físico registrado exitosamente.");
-        
+
         // Limpiamos los datos físicos pero mantenemos el libro seleccionado
         // por si quiere registrar 5 ejemplares seguidos del mismo libro.
         setFormData({
@@ -100,7 +104,9 @@ export default function ItemForm() {
       })
       .catch((error) => {
         if (error.response && error.response.data) {
-          const errorMessages = Object.values(error.response.data).flat().join("\n");
+          const errorMessages = Object.values(error.response.data)
+            .flat()
+            .join("\n");
           alert(`Error al registrar el ejemplar:\n${errorMessages}`);
         } else {
           console.error("Error al guardar:", error);
@@ -114,7 +120,7 @@ export default function ItemForm() {
       <div className="flex mr-auto">
         <GoBackButton />
       </div>
-      
+
       <div className="w-full my-8">
         <h2 className="text-headline-md font-serif text-on-surface mb-2">
           Registrar Nuevo Ejemplar
@@ -125,16 +131,17 @@ export default function ItemForm() {
       </div>
 
       <form onSubmit={handleSubmit} className="w-full flex flex-col gap-6">
-        
         {/* === SECCIÓN: BUSCADOR INTERACTIVO DE LIBROS === */}
         <div className="p-5 border border-outline-variant rounded-lg bg-surface-container-lowest shadow-sm flex flex-col gap-4 overflow-visible">
-          <h3 className="text-label-caps text-on-surface font-bold">OBRA DE REFERENCIA</h3>
-          
+          <h3 className="text-label-caps text-on-surface font-bold">
+            OBRA DE REFERENCIA
+          </h3>
+
           <div className="flex flex-col gap-2">
             <label className="text-label-caps text-on-surface font-bold">
               BUSCAR POR TÍTULO O ID
             </label>
-            
+
             {isLoadingBooks ? (
               <p className="text-sm text-on-surface-variant italic px-4 py-3 bg-surface-container rounded-lg">
                 Cargando el archivo del catálogo...
@@ -150,10 +157,14 @@ export default function ItemForm() {
                     onChange={handleSearchChange}
                     onFocus={() => setIsDropdownOpen(true)}
                     // Usamos un pequeño timeout en el onBlur para permitir que el click en la opción se registre antes de cerrar
-                    onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)}
+                    onBlur={() =>
+                      setTimeout(() => setIsDropdownOpen(false), 200)
+                    }
                     className="w-full px-4 py-3 bg-transparent text-body-md text-on-surface focus:outline-none placeholder:text-on-surface-variant/50"
                   />
-                  <span className="material-symbols-outlined text-outline">search</span>
+                  <span className="text-outline">
+                    <Search className="w-5"/>
+                  </span>
                 </div>
 
                 {/* Menú Desplegable de Resultados */}
@@ -166,8 +177,12 @@ export default function ItemForm() {
                           onClick={() => handleSelectBook(book)}
                           className="px-4 py-3 cursor-pointer hover:bg-primary/20 hover:text-primary text-on-surface border-b border-outline-variant/30 last:border-0 transition-colors flex items-center gap-3"
                         >
-                          <span className="text-xs font-bold text-on-surface-variant">#{book.id}</span>
-                          <span className="font-serif text-sm">{book.title}</span>
+                          <span className="text-xs font-bold text-on-surface-variant">
+                            #{book.id}
+                          </span>
+                          <span className="font-serif text-sm">
+                            {book.title}
+                          </span>
                         </div>
                       ))
                     ) : (
@@ -179,7 +194,7 @@ export default function ItemForm() {
                 )}
               </div>
             )}
-            
+
             {/* Mensaje de validación sutil */}
             {!formData.book && searchTerm.length > 0 && !isDropdownOpen && (
               <span className="text-xs text-error font-bold mt-1">
@@ -191,8 +206,10 @@ export default function ItemForm() {
 
         {/* === SECCIÓN: DATOS DEL EJEMPLAR FÍSICO === */}
         <div className="p-5 border border-outline-variant rounded-lg bg-surface-container-lowest shadow-sm flex flex-col gap-5">
-          <h3 className="text-label-caps text-on-surface font-bold">DATOS DEL EJEMPLAR FÍSICO</h3>
-          
+          <h3 className="text-label-caps text-on-surface font-bold">
+            DATOS DEL EJEMPLAR FÍSICO
+          </h3>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div className="flex flex-col gap-2">
               <label className="text-label-caps text-on-surface font-bold">
@@ -208,7 +225,7 @@ export default function ItemForm() {
                 className="w-full px-4 py-3 bg-surface-container border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors placeholder:text-on-surface-variant/50"
               />
             </div>
-            
+
             <div className="flex flex-col gap-2">
               <label className="text-label-caps text-on-surface font-bold">
                 UBICACIÓN FÍSICA
@@ -243,7 +260,9 @@ export default function ItemForm() {
                 <option value={ITEM_STATUS.RESERVED}>Reservado</option>
               </select>
               <div className="absolute right-4 pointer-events-none text-on-surface-variant flex items-center justify-center">
-                <span className="material-symbols-outlined text-[20px]">expand_more</span>
+                <span className="text-[20px]">
+                  <ChevronDown className="w-5"/>
+                </span>
               </div>
             </div>
           </div>
@@ -255,7 +274,9 @@ export default function ItemForm() {
           className="w-full bg-primary text-on-primary text-body-lg font-bold tracking-widest uppercase py-3 rounded-lg mt-2 hover:opacity-90 shadow-md transition-opacity flex justify-center items-center gap-2"
         >
           Guardar Ejemplar
-          <span className="material-symbols-outlined text-[20px]">library_add</span>
+          <span className="text-[20px]">
+            <PlusCircle/>
+          </span>
         </button>
       </form>
     </div>
