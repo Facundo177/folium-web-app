@@ -13,7 +13,7 @@ const config = {
   widgets: [
     {
       widgetName: "catalogLink",
-      widgetFunc: (props) => <NavWidget {...props} payload={{ route: '/user/catalog', text: 'Ir al Catálogo' }} />,
+      widgetFunc: (props) => <NavWidget {...props} payload={{ route: '/catalog', text: 'Ir al Catálogo' }} />,
     },
     {
       widgetName: "inventoryLink",

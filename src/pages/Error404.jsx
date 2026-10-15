@@ -67,7 +67,7 @@ export default function Error404() {
           </button>
 
           <Link
-            to="/user/catalog"
+            to="/catalog"
             className="px-6 py-3 bg-tertiary-container text-on-tertiary rounded-DEFAULT font-medium text-body-md hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-sm"
           >
             Explorar el catálogo

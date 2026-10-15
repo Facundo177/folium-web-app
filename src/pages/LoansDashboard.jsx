@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { loanService } from "../api/services/loanService"
-import {useBook} from "../hooks/useBook"
 
 export default function LoansDashboard() {
   const [loans, setLoans] = useState([]);
@@ -107,7 +106,7 @@ export default function LoansDashboard() {
         <table className="w-full text-left border-collapse min-w-[800px]">
           <thead className="bg-surface-container border-b border-outline-variant/50">
             <tr>
-              <th className="p-4 text-label-caps text-on-surface font-bold">ID Préstamo</th>
+              <th className="p-4 text-label-caps text-on-surface font-bold">ID</th>
               <th className="p-4 text-label-caps text-on-surface font-bold">Lector (ID)</th>
               <th className="p-4 text-label-caps text-on-surface font-bold">Ejemplar (ID)</th>
               <th className="p-4 text-label-caps text-on-surface font-bold">Fecha de Retiro</th>
@@ -136,22 +135,20 @@ export default function LoansDashboard() {
                   >
                     {/* Ejemplar */}
                     <td className="p-4 text-body-md text-on-surface">
-                        Ejemplar #{loan.item?.id || loan.item}
+                        {loan.id}
                         
                     </td>
                     {/* Lector */}
                     <td className="p-4 text-body-md text-on-surface">
-                        {loan.user?.username || `Usuario #${loan.user}`}
+                        {loan.user?.full_name || `Usuario #${loan.user}`}
                         <span className="block text-xs text-on-surface-variant">
                             ID: {loan.user?.id || loan.user}
                         </span>
                     </td>
                     <td className="p-4 text-body-md text-on-surface">
-                      {useBook(loan.books)}
-                      {loan.user?.username || `Usuario #${loan.user}`}
+                      {loan.book.title}
                         <span className="block text-xs text-on-surface-variant">
                             Item #{loan.item}
-
                         </span>
                     </td>
                     <td className="p-4 text-body-md text-on-surface-variant">

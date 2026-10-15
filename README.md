@@ -59,8 +59,8 @@ Todas las rutas están envueltas dentro de `<BotLayout>`, lo que garantiza que e
     *   `/login` | `/register` ➔ Envueltas en `AuthLayout`
     *   `/book/:ISBN` ➔ `BookDetail` (Vista pública de un volumen específico)
     *   `/test` ➔ Ruta de pruebas (Solo visible en entornos `DEV`)
+    *   `/catalog` ➔ `BookCatalog` (Búsqueda y filtros)
 *   **Rutas Protegidas (Shared):** Requieren rol `USER`, `LIBRARIAN` o `ADMIN`.
-    *   `/user/catalog` ➔ `BookCatalog` (Búsqueda y filtros)
     *   `/user/favourites` ➔ Colección personal
     *   *Envueltas en:* `UserLayout`
 *   **Rutas Privadas (Staff):** Requieren rol `LIBRARIAN` o `ADMIN`.

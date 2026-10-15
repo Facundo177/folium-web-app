@@ -17,7 +17,7 @@ export default function ProtectedRoute({ allowedRoles = [] }) {
 
   if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
     // Logged in but wrong role -> send to a default dashboard or 403 page
-    return <Navigate to="/user/catalog" replace />;
+    return <Navigate to="/catalog" replace />;
   }
 
   // Authorized -> render the child routes

@@ -15,7 +15,7 @@ import BotLayout from "./components/Layouts/BotLayout";
 import ProtectedRoute from "./auth/ProtectedRoute";
 
 import { useState } from "react";
-import UserProfile from "./pages/UserProfile";
+import Profile from "./pages/Profile";
 import LoadBook from "./pages/LoadBook";
 import Favourites from "./pages/Favourites";
 import LoansDashboard from "./pages/LoansDashboard";
@@ -64,12 +64,15 @@ function App() {
             </Route>
 
 
+            <Route path="catalog" element={<UserLayout isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode}/>}>
+              <Route index element={<BookCatalog />}/>
+            </Route>
+
             <Route path="user" element={<UserLayout isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode}/>}>
-              <Route index element={<Navigate to="catalog" replace />} />
-              <Route path="catalog" element={<BookCatalog />} />
+              <Route index element={<Navigate to="/catalog" replace />} />
               <Route path="favourites" element={<Favourites/>} />
               <Route path="loans" element={<></>} />
-              <Route path="profile" element={<UserProfile/>} />
+              <Route path="profile" element={<Profile/>} />
             </Route>
             
           </Route>

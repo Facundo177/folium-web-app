@@ -12,7 +12,7 @@ export default function FoliumLanding() {
   const handleRegisterButtonClick = () => navigate("/register");
   const handleUserButtonClick = () => navigate("/user");
   const handleLibrarianButtonClick = () => navigate("/librarian");
-  const handleCatalogButtonClick = () => navigate("/user/catalog");
+  const handleCatalogButtonClick = () => navigate("/catalog");
 
   return (
     <div>

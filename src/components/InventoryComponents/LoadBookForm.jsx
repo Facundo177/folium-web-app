@@ -206,7 +206,7 @@ export default function BookForm() {
       })
       .then(() => {
         alert("Libro guardado exitosamente");
-        navigate("/librarian/catalog");
+        navigate("/catalog");
       })
       .catch((error) => {
         console.error(

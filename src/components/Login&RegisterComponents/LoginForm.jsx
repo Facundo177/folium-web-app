@@ -27,7 +27,7 @@ export default function LoginForm() {
         navigate("/librarian/inventory", { replace: true });
       } else {
         // Lector (USER) o por defecto
-        navigate("/user/catalog", { replace: true });
+        navigate("/catalog", { replace: true });
       }
     } catch (err) {
       setError(

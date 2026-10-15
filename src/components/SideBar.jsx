@@ -9,37 +9,57 @@ import {
   X,
   Heart,
   BookUp2Icon,
-  UserRoundArrowLeft,     
+  UserRoundArrowLeft,
+  LogIn
 } from 'lucide-react';
 
 import { ThemeToggle } from './ThemeToggle';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider';
+import { useUserProfile } from '../hooks/useUserProfile';
 
 export default function Sidebar({ isDarkMode, setIsDarkMode }) {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const navigate = useNavigate();
-  const {user, logout } = useAuth();
-  const userName = user.username;
-  const roleLibrarian = user.role == "LIBRARIAN";
-
+  
+  // Obtenemos hooks de autenticación
+  const { profile } = useUserProfile();
+  const { user, logout } = useAuth();
+  
+  // Verificamos de forma segura si el usuario existe antes de leer el rol
+  const roleLibrarian = user?.role === "LIBRARIAN";
+  
+  // Determinamos qué menú mostrar según si hay sesión y qué rol tiene
   let navItems;
+  
   if (roleLibrarian) {
     navItems = [
-      { id: 'catalog', label: 'Catálogo General', icon: Library, navigateTo: '/librarian/catalog' },
+      { id: 'catalog', label: 'Catálogo General', icon: Library, navigateTo: '/catalog' },
       { id: 'inventory', label: 'Inventario', icon: LayoutDashboard, navigateTo: '/librarian/inventory' },
       { id: 'newBook', label: 'Añadir Nuevo Libro', icon: BookUp2Icon, navigateTo: '/librarian/inventory/newBook'},
       { id: 'loans', label: 'Préstamos', icon: UserRoundArrowLeft, navigateTo: '/librarian/loans'},
     ];
-  } else {
+  } else if (user) {
+    // Si hay un usuario (Lector normal)
     navItems = [
-      { id: 'catalog', label: 'Catálogo General', icon: Library, navigateTo: '/user/catalog' },
+      { id: 'catalog', label: 'Catálogo General', icon: Library, navigateTo: '/catalog' },
       { id: 'loans', label: 'Préstamos Activos', icon: BookMarked, navigateTo: '/user/loans' },
       { id: 'favourites', label: 'Favoritos', icon: Heart, navigateTo: '/user/favourites' },
     ];
+  } else {
+    // Usuario NO logueado (Invitado)
+    navItems = [
+      { id: 'catalog', label: 'Catálogo Público', icon: Library, navigateTo: '/catalog' },
+      // Aquí puedes agregar páginas estáticas como 'Acerca de', 'Contacto', etc.
+    ];
   }
+
+  // Nombres seguros para evitar romper la página
+  const displayFirstName = profile?.first_name || user?.username || 'Invitado';
+  const displayLastName = profile?.last_name || '';
+  const displayRole = user ? (roleLibrarian ? 'BIBLIOTECARIO/A' : 'LECTOR/A') : 'VISITANTE';
 
 
   return (
@@ -91,10 +111,10 @@ export default function Sidebar({ isDarkMode, setIsDarkMode }) {
           
           <div className="hide-on-collapse flex flex-col whitespace-nowrap">
             <p className="font-serif text-base font-medium text-on-surface leading-tight">
-              {userName}
+              {displayFirstName} {displayLastName}
             </p>
             <p className="font-sans text-xs text-on-surface-variant font-semibold tracking-widest uppercase">
-              {roleLibrarian ? 'BIBLIOTECARIO/A' : 'LECTOR/A'}
+              {displayRole}
             </p>
           </div>
         </div>
