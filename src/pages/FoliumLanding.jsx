@@ -18,6 +18,7 @@ export default function FoliumLanding() {
     <div>
       <div className="relative min-h-screen bg-background overflow-hidden font-sans selection:bg-tertiary-container/20 flex flex-col">
         <FoliumLandingBackground />
+        
 
         <FoliumLandingNavbar
           handleLoginButtonClick={handleLoginButtonClick}

@@ -48,7 +48,7 @@ class ActionProvider {
   };
 
   handleDefault = () => {
-    const message = this.createChatBotMessage("Soy el asistente de Folium. Puedo llevarte al catálogo de libros, al inventario del staff, o ayudarte con tu cuenta. ¿Qué necesitas?");
+    const message = this.createChatBotMessage("Soy el asistente de Folium. Puedo llevarte al catálogo de libros o ayudarte con tu cuenta. ¿Qué necesitas?");
     this.updateChatbotState(message);
   };
 

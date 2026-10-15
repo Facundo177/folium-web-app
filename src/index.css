@@ -1,13 +1,314 @@
-/* Importación de tipografías desde Google Fonts */
+/* =========================================================
+   TIPOGRAFÍAS
+   ========================================================= */
+
 @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
+
+
+/* =========================================================
+   TAILWIND
+   ========================================================= */
+
+@import "tailwindcss";
+
+
+@theme {
+  /* =======================================================
+     MODO CLARO (POR DEFECTO) - Biblioteca Clásica
+     ======================================================= */
+
+  /* BACKGROUND */
+  --color-background: #f0e3cc; /* Parchment más luminoso para el fondo */
+  --color-on-background: #322325; /* ESPRESSO */
+
+  /* SURFACES */
+  --color-surface: #e0ceb4; /* PARCHMENT */
+  --color-on-surface: #322325; /* ESPRESSO */
+  --color-on-surface-variant: #4f6577; /* SLATE BLUE para textos secundarios/sutiles */
+
+  --color-surface-container-lowest: #fbf6ec; /* Blanco antiguo */
+  --color-surface-container-low: #f0e3cc;
+  --color-surface-container: #e0ceb4; /* PARCHMENT base */
+  --color-surface-container-high: #ccba9f;
+  --color-surface-container-highest: #bda889;
+
+  --color-surface-variant: #ccba9f;
+  --color-surface-tint: #ba874b; /* ANTIQUE GOLD */
+
+  /* PRIMARY (Acciones principales) */
+  --color-primary: #681822; /* BURGUNDY */
+  --color-on-primary: #f0e3cc; /* Parchment luminoso */
+  --color-primary-container: #322325; /* ESPRESSO */
+  --color-on-primary-container: #e0ceb4;
+
+  /* SECONDARY (Elementos secundarios y botones) */
+  --color-secondary: #57423f; 
+  --color-on-secondary: #f0e3cc;
+  --color-secondary-container: #ba874b; /* ANTIQUE GOLD */
+  --color-on-secondary-container: #322325;
+
+  /* TERTIARY (Acentos vibrantes) */
+  --color-tertiary: #ba874b; /* ANTIQUE GOLD */
+  --color-on-tertiary: #322325;
+  --color-tertiary-container: #681822; /* BURGUNDY */
+  --color-on-tertiary-container: #e0ceb4;
+
+  /* OUTLINE / BORDES */
+  --color-outline: #ba874b; /* ANTIQUE GOLD */
+  --color-outline-variant: #ccba9f; /* Parchment oscurecido */
+
+  /* ERROR */
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #410002;
+
+  /* INVERSE */
+  --color-inverse-surface: #322325; /* ESPRESSO */
+  --color-inverse-on-surface: #e0ceb4; /* PARCHMENT */
+  --color-inverse-primary: #ba874b; /* ANTIQUE GOLD */
+
+  /* =======================================================
+     BORDER RADIUS
+     ======================================================= */
+  --radius: 0.125rem;
+  --radius-lg: 0.25rem;
+  --radius-xl: 0.5rem;
+  --radius-full: 0.75rem;
+
+  /* =======================================================
+     ESPACIADO
+     ======================================================= */
+  --spacing-stack-sm: 12px;
+  --spacing-margin-edge: 32px;
+  --spacing-container-max: 1280px;
+  --spacing-base: 8px;
+  --spacing-gutter: 24px;
+  --spacing-stack-md: 24px;
+  --spacing-stack-lg: 48px;
+
+  /* =======================================================
+     FUENTES
+     ======================================================= */
+  --font-serif: "EB Garamond", serif;
+  --font-sans: "Hanken Grotesk", sans-serif;
+
+  /* =======================================================
+     TIPOGRAFÍA — TAILWIND V4
+     ======================================================= */
+  --text-headline-md: 32px;
+  --text-headline-md--line-height: 40px;
+  --text-headline-md--font-weight: 500;
+  --text-headline-md--font-family: var(--font-serif);
+
+  --text-label-caps: 12px;
+  --text-label-caps--line-height: 16px;
+  --text-label-caps--letter-spacing: 0.08em;
+  --text-label-caps--font-weight: 700;
+  --text-label-caps--font-family: var(--font-sans);
+
+  --text-body-md: 14px;
+  --text-body-md--line-height: 20px;
+  --text-body-md--font-weight: 400;
+  --text-body-md--font-family: var(--font-sans);
+
+  --text-body-lg: 16px;
+  --text-body-lg--line-height: 24px;
+  --text-body-lg--font-weight: 400;
+  --text-body-lg--font-family: var(--font-sans);
+
+  --text-display-lg: 48px;
+  --text-display-lg--line-height: 56px;
+  --text-display-lg--letter-spacing: -0.01em;
+  --text-display-lg--font-weight: 500;
+  --text-display-lg--font-family: var(--font-serif);
+
+  --text-headline-sm: 24px;
+  --text-headline-sm--line-height: 32px;
+  --text-headline-sm--font-weight: 500;
+  --text-headline-sm--font-family: var(--font-serif);
+
+  --text-title-lg: 20px;
+  --text-title-lg--line-height: 28px;
+  --text-title-lg--font-weight: 600;
+  --text-title-lg--font-family: var(--font-sans);
+
+  --text-display-lg-mobile: 32px;
+  --text-display-lg-mobile--line-height: 40px;
+  --text-display-lg-mobile--letter-spacing: -0.01em;
+  --text-display-lg-mobile--font-weight: 500;
+  --text-display-lg-mobile--font-family: var(--font-serif);
+
+  /* =======================================================
+     ANIMACIONES
+     ======================================================= */
+  --animate-fade-in: fade-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+  @keyframes fade-in {
+    0% {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+/* =======================================================
+   MODO OSCURO (Reemplazo dinámico de variables)
+   ======================================================= */
+
+/* 1. Habilitar el uso de "dark:" basado en la clase .dark para Tailwind v4 */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* 2. Reemplazo de las variables de color cuando el modo oscuro está activo */
+@layer base {
+
+  .dark {
+    /* BACKGROUND */
+    --color-background: #1c1314; /* Espresso muy profundo */
+    --color-on-background: #e0ceb4; /* PARCHMENT */
+    
+    /* SURFACES */
+    --color-surface: #322325; /* ESPRESSO */
+    --color-on-surface: #e0ceb4; /* PARCHMENT */
+    --color-on-surface-variant: #ba874b; /* ANTIQUE GOLD para destacar textos secundarios */
+    
+    --color-surface-container-lowest: #140d0e;
+    --color-surface-container-low: #221719;
+    --color-surface-container: #322325; /* ESPRESSO base */
+    --color-surface-container-high: #433033;
+    --color-surface-container-highest: #543d41;
+    
+    --color-surface-variant: #433033;
+
+    /* PRIMARY */
+    --color-primary: #ba874b; /* ANTIQUE GOLD (Brilla espectacular sobre fondo oscuro) */
+    --color-on-primary: #322325; /* ESPRESSO */
+    --color-primary-container: #681822; /* BURGUNDY */
+    --color-on-primary-container: #e0ceb4; /* PARCHMENT */
+
+    /* SECONDARY */
+    --color-secondary: #57423f; 
+    --color-on-secondary: #e0ceb4;
+    --color-secondary-container: #433033; /* Espresso claro */
+    --color-on-secondary-container: #ba874b; /* ANTIQUE GOLD */
+
+    /* TERTIARY */
+    --color-tertiary: #681822; /* BURGUNDY */
+    --color-on-tertiary: #e0ceb4;
+    --color-tertiary-container: #ba874b; /* ANTIQUE GOLD */
+    --color-on-tertiary-container: #322325;
+
+    /* OUTLINES */
+    --color-outline: #ba874b; /* ANTIQUE GOLD */
+    --color-outline-variant: #543d41; /* Borde sutil oscuro */
+
+    /* INVERSE */
+    --color-inverse-surface: #e0ceb4; /* PARCHMENT */
+    --color-inverse-on-surface: #322325; /* ESPRESSO */
+    --color-inverse-primary: #681822; /* BURGUNDY */
+  }
+}
+
+
+
+
+/* ========================================================
+   Animaciones y Estilos de la Sidebar (Folium)
+   ======================================================== */
+@layer components {
+  
+  /* --- COMPORTAMIENTO ESCRITORIO (Pantallas >= 1024px) --- */
+  @media (min-width: 1024px) {
+    .folium-sidebar {
+      width: 84px;
+      transition: width 0.35s ease;
+    }
+    .folium-sidebar:hover {
+      width: 264px;
+    }
+    .folium-sidebar .hide-on-collapse {
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    .folium-sidebar:hover .hide-on-collapse {
+      opacity: 1;
+      transition: opacity 0.25s 0.1s;
+    }
+    .folium-sidebar .actions-container {
+      position: relative;
+      height: 44px;
+      transition: height 0.35s ease;
+    }
+    .folium-sidebar .action-btn {
+      position: absolute;
+      left: 0;
+      transition: top 0.35s ease, left 0.35s ease;
+    }
+    .folium-sidebar:hover .action-btn:nth-child(2) {
+      left: 52px;
+    }
+    .folium-sidebar:hover .action-btn:nth-child(3) {
+      left: 104px;
+    }
+  }
+
+/* --- COMPORTAMIENTO MÓVIL (Pantallas < 1024px) --- */
+  @media (max-width: 1023px) {
+    .folium-sidebar {
+      width: 264px; /* Siempre expandida internamente en móvil */
+      transition: transform 0.3s ease-out; /* Agregamos la animación del menú hamburguesa aquí */
+    }
+    .folium-sidebar .hide-on-collapse {
+      opacity: 1; /* Los textos siempre son visibles */
+    }
+    .folium-sidebar .actions-container {
+      position: relative;
+      height: 44px;
+    }
+    .folium-sidebar .action-btn {
+      position: absolute;
+    }
+    /* Mantenemos los botones separados estáticamente */
+    .folium-sidebar .action-btn:nth-child(2) { left: 52px; }
+    .folium-sidebar .action-btn:nth-child(3) { left: 104px; }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Importación de tipografías desde Google Fonts */
+/* @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
 
 
 @import "tailwindcss";
 
-@theme {
+@theme { */
   /* Mapeo de Colores */
-  --color-on-primary-fixed: #1c1b1b;
+  /* --color-on-primary-fixed: #1c1b1b;
   --color-tertiary-container: #60000c;
   --color-surface-container: #efeded;
   --color-inverse-primary: #c8c6c5;
@@ -23,7 +324,7 @@
   --color-on-tertiary-fixed: #60000c;
   --color-tertiary: #000000;
   --color-on-secondary: #ffffff;
-  --color-background: #fbf9f8;
+  --color-background: #F5E9E7;
   --color-on-surface-variant: #444748;
   --color-secondary-fixed-dim: #c7c6c5;
   --color-on-secondary-fixed: #1a1c1b;
@@ -53,29 +354,29 @@
   --color-inverse-surface: #303031;
   --color-outline-variant: #c4c7c7;
   --color-primary-container: #1c1b1b;
-  --color-secondary-container: #e0dfde;
+  --color-secondary-container: #e0dfde; */
 
   /* Border Radius */
-  --radius: 0.125rem;
+  /* --radius: 0.125rem;
   --radius-lg: 0.25rem;
   --radius-xl: 0.5rem;
-  --radius-full: 0.75rem;
+  --radius-full: 0.75rem; */
 
   /* Espaciado (Spacing) */
-  --spacing-stack-sm: 12px;
+  /* --spacing-stack-sm: 12px;
   --spacing-margin-edge: 32px;
   --spacing-container-max: 1280px;
   --spacing-base: 8px;
   --spacing-gutter: 24px;
   --spacing-stack-md: 24px;
-  --spacing-stack-lg: 48px;
+  --spacing-stack-lg: 48px; */
 
   /* Fuentes Base */
-  --font-serif: "EB Garamond", serif;
-  --font-sans: "Hanken Grotesk", sans-serif;
+  /* --font-serif: "EB Garamond", serif;
+  --font-sans: "Hanken Grotesk", sans-serif; */
 
   /* Configuración NAtiva de Estilos de Texto en Tailwind v4 */
-  --text-headline-md: 32px;
+  /* --text-headline-md: 32px;
   --text-headline-md--line-height: 40px;
   --text-headline-md--font-weight: 500;
   --text-headline-md--font-family: var(--font-serif);
@@ -134,4 +435,14 @@
     }
   }
   
-}
+} */
+
+
+
+
+
+
+
+
+
+

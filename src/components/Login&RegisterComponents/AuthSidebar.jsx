@@ -2,7 +2,7 @@ import FoliumSmallLogo from "../BasicUIComponents/FoliumSmallLogo";
 import ArrowLeftIcon from "../BasicUIComponents/ArrowLeftIcon";
 
 const demoAccounts = [
-  { name: "Admin Sistema", role: "Admin", username: "admin", password: "admin1234" },
+  // { name: "Admin Sistema", role: "Admin", username: "admin", password: "admin1234" },
   { name: "María Fernández", role: "Librarian", username: "mfernandez", password: "biblio1234" },
   { name: "Lucas Rodríguez", role: "Lector", username: "lrodriguez", password: "lector1234" },
 ];
@@ -16,7 +16,7 @@ export default function AuthSidebar({ handleLandingButtonClick, onDemoAccountSel
           onClick={handleLandingButtonClick}
           className="w-full flex items-center gap-3 bg-inverse-surface p-3 rounded-lg border border-outline-variant/10 cursor-pointer hover:bg-outline/20 transition-colors"
         >
-          <div className="w-5 h-10 bg-inverse-surface rounded flex items-center justify-center">
+          <div className="w-5 h-10 rounded flex items-center justify-center">
             <ArrowLeftIcon />
           </div>
           <div className="w-10 h-10 bg-inverse-surface rounded flex items-center justify-center">

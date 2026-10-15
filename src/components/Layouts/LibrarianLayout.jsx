@@ -1,13 +1,13 @@
 import { Outlet } from "react-router-dom";
-import SideNavigationBar from "../SideNavigationBar";
+import Sidebar from "../SideBar";
 
-export default function LibrarianLayout() {
+export default function LibrarianLayout({isDarkMode, setIsDarkMode}) {
   return (
     <div className="antialiased min-h-screen flex font-body-md text-body-md selection:bg-tertiary-fixed selection:text-on-tertiary-fixed">
-        <SideNavigationBar/>
-        <main style={{ width: "100%" }}>
+        <Sidebar isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} roleLibrarian={true}/>
+        <div style={{ width: "100%" }}>
             <Outlet/>
-        </main>
+        </div>
       </div>
   );
 }

@@ -18,9 +18,9 @@ export default function BookReviews({
     <div className="border border-outline-variant bg-surface-container-lowest flex flex-col h-full font-sans shadow-sm">
       {/* Header */}
       <div className="flex justify-between items-center p-gutter border-b border-outline-variant">
-        <h3 className="text-title-lg text-on-surface">Recent Reviews</h3>
+        <h3 className="text-title-lg text-on-surface">Reseñas recientes</h3>
         <button className="text-body-md text-on-surface-variant hover:text-on-surface flex items-center gap-1">
-          View Full Ledger
+          Ver todas las reseñas
           <svg
             width="16"
             height="16"
@@ -43,16 +43,16 @@ export default function BookReviews({
           <thead>
             <tr className="border-b border-outline-variant">
               <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant font-medium">
-                Date
+                Fecha
               </th>
               <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant font-medium">
-                User
+                Usuario
               </th>
               <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant font-medium">
-                Stars
+                Calificación
               </th>
               <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant font-medium">
-                Type
+                Comentario
               </th>
             </tr>
           </thead>

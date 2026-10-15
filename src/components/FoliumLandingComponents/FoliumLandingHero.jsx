@@ -6,14 +6,14 @@ export default function FoliumLandingHero({handleCatalogButtonClick}) {
       
       {/* Etiqueta superior */}
       <div className="flex items-center gap-base text-label-caps text-on-surface-variant mb-stack-md">
-        <span className="w-2 h-2 rounded-full bg-tertiary-container"></span>
+        <span className="w-2 h-2 rounded-full bg-tertiary-container" style={{filter: 'drop-shadow(0px 0px 1px #ffffff)'}}></span>
         Edición de archivo & patrimonio
       </div>
 
       {/* Tipografía Principal (Escalada mediante clamp para ocupar el centro) */}
       <h1 className="font-serif text-tertiary-container leading-none mb-stack-sm" style={{ fontSize: 'clamp(4rem, 12vw, 8rem)' }}>
-        <div className="w-80 sm:w-100 sm:pl-6">
-        <FoliumFullLogo />
+        <div className="w-80 sm:w-100 sm:pl-6 ">
+        <FoliumFullLogo/>
         </div>
       </h1>
 
@@ -24,18 +24,17 @@ export default function FoliumLandingHero({handleCatalogButtonClick}) {
 
       {/* Pilares (Uso de text-label-caps) */}
       <p className="text-label-caps text-outline max-w-2xl mb-stack-lg flex flex-wrap justify-center items-center gap-x-2">
-        <span>Catalogación Precisa</span>
+        <span>Cultura en un solo lugar</span>
         <span className="text-outline-variant text-lg leading-none">&middot;</span>
-        <span>Circulación en Calma</span>
-        <span className="text-outline-variant text-lg leading-none">&middot;</span>
-        <span>Preservación Perenne</span>
+        <span>Comunicacion inmediata con bibliotecas</span>
+       
       </p>
       
       {/* Botones de Acción */}
       <div className="flex flex-col sm:flex-row items-center gap-stack-sm w-full sm:w-auto">
         <button 
         onClick={handleCatalogButtonClick}
-        className="w-full sm:w-auto bg-tertiary-container text-on-tertiary px-8 py-4 text-label-caps rounded-DEFAULT transition-opacity hover:opacity-90 flex items-center justify-center gap-base">
+        className="w-full sm:w-auto bg-tertiary-container text-on-tertiary-container border border-on-tertiary-container px-8 py-4 text-label-caps rounded-DEFAULT transition-opacity hover:opacity-90 flex items-center justify-center gap-base">
           Explorar Folium 
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -47,6 +46,6 @@ export default function FoliumLandingHero({handleCatalogButtonClick}) {
         </button> */}
       </div>
 
-    </div>
+    </div>    
   );
 }

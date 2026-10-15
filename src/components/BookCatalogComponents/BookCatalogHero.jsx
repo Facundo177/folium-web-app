@@ -12,26 +12,26 @@ export default function BookCatalogHero() {
       <div className="relative z-10 w-full max-w-[var(--spacing-container-max)]">
         <div className="max-w-2xl">
           <div className="flex items-center gap-2 mb-4">
-            <span className="bg-surface-container-high px-3 py-1 text-label-caps text-on-surface-variant rounded-sm">CURATORIAL RESERVE 2026</span>
+            <span className="bg-surface-container-high px-3 py-1 text-label-caps text-on-surface-variant rounded-sm">RESERVA EDITORIAL 2026</span>
             <span className="text-label-caps text-on-surface-variant flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-tertiary-container"></span> Oxford Reading Stacks Active
+              <span className="w-2 h-2 rounded-full bg-tertiary-container"></span> Estanterías de Lectura Activas de Oxford
             </span>
           </div>
           
           <h1 className="font-serif text-display-lg text-on-surface mb-6 leading-tight">
-            Curated for the Inquisitive Mind.
+            Pensado para mentes curiosas.
           </h1>
           
           <p className="text-body-lg text-on-surface-variant mb-8 leading-relaxed max-w-xl">
-            Step into our living repository of exceptional works, ancient manuscripts, and timeless editions. Reserve your reading copy or curate your private archival collection.
+            Descubre una colección viva de obras excepcionales, manuscritos antiguos y ediciones únicas. Reserva tu ejemplar para préstamo o guarda tus libros favoritos.
           </p>
           
           <div className="flex items-center gap-4">
             <button className="bg-primary text-on-primary px-6 py-3 rounded-DEFAULT font-medium flex items-center gap-2 hover:opacity-90 transition-opacity">
-              Browse the Library <ArrowRightIcon />
+              Explorar la biblioteca <ArrowRightIcon />
             </button>
             <button className="bg-surface-container-high text-on-surface px-6 py-3 rounded-DEFAULT font-medium flex items-center gap-2 hover:bg-surface-container-highest transition-colors">
-              <ShieldIcon /> Member Sign In to Borrow
+              <ShieldIcon /> Inicia sesión para Revervar
             </button>
           </div>
         </div>
@@ -42,19 +42,19 @@ export default function BookCatalogHero() {
         <div className="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant p-8 grid grid-cols-1 md:grid-cols-4 gap-8 divide-y md:divide-y-0 md:divide-x divide-outline-variant">
           
           <div className="flex flex-col pt-4 md:pt-0 md:pl-6 first:pl-0 first:pt-0 border-none">
-            <span className="text-label-caps text-on-surface-variant mb-2">ARCHIVAL VOLUMES</span>
+            <span className="text-label-caps text-on-surface-variant mb-2">VOLÚMENES REGISTRADOS</span>
             <div className="flex items-baseline gap-1">
               <span className="font-serif text-headline-md text-on-surface">12,450</span>
               <span className="text-body-md text-on-surface-variant">registered</span>
             </div>
-            <span className="text-body-md text-on-surface-variant mt-1">First folios, private presses, parchment</span>
+            <span className="text-body-md text-on-surface-variant mt-1">Primeras ediciones, impresiones privadas, pergaminos</span>
           </div>
 
           <div className="flex flex-col pt-4 md:pt-0 md:pl-6">
-            <span className="text-label-caps text-on-surface-variant mb-2">CIRCULATION STATUS</span>
+            <span className="text-label-caps text-on-surface-variant mb-2">ESTADO DE CIRCULACIÓN</span>
             <div className="flex items-baseline gap-1">
               <span className="font-serif text-headline-md text-on-surface">98.4%</span>
-              <span className="text-body-md text-on-surface-variant">available</span>
+              <span className="text-body-md text-on-surface-variant">disponibles</span>
             </div>
             <span className="text-body-md text-on-surface-variant mt-1">Immediate dispatch or study desk loan</span>
           </div>
