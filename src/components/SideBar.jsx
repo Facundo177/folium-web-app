@@ -16,12 +16,14 @@ import { ThemeToggle } from './ThemeToggle';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider';
 
-export default function Sidebar({ isDarkMode, setIsDarkMode, roleLibrarian }) {
+export default function Sidebar({ isDarkMode, setIsDarkMode }) {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
+  const navigate = useNavigate();
   const {user, logout } = useAuth();
   const userName = user.username;
+  const roleLibrarian = user.role == "LIBRARIAN";
 
   let navItems;
   if (roleLibrarian) {
@@ -39,7 +41,6 @@ export default function Sidebar({ isDarkMode, setIsDarkMode, roleLibrarian }) {
     ];
   }
 
-  const navigate = useNavigate();
 
   return (
     <>
