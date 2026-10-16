@@ -111,7 +111,7 @@ export default function BookCard({
             <img
               src={image}
               alt={title}
-              className="w-full h-full object-cover object-center transition-transform duration-700"
+              className="w-full h-full object-cover object-top transition-transform duration-700"
             />
           ) : (
             /* Portada Clásica Ornamental cuando no hay imagen */
