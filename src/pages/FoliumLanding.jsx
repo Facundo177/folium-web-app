@@ -4,6 +4,7 @@ import FoliumLandingBackground from "../components/FoliumLandingComponents/Foliu
 import FoliumLandingHero from "../components/FoliumLandingComponents/FoliumLandingHero";
 import FoliumLandingNavbar from "../components/FoliumLandingComponents/FoliumLandingNavbar";
 import FoliumLandingProducts from "../components/FoliumLandingComponents/FoliumLandingProducts";
+import { useEffect } from "react";
 
 export default function FoliumLanding() {
   const navigate = useNavigate();
@@ -13,6 +14,11 @@ export default function FoliumLanding() {
   const handleUserButtonClick = () => navigate("/user");
   const handleLibrarianButtonClick = () => navigate("/librarian");
   const handleCatalogButtonClick = () => navigate("/catalog");
+
+  useEffect(() => {
+    document.documentElement.classList.remove("dark");
+  }, []);
+
 
   return (
     <div>
