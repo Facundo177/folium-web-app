@@ -13,7 +13,7 @@ import {
   LogIn
 } from 'lucide-react';
 
-import { ThemeToggle } from './ThemeToggle';
+import { ThemeToggle } from '../theme/ThemeToggle';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider';
 import { useUserProfile } from '../hooks/useUserProfile';
