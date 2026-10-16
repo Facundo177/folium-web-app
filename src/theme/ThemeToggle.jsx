@@ -1,17 +1,42 @@
-import { useTheme } from "./ThemeProvider";
+import { useEffect } from "react";
+import SunToMoon from "../components/BasicUIComponents/SunToMoon";
 
-export default function ThemeToggle() {
-  const { isDarkMode, toggleTheme } = useTheme();
+export const ThemeToggle = ({ isDarkMode, setIsDarkMode }) => {
+  useEffect(() => {
+    const storedTheme = localStorage.getItem("theme");
+    if (storedTheme === "light") {
+      localStorage.setItem("theme", "light");
+      setIsDarkMode(false);
+    } else {
+      setIsDarkMode(true);
+      document.documentElement.classList.add("dark");
+    }
+  }, [setIsDarkMode]);
+
+  const toggleTheme = () => {
+    const newTheme = isDarkMode ? "light" : "dark";
+
+    const updateDOM = () => {
+      if (newTheme === "dark") {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+      localStorage.setItem("theme", newTheme);
+      setIsDarkMode(!isDarkMode);
+    };
+
+
+      updateDOM();
+  };
 
   return (
-    <button
+    <button 
       onClick={toggleTheme}
-      title={isDarkMode ? "Activar Modo Claro" : "Activar Modo Oscuro"}
-      className="w-10 h-10 flex items-center justify-center rounded-full bg-inverse-surface border border-outline-variant/30 text-outline hover:text-on-tertiary-container hover:border-on-tertiary-container transition-all shadow-md active:scale-95"
+      title="Alternar Tema"
+      className="action-btn w-11 h-11 bg-surface-variant rounded-xl flex items-center justify-center text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors shadow-sm border border-outline-variant/30"
     >
-      <span className="material-symbols-outlined text-[20px]">
-        {isDarkMode ? "light_mode" : "dark_mode"}
-      </span>
+      <SunToMoon isDarkMode={isDarkMode}/>
     </button>
   );
-}
+};
