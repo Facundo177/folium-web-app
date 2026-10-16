@@ -1,142 +1,12 @@
 import { useState, useEffect } from "react";
 import BookCard from "./BookCard";
 import { useNavigate } from "react-router-dom";
+import ScrollIndicator from "../BasicUIComponents/ScrollIndicator";
 
-// Lista ampliada a 10 libros
-const heroBooks = [
-  {
-    id: 1,
-    title: "The Odyssey",
-    author: "Homer (Trans. Robert Fagles)",
-    category: "EPIC POETRY",
-    year: "800 BCE",
-    stock: "In Stock",
-    tag: "CLOTHBOUND GOLD LEAF",
-    description:
-      "The definitive heroic saga of Odysseus's ten-year journey home from Troy, illustrated with archival engravings.",
-    image:
-      "https://images.unsplash.com/photo-1541963463532-d68292c34b19?q=80&w=600&auto=format&fit=crop",
-  },
-  {
-    id: 2,
-    title: "The Count of Monte Cristo",
-    author: "Alexandre Dumas",
-    category: "CLASSIC FICTION",
-    year: "1844",
-    stock: "In Stock",
-    tag: "UNABRIDGED 2-VOL",
-    description:
-      "An intricate masterpiece of retribution, hidden identities, and ultimate justice set across the Mediterranean.",
-    image:
-      "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=600&auto=format&fit=crop",
-  },
-  {
-    id: 3,
-    title: "Meditations",
-    author: "Marcus Aurelius",
-    category: "PHILOSOPHY",
-    year: "180 CE",
-    stock: "In Stock",
-    tag: "STOIC ARCHIVE",
-    description:
-      "Intimate spiritual and stoic reflections written during military campaigns, offering timeless wisdom.",
-    image:
-      "https://images.unsplash.com/photo-1555448248-2571daf6344b?q=80&w=600&auto=format&fit=crop",
-  },
-  {
-    id: 4,
-    title: "One Hundred Years of Solitude",
-    author: "Gabriel García Márquez",
-    category: "MAGIC REALISM",
-    year: "1967",
-    stock: "1 Copy Reserved",
-    tag: "50TH ANNIV. EDITION",
-    description:
-      "The rise and fall of Macondo told across seven generations of the Buendía family in a magical reality.",
-    image:
-      "https://images.unsplash.com/photo-1532012197267-da84d127e765?q=80&w=600&auto=format&fit=crop",
-  },
-  {
-    id: 5,
-    title: "The Metamorphosis",
-    author: "Franz Kafka",
-    category: "MODERNIST PROSE",
-    year: "1915",
-    stock: "In Stock",
-    tag: "SCHOCKEN CRITICAL",
-    description:
-      "Gregor Samsa awakes to find himself transformed into an insect in this surreal existential classic.",
-    image:
-      "https://images.unsplash.com/photo-1589998059171-9899ea86252b?q=80&w=600&auto=format&fit=crop",
-  },
-  {
-    id: 6,
-    title: "The Divine Comedy",
-    author: "Dante Alighieri",
-    category: "EPIC POETRY",
-    year: "1320",
-    stock: "In Stock",
-    tag: "ILLUSTRATED FOLIO",
-    description:
-      "A soul's allegorical journey through Hell, Purgatory, and Paradise, guided by Virgil and Beatrice.",
-    image:
-      "https://images.unsplash.com/photo-1627389955823-392da9f91a9b?q=80&w=600&auto=format&fit=crop",
-  },
-  {
-    id: 7,
-    title: "Frankenstein",
-    author: "Mary Shelley",
-    category: "GOTHIC HORROR",
-    year: "1818",
-    stock: "2 Copies Available",
-    tag: "FIRST EDITION REP.",
-    description:
-      "The modern Prometheus and a heartbreaking meditation on creation, isolation, and scientific hubris.",
-    image:
-      "https://images.unsplash.com/photo-1516979187457-637abb4f9353?q=80&w=600&auto=format&fit=crop",
-  },
-  {
-    id: 8,
-    title: "1984",
-    author: "George Orwell",
-    category: "DYSTOPIAN FICTION",
-    year: "1949",
-    stock: "In Stock",
-    tag: "ARCHIVAL RESERVE",
-    description:
-      "A chilling exploration of totalitarianism, surveillance, and the destruction of objective truth.",
-    image:
-      "https://images.unsplash.com/photo-1550399105-c4eb77cae9e0?q=80&w=600&auto=format&fit=crop",
-  },
-  {
-    id: 9,
-    title: "Moby-Dick",
-    author: "Herman Melville",
-    category: "CLASSIC FICTION",
-    year: "1851",
-    stock: "In Stock",
-    tag: "LEATHERBOUND",
-    description:
-      "Captain Ahab's obsessive and self-destructive quest for revenge against the white whale.",
-    image:
-      "https://images.unsplash.com/photo-1519682337058-a94d519337bc?q=80&w=600&auto=format&fit=crop",
-  },
-  {
-    id: 10,
-    title: "Don Quixote",
-    author: "Miguel de Cervantes",
-    category: "LITERARY CLASSIC",
-    year: "1605",
-    stock: "1 Copy Reserved",
-    tag: "GOLD GILT PAGES",
-    description:
-      "The visionary and tragicomic adventures of the self-styled knight-errant and his loyal squire.",
-    image:
-      "https://images.unsplash.com/photo-1588666309990-d68f08e3d4a6?q=80&w=600&auto=format&fit=crop",
-  },
-];
-
-export default function BookCoverFlow({ showToast }) {
+export default function BookCoverFlow({
+  showToast,
+  heroBooks,
+}) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [spacing, setSpacing] = useState(210);
   const navigate = useNavigate();
@@ -242,14 +112,6 @@ export default function BookCoverFlow({ showToast }) {
                   idx={idx}
                   currentIndex={currentIndex}
                   id={book.id}
-                  title={book.title}
-                  author={book.author}
-                  category={book.category}
-                  year={book.year}
-                  stock={book.stock}
-                  tag={book.tag}
-                  description={book.description}
-                  image={book.image}
                 />
               ))}
             </div>
@@ -271,6 +133,7 @@ export default function BookCoverFlow({ showToast }) {
           </div>
         </div>
       </div>
+      <ScrollIndicator />
     </section>
   );
 }

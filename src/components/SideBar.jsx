@@ -21,6 +21,7 @@ import { useUserProfile } from '../hooks/useUserProfile';
 export default function Sidebar({ isDarkMode, setIsDarkMode }) {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const navigate = useNavigate();
   
@@ -64,6 +65,48 @@ export default function Sidebar({ isDarkMode, setIsDarkMode }) {
 
   return (
     <>
+      {/* =========================================================
+          MODAL DE CONFIRMACIÓN DE CIERRE DE SESIÓN
+      ========================================================= */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 animate-fade-in">
+          <div className="bg-surface-container-lowest border border-outline-variant/50 rounded-xl p-6 w-full max-w-sm shadow-2xl flex flex-col items-center text-center">
+            
+            {/* Ícono de Advertencia / Salida */}
+            <div className="w-12 h-12 bg-error/10 text-error rounded-full flex items-center justify-center mb-4">
+              <LogOut className="w-6 h-6" />
+            </div>
+            
+            <h3 className="text-title-lg text-on-surface font-serif font-bold mb-2">
+              Cerrar Sesión
+            </h3>
+            <p className="text-body-md text-on-surface-variant mb-6">
+              ¿Estás seguro de que deseas salir de folium?
+            </p>
+            
+            <div className="flex w-full gap-3">
+              <button 
+                onClick={() => setShowLogoutModal(false)} 
+                className="flex-1 bg-surface-variant text-on-surface hover:bg-outline-variant py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest transition-colors"
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={() => {
+                  setShowLogoutModal(false);
+                  logout(); // Aquí ejecutamos el logout real
+                }} 
+                className="flex-1 bg-error text-on-error hover:opacity-90 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest transition-colors shadow-md"
+              >
+                Salir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
+
       {/* BOTÓN HAMBURGUESA (Visible solo en móvil) */}
       <button 
         onClick={() => setIsMobileOpen(true)}
@@ -152,15 +195,29 @@ export default function Sidebar({ isDarkMode, setIsDarkMode }) {
         <hr className="border-0 h-px bg-outline-variant/40 my-2" />
 
         {/* Acciones y Tema */}
-        <div className="actions-container mt-auto flex-shrink-0 w-full">
+        <div className="actions-container mt-auto flex flex-row shrink-0 w-full">
 
-          <button 
-            title="Cerrar Sesión"
-            className="action-btn w-11 h-11 bg-surface-variant rounded-xl flex items-center justify-center text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors shadow-sm border border-outline-variant/30"
-            onClick={logout}
-          >
-            <LogOut className="w-6 h-6" />
-          </button>
+          {user ? (
+            <button 
+              title="Cerrar Sesión"
+              className="action-btn w-11 h-11 bg-surface-variant rounded-xl flex items-center justify-center text-on-surface hover:bg-error hover:text-on-error transition-colors shadow-sm border border-outline-variant/30 shrink-0"
+              // CAMBIO PRINCIPAL AQUÍ: En lugar de llamar a logout(), abrimos el modal
+              onClick={() => setShowLogoutModal(true)} 
+            >
+              <LogOut className="w-6 h-6" />
+            </button>
+          ) : (
+            <button 
+              title="Iniciar Sesión"
+              className="action-btn w-11 h-11 bg-primary text-on-primary rounded-xl flex items-center justify-center hover:opacity-90 transition-colors shadow-sm border border-outline-variant/30 shrink-0"
+              onClick={() => {
+                setIsMobileOpen(false);
+                navigate('/login');
+              }}
+            >
+              <LogIn className="w-5 h-5" />
+            </button>
+          )}
           
           <ThemeToggle isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode}/>
         </div>

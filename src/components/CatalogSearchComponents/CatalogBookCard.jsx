@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/AuthProvider";
-import { loanService } from "../../api/services/loanService";
+import { reservationService } from "../../api/services/reservationService";
 import { itemService } from "../../api/services/itemService";
 import { Heart, LockKeyhole } from "lucide-react";
 
@@ -55,7 +55,7 @@ export default function CatalogBookCard({ book }) {
       console.log("Enviando reserva de ejemplar:", loanPayload);
 
       // Ejecutamos la reserva
-      await loanService.create(loanPayload);
+      await reservationService.create(loanPayload);
       alert(`¡Reserva confirmada!\nHas reservado un ejemplar de "${book.title}".`);
 
     } catch (error) {

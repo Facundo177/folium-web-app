@@ -33,7 +33,7 @@ export default function DescriptionOfInventory({ items = [] }) {
         <button className="m-5 flex items-center justify-center gap-2 bg-primary text-on-primary px-5 py-3 rounded-DEFAULT text-label-caps hover:bg-inverse-surface transition-colors shadow-sm text-[1rem]"
         onClick={() => navigate('/librarian/inventory/newItem')}>
           <PlusIcon />
-          AÑADIR NUEVO EJEMPLAR
+          AÑADIR NUEVO ITEM
         </button>
 
         

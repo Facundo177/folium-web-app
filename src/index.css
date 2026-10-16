@@ -249,12 +249,10 @@
       position: absolute;
       left: 0;
       transition: top 0.35s ease, left 0.35s ease;
+      display: none;
     }
-    .folium-sidebar:hover .action-btn:nth-child(2) {
+    .folium-sidebar:hover .action-btn:nth-child(1) {
       left: 52px;
-    }
-    .folium-sidebar:hover .action-btn:nth-child(3) {
-      left: 104px;
     }
   }
 
