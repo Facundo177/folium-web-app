@@ -55,15 +55,20 @@ export default function BookCard({
       onClick={onClick}
     >
       {/* Contenedor de Imagen y Tag */}
-      <div className="relative w-full h-100 mb-4 bg-surface-container-highest overflow-hidden border border-outline-variant/30 rounded-sm">
+      <div className="relative w-60 h-100 mb-4 mx-auto bg-surface-container-highest overflow-hidden border border-outline-variant/30 rounded-sm">
         {image ? (
-          <img src={image} alt={title} className="w-full h-full object-cover object-top" />  // object-cover
+          <img src={image} alt={title} className="w-full h-full object-cover object-center" />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-surface-container-highest text-on-surface-variant font-serif italic">
             Sin portada
           </div>
         )}
 
+
+        <div className="absolute bottom-3 left-3 bg-inverse-surface px-3 py-1.5 text-[10px] font-bold tracking-widest uppercase text-inverse-on-surface rounded-sm shadow-sm">
+          {tag}
+        </div>
+      </div>
         <button 
           className="absolute top-3 right-3 w-10 h-10 bg-surface-container-lowest/80 backdrop-blur-md rounded-full flex items-center justify-center text-on-surface hover:text-primary transition-colors"
           onClick={(e) => {
@@ -75,11 +80,6 @@ export default function BookCard({
             <HeartIcon />
           </span>
         </button>
-
-        <div className="absolute bottom-3 left-3 bg-inverse-surface px-3 py-1.5 text-[10px] font-bold tracking-widest uppercase text-inverse-on-surface rounded-sm shadow-sm">
-          {tag}
-        </div>
-      </div>
 
       {/* Información del Libro */}
       <div className="flex justify-between items-center mb-3">
