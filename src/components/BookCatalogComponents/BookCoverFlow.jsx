@@ -118,7 +118,7 @@ export default function BookCoverFlow({
           </div>
 
           {/* Paginador */}
-          <div className="z-50 flex items-center justify-center gap-2 mt-4">
+          <div className="z-50 flex items-center justify-center gap-2 mt-10">
             {heroBooks.map((_, idx) => (
               <button
                 key={idx}

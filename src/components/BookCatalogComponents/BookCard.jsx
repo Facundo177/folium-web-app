@@ -54,6 +54,34 @@ export default function BookCard({
       style={styles}
       onClick={onClick}
     >
+
+      <div className="absolute -top-1.5 right-6 z-50 flex drop-shadow-md">
+        
+        {/* El doblez 3D (Triángulo oscuro que se mete por detrás del borde de la tarjeta) */}
+        <div 
+          className="w-1.5 h-1.5 bg-outline-variant absolute -left-1.5 top-0" 
+          style={{ clipPath: "polygon(100% 0, 0 100%, 100% 100%)", filter: "brightness(0.6)" }}
+        ></div>
+        
+        <button 
+          className="w-10 h-16 bg-surface-container-lowest flex flex-col items-center pt-4 hover:bg-surface-variant transition-colors group cursor-pointer border-x border-b border-outline-variant/50"
+          style={{
+            clipPath: "polygon(0 0, 100% 0, 100% 100%, 50% 85%, 0 100%)"
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            onFavourite(e);
+          }}
+        >
+          <span className="text-on-surface-variant group-hover:text-primary transition-colors transform group-hover:scale-110 duration-200">
+            <HeartIcon className="w-5 h-5" />
+          </span>
+        </button>
+      </div>
+
+
+
+
       {/* Contenedor de Imagen y Tag */}
       <div className="relative w-60 h-100 mb-4 mx-auto bg-surface-container-highest overflow-hidden border border-outline-variant/30 rounded-sm">
         {image ? (
@@ -65,21 +93,10 @@ export default function BookCard({
         )}
 
 
-        <div className="absolute bottom-3 left-3 bg-inverse-surface px-3 py-1.5 text-[10px] font-bold tracking-widest uppercase text-inverse-on-surface rounded-sm shadow-sm">
+        {/* <div className="absolute bottom-3 left-3 bg-inverse-surface px-3 py-1.5 text-[10px] font-bold tracking-widest uppercase text-inverse-on-surface rounded-sm shadow-sm">
           {tag}
-        </div>
+        </div> */}
       </div>
-        <button 
-          className="absolute top-3 right-3 w-10 h-10 bg-surface-container-lowest/80 backdrop-blur-md rounded-full flex items-center justify-center text-on-surface hover:text-primary transition-colors"
-          onClick={(e) => {
-            e.stopPropagation(); // Evita que gire el coverflow
-            onFavourite(e);
-          }}
-        >
-          <span className="w-full h-full content-center justify-items-center hover:scale-110 transition-transform cursor-pointer">
-            <HeartIcon />
-          </span>
-        </button>
 
       {/* Información del Libro */}
       <div className="flex justify-between items-center mb-3">
@@ -91,7 +108,7 @@ export default function BookCard({
         </span>
       </div>
 
-      <h3 className="font-serif text-3xl text-on-surface leading-none mb-1 pb-2 line-clamp-1">
+      <h3 className="font-serif text-3xl text-on-surface leading-10 mb-1 pb-2 line-clamp-1">
         {title}
       </h3>
       <p className="font-serif italic text-lg text-on-surface-variant mb-4 line-clamp-1">
