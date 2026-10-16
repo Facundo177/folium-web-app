@@ -5,6 +5,7 @@ import { genreService } from "../../api/services/genreService"; // Añadido el s
 import GoBackButton from "../BasicUIComponents/GoBackButton";
 import { useNavigate } from "react-router-dom";
 import { useGenres } from "../../hooks/useGenres";
+import { Delete, X } from "lucide-react";
 
 export default function BookForm() {
   const navigate = useNavigate();
@@ -229,7 +230,9 @@ export default function BookForm() {
           <div className="w-32 aspect-[2/3] border-2 border-primary rounded-lg overflow-hidden shadow-lg mx-auto my-2 relative group">
             <img src={imagePreview} alt="Vista previa" className="w-full h-full object-cover" />
             <button type="button" onClick={() => { setFormData({...formData, cover_image: null}); setImagePreview(null); }} className="absolute inset-0 bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-              <span className="material-symbols-outlined">delete</span>
+              <span className="w-5 h-5">
+                <Delete/>
+              </span>
             </button>
           </div>
         )}
@@ -250,7 +253,9 @@ export default function BookForm() {
                 <div key={author.id} className="flex items-center gap-2 bg-secondary text-on-secondary px-3 py-1.5 rounded-md text-sm font-medium shadow-sm">
                   {author.name} {author.last_name}
                   <button type="button" onClick={() => handleRemoveAuthor(author.id)} className="hover:text-primary transition-colors flex items-center">
-                    <span className="material-symbols-outlined text-[16px]">close</span>
+                    <span className="w-5 h-5 text-[16px]">
+                      <X/>
+                    </span>
                   </button>
                 </div>
               ))}
