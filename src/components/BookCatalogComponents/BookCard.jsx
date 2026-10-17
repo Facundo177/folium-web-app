@@ -5,6 +5,7 @@ export default function BookCard({
   quickView,
   requestLoan,
   onFavourite,
+  isFavorite = false,
   styles,
   onClick,
   idx,
@@ -81,8 +82,12 @@ export default function BookCard({
         />
 
         <button
-          title="Guardar en favoritos"
-          className="w-10 h-16 hover:h-17.5 bg-surface-container-lowest flex flex-col items-center pt-4 hover:bg-primary transition-all duration-300 group/fav cursor-pointer border-x border-b border-outline-variant/60"
+          title={isFavorite ? "Quitar de favoritos" : "Guardar en favoritos"}
+          className={`w-10 h-16 hover:h-17.5 flex flex-col items-center pt-4 transition-all duration-300 group/fav cursor-pointer border-x border-b border-outline-variant/60 ${
+            isFavorite
+              ? "bg-primary text-on-primary"
+              : "bg-surface-container-lowest hover:bg-primary"
+          }`}
           style={{
             clipPath: "polygon(0 0, 100% 0, 100% 100%, 50% 84%, 0 100%)",
           }}
@@ -91,8 +96,14 @@ export default function BookCard({
             onFavourite(e);
           }}
         >
-          <span className="text-on-surface-variant group-hover/fav:text-on-primary transition-all transform group-hover/fav:scale-110 duration-200">
-            <HeartIcon className="w-5 h-5" />
+          <span
+            className={`transition-all transform group-hover/fav:scale-110 duration-200 ${
+              isFavorite
+                ? "text-on-primary"
+                : "text-on-surface-variant group-hover/fav:text-on-primary"
+            }`}
+          >
+            <HeartIcon className="w-5 h-5" filled={isFavorite} />
           </span>
         </button>
       </div>

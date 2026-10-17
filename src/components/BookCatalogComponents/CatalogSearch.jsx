@@ -5,7 +5,13 @@ import { adaptBook } from "../../api/adapters";
 import { Search } from "lucide-react";
 import { useGenres } from "../../hooks/useGenres";
 
-export default function CatalogSearch({books, isLoading, error}) {
+export default function CatalogSearch({
+  books,
+  isLoading,
+  error,
+  favoritesMap = {},
+  onToggleFavorite,
+}) {
 
   // 2. Desestructuramos los géneros directamente desde la API
   const { genres: apiGenres, isLoading: isLoadingGenres } = useGenres();
@@ -132,7 +138,13 @@ export default function CatalogSearch({books, isLoading, error}) {
           {filteredBooks.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
               {filteredBooks.map((book) => (
-                <CatalogBookCard key={book.id} book={book} />
+                <CatalogBookCard
+                  key={book.id}
+                  book={book}
+                  isFavorite={Boolean(favoritesMap?.[book.id])}
+                  favoriteId={favoritesMap?.[book.id] ?? null}
+                  onToggleFavorite={onToggleFavorite}
+                />
               ))}
             </div>
           ) : (

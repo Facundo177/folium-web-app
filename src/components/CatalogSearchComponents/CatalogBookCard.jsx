@@ -1,11 +1,25 @@
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/AuthProvider";
 import { reservationService } from "../../api/services/reservationService";
+import { favoriteService } from "../../api/services/favoriteService";
 import { Heart, LockKeyhole } from "lucide-react";
 
-export default function CatalogBookCard({ book }) {
+export default function CatalogBookCard({
+  book,
+  isFavorite = false,
+  favoriteId = null,
+  onToggleFavorite,
+}) {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [favorited, setFavorited] = useState(isFavorite);
+  const [currentFavId, setCurrentFavId] = useState(favoriteId);
+
+  useEffect(() => {
+    setFavorited(isFavorite);
+    setCurrentFavId(favoriteId);
+  }, [isFavorite, favoriteId]);
 
   // Función auxiliar para obtener las fechas en el formato correcto (YYYY-MM-DDTHH:mm)
   const getInitialDateTime = (offsetDays = 0) => {
@@ -13,6 +27,35 @@ export default function CatalogBookCard({ book }) {
     d.setDate(d.getDate() + offsetDays);
     d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
     return d.toISOString().slice(0, 16);
+  };
+
+  const handleFavorite = async (e) => {
+    e.stopPropagation();
+
+    if (!user || !user.id) {
+      alert("Debes iniciar sesión para poder guardar un volumen en favoritos.");
+      return;
+    }
+
+    if (onToggleFavorite) {
+      await onToggleFavorite(book);
+      return;
+    }
+
+    try {
+      if (favorited && currentFavId) {
+        await favoriteService.remove(currentFavId);
+        setFavorited(false);
+        setCurrentFavId(null);
+      } else {
+        const { data } = await favoriteService.create({ book: book.id });
+        setFavorited(true);
+        setCurrentFavId(data?.id ?? null);
+      }
+    } catch (error) {
+      console.error("Error al gestionar favorito:", error);
+      alert("No se pudo actualizar el estado de favoritos.");
+    }
   };
 
   const handleReserve = async (e) => {
@@ -73,11 +116,14 @@ export default function CatalogBookCard({ book }) {
             ★ {book.category}
           </span>
           <button 
-            onClick={(e) => e.stopPropagation()} 
-            className="text-outline hover:text-primary transition-colors bg-surface-container-lowest/60 backdrop-blur-sm rounded-full p-1 flex items-center justify-center"
+            onClick={handleFavorite}
+            title={favorited ? "Quitar de favoritos" : "Añadir a favoritos"}
+            className={`transition-colors bg-surface-container-lowest/60 backdrop-blur-sm rounded-full p-1 flex items-center justify-center cursor-pointer ${
+              favorited ? "text-primary" : "text-outline hover:text-primary"
+            }`}
           >
             <span className="text-[16px] block">
-              <Heart/>
+              <Heart className="w-4 h-4" fill={favorited ? "currentColor" : "none"} />
             </span>
           </button>
         </div>

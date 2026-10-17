@@ -2,10 +2,13 @@ import { useState, useEffect } from "react";
 import BookCard from "./BookCard";
 import { useNavigate } from "react-router-dom";
 import ScrollIndicator from "../BasicUIComponents/ScrollIndicator";
+import { favoriteService } from "../../api/services/favoriteService";
 
 export default function BookCoverFlow({
   showToast,
   heroBooks,
+  favoritesMap = {},
+  onToggleFavorite,
 }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [spacing, setSpacing] = useState(210);
@@ -106,7 +109,19 @@ export default function BookCoverFlow({
                     e.stopPropagation();
                     showToast(`Reserva solicitada para ${book.title}`);
                   }}
-                  onFavourite={() => showToast(`Guardado en favoritos`)}
+                  onFavourite={async () => {
+                    if (onToggleFavorite) {
+                      await onToggleFavorite(book);
+                    } else {
+                      try {
+                        await favoriteService.create({ book: book.id });
+                        showToast(`Guardado en favoritos`);
+                      } catch {
+                        showToast(`No se pudo guardar en favoritos`);
+                      }
+                    }
+                  }}
+                  isFavorite={Boolean(favoritesMap?.[book.id])}
                   styles={getStyles(idx)}
                   onClick={() => setCurrentIndex(idx)}
                   idx={idx}
