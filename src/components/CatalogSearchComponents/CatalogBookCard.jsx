@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/AuthProvider";
 import { reservationService } from "../../api/services/reservationService";
-import { itemService } from "../../api/services/itemService";
 import { Heart, LockKeyhole } from "lucide-react";
 
 export default function CatalogBookCard({ book }) {
@@ -25,38 +24,16 @@ export default function CatalogBookCard({ book }) {
     }
 
     try {
-      // Buscamos los ejemplares físicos de este libro
-      // Puedes pasar el book.id como query param si tu API de DRF lo soporta para filtrar
-      const { data: items } = await itemService.getAll({ book: book.id });
-
-      // Filtramos por el libro en particular
-      const bookItems = items.filter(item => item.book == book.id);
-
-      // Filtramos para asegurarnos de tomar uno que esté AVAILABLE 
-      const availableItems = bookItems.filter(item => item.status === "AVAILABLE");
-
-      // Validamos si hay stock físico
-      if (availableItems.length === 0) {
-        alert(`Lo sentimos. Todos los ejemplares de "${book.title}" se encuentran prestados actualmente.`);
-        return;
-      }
-
-      // Tomamos el ID del primer ejemplar físico disponible
-      const itemToReserve = availableItems[0].id;
-
-      // Armamos el payload con el ID del ejemplar físico, no del libro
-      const loanPayload = {
-        item: itemToReserve, 
-        user: user.id,
-        loaned_at: getInitialDateTime(0),
-        due_at: getInitialDateTime(14),
+      const reservationPayload = {
+        book: book.id,
+        expires_at: getInitialDateTime(14),
       };
 
-      console.log("Enviando reserva de ejemplar:", loanPayload);
+      console.log("Enviando reserva:", reservationPayload);
 
       // Ejecutamos la reserva
-      await reservationService.create(loanPayload);
-      alert(`¡Reserva confirmada!\nHas reservado un ejemplar de "${book.title}".`);
+      await reservationService.create(reservationPayload);
+      alert(`¡Reserva confirmada!\nHas reservado "${book.title}".`);
 
     } catch (error) {
       if (error.response && error.response.data) {

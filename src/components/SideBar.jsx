@@ -10,7 +10,8 @@ import {
   Heart,
   BookUp2Icon,
   UserRoundArrowLeft,
-  LogIn
+  LogIn,
+  BookLock
 } from 'lucide-react';
 
 import { ThemeToggle } from '../theme/ThemeToggle';
@@ -40,6 +41,7 @@ export default function Sidebar({ isDarkMode, setIsDarkMode }) {
       { id: 'catalog', label: 'Catálogo General', icon: Library, navigateTo: '/catalog' },
       { id: 'inventory', label: 'Inventario', icon: LayoutDashboard, navigateTo: '/librarian/inventory' },
       { id: 'newBook', label: 'Añadir Nuevo Libro', icon: BookUp2Icon, navigateTo: '/librarian/inventory/newBook'},
+      { id: 'reservations', label: 'Reservas', icon: BookLock, navigateTo: '/librarian/reservations'},
       { id: 'loans', label: 'Préstamos', icon: UserRoundArrowLeft, navigateTo: '/librarian/loans'},
     ];
   } else if (user) {

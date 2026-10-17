@@ -19,6 +19,7 @@ import Profile from "./pages/Profile";
 import LoadBook from "./pages/LoadBook";
 import Favourites from "./pages/Favourites";
 import LoansDashboard from "./pages/LoansDashboard";
+import ReservationDashboard from "./pages/ReservationDashboard";
 import AddAnItem from "./pages/AddAnItem";
 
 function App() {
@@ -90,6 +91,7 @@ function App() {
                 <Route path="newItem" element={<AddAnItem/>} />
               </Route>
               <Route path="loans" element={<LoansDashboard/>}/>
+              <Route path="reservations" element={<ReservationDashboard/>}/>
             </Route>
 {/* 
             <Route path="admin" element={<LibrarianLayout isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode}/>}>
