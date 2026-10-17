@@ -213,6 +213,66 @@
     --color-inverse-on-surface: #322325; /* ESPRESSO */
     --color-inverse-primary: #681822; /* BURGUNDY */
   }
+
+  /* =======================================================
+     FORZAR MODO CLARO (Ej: Landing Page)
+     Sobrescribe las variables incluso si .dark está activo
+     ======================================================= */
+  .force-light,
+  .dark .force-light {
+    /* BACKGROUND */
+    --color-background: #f0e3cc; /* Parchment más luminoso para el fondo */
+    --color-on-background: #322325; /* ESPRESSO */
+
+    /* SURFACES */
+    --color-surface: #e0ceb4; /* PARCHMENT */
+    --color-on-surface: #322325; /* ESPRESSO */
+    --color-on-surface-variant: #4f6577; /* SLATE BLUE */
+
+    --color-surface-container-lowest: #fbf6ec; /* Blanco antiguo */
+    --color-surface-container-low: #f0e3cc;
+    --color-surface-container: #e0ceb4; /* PARCHMENT base */
+    --color-surface-container-high: #ccba9f;
+    --color-surface-container-highest: #bda889;
+
+    --color-surface-variant: #ccba9f;
+    --color-surface-tint: #ba874b; /* ANTIQUE GOLD */
+
+    /* PRIMARY */
+    --color-primary: #681822; /* BURGUNDY */
+    --color-on-primary: #f0e3cc; /* Parchment luminoso */
+    --color-primary-container: #322325; /* ESPRESSO */
+    --color-on-primary-container: #e0ceb4;
+
+    /* SECONDARY */
+    --color-secondary: #57423f; 
+    --color-on-secondary: #f0e3cc;
+    --color-secondary-container: #ba874b; /* ANTIQUE GOLD */
+    --color-on-secondary-container: #322325;
+
+    /* TERTIARY */
+    --color-tertiary: #ba874b; /* ANTIQUE GOLD */
+    --color-on-tertiary: #322325;
+    --color-tertiary-container: #681822; /* BURGUNDY */
+    --color-on-tertiary-container: #e0ceb4;
+
+    /* OUTLINE / BORDES */
+    --color-outline: #ba874b; /* ANTIQUE GOLD */
+    --color-outline-variant: #ccba9f; /* Parchment oscurecido */
+
+    /* ERROR */
+    --color-error: #ba1a1a;
+    --color-on-error: #ffffff;
+    --color-error-container: #ffdad6;
+    --color-on-error-container: #410002;
+
+    /* INVERSE */
+    --color-inverse-surface: #322325; /* ESPRESSO */
+    --color-inverse-on-surface: #e0ceb4; /* PARCHMENT */
+    --color-inverse-primary: #ba874b; /* ANTIQUE GOLD */
+
+    color-scheme: light;
+  }
 }
 
 

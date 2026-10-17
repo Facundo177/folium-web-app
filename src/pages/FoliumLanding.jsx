@@ -16,12 +16,25 @@ export default function FoliumLanding() {
   const handleCatalogButtonClick = () => navigate("/catalog");
 
   useEffect(() => {
-    document.documentElement.classList.remove("dark");
+    const root = document.documentElement;
+    const hadDark = root.classList.contains("dark");
+
+    root.classList.remove("dark");
+
+    return () => {
+      // Al salir de la landing page, restauramos el modo oscuro si correspondía
+      const savedTheme = localStorage.getItem("theme") || localStorage.getItem("folium-theme");
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const shouldBeDark = savedTheme ? savedTheme === "dark" : (hadDark || prefersDark);
+
+      if (shouldBeDark) {
+        root.classList.add("dark");
+      }
+    };
   }, []);
 
-
   return (
-    <div>
+    <div className="force-light bg-background text-on-background min-h-screen">
       <div className="relative min-h-screen bg-background overflow-hidden font-sans selection:bg-tertiary-container/20 flex flex-col">
         <FoliumLandingBackground />
         
