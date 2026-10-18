@@ -42,7 +42,7 @@ export default function BookDetail() {
             description={data.description}
             tags={data.genres} />
           {/* <RecentActivity /> */}
-          <BookReviews/>
+          <BookReviews bookId={data.id} />
         </div>
       </div>
     </div>
