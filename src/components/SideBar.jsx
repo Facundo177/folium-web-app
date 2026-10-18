@@ -48,8 +48,9 @@ export default function Sidebar({ isDarkMode, setIsDarkMode }) {
     // Si hay un usuario (Lector normal)
     navItems = [
       { id: 'catalog', label: 'Catálogo General', icon: Library, navigateTo: '/catalog' },
-      { id: 'loans', label: 'Préstamos Activos', icon: BookMarked, navigateTo: '/user/loans' },
       { id: 'favourites', label: 'Favoritos', icon: Heart, navigateTo: '/user/favourites' },
+      { id: 'reservations', label: 'Reservas', icon: BookLock, navigateTo: '/user/reservations'},
+      { id: 'loans', label: 'Préstamos Activos', icon: BookMarked, navigateTo: '/user/loans' },
     ];
   } else {
     // Usuario NO logueado (Invitado)

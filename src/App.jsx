@@ -20,6 +20,8 @@ import LoadBook from "./pages/LoadBook";
 import Favourites from "./pages/Favourites";
 import LoansDashboard from "./pages/LoansDashboard";
 import ReservationDashboard from "./pages/ReservationDashboard";
+import UserReservations from "./pages/UserReservations";
+import UserLoans from "./pages/UserLoans";
 import AddAnItem from "./pages/AddAnItem";
 
 function App() {
@@ -72,8 +74,9 @@ function App() {
             <Route path="user" element={<UserLayout isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode}/>}>
               <Route index element={<Navigate to="/catalog" replace />} />
               <Route path="favourites" element={<Favourites/>} />
-              <Route path="loans" element={<></>} />
+              <Route path="loans" element={<UserLoans/>} />
               <Route path="profile" element={<Profile/>} />
+              <Route path="reservations" element={<UserReservations/>}/>
             </Route>
             
           </Route>
