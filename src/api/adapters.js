@@ -2,6 +2,7 @@ export const adaptBook = (b) => ({
   id: b.id,
   isbn: b.isbn,
   title: b.title,
+  editorial: b.editorial,
   author: b.authors.map((a) => `${a.name} ${a.last_name}`).join(", "),
   genres: b.genres.map((g) => g.name),
   category: b.genres[0]?.name ?? "Sin género",

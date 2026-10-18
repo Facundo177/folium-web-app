@@ -2,6 +2,7 @@ export default function BookInfo({
   ISBN = '',
   title = '',
   author = '',
+  editorial = '',
   publicationDate = '',
   description = ``,
   tags = [],
@@ -20,15 +21,25 @@ export default function BookInfo({
       </div>
 
       {/* Grid de Metadatos */}
-      <div className="grid grid-cols-2 md:grid-cols-2 gap-stack-sm mb-stack-md">
+      <div className={`grid grid-cols-1 ${editorial ? "md:grid-cols-3" : "md:grid-cols-2"} gap-stack-sm mb-stack-md`}>
         <div className="border border-outline-variant bg-surface-container-lowest p-3">
           <p className="text-label-caps text-on-surface-variant mb-1">
-            ISBN-13
+            ISBN
           </p>
           <p className="text-body-md text-on-surface">
-            {ISBN.slice(0,3) + '-' + ISBN.slice(3)}
-            </p>
+            {ISBN.length > 3 ? ISBN.slice(0,3) + '-' + ISBN.slice(3) : ISBN}
+          </p>
         </div>
+        {editorial && (
+          <div className="border border-outline-variant bg-surface-container-lowest p-3">
+            <p className="text-label-caps text-on-surface-variant mb-1">
+              Editorial
+            </p>
+            <p className="text-body-md text-on-surface">
+              {editorial}
+            </p>
+          </div>
+        )}
         <div className="border border-outline-variant bg-surface-container-lowest p-3">
           <p className="text-label-caps text-on-surface-variant mb-1">
             Año de publicación
