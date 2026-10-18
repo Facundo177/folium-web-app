@@ -72,8 +72,14 @@ export default function Sidebar({ isDarkMode, setIsDarkMode }) {
           MODAL DE CONFIRMACIÓN DE CIERRE DE SESIÓN
       ========================================================= */}
       {showLogoutModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 animate-fade-in">
-          <div className="bg-surface-container-lowest border border-outline-variant/50 rounded-xl p-6 w-full max-w-sm shadow-2xl flex flex-col items-center text-center">
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/65 px-4"
+          onClick={() => setShowLogoutModal(false)}
+        >
+          <div
+            className="bg-surface-container-lowest border border-outline-variant/50 rounded-xl p-6 w-full max-w-sm shadow-2xl flex flex-col items-center text-center animate-fade-in will-change-transform"
+            onClick={(e) => e.stopPropagation()}
+          >
             
             {/* Ícono de Advertencia / Salida */}
             <div className="w-12 h-12 bg-error/10 text-error rounded-full flex items-center justify-center mb-4">
@@ -90,7 +96,7 @@ export default function Sidebar({ isDarkMode, setIsDarkMode }) {
             <div className="flex w-full gap-3">
               <button 
                 onClick={() => setShowLogoutModal(false)} 
-                className="flex-1 bg-surface-variant text-on-surface hover:bg-outline-variant py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest transition-colors"
+                className="flex-1 bg-surface-variant text-on-surface hover:bg-outline-variant py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest transition-colors cursor-pointer"
               >
                 Cancelar
               </button>
@@ -99,7 +105,7 @@ export default function Sidebar({ isDarkMode, setIsDarkMode }) {
                   setShowLogoutModal(false);
                   logout(); // Aquí ejecutamos el logout real
                 }} 
-                className="flex-1 bg-error text-on-error hover:opacity-90 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest transition-colors shadow-md"
+                className="flex-1 bg-error text-on-error hover:opacity-90 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest transition-colors shadow-md cursor-pointer"
               >
                 Salir
               </button>
@@ -121,7 +127,7 @@ export default function Sidebar({ isDarkMode, setIsDarkMode }) {
       {/* OVERLAY FONDO OSCURO (Visible solo en móvil al abrir) */}
       {isMobileOpen && (
         <div 
-          className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 transition-opacity"
+          className="lg:hidden fixed inset-0 bg-black/65 z-50 transition-opacity"
           onClick={() => setIsMobileOpen(false)}
         />
       )}
@@ -136,6 +142,7 @@ export default function Sidebar({ isDarkMode, setIsDarkMode }) {
         fixed top-0 left-0 h-full rounded-r-2xl border-r border-outline-variant/20 
         transform
         ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'}
+        ${showLogoutModal ? 'is-modal-open' : ''}
       `}>    
         
         {/* Cabecera Móvil con Botón Cerrar */}

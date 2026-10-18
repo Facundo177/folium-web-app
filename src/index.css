@@ -289,14 +289,16 @@
       width: 84px;
       transition: width 0.35s ease;
     }
-    .folium-sidebar:hover {
+    .folium-sidebar:hover,
+    .folium-sidebar.is-modal-open {
       width: 264px;
     }
     .folium-sidebar .hide-on-collapse {
       opacity: 0;
       transition: opacity 0.15s;
     }
-    .folium-sidebar:hover .hide-on-collapse {
+    .folium-sidebar:hover .hide-on-collapse,
+    .folium-sidebar.is-modal-open .hide-on-collapse {
       opacity: 1;
       transition: opacity 0.25s 0.1s;
     }
@@ -311,7 +313,8 @@
       transition: top 0.35s ease, left 0.35s ease;
       display: none;
     }
-    .folium-sidebar:hover .action-btn:nth-child(1) {
+    .folium-sidebar:hover .action-btn:nth-child(1),
+    .folium-sidebar.is-modal-open .action-btn:nth-child(1) {
       left: 52px;
     }
   }
