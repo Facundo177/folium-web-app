@@ -52,7 +52,7 @@ export default function FilterSidebar({
       </FilterSection>
 
       {/* SECCIÓN EDITORIALES */}
-      <FilterSection title="Editorial" defaultOpen={false}>
+      {/* <FilterSection title="Editorial" defaultOpen={false}>
         <div className="flex flex-col gap-3 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
           <button
             onClick={() => setActiveEditorial(null)}
@@ -78,7 +78,7 @@ export default function FilterSidebar({
             </button>
           ))}
         </div>
-      </FilterSection>
+      </FilterSection> */}
 
       {/* SECCIÓN AÑO DE PUBLICACIÓN */}
       <FilterSection title="Año de Edición" defaultOpen={false}>

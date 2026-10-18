@@ -15,16 +15,16 @@ import {
 } from 'lucide-react';
 
 import { ThemeToggle } from '../theme/ThemeToggle';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider';
 import { useUserProfile } from '../hooks/useUserProfile';
 
 export default function Sidebar({ isDarkMode, setIsDarkMode }) {
-  const [activeTab, setActiveTab] = useState('dashboard');
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const navigate = useNavigate();
+  const location = useLocation();
   
   // Obtenemos hooks de autenticación
   const { profile } = useUserProfile();
@@ -59,6 +59,22 @@ export default function Sidebar({ isDarkMode, setIsDarkMode }) {
       // Aquí puedes agregar páginas estáticas como 'Acerca de', 'Contacto', etc.
     ];
   }
+
+  // Derivamos la pestaña activa directamente de la ruta actual (location.pathname)
+  const activeTab = (() => {
+    const currentPath = location.pathname;
+    if (currentPath.endsWith('/catalog')) return 'catalog';
+
+    const matched = [...navItems]
+      .sort((a, b) => b.navigateTo.length - a.navigateTo.length)
+      .find(
+        (item) =>
+          currentPath === item.navigateTo ||
+          currentPath.startsWith(`${item.navigateTo}/`)
+      );
+
+    return matched?.id ?? null;
+  })();
 
   // Nombres seguros para evitar romper la página
   const displayFirstName = profile?.first_name || user?.username || 'Invitado';
@@ -178,11 +194,10 @@ export default function Sidebar({ isDarkMode, setIsDarkMode }) {
             <button
               key={item.id}
               onClick={() => {
-                setActiveTab(item.id);
                 setIsMobileOpen(false);
                 navigate(item.navigateTo);
               }}
-              className={`relative flex items-center gap-4 h-12 w-full rounded-xl transition-colors ${
+              className={`relative flex items-center gap-4 h-12 w-full rounded-xl transition-colors cursor-pointer ${
                 activeTab === item.id 
                   ? 'text-primary font-bold' 
                   : 'text-on-surface-variant hover:text-on-surface'
