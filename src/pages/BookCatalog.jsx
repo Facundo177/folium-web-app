@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import BookCoverFlowAlt from "../components/BookCatalogComponents/BookCoverFlow";
 import CatalogSearch from "../components/BookCatalogComponents/CatalogSearch";
 import Toast from "../components/BasicUIComponents/Toast";
+import FeedbackModal from "../components/BasicUIComponents/FeedbackModal";
 import { useBooks } from "../hooks/useBooks";
 import { useAuth } from "../auth/AuthProvider";
 import { favoriteService } from "../api/services/favoriteService";
 
 export default function BookCatalog() {
-  // 1. Desestructuramos los libros
   const { books, isLoading: isLoading, error: error } = useBooks();
   const { user } = useAuth();
 
@@ -16,6 +16,14 @@ export default function BookCatalog() {
 
   // Estado para el Toast
   const [toastMessage, setToastMessage] = useState("");
+
+  // Estado para el modal personalizado
+  const [modal, setModal] = useState({
+    isOpen: false,
+    type: "info",
+    title: "",
+    message: "",
+  });
 
   const showToast = (message) => {
     setToastMessage(message);
@@ -46,7 +54,12 @@ export default function BookCatalog() {
 
   const handleToggleFavorite = async (book) => {
     if (!user || !user.id) {
-      alert("Debes iniciar sesión para guardar un volumen en favoritos.");
+      setModal({
+        isOpen: true,
+        type: "info",
+        title: "Inicio de sesión requerido",
+        message: "Debes iniciar sesión para guardar un volumen en favoritos.",
+      });
       return;
     }
 
@@ -95,6 +108,14 @@ export default function BookCatalog() {
       <div className="max-w-[var(--spacing-container-max)] mx-auto px-margin-edge py-stack-lg flex flex-col gap-stack-lg">
         <Toast message={toastMessage} />
       </div>
+
+      <FeedbackModal
+        isOpen={modal.isOpen}
+        type={modal.type}
+        title={modal.title}
+        message={modal.message}
+        onClose={() => setModal((prev) => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 }

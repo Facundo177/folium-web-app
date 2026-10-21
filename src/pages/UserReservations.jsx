@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { reservationService } from "../api/services/reservationService";
 import { useBooks } from "../hooks/useBooks";
 import { adaptBook } from "../api/adapters";
+import FeedbackModal from "../components/BasicUIComponents/FeedbackModal";
 import { BookLock, Calendar, Clock, XCircle, CheckCircle2, AlertCircle } from "lucide-react";
 
 export default function UserReservations() {
@@ -13,6 +14,16 @@ export default function UserReservations() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [statusFilter, setStatusFilter] = useState("ALL");
+
+  // Estados para modales personalizados
+  const [reservationToCancel, setReservationToCancel] = useState(null);
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [feedbackModal, setFeedbackModal] = useState({
+    isOpen: false,
+    type: "error",
+    title: "",
+    message: "",
+  });
 
   useEffect(() => {
     const fetchReservations = async () => {
@@ -69,25 +80,26 @@ export default function UserReservations() {
     return enrichedReservations.filter((r) => r.status !== "PENDING");
   }, [enrichedReservations, statusFilter]);
 
-  const handleCancelReservation = async (e, reservation) => {
+  const handleRequestCancel = (e, reservation) => {
     e.stopPropagation();
+    setReservationToCancel(reservation);
+  };
 
-    if (
-      !window.confirm(
-        `¿Deseas cancelar tu reserva de "${reservation.bookData.title}"?`
-      )
-    ) {
-      return;
-    }
+  const confirmCancelReservation = async () => {
+    if (!reservationToCancel) return;
+    setIsCancelling(true);
 
     try {
-      const { data: updated } = await reservationService.patch(reservation.id, {
-        status: "CANCELLED",
-      });
+      const { data: updated } = await reservationService.patch(
+        reservationToCancel.id,
+        {
+          status: "CANCELLED",
+        }
+      );
 
       setReservations((prev) =>
         prev.map((res) =>
-          res.id === reservation.id
+          res.id === reservationToCancel.id
             ? {
                 ...res,
                 status: updated?.status || "CANCELLED",
@@ -96,9 +108,18 @@ export default function UserReservations() {
             : res
         )
       );
+      setReservationToCancel(null);
     } catch (err) {
       console.error("Error al cancelar la reserva:", err);
-      alert("No se pudo cancelar la reserva. Intenta nuevamente.");
+      setReservationToCancel(null);
+      setFeedbackModal({
+        isOpen: true,
+        type: "error",
+        title: "Error al cancelar",
+        message: "No se pudo cancelar la reserva. Intenta nuevamente.",
+      });
+    } finally {
+      setIsCancelling(false);
     }
   };
 
@@ -336,7 +357,7 @@ export default function UserReservations() {
                   {/* Acción según estado */}
                   {isPending ? (
                     <button
-                      onClick={(e) => handleCancelReservation(e, reservation)}
+                      onClick={(e) => handleRequestCancel(e, reservation)}
                       className="mt-auto w-full bg-surface-container-lowest text-error hover:bg-error hover:text-on-error border border-error/40 py-2.5 rounded-sm flex items-center justify-center gap-2 text-xs font-bold tracking-widest uppercase transition-colors cursor-pointer"
                     >
                       Cancelar Reserva
@@ -359,6 +380,32 @@ export default function UserReservations() {
           })}
         </div>
       )}
+
+      {/* Modal de confirmación para cancelar reserva */}
+      <FeedbackModal
+        isOpen={!!reservationToCancel}
+        type="error"
+        title="¿Cancelar reserva?"
+        message={
+          reservationToCancel
+            ? `¿Deseas cancelar tu reserva de "${reservationToCancel.bookData?.title}"?`
+            : ""
+        }
+        confirmText="Sí, cancelar reserva"
+        cancelText="Volver"
+        isLoading={isCancelling}
+        onClose={() => setReservationToCancel(null)}
+        onConfirm={confirmCancelReservation}
+      />
+
+      {/* Modal de notificación / error */}
+      <FeedbackModal
+        isOpen={feedbackModal.isOpen}
+        type={feedbackModal.type}
+        title={feedbackModal.title}
+        message={feedbackModal.message}
+        onClose={() => setFeedbackModal((prev) => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 }

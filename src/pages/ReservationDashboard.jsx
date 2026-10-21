@@ -2,11 +2,22 @@ import { useState, useEffect } from "react";
 import { reservationService } from "../api/services/reservationService";
 import { loanService } from "../api/services/loanService";
 import { itemService } from "../api/services/itemService";
+import FeedbackModal from "../components/BasicUIComponents/FeedbackModal";
 
 export default function ReservationDashboard() {
   const [reservations, setReservations] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Estados para modales personalizados
+  const [reservationToAccept, setReservationToAccept] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [feedbackModal, setFeedbackModal] = useState({
+    isOpen: false,
+    type: "info",
+    title: "",
+    message: "",
+  });
 
   // Función auxiliar para obtener las fechas en el formato correcto (YYYY-MM-DDTHH:mm)
   const getInitialDateTime = (offsetDays = 0) => {
@@ -33,28 +44,31 @@ export default function ReservationDashboard() {
     fetchReservations();
   }, []);
 
-  // Manejador para aceptar la reserva y generar el préstamo (loan)
-  const handleAcceptReservation = async (reservation) => {
-    const bookTitle = reservation.book_detail?.title || `Libro #${reservation.book}`;
+  const confirmAcceptReservation = async () => {
+    if (!reservationToAccept) return;
+    const reservation = reservationToAccept;
+    const bookTitle =
+      reservation.book_detail?.title || `Libro #${reservation.book}`;
 
-    if (
-      !window.confirm(
-        `¿Estás seguro de que deseas aceptar la reserva de "${bookTitle}" y generar el préstamo correspondiente?`
-      )
-    ) {
-      return;
-    }
-
+    setIsProcessing(true);
     try {
       // 1. Buscamos los ejemplares físicos disponibles de este libro
-      const { data: items } = await itemService.getAll({ book: reservation.book });
+      const { data: items } = await itemService.getAll({
+        book: reservation.book,
+      });
       const bookItems = items.filter((item) => item.book == reservation.book);
-      const availableItems = bookItems.filter((item) => item.status === "AVAILABLE");
+      const availableItems = bookItems.filter(
+        (item) => item.status === "AVAILABLE"
+      );
 
       if (availableItems.length === 0) {
-        alert(
-          `Lo sentimos. Todos los ejemplares de "${bookTitle}" se encuentran prestados o no disponibles actualmente.`
-        );
+        setReservationToAccept(null);
+        setFeedbackModal({
+          isOpen: true,
+          type: "error",
+          title: "Sin ejemplares disponibles",
+          message: `Lo sentimos. Todos los ejemplares de "${bookTitle}" se encuentran prestados o no disponibles actualmente.`,
+        });
         return;
       }
 
@@ -84,23 +98,44 @@ export default function ReservationDashboard() {
             ? {
                 ...res,
                 status: updatedReservation?.status || "COMPLETED",
-                status_display: updatedReservation?.status_display || "Completado",
+                status_display:
+                  updatedReservation?.status_display || "Completado",
               }
             : res
         )
       );
 
-      alert(
-        `¡Reserva aceptada!\nSe ha creado el préstamo del ejemplar #${itemToLoan} para "${bookTitle}".`
-      );
+      setReservationToAccept(null);
+      setFeedbackModal({
+        isOpen: true,
+        type: "success",
+        title: "¡Reserva aceptada!",
+        message: `Se ha creado el préstamo del ejemplar #${itemToLoan} para "${bookTitle}".`,
+      });
     } catch (err) {
       console.error("Error al aceptar la reserva:", err);
+      setReservationToAccept(null);
       if (err.response && err.response.data) {
-        const errorMessages = Object.values(err.response.data).flat().join("\n");
-        alert(`No se pudo procesar la aceptación de la reserva:\n${errorMessages}`);
+        const errorMessages = Object.values(err.response.data)
+          .flat()
+          .join("\n");
+        setFeedbackModal({
+          isOpen: true,
+          type: "error",
+          title: "Error al aceptar reserva",
+          message: `No se pudo procesar la aceptación de la reserva:\n${errorMessages}`,
+        });
       } else {
-        alert("No se pudo procesar la aceptación. Verifica la conexión con el servidor.");
+        setFeedbackModal({
+          isOpen: true,
+          type: "error",
+          title: "Error de conexión",
+          message:
+            "No se pudo procesar la aceptación. Verifica la conexión con el servidor.",
+        });
       }
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -110,7 +145,10 @@ export default function ReservationDashboard() {
       return { text: "Completado", colorClass: "text-secondary font-bold" };
     }
     if (status === "CANCELLED") {
-      return { text: "Cancelado", colorClass: "text-on-surface-variant font-bold" };
+      return {
+        text: "Cancelado",
+        colorClass: "text-on-surface-variant font-bold",
+      };
     }
     if (status === "EXPIRED") {
       return { text: "Expirado", colorClass: "text-error font-bold" };
@@ -188,7 +226,10 @@ export default function ReservationDashboard() {
               </tr>
             ) : (
               reservations.map((reservation) => {
-                const status = getStatusInfo(reservation.status, reservation.expires_at);
+                const status = getStatusInfo(
+                  reservation.status,
+                  reservation.expires_at
+                );
                 const isPending = reservation.status === "PENDING";
 
                 return (
@@ -198,12 +239,10 @@ export default function ReservationDashboard() {
                       !isPending ? "opacity-60" : ""
                     }`}
                   >
-                    {/* ID */}
                     <td className="p-4 text-body-md text-on-surface">
                       {reservation.id}
                     </td>
 
-                    {/* Lector */}
                     <td className="p-4 text-body-md text-on-surface">
                       {reservation.user_detail?.full_name ||
                         reservation.user_detail?.username ||
@@ -213,36 +252,37 @@ export default function ReservationDashboard() {
                       </span>
                     </td>
 
-                    {/* Libro */}
                     <td className="p-4 text-body-md text-on-surface">
-                      {reservation.book_detail?.title || `Libro #${reservation.book}`}
+                      {reservation.book_detail?.title ||
+                        `Libro #${reservation.book}`}
                       <span className="block text-xs text-on-surface-variant">
                         Libro #{reservation.book_detail?.id || reservation.book}
                       </span>
                     </td>
 
-                    {/* Fecha de creación */}
                     <td className="p-4 text-body-md text-on-surface-variant">
-                      {new Date(reservation.created_at).toLocaleDateString("es-AR")}
+                      {new Date(reservation.created_at).toLocaleDateString(
+                        "es-AR"
+                      )}
                     </td>
 
-                    {/* Estado */}
                     <td className={`p-4 text-body-md ${status.colorClass}`}>
                       {status.text}
                     </td>
 
-                    {/* Botón de Aceptar */}
                     <td className="p-4 text-center">
                       <button
-                        onClick={() => handleAcceptReservation(reservation)}
+                        onClick={() => setReservationToAccept(reservation)}
                         disabled={!isPending}
                         className={`px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-md transition-colors shadow-sm ${
                           !isPending
                             ? "bg-surface-variant text-on-surface-variant cursor-not-allowed"
-                            : "bg-primary text-on-primary hover:opacity-90"
+                            : "bg-primary text-on-primary hover:opacity-90 cursor-pointer"
                         }`}
                       >
-                        {isPending ? "Aceptar" : reservation.status_display || "Aceptada"}
+                        {isPending
+                          ? "Aceptar"
+                          : reservation.status_display || "Aceptada"}
                       </button>
                     </td>
                   </tr>
@@ -252,6 +292,35 @@ export default function ReservationDashboard() {
           </tbody>
         </table>
       </div>
+
+      {/* Modal de confirmación para aceptar reserva */}
+      <FeedbackModal
+        isOpen={!!reservationToAccept}
+        type="warning"
+        title="Confirmar aceptación de reserva"
+        message={
+          reservationToAccept
+            ? `¿Estás seguro de que deseas aceptar la reserva de "${
+                reservationToAccept.book_detail?.title ||
+                `Libro #${reservationToAccept.book}`
+              }" y generar el préstamo correspondiente?`
+            : ""
+        }
+        confirmText="Sí, aceptar y prestar"
+        cancelText="Cancelar"
+        isLoading={isProcessing}
+        onClose={() => setReservationToAccept(null)}
+        onConfirm={confirmAcceptReservation}
+      />
+
+      {/* Modal de notificación / error */}
+      <FeedbackModal
+        isOpen={feedbackModal.isOpen}
+        type={feedbackModal.type}
+        title={feedbackModal.title}
+        message={feedbackModal.message}
+        onClose={() => setFeedbackModal((prev) => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 }

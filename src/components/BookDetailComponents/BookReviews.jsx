@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { reviewService } from "../../api/services/reviewService";
 import { useAuth } from "../../auth/AuthProvider";
+import FeedbackModal from "../BasicUIComponents/FeedbackModal";
 import { Star, Trash2, Edit3, Send, MessageSquare } from "lucide-react";
 
 const MAX_COMMENT_LENGTH = 500;
@@ -21,6 +22,16 @@ export default function BookReviews({ bookId }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState(null);
   const [editingReviewId, setEditingReviewId] = useState(null);
+
+  // Estados para modales personalizados
+  const [reviewToDelete, setReviewToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [feedbackModal, setFeedbackModal] = useState({
+    isOpen: false,
+    type: "error",
+    title: "",
+    message: "",
+  });
 
   useEffect(() => {
     if (!bookId) return;
@@ -129,24 +140,28 @@ export default function BookReviews({ bookId }) {
     }
   };
 
-  const handleDelete = async (reviewId) => {
-    const confirmMessage = isModerator
-      ? "¿Estás seguro de que deseas eliminar esta reseña por moderación?"
-      : "¿Estás seguro de que deseas eliminar tu reseña?";
-
-    if (!window.confirm(confirmMessage)) {
-      return;
-    }
+  const confirmDeleteReview = async () => {
+    if (!reviewToDelete) return;
+    setIsDeleting(true);
 
     try {
-      await reviewService.remove(reviewId);
-      setReviews((prev) => prev.filter((r) => r.id !== reviewId));
-      if (editingReviewId === reviewId) {
+      await reviewService.remove(reviewToDelete);
+      setReviews((prev) => prev.filter((r) => r.id !== reviewToDelete));
+      if (editingReviewId === reviewToDelete) {
         handleCancelEdit();
       }
+      setReviewToDelete(null);
     } catch (err) {
       console.error("Error al eliminar reseña:", err);
-      alert("No se pudo eliminar la reseña.");
+      setReviewToDelete(null);
+      setFeedbackModal({
+        isOpen: true,
+        type: "error",
+        title: "Error al eliminar",
+        message: "No se pudo eliminar la reseña.",
+      });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -358,7 +373,7 @@ export default function BookReviews({ bookId }) {
                       {isModerator ? (
                         <button
                           type="button"
-                          onClick={() => handleDelete(item.id)}
+                          onClick={() => setReviewToDelete(item.id)}
                           title="Eliminar reseña ofensiva"
                           className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-error/40 text-error hover:bg-error hover:text-on-error rounded-sm text-xs font-bold uppercase tracking-widest transition-colors cursor-pointer"
                         >
@@ -377,7 +392,7 @@ export default function BookReviews({ bookId }) {
                           </button>
                           <button
                             type="button"
-                            onClick={() => handleDelete(item.id)}
+                            onClick={() => setReviewToDelete(item.id)}
                             title="Eliminar mi reseña"
                             className="p-1.5 text-on-surface-variant hover:text-error transition-colors cursor-pointer"
                           >
@@ -393,6 +408,32 @@ export default function BookReviews({ bookId }) {
           </table>
         )}
       </div>
+
+      {/* Modal de confirmación de eliminación de reseña */}
+      <FeedbackModal
+        isOpen={!!reviewToDelete}
+        type="error"
+        title={isModerator ? "Eliminar reseña por moderación" : "Eliminar tu reseña"}
+        message={
+          isModerator
+            ? "¿Estás seguro de que deseas eliminar esta reseña por moderación?"
+            : "¿Estás seguro de que deseas eliminar tu reseña?"
+        }
+        confirmText="Sí, eliminar"
+        cancelText="Cancelar"
+        isLoading={isDeleting}
+        onClose={() => setReviewToDelete(null)}
+        onConfirm={confirmDeleteReview}
+      />
+
+      {/* Modal de error */}
+      <FeedbackModal
+        isOpen={feedbackModal.isOpen}
+        type={feedbackModal.type}
+        title={feedbackModal.title}
+        message={feedbackModal.message}
+        onClose={() => setFeedbackModal((prev) => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 }

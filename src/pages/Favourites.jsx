@@ -4,6 +4,7 @@ import { favoriteService } from "../api/services/favoriteService";
 import { useBooks } from "../hooks/useBooks";
 import { adaptBook } from "../api/adapters";
 import CatalogBookCard from "../components/CatalogSearchComponents/CatalogBookCard";
+import FeedbackModal from "../components/BasicUIComponents/FeedbackModal";
 import { Heart } from "lucide-react";
 
 export default function Favourites() {
@@ -13,6 +14,12 @@ export default function Favourites() {
   const [favorites, setFavorites] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [modal, setModal] = useState({
+    isOpen: false,
+    type: "error",
+    title: "",
+    message: "",
+  });
 
   useEffect(() => {
     const fetchFavorites = async () => {
@@ -73,7 +80,12 @@ export default function Favourites() {
       setFavorites((prev) => prev.filter((fav) => fav.id !== favoriteId));
     } catch (err) {
       console.error("Error al eliminar de favoritos:", err);
-      alert("No se pudo quitar el volumen de tus favoritos.");
+      setModal({
+        isOpen: true,
+        type: "error",
+        title: "Error al quitar favorito",
+        message: "No se pudo quitar el volumen de tus favoritos.",
+      });
     }
   };
 
@@ -139,6 +151,14 @@ export default function Favourites() {
           ))}
         </div>
       )}
+
+      <FeedbackModal
+        isOpen={modal.isOpen}
+        type={modal.type}
+        title={modal.title}
+        message={modal.message}
+        onClose={() => setModal((prev) => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 }

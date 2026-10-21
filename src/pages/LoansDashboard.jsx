@@ -1,14 +1,23 @@
 import { useState, useEffect } from "react";
-import { loanService } from "../api/services/loanService"
+import { loanService } from "../api/services/loanService";
+import FeedbackModal from "../components/BasicUIComponents/FeedbackModal";
 
 export default function LoansDashboard() {
   const [loans, setLoans] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Estados para modales personalizados
+  const [loanToInterrupt, setLoanToInterrupt] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [alertModal, setAlertModal] = useState({
+    isOpen: false,
+    type: "error",
+    title: "",
+    message: "",
+  });
 
   useEffect(() => {
-    // 1. Declaramos la función asíncrona directamente dentro del efecto
     const fetchLoans = async () => {
       setIsLoading(true);
       try {
@@ -22,39 +31,44 @@ export default function LoansDashboard() {
       }
     };
 
-    // 2. La ejecutamos inmediatamente
     fetchLoans();
-    
-    // 3. El array de dependencias queda vacío, garantizando que solo se ejecute al montar
   }, []);
 
-  // Manejador para interrumpir/finalizar el préstamo
-  const handleInterruptLoan = async (loanId) => {
-    if (!window.confirm("¿Estás seguro de que deseas interrumpir este préstamo y marcar el ejemplar como devuelto?")) {
-      return;
-    }
+  const confirmInterruptLoan = async () => {
+    if (!loanToInterrupt) return;
+    setIsProcessing(true);
 
     try {
       const currentTime = new Date().toISOString();
-      // Usamos PATCH para actualizar solo la fecha de devolución
-      await loanService.patch(loanId, { returned_at: currentTime });
-      
-      // Actualizamos el estado local para reflejar el cambio al instante sin recargar
+      await loanService.patch(loanToInterrupt.id, { returned_at: currentTime });
+
       setLoans((prevLoans) =>
         prevLoans.map((loan) =>
-          loan.id === loanId ? { ...loan, returned_at: currentTime } : loan
+          loan.id === loanToInterrupt.id
+            ? { ...loan, returned_at: currentTime }
+            : loan
         )
       );
+      setLoanToInterrupt(null);
     } catch (err) {
       console.error("Error al finalizar el préstamo:", err);
-      alert("No se pudo procesar la devolución. Verifica la conexión con el servidor.");
+      setLoanToInterrupt(null);
+      setAlertModal({
+        isOpen: true,
+        type: "error",
+        title: "Error al procesar devolución",
+        message:
+          "No se pudo procesar la devolución. Verifica la conexión con el servidor.",
+      });
+    } finally {
+      setIsProcessing(false);
     }
   };
 
   // Función para calcular el tiempo restante y su color
   const getStatusInfo = (dueAt, returnedAt) => {
     if (returnedAt) {
-      return { text: "Devuelto", colorClass: "text-secondary font-bold" }; // Slate Blue
+      return { text: "Devuelto", colorClass: "text-secondary font-bold" };
     }
 
     const now = new Date();
@@ -63,25 +77,29 @@ export default function LoansDashboard() {
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     if (diffDays < 0) {
-      return { 
-        text: `Vencido (${Math.abs(diffDays)} días)`, 
-        colorClass: "text-error font-bold" 
+      return {
+        text: `Vencido (${Math.abs(diffDays)} días)`,
+        colorClass: "text-error font-bold",
       };
     }
     if (diffDays === 0) {
-      return { 
-        text: "Vence hoy", 
-        colorClass: "text-tertiary font-bold" // Antique Gold
+      return {
+        text: "Vence hoy",
+        colorClass: "text-tertiary font-bold",
       };
     }
-    return { 
-      text: `${diffDays} días rest.`, 
-      colorClass: "text-on-surface" 
+    return {
+      text: `${diffDays} días rest.`,
+      colorClass: "text-on-surface",
     };
   };
 
   if (isLoading) {
-    return <div className="p-8 text-on-background font-sans">Cargando archivo de préstamos...</div>;
+    return (
+      <div className="p-8 text-on-background font-sans">
+        Cargando archivo de préstamos...
+      </div>
+    );
   }
 
   if (error) {
@@ -90,7 +108,6 @@ export default function LoansDashboard() {
 
   return (
     <div className="w-full max-w-7xl mx-auto p-6 md:p-10 font-sans animate-fade-in">
-      
       {/* Cabecera */}
       <div className="mb-8">
         <h1 className="text-headline-md font-serif text-on-background mb-2">
@@ -125,50 +142,45 @@ export default function LoansDashboard() {
               loans.map((loan) => {
                 const status = getStatusInfo(loan.due_at, loan.returned_at);
                 const isReturned = !!loan.returned_at;
-                
+
                 return (
-                  <tr 
-                    key={loan.id} 
+                  <tr
+                    key={loan.id}
                     className={`border-b border-outline-variant/30 hover:bg-surface-container/50 transition-colors ${
                       isReturned ? "opacity-60" : ""
                     }`}
                   >
-                    {/* Ejemplar */}
                     <td className="p-4 text-body-md text-on-surface">
-                        {loan.id}
-                        
-                    </td>
-                    {/* Lector */}
-                    <td className="p-4 text-body-md text-on-surface">
-                        {loan.user?.full_name || `Usuario #${loan.user}`}
-                        <span className="block text-xs text-on-surface-variant">
-                            ID: {loan.user?.id || loan.user}
-                        </span>
+                      {loan.id}
                     </td>
                     <td className="p-4 text-body-md text-on-surface">
-                      {loan.book.title}
-                        <span className="block text-xs text-on-surface-variant">
-                            Item #{loan.item}
-                        </span>
+                      {loan.user?.full_name || `Usuario #${loan.user}`}
+                      <span className="block text-xs text-on-surface-variant">
+                        ID: {loan.user?.id || loan.user}
+                      </span>
+                    </td>
+                    <td className="p-4 text-body-md text-on-surface">
+                      {loan.book?.title}
+                      <span className="block text-xs text-on-surface-variant">
+                        Item #{loan.item}
+                      </span>
                     </td>
                     <td className="p-4 text-body-md text-on-surface-variant">
                       {new Date(loan.loaned_at).toLocaleDateString("es-AR")}
                     </td>
-                    
-                    {/* Celda de Estado (Días restantes o Vencido) */}
+
                     <td className={`p-4 text-body-md ${status.colorClass}`}>
                       {status.text}
                     </td>
-                    
-                    {/* Botón de Interrupción */}
+
                     <td className="p-4 text-center">
                       <button
-                        onClick={() => handleInterruptLoan(loan.id)}
+                        onClick={() => setLoanToInterrupt(loan)}
                         disabled={isReturned}
                         className={`px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-md transition-colors shadow-sm ${
                           isReturned
                             ? "bg-surface-variant text-on-surface-variant cursor-not-allowed"
-                            : "bg-primary text-on-primary hover:opacity-90"
+                            : "bg-primary text-on-primary hover:opacity-90 cursor-pointer"
                         }`}
                       >
                         {isReturned ? "Finalizado" : "Interrumpir"}
@@ -181,6 +193,34 @@ export default function LoansDashboard() {
           </tbody>
         </table>
       </div>
+
+      {/* Modal de confirmación de devolución / interrupción */}
+      <FeedbackModal
+        isOpen={!!loanToInterrupt}
+        type="warning"
+        title="Confirmar devolución"
+        message={
+          loanToInterrupt
+            ? `¿Estás seguro de que deseas interrumpir este préstamo de "${
+                loanToInterrupt.book?.title || `Item #${loanToInterrupt.item}`
+              }" y marcar el ejemplar como devuelto?`
+            : ""
+        }
+        confirmText="Sí, marcar devuelto"
+        cancelText="Cancelar"
+        isLoading={isProcessing}
+        onClose={() => setLoanToInterrupt(null)}
+        onConfirm={confirmInterruptLoan}
+      />
+
+      {/* Modal de error/aviso */}
+      <FeedbackModal
+        isOpen={alertModal.isOpen}
+        type={alertModal.type}
+        title={alertModal.title}
+        message={alertModal.message}
+        onClose={() => setAlertModal((prev) => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 }
