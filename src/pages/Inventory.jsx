@@ -9,14 +9,23 @@ import { useInventory } from "../hooks/useInventory";
 import { useBooks } from "../hooks/useBooks";
 import { adaptBook, adaptItem } from "../api/adapters";
 
-
 export const Inventory = () => {
-
-  const { items, isLoading: loadingItems, error: errorItems } = useInventory();
+  const {
+    items,
+    isLoading: loadingItems,
+    error: errorItems,
+    refetch: refetchItems,
+  } = useInventory();
   const { books, isLoading: loadingBooks, error: errorBooks } = useBooks();
 
   const booksById = useMemo(
-    () => Object.fromEntries(books.map((b) => { const a = adaptBook(b); return [a.id, a]; })),
+    () =>
+      Object.fromEntries(
+        books.map((b) => {
+          const a = adaptBook(b);
+          return [a.id, a];
+        })
+      ),
     [books]
   );
 
@@ -36,9 +45,8 @@ export const Inventory = () => {
         <div className="flex-1 p-margin-edge md:p-stack-lg max-w-[1280px] mx-auto w-full">
           {/* <PageHeader />
           <StatsRow /> */}
-          <DescriptionOfInventory items={rows}/>
-          <InventoryTable rows={rows}/>
-
+          <DescriptionOfInventory items={rows} />
+          <InventoryTable rows={rows} books={books} onRefetch={refetchItems} />
         </div>
       </main>
     </>

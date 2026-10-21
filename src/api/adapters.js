@@ -22,6 +22,7 @@ export const adaptItem = (item, booksById) => {
   const book = booksById[item.book];
   return {
     id: item.id,
+    bookId: item.book,
     code: item.inventory_code,
     status: item.status,
     statusLabel: item.status_display,

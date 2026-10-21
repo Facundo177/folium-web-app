@@ -1,15 +1,40 @@
 import { useState, useMemo } from "react";
 import { ITEM_STATUS } from "../../api/constants";
-import { LucideChevronDown } from "lucide-react";
+import { itemService } from "../../api/services/itemService";
+import {
+  ChevronDown,
+  Search,
+  Pencil,
+  Trash2,
+  X,
+  AlertTriangle,
+  CheckCircle2,
+} from "lucide-react";
 
-export const InventoryTable = ({ rows = [] }) => {
-  // Datos simulados basados en la imagen
+export const InventoryTable = ({ rows = [], books = [], onRefetch }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
 
+  // Estados para edición de ejemplar (Item)
+  const [editingItem, setEditingItem] = useState(null);
+  const [editForm, setEditForm] = useState({
+    book: "",
+    inventory_code: "",
+    location: "",
+    status: ITEM_STATUS.AVAILABLE,
+  });
+  const [isSaving, setIsSaving] = useState(false);
+  const [editError, setEditError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
+
+  // Estados para eliminación de ejemplar (Item)
+  const [deletingItem, setDeletingItem] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState(null);
+
   const statuses = useMemo(
     () => [...new Set(rows.map((r) => r.statusLabel))],
-    [rows],
+    [rows]
   );
 
   const filtered = useMemo(() => {
@@ -32,13 +57,118 @@ export const InventoryTable = ({ rows = [] }) => {
     return "bg-tertiary-fixed text-on-tertiary-fixed-variant";
   };
 
+  const handleOpenEdit = (row) => {
+    setEditingItem(row);
+    setEditForm({
+      book: row.bookId ?? "",
+      inventory_code: row.code || "",
+      location: row.location || "",
+      status: row.status || ITEM_STATUS.AVAILABLE,
+    });
+    setEditError(null);
+  };
+
+  const handleSaveEdit = async (e) => {
+    e.preventDefault();
+    if (!editingItem) return;
+
+    const cleanCode = editForm.inventory_code.trim().toUpperCase();
+    const cleanLocation = (editForm.location || "").trim().replace(/\s+/g, " ");
+
+    if (!cleanCode) {
+      setEditError("Ingrese el código de inventario.");
+      return;
+    }
+    if (/\s/.test(cleanCode)) {
+      setEditError("El código de inventario no puede contener espacios.");
+      return;
+    }
+    if (!cleanLocation) {
+      setEditError("Ingrese la ubicación física del ejemplar.");
+      return;
+    }
+
+    setIsSaving(true);
+    setEditError(null);
+
+    try {
+      const payload = {
+        book: Number(editForm.book),
+        inventory_code: cleanCode,
+        location: cleanLocation,
+        status: editForm.status,
+      };
+
+      await itemService.patch(editingItem.id, payload);
+      await onRefetch?.();
+      setEditingItem(null);
+      setSuccessMessage(`Ejemplar ${cleanCode} actualizado correctamente.`);
+      setTimeout(() => setSuccessMessage(null), 3500);
+    } catch (err) {
+      console.error("Error al actualizar ejemplar:", err);
+      if (err.response?.data && typeof err.response.data === "object") {
+        const messages = Object.entries(err.response.data)
+          .map(
+            ([field, msgs]) =>
+              `${field}: ${Array.isArray(msgs) ? msgs.join(" ") : msgs}`
+          )
+          .join(" | ");
+        setEditError(messages || "No se pudo actualizar el ejemplar.");
+      } else {
+        setEditError("Error al intentar guardar los cambios del ejemplar.");
+      }
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deletingItem) return;
+    setIsDeleting(true);
+    setDeleteError(null);
+
+    try {
+      await itemService.remove(deletingItem.id);
+      const removedCode = deletingItem.code;
+      setDeletingItem(null);
+      await onRefetch?.();
+      setSuccessMessage(`Ejemplar ${removedCode} eliminado del inventario.`);
+      setTimeout(() => setSuccessMessage(null), 3500);
+    } catch (err) {
+      console.error("Error al eliminar ejemplar:", err);
+      setDeleteError(
+        err.response?.data?.detail ||
+          "No se pudo eliminar el ejemplar. Verifique que no tenga préstamos activos asociados."
+      );
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <div className="w-full bg-surface-container-lowest border border-outline-variant rounded-DEFAULT shadow-sm font-sans">
+      {/* Banner de confirmación */}
+      {successMessage && (
+        <div className="m-gutter mb-0 p-3 bg-emerald-50 border border-emerald-300 text-emerald-900 rounded-sm flex items-center justify-between text-sm">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-5 h-5 text-emerald-700 shrink-0" />
+            <span>{successMessage}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setSuccessMessage(null)}
+            className="text-emerald-700 hover:text-emerald-950 p-1 cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       {/* Top Toolbar: Search & Filters */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-gutter gap-stack-md">
         {/* Search Input */}
         <div className="flex items-center gap-base border-b border-outline pb-1 w-full md:w-80">
-          <SearchIcon />
+          <Search className="w-[18px] h-[18px] text-on-surface-variant shrink-0" />
           <input
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -50,12 +180,10 @@ export const InventoryTable = ({ rows = [] }) => {
 
         {/* Action Buttons */}
         <div className="flex items-center gap-base">
-          {/* 1. Contenedor relativo */}
           <div className="relative flex items-center">
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              // 2. Agregamos pr-10 (padding right) para dejarle espacio físico al ícono
               className="border border-outline-variant rounded-DEFAULT pl-6 pr-10 py-2 text-label-caps text-on-surface hover:bg-surface-container appearance-none bg-transparent outline-none focus:border-primary cursor-pointer transition-colors"
             >
               <option value="">Todos los estados</option>
@@ -67,15 +195,10 @@ export const InventoryTable = ({ rows = [] }) => {
               ))}
             </select>
 
-            {/* 3. Ícono posicionado de forma absoluta sobre el extremo derecho */}
             <div className="absolute right-3 pointer-events-none text-on-surface-variant flex items-center justify-center">
-              <ChevronDownIcon />
+              <ChevronDown className="w-4 h-4 text-on-surface-variant" />
             </div>
           </div>
-
-          {/* <button className="flex items-center justify-center border border-outline-variant rounded-DEFAULT w-9 h-9 text-on-surface hover:bg-surface-container">
-            <FilterIcon />
-          </button> */}
         </div>
       </div>
 
@@ -167,9 +290,31 @@ export const InventoryTable = ({ rows = [] }) => {
                     {row.statusLabel}
                   </span>
                 </td>
-                {/* Actions (Empty in reference image) */}
+                {/* Actions */}
                 <td className="py-stack-sm px-gutter text-right">
-                  {/* Espacio para botones de editar/eliminar */}
+                  <div className="inline-flex items-center justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleOpenEdit(row)}
+                      title="Editar ejemplar"
+                      aria-label={`Editar ejemplar ${row.code}`}
+                      className="p-2 border border-outline-variant bg-surface-container-lowest text-on-surface hover:bg-primary hover:text-on-primary hover:border-primary rounded-sm transition-colors shadow-xs cursor-pointer"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDeleteError(null);
+                        setDeletingItem(row);
+                      }}
+                      title="Eliminar ejemplar"
+                      aria-label={`Eliminar ejemplar ${row.code}`}
+                      className="p-2 border border-error/40 bg-surface-container-lowest text-error hover:bg-error hover:text-on-error rounded-sm transition-colors shadow-xs cursor-pointer"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -208,69 +353,194 @@ export const InventoryTable = ({ rows = [] }) => {
           </button>
         </div>
       </div>
+
+      {/* MODAL DE EDICIÓN DE ITEM */}
+      {editingItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div className="bg-surface border border-outline-variant rounded-sm shadow-xl w-full max-w-lg overflow-hidden animate-fade-in">
+            <div className="px-6 py-4 bg-surface-container border-b border-outline-variant flex items-center justify-between">
+              <div>
+                <span className="text-label-caps text-primary block">
+                  Gestión de Inventario
+                </span>
+                <h2 className="text-headline-sm font-serif text-on-surface">
+                  Editar Ejemplar ({editingItem.code})
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingItem(null)}
+                className="text-on-surface-variant hover:text-on-surface p-1 cursor-pointer"
+                aria-label="Cerrar modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEdit} className="p-6 space-y-4">
+              {editError && (
+                <div className="p-3 bg-error-container border border-error text-on-error-container text-xs rounded-sm">
+                  {editError}
+                </div>
+              )}
+
+              {/* Obra asociada */}
+              <div>
+                <label className="block text-label-caps text-on-surface-variant mb-1.5">
+                  Obra de Referencia *
+                </label>
+                <div className="relative flex items-center">
+                  <select
+                    required
+                    value={editForm.book}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, book: e.target.value })
+                    }
+                    className="w-full pl-3 pr-10 py-2.5 bg-surface-container-lowest border border-outline-variant rounded-sm text-sm text-on-surface focus:outline-none focus:border-primary appearance-none cursor-pointer"
+                  >
+                    <option value="" disabled>
+                      Seleccione una obra...
+                    </option>
+                    {books.map((b) => (
+                      <option key={b.id} value={b.id}>
+                        #{b.id} — {b.title}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute right-3 pointer-events-none text-on-surface-variant flex items-center justify-center">
+                    <ChevronDown className="w-4 h-4" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Código y Ubicación */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-label-caps text-on-surface-variant mb-1.5">
+                    Código de Inventario *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editForm.inventory_code}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, inventory_code: e.target.value })
+                    }
+                    placeholder="Ej. INV-00134"
+                    className="w-full p-2.5 bg-surface-container-lowest border border-outline-variant rounded-sm text-sm text-on-surface focus:outline-none focus:border-primary"
+                  />
+                </div>
+                <div>
+                  <label className="block text-label-caps text-on-surface-variant mb-1.5">
+                    Ubicación Física *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editForm.location}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, location: e.target.value })
+                    }
+                    placeholder="Ej. Estante A3"
+                    className="w-full p-2.5 bg-surface-container-lowest border border-outline-variant rounded-sm text-sm text-on-surface focus:outline-none focus:border-primary"
+                  />
+                </div>
+              </div>
+
+              {/* Estado */}
+              <div>
+                <label className="block text-label-caps text-on-surface-variant mb-1.5">
+                  Estado del Ejemplar *
+                </label>
+                <div className="relative flex items-center">
+                  <select
+                    required
+                    value={editForm.status}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, status: e.target.value })
+                    }
+                    className="w-full pl-3 pr-10 py-2.5 bg-surface-container-lowest border border-outline-variant rounded-sm text-sm text-on-surface focus:outline-none focus:border-primary appearance-none cursor-pointer"
+                  >
+                    <option value={ITEM_STATUS.AVAILABLE}>Disponible</option>
+                    <option value={ITEM_STATUS.LOANED}>Prestado</option>
+                    <option value={ITEM_STATUS.RESERVED}>Reservado</option>
+                    <option value={ITEM_STATUS.DAMAGED}>Dañado</option>
+                    <option value={ITEM_STATUS.LOST}>Perdido</option>
+                  </select>
+                  <div className="absolute right-3 pointer-events-none text-on-surface-variant flex items-center justify-center">
+                    <ChevronDown className="w-4 h-4" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-outline-variant">
+                <button
+                  type="button"
+                  onClick={() => setEditingItem(null)}
+                  disabled={isSaving}
+                  className="px-4 py-2 text-xs font-semibold uppercase tracking-wider border border-outline-variant text-on-surface hover:bg-surface-container rounded-sm cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSaving}
+                  className="px-5 py-2 text-xs font-semibold uppercase tracking-wider bg-primary text-on-primary hover:opacity-90 rounded-sm shadow-sm disabled:opacity-50 cursor-pointer"
+                >
+                  {isSaving ? "Guardando..." : "Guardar Cambios"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DE CONFIRMACIÓN DE ELIMINACIÓN DE ITEM */}
+      {deletingItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div className="bg-surface border border-outline-variant rounded-sm shadow-xl max-w-md w-full p-6">
+            <div className="flex items-center gap-3 text-error mb-3">
+              <AlertTriangle className="w-7 h-7 shrink-0" />
+              <h3 className="text-headline-sm font-serif text-on-surface">
+                ¿Eliminar ejemplar?
+              </h3>
+            </div>
+            <p className="text-body-md text-on-surface-variant mb-4">
+              Estás por eliminar del inventario el ejemplar{" "}
+              <strong className="text-on-surface">{deletingItem.code}</strong> correspondiente a{" "}
+              <strong className="text-on-surface">&ldquo;{deletingItem.title}&rdquo;</strong>.
+              Esta acción no se puede deshacer.
+            </p>
+
+            {deleteError && (
+              <div className="mb-4 p-3 bg-error-container border border-error text-on-error-container text-xs rounded-sm">
+                {deleteError}
+              </div>
+            )}
+
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setDeletingItem(null)}
+                disabled={isDeleting}
+                className="px-4 py-2 text-xs font-semibold uppercase tracking-wider border border-outline-variant text-on-surface hover:bg-surface-container rounded-sm cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDelete}
+                disabled={isDeleting}
+                className="px-5 py-2 text-xs font-semibold uppercase tracking-wider bg-error text-on-error hover:opacity-90 rounded-sm shadow-sm disabled:opacity-50 cursor-pointer"
+              >
+                {isDeleting ? "Eliminando..." : "Sí, Eliminar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
-
-// ==========================================
-// Íconos SVG extraídos
-// ==========================================
-
-const SearchIcon = () => (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="text-on-surface-variant"
-  >
-    <circle cx="11" cy="11" r="8" />
-    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-  </svg>
-);
-
-const ChevronDownIcon = () => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="text-on-surface-variant"
-  >
-    <polyline points="6 9 12 15 18 9" />
-  </svg>
-);
-
-const FilterIcon = () => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="text-on-surface-variant"
-  >
-    <line x1="4" y1="21" x2="4" y2="14" />
-    <line x1="4" y1="10" x2="4" y2="3" />
-    <line x1="12" y1="21" x2="12" y2="12" />
-    <line x1="12" y1="8" x2="12" y2="3" />
-    <line x1="20" y1="21" x2="20" y2="16" />
-    <line x1="20" y1="12" x2="20" y2="3" />
-    <line x1="1" y1="14" x2="7" y2="14" />
-    <line x1="9" y1="8" x2="15" y2="8" />
-    <line x1="17" y1="16" x2="23" y2="16" />
-  </svg>
-);
 
 export default InventoryTable;
