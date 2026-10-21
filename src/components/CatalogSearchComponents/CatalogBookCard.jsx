@@ -95,15 +95,15 @@ export default function CatalogBookCard({
       className="bg-surface-container border border-outline-variant/50 rounded-md p-4 flex flex-col hover:border-primary transition-colors group cursor-pointer shadow-md hover:shadow-lg animate-fade-in"
     >
       {/* Tapa del Libro */}
-      <div className="relative w-full aspect-[2/3] bg-surface-container-highest border border-outline-variant/30 mb-5 flex flex-col justify-between p-3 overflow-hidden shadow-inner rounded-sm">
-        
+       <div className="relative w-full aspect-[2/3] bg-surface-container-highest border border-outline-variant/30 mb-5 flex flex-col justify-between p-3 overflow-hidden shadow-inner rounded-sm">
         {/* 1. Imagen real (solo si existe) */}
         {book.cover && (
           <img
             src={book.cover}
             alt={book.title}
             loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover"
+           className="absolute inset-0 w-full h-full object-cover" 
+           
           />
         )}
 
