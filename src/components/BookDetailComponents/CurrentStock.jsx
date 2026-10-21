@@ -13,9 +13,6 @@ export default function CurrentStock({
     return (
         <div className="border border-outline-variant bg-surface-container-low p-gutter flex flex-col h-full font-sans shadow-sm relative overflow-hidden">
 
-            {/* Background logo watermark (Opcional, simulando el diseño de fondo) */}
-            <div className="absolute -bottom-10 -right-10 opacity-5 pointer-events-none text-9xl">F</div>
-
             <div className="flex justify-between items-center mb-stack-md relative z-10">
                 <h3 className="text-title-lg text-on-surface">Disponibilidad</h3>
                 {stock ?
