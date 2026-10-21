@@ -165,13 +165,31 @@
 /* 1. Habilitar el uso de "dark:" basado en la clase .dark para Tailwind v4 */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Durante el cambio de tema se desactivan las transiciones para evitar que todos los elementos con transition-colors/transition-all animen a la vez (tirones). */
+
+
+
+/* =======================================================
+   TRANSICIÓN DE TEMA CON VIEW TRANSITIONS API (CROSS-FADE)
+   ======================================================= */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.28s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
+}
+/* Fallback para navegadores antiguos: deshabilita animaciones masivas concurrentes */
 .theme-switching,
 .theme-switching *,
 .theme-switching *::before,
 .theme-switching *::after {
   transition: none !important;
 }
+
 
 /* 2. Reemplazo de las variables de color cuando el modo oscuro está activo */
 @layer base {

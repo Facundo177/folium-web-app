@@ -22,49 +22,52 @@ const getInitialDarkMode = () => {
   return window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? true;
 };
 
-/**
- * Aplica el tema directamente sobre el DOM.
- * Desactiva temporalmente las transiciones CSS para que cientos de elementos con
- * `transition-colors` / `transition-all` no animen su color al mismo tiempo (causa de los tirones).
- */
-const applyThemeToDOM = (isDark) => {
-  const root = document.documentElement;
-
-  root.classList.add("theme-switching");
-  root.classList.toggle("dark", isDark);
-
-  localStorage.setItem(STORAGE_KEY, isDark ? "dark" : "light");
-  localStorage.removeItem(LEGACY_STORAGE_KEY);
-
-  // Esperamos a que el navegador pinte el nuevo tema antes de reactivar las transiciones
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => root.classList.remove("theme-switching"));
-  });
-};
 
 export function ThemeProvider({ children }) {
-  // El inicializador perezoso aplica la clase al DOM antes del primer render,
-  // así el estado y el <html> arrancan sincronizados (sin efectos ni setState en cascada).
+  // Inicializador perezoso: aplica la clase al <html> antes del primer render.
   const [isDarkMode, setIsDarkModeState] = useState(() => {
     const initial = getInitialDarkMode();
     document.documentElement.classList.toggle("dark", initial);
     return initial;
   });
 
-  // El DOM se actualiza en el mismo manejador del evento (no en un useEffect),
-  // por lo que el cambio de clase y el re-render de React ocurren en el mismo frame.
+  // Cambia el tema usando View Transitions API si el navegador lo soporta,
+  // permitiendo un cross-fade suave acelerado por hardware sin tirones.
+  const applyTheme = useCallback((next) => {
+    const updateDOM = () => {
+      document.documentElement.classList.toggle("dark", next);
+      localStorage.setItem(STORAGE_KEY, next ? "dark" : "light");
+      localStorage.removeItem(LEGACY_STORAGE_KEY);
+      setIsDarkModeState(next);
+    };
+    const prefersReducedMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    // Si el navegador no soporta View Transitions o el usuario prefiere movimiento reducido:
+    if (!document.startViewTransition || prefersReducedMotion) {
+      updateDOM();
+      return;
+    }
+    // Transición suave entre snapshots manejada directamente por la GPU
+    document.startViewTransition(() => {
+      updateDOM();
+    });
+  }, []);
+
   const setIsDarkMode = useCallback(
     (value) => {
       const next = typeof value === "function" ? value(isDarkMode) : value;
       if (next === isDarkMode) return;
-      applyThemeToDOM(next);
-      setIsDarkModeState(next);
+      applyTheme(next);
     },
-    [isDarkMode]
+    [isDarkMode, applyTheme]
   );
 
-  const toggleTheme = useCallback(() => setIsDarkMode(!isDarkMode), [isDarkMode, setIsDarkMode]);
+  const toggleTheme = useCallback(() => {
+    setIsDarkMode(!isDarkMode);
+  }, [isDarkMode, setIsDarkMode]);
 
+  
   const value = useMemo(
     () => ({ isDarkMode, setIsDarkMode, toggleTheme }),
     [isDarkMode, setIsDarkMode, toggleTheme]
