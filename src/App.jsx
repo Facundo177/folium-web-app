@@ -57,46 +57,71 @@ function App() {
               <ProtectedRoute allowedRoles={["USER", "LIBRARIAN", "ADMIN"]} />
             }
           >
-            <Route path="book">
-              <Route index element={<Navigate to="/user/catalog" replace />} />
-              {/* The Count of Monte Cristo */}
-              <Route
-                path=":id"
-                element={<BookDetail /> /* Se cambio ISBN por id */}
-              />
+            <Route
+              element={
+                <UserLayout
+                  isDarkMode={isDarkMode}
+                  setIsDarkMode={setIsDarkMode}
+                />
+              }
+            >
+              <Route path="book">
+                <Route
+                  index
+                  element={<Navigate to="/user/catalog" replace />}
+                />
+                <Route
+                  path=":id"
+                  element={<BookDetail /> /* Se cambio ISBN por id */}
+                />
+              </Route>
+
+              <Route path="catalog">
+                <Route index element={<BookCatalog />} />
+              </Route>
             </Route>
 
-
-            <Route path="catalog" element={<UserLayout isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode}/>}>
-              <Route index element={<BookCatalog />}/>
-            </Route>
-
-            <Route path="user" element={<UserLayout isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode}/>}>
+            <Route
+              path="user"
+              element={
+                <UserLayout
+                  isDarkMode={isDarkMode}
+                  setIsDarkMode={setIsDarkMode}
+                />
+              }
+            >
               <Route index element={<Navigate to="/catalog" replace />} />
-              <Route path="favourites" element={<Favourites/>} />
-              <Route path="loans" element={<UserLoans/>} />
-              <Route path="profile" element={<Profile/>} />
-              <Route path="reservations" element={<UserReservations/>}/>
+              <Route path="favourites" element={<Favourites />} />
+              <Route path="loans" element={<UserLoans />} />
+              <Route path="profile" element={<Profile />} />
+              <Route path="reservations" element={<UserReservations />} />
             </Route>
-            
           </Route>
 
           {/* Librarian & Admin Routes */}
           <Route
             element={<ProtectedRoute allowedRoles={["LIBRARIAN", "ADMIN"]} />}
           >
-            <Route path="librarian" element={<LibrarianLayout isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode}/>}>
+            <Route
+              path="librarian"
+              element={
+                <LibrarianLayout
+                  isDarkMode={isDarkMode}
+                  setIsDarkMode={setIsDarkMode}
+                />
+              }
+            >
               <Route index element={<Navigate to="inventory" replace />} />
               <Route path="catalog" element={<BookCatalog />} />
               <Route path="inventory">
                 <Route index element={<Inventory />} />
-                <Route path="newBook" element={<LoadBook/>} />
-                <Route path="newItem" element={<AddAnItem/>} />
+                <Route path="newBook" element={<LoadBook />} />
+                <Route path="newItem" element={<AddAnItem />} />
               </Route>
-              <Route path="loans" element={<LoansDashboard/>}/>
-              <Route path="reservations" element={<ReservationDashboard/>}/>
+              <Route path="loans" element={<LoansDashboard />} />
+              <Route path="reservations" element={<ReservationDashboard />} />
             </Route>
-{/* 
+            {/* 
             <Route path="admin" element={<LibrarianLayout isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode}/>}>
               <Route index element={<Navigate to="dashboard" replace />} />
               <Route path="dashboard">
