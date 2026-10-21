@@ -1,6 +1,9 @@
 import { createChatBotMessage } from "react-chatbot-kit";
 import { NavWidget } from "./NavWidget";
 import {
+  MainMenuWidget,
+  AwaitingInputWidget,
+  NavigationMenuWidget,
   BookRecommendationWidget,
   BookSearchWidget,
   LiveLoansStatusWidget,
@@ -20,7 +23,7 @@ const FoliumBotHeader = () => (
         </span>
         <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
           <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-          Asistente de Archivo
+          Elegí una opción del menú para interactuar
         </span>
       </div>
     </div>
@@ -42,12 +45,16 @@ const FoliumUserAvatar = () => (
 const config = {
   initialMessages: [
     createChatBotMessage(
-      `Hola, soy el Curador de Folium. Puedes pedirme recomendaciones ("recomiéndame un libro"), buscar obras ("buscar Borges"), o consultar tus préstamos y reservas.`
+      "¡Hola! Soy el Curador de Folium. Para comenzar, seleccioná primero una opción del menú de abajo (por ejemplo, elegí «Buscar por Título o Autor» y luego escribí tu consulta):",
+      {
+        widget: "mainMenu",
+      }
     ),
   ],
   botName: "FoliumBot",
   state: {
     userRole: "GUEST",
+    awaitingMode: null,
   },
   customComponents: {
     header: () => <FoliumBotHeader />,
@@ -55,6 +62,18 @@ const config = {
     userAvatar: (props) => <FoliumUserAvatar {...props} />,
   },
   widgets: [
+    {
+      widgetName: "mainMenu",
+      widgetFunc: (props) => <MainMenuWidget {...props} />,
+    },
+    {
+      widgetName: "awaitingInput",
+      widgetFunc: (props) => <AwaitingInputWidget {...props} />,
+    },
+    {
+      widgetName: "navigationMenu",
+      widgetFunc: (props) => <NavigationMenuWidget {...props} />,
+    },
     {
       widgetName: "catalogLink",
       widgetFunc: (props) => (

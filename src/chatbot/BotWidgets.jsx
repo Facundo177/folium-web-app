@@ -13,7 +13,270 @@ import {
   AlertCircle,
   CheckCircle2,
   ArrowRight,
+  Tag,
+  Compass,
+  BookMarked,
+  BookmarkCheck,
+  LayoutGrid,
+  CornerDownLeft,
+  XCircle,
+  Heart,
+  User,
+  Package,
+  PlusCircle,
+  LogIn,
+  UserPlus,
 } from "lucide-react";
+
+// =========================================================
+// 0. MENÚ PRINCIPAL GUIADO (PUNTO DE ENTRADA DE OPCIONES)
+// =========================================================
+export function MainMenuWidget(props) {
+  const role = props.state?.userRole || props.payload?.role || "GUEST";
+  const isStaff = ["LIBRARIAN", "ADMIN"].includes(role);
+  const isGuest = role === "GUEST";
+
+  const options = [
+    {
+      id: "search_title",
+      icon: Search,
+      label: "Buscar por Título o Autor",
+      hint: "Activá el buscador y escribí el nombre",
+      onClick: () => props.actionProvider.promptSearchTitleAuthor(),
+    },
+    {
+      id: "search_genre",
+      icon: Tag,
+      label: "Buscar por Género",
+      hint: "Elegí o escribí una categoría literaria",
+      onClick: () => props.actionProvider.promptSearchGenre(),
+    },
+    {
+      id: "recommend",
+      icon: Sparkles,
+      label: "Recomendarme un Libro",
+      hint: "Sugerencia al azar de nuestro archivo",
+      onClick: () => props.actionProvider.handleRecommendation(),
+    },
+    ...(!isGuest
+      ? [
+          {
+            id: "loans",
+            icon: BookMarked,
+            label: isStaff ? "Resumen de Préstamos" : "Mis Préstamos Activos",
+            hint: isStaff
+              ? "Ver activos y vencidos en biblioteca"
+              : "Consultar tus ejemplares y vencimientos",
+            onClick: () => props.actionProvider.handleLoans(role),
+          },
+          {
+            id: "reservations",
+            icon: BookmarkCheck,
+            label: isStaff ? "Solicitudes de Reserva" : "Mis Reservas",
+            hint: isStaff
+              ? "Ver reservas pendientes de lectores"
+              : "Consultar estado de tus reservas",
+            onClick: () => props.actionProvider.handleReservations(role),
+          },
+        ]
+      : []),
+    {
+      id: "navigation",
+      icon: Compass,
+      label: "Ir a una Sección",
+      hint: "Accesos directos a páginas de Folium",
+      onClick: () => props.actionProvider.handleNavigationMenu(role),
+    },
+  ];
+
+  return (
+    <div className="ml-11 mb-3 p-3 bg-surface-container-lowest border border-outline-variant rounded-lg shadow-sm text-on-surface">
+      <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-outline-variant/50">
+        <span className="text-[10px] font-bold uppercase tracking-widest text-primary flex items-center gap-1.5">
+          <LayoutGrid className="w-3.5 h-3.5" />
+          Menú de Opciones
+        </span>
+        <span className="text-[10px] text-on-surface-variant italic">
+          Elegí una acción
+        </span>
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        {options.map((opt) => {
+          const IconComponent = opt.icon;
+          return (
+            <button
+              key={opt.id}
+              type="button"
+              onClick={opt.onClick}
+              className="w-full p-2 rounded-sm bg-surface-container hover:bg-primary hover:text-on-primary border border-outline-variant/50 hover:border-primary transition-all flex items-center gap-2.5 text-left group cursor-pointer"
+            >
+              <div className="w-7 h-7 rounded-sm bg-surface-container-lowest group-hover:bg-on-primary/15 text-primary group-hover:text-on-primary flex items-center justify-center shrink-0 transition-colors">
+                <IconComponent className="w-3.5 h-3.5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-bold leading-tight truncate">
+                  {opt.label}
+                </p>
+                <p className="text-[10px] text-on-surface-variant group-hover:text-on-primary/80 leading-tight truncate mt-0.5">
+                  {opt.hint}
+                </p>
+              </div>
+              <ArrowRight className="w-3.5 h-3.5 shrink-0 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// =========================================================
+// 0.1 WIDGET DE ESPERA DE ENTRADA DE TEXTO (MODO GUIADO)
+// =========================================================
+export function AwaitingInputWidget(props) {
+  const mode = props.payload?.mode || "SEARCH_TITLE_AUTHOR";
+  const isGenreMode = mode === "SEARCH_GENRE";
+
+  const [genres, setGenres] = useState([]);
+
+  useEffect(() => {
+    if (!isGenreMode) return;
+    let mounted = true;
+    bookService
+      .getAll()
+      .then(({ data }) => {
+        if (!mounted) return;
+        const adapted = data.map(adaptBook);
+        const allGenres = [
+          ...new Set(adapted.flatMap((b) => b.genres || [])),
+        ].slice(0, 8);
+        setGenres(allGenres);
+      })
+      .catch(() => {});
+    return () => {
+      mounted = false;
+    };
+  }, [isGenreMode]);
+
+  return (
+    <div className="ml-11 mb-3 p-3 bg-surface-container-lowest border-l-4 border-l-primary border border-outline-variant rounded-r-lg shadow-xs text-on-surface">
+      <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-primary mb-1.5">
+        <CornerDownLeft className="w-3.5 h-3.5" />
+        <span>
+          {isGenreMode
+            ? "Modo Activo: Búsqueda por Género"
+            : "Modo Activo: Búsqueda por Título o Autor"}
+        </span>
+      </div>
+
+      <p className="text-xs text-on-surface-variant leading-relaxed mb-2.5">
+        {isGenreMode
+          ? "Escribí el género en la barra inferior y presioná Enter, o tocá uno de los géneros disponibles:"
+          : "Escribí el título del libro o el nombre del autor en la barra inferior y presioná Enter."}
+      </p>
+
+      {isGenreMode && genres.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mb-2.5">
+          {genres.map((g) => (
+            <button
+              key={g}
+              type="button"
+              onClick={() => props.actionProvider.handleBookSearch(g, "genre")}
+              className="px-2.5 py-1 text-[11px] font-semibold bg-surface-container hover:bg-primary hover:text-on-primary border border-outline-variant/60 rounded-full transition-colors cursor-pointer"
+            >
+              {g}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <button
+        type="button"
+        onClick={() =>
+          props.actionProvider.handleShowMainMenu(
+            "Búsqueda cancelada. Elegí otra opción del menú cuando quieras:"
+          )
+        }
+        className="w-full py-1.5 px-2.5 rounded-sm bg-surface-container hover:bg-surface-container-high text-on-surface-variant text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-1.5 border border-outline-variant/50 transition-colors cursor-pointer"
+      >
+        <XCircle className="w-3.5 h-3.5" />
+        Cancelar y volver al menú
+      </button>
+    </div>
+  );
+}
+
+// =========================================================
+// 0.2 SUBMENÚ DE NAVEGACIÓN POR SECCIONES
+// =========================================================
+export function NavigationMenuWidget(props) {
+  const navigate = useNavigate();
+  const role = props.state?.userRole || props.payload?.role || "GUEST";
+  const isStaff = ["LIBRARIAN", "ADMIN"].includes(role);
+  const isGuest = role === "GUEST";
+
+  const links = isStaff
+    ? [
+        { label: "Inventario General", route: "/librarian/inventory", icon: Package },
+        { label: "Cargar Nuevo Libro", route: "/librarian/inventory/newBook", icon: PlusCircle },
+        { label: "Añadir Ejemplar Físico", route: "/librarian/inventory/newItem", icon: PlusCircle },
+        { label: "Panel de Préstamos", route: "/librarian/loans", icon: BookMarked },
+        { label: "Panel de Reservas", route: "/librarian/reservations", icon: BookmarkCheck },
+        { label: "Catálogo de Libros", route: "/librarian/catalog", icon: BookOpen },
+      ]
+    : isGuest
+    ? [
+        { label: "Explorar Catálogo", route: "/catalog", icon: BookOpen },
+        { label: "Iniciar Sesión", route: "/login", icon: LogIn },
+        { label: "Crear Cuenta", route: "/register", icon: UserPlus },
+      ]
+    : [
+        { label: "Explorar Catálogo", route: "/catalog", icon: BookOpen },
+        { label: "Mis Favoritos", route: "/user/favourites", icon: Heart },
+        { label: "Mis Préstamos", route: "/user/loans", icon: BookMarked },
+        { label: "Mis Reservas", route: "/user/reservations", icon: BookmarkCheck },
+        { label: "Mi Perfil", route: "/user/profile", icon: User },
+      ];
+
+  return (
+    <div className="ml-11 mb-3 p-3 bg-surface-container-lowest border border-outline-variant rounded-lg shadow-sm text-on-surface">
+      <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-primary mb-2">
+        <Compass className="w-3.5 h-3.5" />
+        <span>Accesos Directos de Folium</span>
+      </div>
+
+      <div className="grid grid-cols-1 gap-1.5 mb-2.5">
+        {links.map((item) => {
+          const IconComponent = item.icon;
+          return (
+            <button
+              key={item.route}
+              type="button"
+              onClick={() => navigate(item.route)}
+              className="w-full px-3 py-2 rounded-sm bg-surface-container hover:bg-primary hover:text-on-primary border border-outline-variant/50 text-xs font-semibold flex items-center justify-between transition-colors cursor-pointer group"
+            >
+              <span className="flex items-center gap-2">
+                <IconComponent className="w-3.5 h-3.5 text-primary group-hover:text-on-primary" />
+                {item.label}
+              </span>
+              <ArrowRight className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100" />
+            </button>
+          );
+        })}
+      </div>
+
+      <button
+        type="button"
+        onClick={() => props.actionProvider.handleShowMainMenu()}
+        className="w-full py-1.5 px-2.5 rounded-sm bg-surface-container-high hover:bg-secondary hover:text-on-secondary text-on-surface text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+      >
+        <LayoutGrid className="w-3 h-3" />
+        Volver al Menú Principal
+      </button>
+    </div>
+  );
+}
 
 // =========================================================
 // 1. WIDGET DE RECOMENDACIÓN INTERACTIVA DE LIBROS
@@ -106,7 +369,6 @@ export function BookRecommendationWidget(props) {
       </div>
 
       <div className="flex gap-3 items-start">
-        {/* Mini Portada */}
         <div
           onClick={() => navigate(`/book/${currentBook.id}`)}
           className="w-14 h-20 shrink-0 bg-surface-container-highest border border-outline-variant/40 rounded-sm overflow-hidden flex items-center justify-center cursor-pointer"
@@ -124,7 +386,6 @@ export function BookRecommendationWidget(props) {
           )}
         </div>
 
-        {/* Datos */}
         <div className="flex-1 min-w-0">
           <h4
             onClick={() => navigate(`/book/${currentBook.id}`)}
@@ -164,6 +425,15 @@ export function BookRecommendationWidget(props) {
           </button>
         )}
       </div>
+
+      <button
+        type="button"
+        onClick={() => props.actionProvider.handleShowMainMenu()}
+        className="w-full mt-2 py-1.5 px-2.5 rounded-sm bg-surface-container hover:bg-secondary hover:text-on-secondary text-on-surface-variant text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+      >
+        <LayoutGrid className="w-3 h-3" />
+        Volver al Menú de Opciones
+      </button>
     </div>
   );
 }
@@ -174,6 +444,7 @@ export function BookRecommendationWidget(props) {
 export function BookSearchWidget(props) {
   const navigate = useNavigate();
   const query = props.payload?.query || "";
+  const searchMode = props.payload?.searchMode || "title_author";
 
   const [books, setBooks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -225,14 +496,13 @@ export function BookSearchWidget(props) {
           .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "");
 
-        return (
-          title.includes(cleanQuery) ||
-          author.includes(cleanQuery) ||
-          genres.includes(cleanQuery)
-        );
+        if (searchMode === "genre") {
+          return genres.includes(cleanQuery);
+        }
+        return title.includes(cleanQuery) || author.includes(cleanQuery);
       })
       .slice(0, 4);
-  }, [books, query]);
+  }, [books, query, searchMode]);
 
   if (isLoading) {
     return (
@@ -278,13 +548,28 @@ export function BookSearchWidget(props) {
         </div>
       )}
 
-      <button
-        type="button"
-        onClick={() => navigate("/catalog")}
-        className="w-full bg-secondary text-on-secondary py-1.5 px-3 rounded-sm text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-opacity cursor-pointer"
-      >
-        Explorar Catálogo Completo
-      </button>
+      <div className="flex gap-1.5 mt-2">
+        <button
+          type="button"
+          onClick={() =>
+            searchMode === "genre"
+              ? props.actionProvider.promptSearchGenre()
+              : props.actionProvider.promptSearchTitleAuthor()
+          }
+          className="flex-1 bg-primary text-on-primary py-1.5 px-2 rounded-sm text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-opacity flex items-center justify-center gap-1 cursor-pointer"
+        >
+          <Search className="w-3 h-3" />
+          Otra Búsqueda
+        </button>
+        <button
+          type="button"
+          onClick={() => props.actionProvider.handleShowMainMenu()}
+          className="flex-1 bg-surface-container hover:bg-secondary hover:text-on-secondary text-on-surface py-1.5 px-2 rounded-sm text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-1 cursor-pointer"
+        >
+          <LayoutGrid className="w-3 h-3" />
+          Menú
+        </button>
+      </div>
     </div>
   );
 }
@@ -399,13 +684,23 @@ export function LiveLoansStatusWidget(props) {
         </div>
       )}
 
-      <button
-        type="button"
-        onClick={() => navigate(isStaff ? "/librarian/loans" : "/user/loans")}
-        className="w-full bg-primary text-on-primary py-1.5 px-3 rounded-sm text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-opacity cursor-pointer"
-      >
-        {isStaff ? "Ir al Panel de Préstamos" : "Ver Mis Préstamos"}
-      </button>
+      <div className="flex flex-col gap-1.5">
+        <button
+          type="button"
+          onClick={() => navigate(isStaff ? "/librarian/loans" : "/user/loans")}
+          className="w-full bg-primary text-on-primary py-1.5 px-3 rounded-sm text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-opacity cursor-pointer"
+        >
+          {isStaff ? "Ir al Panel de Préstamos" : "Ver Mis Préstamos"}
+        </button>
+        <button
+          type="button"
+          onClick={() => props.actionProvider.handleShowMainMenu()}
+          className="w-full py-1.5 px-2.5 rounded-sm bg-surface-container hover:bg-secondary hover:text-on-secondary text-on-surface-variant text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+        >
+          <LayoutGrid className="w-3 h-3" />
+          Volver al Menú de Opciones
+        </button>
+      </div>
     </div>
   );
 }
@@ -513,15 +808,27 @@ export function LiveReservationsStatusWidget(props) {
         </div>
       )}
 
-      <button
-        type="button"
-        onClick={() =>
-          navigate(isStaff ? "/librarian/reservations" : "/user/reservations")
-        }
-        className="w-full bg-primary text-on-primary py-1.5 px-3 rounded-sm text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-opacity cursor-pointer"
-      >
-        {isStaff ? "Gestionar Reservas" : "Ver Mis Reservas"}
-      </button>
+      <div className="flex flex-col gap-1.5">
+        <button
+          type="button"
+          onClick={() =>
+            navigate(
+              isStaff ? "/librarian/reservations" : "/user/reservations"
+            )
+          }
+          className="w-full bg-primary text-on-primary py-1.5 px-3 rounded-sm text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-opacity cursor-pointer"
+        >
+          {isStaff ? "Gestionar Reservas" : "Ver Mis Reservas"}
+        </button>
+        <button
+          type="button"
+          onClick={() => props.actionProvider.handleShowMainMenu()}
+          className="w-full py-1.5 px-2.5 rounded-sm bg-surface-container hover:bg-secondary hover:text-on-secondary text-on-surface-variant text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+        >
+          <LayoutGrid className="w-3 h-3" />
+          Volver al Menú de Opciones
+        </button>
+      </div>
     </div>
   );
 }

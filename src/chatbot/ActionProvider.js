@@ -5,6 +5,61 @@ class ActionProvider {
     this.setState = setStateFunc;
   }
 
+  handleShowMainMenu = (
+    customText = "¿En qué puedo ayudarte? Elegí una opción del menú para continuar:"
+  ) => {
+    const message = this.createChatBotMessage(customText, {
+      widget: "mainMenu",
+    });
+    this.updateChatbotState(message, null);
+  };
+
+  promptSearchTitleAuthor = () => {
+    const message = this.createChatBotMessage(
+      "¡Listo! Ahora escribí abajo el título de la obra o el nombre del autor que querés buscar:",
+      {
+        widget: "awaitingInput",
+        payload: { mode: "SEARCH_TITLE_AUTHOR" },
+      }
+    );
+    this.updateChatbotState(message, "SEARCH_TITLE_AUTHOR");
+  };
+
+  promptSearchGenre = () => {
+    const message = this.createChatBotMessage(
+      "¡Listo! Tocá uno de los géneros disponibles o escribí el género literario que buscás en la barra inferior:",
+      {
+        widget: "awaitingInput",
+        payload: { mode: "SEARCH_GENRE" },
+      }
+    );
+    this.updateChatbotState(message, "SEARCH_GENRE");
+  };
+
+  handleBookSearch = (query = "", searchMode = "title_author") => {
+    const label =
+      searchMode === "genre"
+        ? `Buscando obras del género "${query}"...`
+        : `Buscando "${query}" por título o autor en el catálogo...`;
+
+    const message = this.createChatBotMessage(label, {
+      widget: "bookSearch",
+      payload: { query, searchMode },
+    });
+    this.updateChatbotState(message, null);
+  };
+
+  handleNavigationMenu = (role = "GUEST") => {
+    const message = this.createChatBotMessage(
+      "Elegí a qué sección de Folium querés ir:",
+      {
+        widget: "navigationMenu",
+        payload: { role },
+      }
+    );
+    this.updateChatbotState(message, null);
+  };
+
   handleCatalog = () => {
     const message = this.createChatBotMessage(
       "El catálogo es el lugar ideal para explorar nuestra colección completa y filtrar por autor, género o editorial.",
@@ -12,7 +67,7 @@ class ActionProvider {
         widget: "catalogLink",
       }
     );
-    this.updateChatbotState(message);
+    this.updateChatbotState(message, null);
   };
 
   handleRecommendation = (genreHint = "") => {
@@ -24,18 +79,7 @@ class ActionProvider {
       widget: "bookRecommendation",
       payload: { genreHint },
     });
-    this.updateChatbotState(message);
-  };
-
-  handleBookSearch = (query = "") => {
-    const message = this.createChatBotMessage(
-      `Consultando el catálogo de Folium por "${query}"...`,
-      {
-        widget: "bookSearch",
-        payload: { query },
-      }
-    );
-    this.updateChatbotState(message);
+    this.updateChatbotState(message, null);
   };
 
   handleLoans = (role = "USER") => {
@@ -53,7 +97,7 @@ class ActionProvider {
       widget: "liveLoansStatus",
       payload: { role },
     });
-    this.updateChatbotState(message);
+    this.updateChatbotState(message, null);
   };
 
   handleReservations = (role = "USER") => {
@@ -71,7 +115,7 @@ class ActionProvider {
       widget: "liveReservationsStatus",
       payload: { role },
     });
-    this.updateChatbotState(message);
+    this.updateChatbotState(message, null);
   };
 
   handleInventory = () => {
@@ -81,7 +125,7 @@ class ActionProvider {
         widget: "inventoryLink",
       }
     );
-    this.updateChatbotState(message);
+    this.updateChatbotState(message, null);
   };
 
   handleNewBook = () => {
@@ -91,7 +135,7 @@ class ActionProvider {
         widget: "newBookLink",
       }
     );
-    this.updateChatbotState(message);
+    this.updateChatbotState(message, null);
   };
 
   handleNewItem = () => {
@@ -101,7 +145,7 @@ class ActionProvider {
         widget: "newItemLink",
       }
     );
-    this.updateChatbotState(message);
+    this.updateChatbotState(message, null);
   };
 
   handleFavourites = (role = "USER") => {
@@ -116,7 +160,7 @@ class ActionProvider {
         widget: "favouritesLink",
       }
     );
-    this.updateChatbotState(message);
+    this.updateChatbotState(message, null);
   };
 
   handleProfile = (role = "USER") => {
@@ -131,7 +175,7 @@ class ActionProvider {
         widget: "profileLink",
       }
     );
-    this.updateChatbotState(message);
+    this.updateChatbotState(message, null);
   };
 
   handleLogin = () => {
@@ -141,7 +185,7 @@ class ActionProvider {
         widget: "loginLink",
       }
     );
-    this.updateChatbotState(message);
+    this.updateChatbotState(message, null);
   };
 
   handleRegister = () => {
@@ -151,7 +195,7 @@ class ActionProvider {
         widget: "registerLink",
       }
     );
-    this.updateChatbotState(message);
+    this.updateChatbotState(message, null);
   };
 
   handleAdmin = () => {
@@ -161,29 +205,25 @@ class ActionProvider {
         widget: "adminLink",
       }
     );
-    this.updateChatbotState(message);
+    this.updateChatbotState(message, null);
   };
 
-  handleHelp = (role = "GUEST") => {
-    const isStaff = ["LIBRARIAN", "ADMIN"].includes(role);
-    const helpText = isStaff
-      ? 'Puedo ayudarte a: 1) Ver el resumen de "reservas" o "préstamos", 2) Ir a "inventario", "cargar libro" o "nuevo ejemplar", 3) "Buscar <título/autor>" o "recomendar" un libro.'
-      : 'Puedo ayudarte a: 1) "Recomiéndame un libro" (o por género), 2) "Buscar <título o autor>", 3) Consultar tus "préstamos", "reservas", "favoritos" o "perfil".';
-
-    const message = this.createChatBotMessage(helpText);
-    this.updateChatbotState(message);
+  handleHelp = () => {
+    this.handleShowMainMenu(
+      "¡Es muy fácil interactuar conmigo! Primero tocá una opción del menú de abajo (por ejemplo «Buscar por Título o Autor») y, cuando te lo indique, escribí tu búsqueda en la barra inferior:"
+    );
   };
 
   handleDefault = () => {
-    const message = this.createChatBotMessage(
-      'Soy el asistente de Folium. Prueba escribir "recomiéndame un libro", "buscar <título o autor>", "mis préstamos" o "mis reservas".'
+    this.handleShowMainMenu(
+      "Para usar una función, primero seleccioná una opción del menú de abajo (por ejemplo, elegí «Buscar por Título o Autor» antes de escribir el nombre del libro):"
     );
-    this.updateChatbotState(message);
   };
 
-  updateChatbotState(message) {
+  updateChatbotState(message, nextAwaitingMode = null) {
     this.setState((prevState) => ({
       ...prevState,
+      awaitingMode: nextAwaitingMode,
       messages: [...prevState.messages, message],
     }));
   }
