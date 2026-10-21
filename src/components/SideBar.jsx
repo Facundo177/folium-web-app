@@ -19,7 +19,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider';
 import { useUserProfile } from '../hooks/useUserProfile';
 
-export default function Sidebar({ isDarkMode, setIsDarkMode }) {
+export default function Sidebar() {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
@@ -244,7 +244,7 @@ export default function Sidebar({ isDarkMode, setIsDarkMode }) {
             </button>
           )}
           
-          <ThemeToggle isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode}/>
+          <ThemeToggle />
         </div>
       </aside>
     </>

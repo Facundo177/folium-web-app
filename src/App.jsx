@@ -14,7 +14,6 @@ import RegisterForm from "./components/Login&RegisterComponents/RegisterForm";
 import BotLayout from "./components/Layouts/BotLayout";
 import ProtectedRoute from "./auth/ProtectedRoute";
 
-import { useState } from "react";
 import Profile from "./pages/Profile";
 import LoadBook from "./pages/LoadBook";
 import Favourites from "./pages/Favourites";
@@ -24,21 +23,9 @@ import UserReservations from "./pages/UserReservations";
 import UserLoans from "./pages/UserLoans";
 import AddAnItem from "./pages/AddAnItem";
 
+// El tema (claro/oscuro) vive en ThemeProvider (ver main.jsx).
+// No se guarda estado acá para evitar re-renderizar todo el árbol de rutas al cambiar de tema.
 function App() {
-  const [isDarkMode, setIsDarkMode] = useState(true);
-  // const [isDarkMode] = useState(false);
-  // // Alternar tema oscuro en el tag HTML
-  // useEffect(() => {
-  //   if (isDarkMode) {
-  //     document.documentElement.classList.add("dark");
-  //   } else {
-  //     document.documentElement.classList.remove("dark");
-  //   }
-  // }, [isDarkMode]);
-
-  // // Replace this with your actual auth state (e.g., from Redux, Context, or a hook)
-  // // const { isAuthenticated } = useAuth();
-
   return (
     <BrowserRouter>
       <Routes>
@@ -57,39 +44,16 @@ function App() {
               <ProtectedRoute allowedRoles={["USER", "LIBRARIAN", "ADMIN"]} />
             }
           >
-            <Route
-              element={
-                <UserLayout
-                  isDarkMode={isDarkMode}
-                  setIsDarkMode={setIsDarkMode}
-                />
-              }
-            >
-              <Route path="book">
-                <Route
-                  index
-                  element={<Navigate to="/user/catalog" replace />}
-                />
-                <Route
-                  path=":id"
-                  element={<BookDetail /> /* Se cambio ISBN por id */}
-                />
-              </Route>
-
-              <Route path="catalog">
-                <Route index element={<BookCatalog />} />
-              </Route>
+            <Route path="book">
+              <Route index element={<Navigate to="/user/catalog" replace />} />
+              <Route path=":id" element={<BookDetail />} />
             </Route>
 
-            <Route
-              path="user"
-              element={
-                <UserLayout
-                  isDarkMode={isDarkMode}
-                  setIsDarkMode={setIsDarkMode}
-                />
-              }
-            >
+            <Route path="catalog" element={<UserLayout />}>
+              <Route index element={<BookCatalog />} />
+            </Route>
+
+            <Route path="user" element={<UserLayout />}>
               <Route index element={<Navigate to="/catalog" replace />} />
               <Route path="favourites" element={<Favourites />} />
               <Route path="loans" element={<UserLoans />} />
@@ -102,15 +66,7 @@ function App() {
           <Route
             element={<ProtectedRoute allowedRoles={["LIBRARIAN", "ADMIN"]} />}
           >
-            <Route
-              path="librarian"
-              element={
-                <LibrarianLayout
-                  isDarkMode={isDarkMode}
-                  setIsDarkMode={setIsDarkMode}
-                />
-              }
-            >
+            <Route path="librarian" element={<LibrarianLayout />}>
               <Route index element={<Navigate to="inventory" replace />} />
               <Route path="catalog" element={<BookCatalog />} />
               <Route path="inventory">
@@ -121,14 +77,6 @@ function App() {
               <Route path="loans" element={<LoansDashboard />} />
               <Route path="reservations" element={<ReservationDashboard />} />
             </Route>
-            {/* 
-            <Route path="admin" element={<LibrarianLayout isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode}/>}>
-              <Route index element={<Navigate to="dashboard" replace />} />
-              <Route path="dashboard">
-                <Route index element={<></>} />
-                <Route path="settings" element={<></>} />
-              </Route>
-            </Route> */}
           </Route>
 
           <Route path="*" element={<Error404 />} />
