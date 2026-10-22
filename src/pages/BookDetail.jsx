@@ -414,6 +414,7 @@ export default function BookDetail() {
 
   if (isLoading) return <p className="p-gutter">Cargando libro…</p>;
   if (error) return <p className="p-gutter">{error}</p>;
+  if (!book) return <p className="p-gutter">No se encontró información del libro.</p>;
 
   const data = adaptBookDetail(book);
 
@@ -470,22 +471,22 @@ export default function BookDetail() {
               <div>
                 <dt className="text-label-caps opacity-70 mb-1">DISPONIBLES</dt>
                 <dd className="font-serif text-2xl">
-                  {data.availableItems}
-                  <span className="text-base opacity-60"> / {data.totalItems || data.items?.length || 0}</span>
+                  {typeof data.availableItems === "number" ? data.availableItems : (Array.isArray(data.availableItems) ? data.availableItems.length : 0)}
+                  <span className="text-base opacity-60"> / {typeof data.totalItems === "number" ? data.totalItems : (data.items?.length || 0)}</span>
                 </dd>
               </div>
               <div>
                 <dt className="text-label-caps opacity-70 mb-1">AÑO</dt>
-                <dd className="font-serif text-2xl">{data.year || "—"}</dd>
+                <dd className="font-serif text-2xl">{typeof data.year === "object" ? "—" : (data.year || "—")}</dd>
               </div>
               <div>
                 <dt className="text-label-caps opacity-70 mb-1">EDITORIAL</dt>
-                <dd className="text-body-lg font-medium">{data.editorial || "—"}</dd>
+                <dd className="text-body-lg font-medium">{typeof data.editorial === "string" ? (data.editorial || "—") : "—"}</dd>
               </div>
               <div>
                 <dt className="text-label-caps opacity-70 mb-1">ISBN</dt>
                 <dd className="text-body-lg font-medium">
-                  {data.isbn
+                  {data.isbn && typeof data.isbn === "string"
                     ? data.isbn.length > 3
                       ? `${data.isbn.slice(0, 3)}-${data.isbn.slice(3)}`
                       : data.isbn

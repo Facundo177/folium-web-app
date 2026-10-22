@@ -296,7 +296,8 @@ export function BookRecommendationWidget(props) {
       try {
         const { data } = await bookService.getAll();
         if (!mounted) return;
-        const adapted = data.map(adaptBook);
+        const list = Array.isArray(data) ? data : (data?.results || []);
+        const adapted = list.map(adaptBook);
         setBooks(adapted);
 
         if (adapted.length > 0) {
@@ -456,7 +457,8 @@ export function BookSearchWidget(props) {
       try {
         const { data } = await bookService.getAll();
         if (mounted) {
-          setBooks(data.map(adaptBook));
+          const list = Array.isArray(data) ? data : (data?.results || []);
+          setBooks(list.map(adaptBook));
         }
       } catch (err) {
         console.error("Error al buscar libros desde el bot:", err);
