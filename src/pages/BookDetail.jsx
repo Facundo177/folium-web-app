@@ -425,6 +425,71 @@ export default function BookDetail() {
     <div className="max-w-(--spacing-container-max) mx-auto p-gutter bg-background min-h-screen">
       <BookDetailHeader category={data.category} />
 
+      {/* HERO: portada protagonista + título, autor y datos clave */}
+      <section className="relative overflow-hidden rounded-DEFAULT bg-primary-container text-on-primary-container border border-outline/30 shadow-md mb-stack-lg">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-secondary-container" />
+        <div className="pointer-events-none absolute -right-24 -top-24 w-80 h-80 rounded-full border border-outline/20" />
+        <div className="pointer-events-none absolute -right-12 -top-12 w-56 h-56 rounded-full border border-outline/20" />
+
+        <div className="relative grid grid-cols-1 md:grid-cols-[18rem_1fr] gap-8 md:gap-12 p-6 md:p-10 items-center">
+          <div className="w-64 md:w-72 mx-auto -rotate-2 hover:rotate-0 transition-transform duration-500 drop-shadow-2xl">
+            <BookCover imageSrc={data.cover} title={data.title} />
+          </div>
+
+          <div className="font-sans">
+            {data.genres?.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-4">
+                {data.genres.map((g) => (
+                  <span
+                    key={g}
+                    className="px-3 py-1 text-label-caps rounded-DEFAULT border border-secondary-container/60 text-secondary-container"
+                  >
+                    {g}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <h1 className="font-serif font-normal text-4xl md:text-5xl lg:text-6xl leading-tight mb-3">
+              {data.title}
+            </h1>
+            <p className="font-serif text-xl md:text-2xl opacity-80 mb-6">
+              por {data.author}
+            </p>
+
+            <div className="w-16 h-px bg-secondary-container mb-6" />
+
+            <dl className="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-5">
+              <div>
+                <dt className="text-label-caps opacity-70 mb-1">DISPONIBLES</dt>
+                <dd className="font-serif text-2xl">
+                  {data.availableItems}
+                  <span className="text-base opacity-60"> / {data.totalItems || data.items?.length || 0}</span>
+                </dd>
+              </div>
+              <div>
+                <dt className="text-label-caps opacity-70 mb-1">AÑO</dt>
+                <dd className="font-serif text-2xl">{data.year || "—"}</dd>
+              </div>
+              <div>
+                <dt className="text-label-caps opacity-70 mb-1">EDITORIAL</dt>
+                <dd className="text-body-lg font-medium">{data.editorial || "—"}</dd>
+              </div>
+              <div>
+                <dt className="text-label-caps opacity-70 mb-1">ISBN</dt>
+                <dd className="text-body-lg font-medium">
+                  {data.isbn
+                    ? data.isbn.length > 3
+                      ? `${data.isbn.slice(0, 3)}-${data.isbn.slice(3)}`
+                      : data.isbn
+                    : "—"}
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
       {/* Notificación de éxito tras editar */}
       {saveSuccess && (
         <div className="mb-stack-md p-3.5 bg-surface-container border border-outline text-on-surface rounded-DEFAULT flex items-center justify-between text-body-md shadow-xs">
@@ -440,13 +505,12 @@ export default function BookDetail() {
       )}
 
       {/* Grid Principal */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className={`grid grid-cols-1 lg:grid-cols-12 gap-8 ${canManageBook ? "items-start" : "items-stretch"}`}>
         {/* Columna izquierda */}
-        <div className="lg:col-span-4 flex flex-col gap-6">
-          <BookCover imageSrc={data.cover} title={data.title} />
+        <div className={`lg:col-span-4 lg:order-2 flex flex-col gap-6 ${canManageBook ? "lg:sticky lg:top-6" : ""}`}>
 
           {/* Disponibilidad y acciones */}
-          <div className="bg-surface-container-lowest border border-outline-variant/70 rounded-DEFAULT p-5 shadow-xs font-sans flex flex-col">
+          <div className="bg-surface-container-lowest border border-outline-variant/70 rounded-DEFAULT p-5 shadow-xs font-sans flex flex-col flex-1">
             <div className="flex justify-between items-center pb-3 border-b border-outline-variant/50">
               <span className="text-label-caps text-on-surface-variant font-bold">
                 Disponibilidad
@@ -558,8 +622,9 @@ export default function BookDetail() {
         </div>
 
         {/* Columna derecha */}
-        <div className="lg:col-span-8 flex flex-col gap-6">
+        <div className="lg:col-span-8 lg:order-1 flex flex-col gap-6">
           <BookInfo
+            className="flex-1"
             ISBN={data.isbn}
             title={data.title}
             author={data.author}
@@ -636,8 +701,12 @@ export default function BookDetail() {
             </div>
           )}
 
-          <BookReviews bookId={data.id} />
         </div>
+      </div>
+
+      {/* Reseñas a todo el ancho (ocupa ambas columnas) */}
+      <div className="mt-stack-lg">
+        <BookReviews bookId={data.id} />
       </div>
 
       {/* MODAL DE EDICIÓN DE LIBRO (Bibliotecario / Admin) */}
