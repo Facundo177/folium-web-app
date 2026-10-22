@@ -1,3 +1,4 @@
+import { createPortal } from "react-dom";
 import { CheckCircle2, AlertTriangle, Info, X } from "lucide-react";
 
 /**
@@ -60,16 +61,16 @@ export default function FeedbackModal({
   const current = configByType[type] || configByType.info;
   const IconComponent = current.icon;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-[120] flex items-center justify-center bg-black/60 p-4 animate-fade-in font-sans"
+      className="fixed inset-0 z-[120] flex items-center justify-center bg-black/60 p-4 animate-overlay-in font-sans"
       onClick={(e) => {
         e.stopPropagation();
         if (!isLoading) onClose?.();
       }}
     >
       <div
-        className="bg-surface border border-outline-variant rounded-sm shadow-xl max-w-md w-full overflow-hidden"
+        className="bg-surface border border-outline-variant rounded-sm shadow-xl max-w-md w-full overflow-hidden animate-fade-in"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Cabecera */}
@@ -126,6 +127,7 @@ export default function FeedbackModal({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
