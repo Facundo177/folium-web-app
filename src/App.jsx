@@ -32,11 +32,18 @@ function App() {
         {/* Public Routes */}
         <Route element={<BotLayout />}>
           <Route index element={<FoliumLanding />} />
+            <Route path="catalog" element={<UserLayout />}>
+              <Route index element={<BookCatalog />} />
+            </Route>
           <Route element={<AuthLayout />}>
             <Route path="register" element={<RegisterForm />} />
             <Route path="login" element={<LoginForm />} />
           </Route>
           {import.meta.env.DEV && <Route path="test" element={<Test />} />}
+
+
+
+
 
           {/* Shared Protected Routes (Any logged in user) */}
           <Route
@@ -44,14 +51,11 @@ function App() {
               <ProtectedRoute allowedRoles={["USER", "LIBRARIAN", "ADMIN"]} />
             }
           >
-            <Route path="book">
+            <Route path="book" element={<UserLayout />}>
               <Route index element={<Navigate to="/user/catalog" replace />} />
               <Route path=":id" element={<BookDetail />} />
             </Route>
 
-            <Route path="catalog" element={<UserLayout />}>
-              <Route index element={<BookCatalog />} />
-            </Route>
 
             <Route path="user" element={<UserLayout />}>
               <Route index element={<Navigate to="/catalog" replace />} />

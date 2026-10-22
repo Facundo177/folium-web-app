@@ -1,17 +1,28 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Pencil, Trash2, CheckCircle2, X, AlertTriangle } from "lucide-react";
+import {
+  X,
+  AlertTriangle,
+  BookmarkCheck,
+  Heart,
+  MapPin,
+  Pencil,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import BookCover from "../components/BookDetailComponents/BookCover";
 import BookDetailHeader from "../components/BookDetailComponents/BookDetailHeader";
 import BookInfo from "../components/BookDetailComponents/BookInfo";
-import CurrentStock from "../components/BookDetailComponents/CurrentStock";
 import BookReviews from "../components/BookDetailComponents/BookReviews";
+import FeedbackModal from "../components/BasicUIComponents/FeedbackModal";
 import { useBook } from "../hooks/useBook";
 import { adaptBookDetail } from "../api/adapters";
 
 import { bookService } from "../api/services/bookService";
 import { authorService } from "../api/services/authorService";
 import { genreService } from "../api/services/genreService";
+import { reservationService } from "../api/services/reservationService";
+import { favoriteService } from "../api/services/favoriteService";
 import { useAuth } from "../auth/AuthProvider";
 
 export default function BookDetail() {
@@ -22,7 +33,7 @@ export default function BookDetail() {
 
   const canManageBook = ["LIBRARIAN", "ADMIN"].includes(user?.role);
 
-  // Estados para modales de Edición y Eliminación
+  // Estados para modales de Edición y Eliminación de Libro
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -51,7 +62,7 @@ export default function BookDetail() {
   const [showAuthorDropdown, setShowAuthorDropdown] = useState(false);
   const authorWrapperRef = useRef(null);
 
-  // Sub-formularios rápidos para nuevo autor / género durante edición
+  // Sub-formularios para nuevo autor / género durante edición
   const [showNewAuthorModal, setShowNewAuthorModal] = useState(false);
   const [newAuthorData, setNewAuthorData] = useState({ name: "", last_name: "", biography: "" });
   const [isCreatingAuthor, setIsCreatingAuthor] = useState(false);
@@ -59,6 +70,20 @@ export default function BookDetail() {
   const [showNewGenreModal, setShowNewGenreModal] = useState(false);
   const [newGenreData, setNewGenreData] = useState({ name: "", description: "" });
   const [isCreatingGenre, setIsCreatingGenre] = useState(false);
+
+  // Estados para lectores (Favoritos y Reservas)
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [favoriteId, setFavoriteId] = useState(null);
+  const [isFavoriteLoading, setIsFavoriteLoading] = useState(false);
+  const [isReserving, setIsReserving] = useState(false);
+
+  // Modal de notificación
+  const [feedbackModal, setFeedbackModal] = useState({
+    isOpen: false,
+    type: "info",
+    title: "",
+    message: "",
+  });
 
   // Cerrar dropdown de autores al hacer clic afuera
   useEffect(() => {
@@ -70,6 +95,36 @@ export default function BookDetail() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // Cargar estado de favoritos si el usuario es un lector autenticado
+  useEffect(() => {
+    if (!user?.id || canManageBook) return;
+
+    let isMounted = true;
+    favoriteService
+      .getAll()
+      .then((res) => {
+        if (!isMounted) return;
+        const favList = res.data?.results || res.data || [];
+        const current = favList.find(
+          (f) => f.book === parseInt(id, 10) || f.book?.id === parseInt(id, 10)
+        );
+        if (current) {
+          setIsFavorited(true);
+          setFavoriteId(current.id);
+        } else {
+          setIsFavorited(false);
+          setFavoriteId(null);
+        }
+      })
+      .catch((err) => {
+        console.warn("No se pudieron cargar los favoritos:", err);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [id, user, canManageBook]);
 
   // Cargar autores y géneros cuando se abre el modo edición
   useEffect(() => {
@@ -146,11 +201,14 @@ export default function BookDetail() {
       setNewAuthorData({ name: "", last_name: "", biography: "" });
       setAuthorSearch("");
     } catch (err) {
-      alert(
-        err.response?.data
+      setFeedbackModal({
+        isOpen: true,
+        type: "error",
+        title: "Error al crear autor",
+        message: err.response?.data
           ? Object.values(err.response.data).flat().join("\n")
-          : "Error al crear el autor."
-      );
+          : "No se pudo registrar el nuevo autor.",
+      });
     } finally {
       setIsCreatingAuthor(false);
     }
@@ -168,11 +226,14 @@ export default function BookDetail() {
       setShowNewGenreModal(false);
       setNewGenreData({ name: "", description: "" });
     } catch (err) {
-      alert(
-        err.response?.data
+      setFeedbackModal({
+        isOpen: true,
+        type: "error",
+        title: "Error al crear género",
+        message: err.response?.data
           ? Object.values(err.response.data).flat().join("\n")
-          : "Error al crear el género."
-      );
+          : "No se pudo registrar el nuevo género.",
+      });
     } finally {
       setIsCreatingGenre(false);
     }
@@ -253,6 +314,99 @@ export default function BookDetail() {
     }
   };
 
+  // Reserva de libro para lectores
+  const handleReserveBook = async () => {
+    if (!user || !user.id) {
+      setFeedbackModal({
+        isOpen: true,
+        type: "info",
+        title: "Inicio de sesión requerido",
+        message: "Debes iniciar sesión con tu cuenta de lector para reservar un ejemplar físico.",
+      });
+      return;
+    }
+
+    if (data.availableItems <= 0) {
+      setFeedbackModal({
+        isOpen: true,
+        type: "warning",
+        title: "Sin ejemplares disponibles",
+        message: "Actualmente no quedan ejemplares físicos disponibles para reservar.",
+      });
+      return;
+    }
+
+    setIsReserving(true);
+    try {
+      const d = new Date();
+      d.setDate(d.getDate() + 14);
+      d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+      const expiresAt = d.toISOString().slice(0, 16);
+
+      await reservationService.create({
+        book: data.id,
+        expires_at: expiresAt,
+      });
+
+      setFeedbackModal({
+        isOpen: true,
+        type: "success",
+        title: "Reserva confirmada",
+        message: `Has reservado con éxito un ejemplar de "${data.title}".`,
+      });
+      await refetch();
+    } catch (err) {
+      console.error("Error al procesar la reserva:", err);
+      const errorMsg = err.response?.data
+        ? Object.values(err.response.data).flat().join(" ")
+        : "Ocurrió un error al procesar tu solicitud de reserva.";
+      setFeedbackModal({
+        isOpen: true,
+        type: "error",
+        title: "No se pudo realizar la reserva",
+        message: errorMsg,
+      });
+    } finally {
+      setIsReserving(false);
+    }
+  };
+
+  // Guardar / Quitar favorito
+  const handleToggleFavorite = async () => {
+    if (!user || !user.id) {
+      setFeedbackModal({
+        isOpen: true,
+        type: "info",
+        title: "Inicio de sesión requerido",
+        message: "Debes iniciar sesión para poder guardar este volumen en favoritos.",
+      });
+      return;
+    }
+
+    setIsFavoriteLoading(true);
+    try {
+      if (isFavorited && favoriteId) {
+        await favoriteService.remove(favoriteId);
+        setIsFavorited(false);
+        setFavoriteId(null);
+      } else {
+        const { data: newFav } = await favoriteService.create({ book: data.id });
+        setIsFavorited(true);
+        setFavoriteId(newFav?.id ?? null);
+      }
+    } catch (err) {
+      console.error("Error al alternar favorito:", err);
+      setFeedbackModal({
+        isOpen: true,
+        type: "error",
+        title: "Error en favoritos",
+        message: "No se pudo actualizar el estado de favoritos. Por favor intentá nuevamente.",
+      });
+    } finally {
+      setIsFavoriteLoading(false);
+    }
+  };
+
   if (isLoading) return <p className="p-gutter">Cargando libro…</p>;
   if (error) return <p className="p-gutter">{error}</p>;
 
@@ -262,66 +416,149 @@ export default function BookDetail() {
     `${a.name} ${a.last_name}`.toLowerCase().includes(authorSearch.toLowerCase())
   );
 
+  const locations =
+    data.items && data.items.length > 0
+      ? [...new Set(data.items.map((i) => i.location).filter(Boolean))].join(", ")
+      : "";
+
   return (
     <div className="max-w-(--spacing-container-max) mx-auto p-gutter bg-background min-h-screen">
-      {/* Encabezado + Barra de Herramientas del Bibliotecario */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-2">
-        <div className="flex-1">
-          <BookDetailHeader genres={data.genres} />
-        </div>
-
-        {canManageBook && (
-          <div className="flex items-center gap-3 self-end sm:self-center pb-4 border-b sm:border-b-0 border-outline-variant">
-            <button
-              type="button"
-              onClick={handleOpenEdit}
-              className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold uppercase tracking-wider bg-surface-container-lowest border border-outline text-on-surface hover:bg-primary hover:text-on-primary hover:border-primary transition-colors rounded-sm shadow-xs cursor-pointer"
-            >
-              <Pencil className="w-4 h-4" />
-              Editar Libro
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setDeleteError(null);
-                setShowDeleteConfirm(true);
-              }}
-              className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold uppercase tracking-wider bg-surface-container-lowest border border-error/40 text-error hover:bg-error hover:text-on-error transition-colors rounded-sm shadow-xs cursor-pointer"
-            >
-              <Trash2 className="w-4 h-4" />
-              Eliminar Libro
-            </button>
-          </div>
-        )}
-      </div>
+      <BookDetailHeader category={data.category} />
 
       {/* Notificación de éxito tras editar */}
       {saveSuccess && (
-        <div className="mb-stack-md p-3 bg-emerald-50 border border-emerald-300 text-emerald-900 rounded-sm flex items-center justify-between text-sm">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-5 h-5 text-emerald-700 shrink-0" />
-            <span>Los datos del libro se actualizaron correctamente.</span>
-          </div>
+        <div className="mb-stack-md p-3.5 bg-surface-container border border-outline text-on-surface rounded-DEFAULT flex items-center justify-between text-body-md shadow-xs">
+          <span className="font-medium">Los datos del libro se actualizaron correctamente.</span>
           <button
             type="button"
             onClick={() => setSaveSuccess(false)}
-            className="text-emerald-700 hover:text-emerald-950 font-bold px-2 cursor-pointer"
+            className="text-on-surface hover:opacity-75 font-bold px-2 cursor-pointer"
           >
-            <X className="w-4 h-4" />
+            ×
           </button>
         </div>
       )}
 
       {/* Grid Principal */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-stack-lg">
-        {/* Columna Izquierda (1/3) */}
-        <div className="md:col-span-1 flex flex-col gap-stack-lg">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Columna izquierda */}
+        <div className="lg:col-span-4 flex flex-col gap-6">
           <BookCover imageSrc={data.cover} title={data.title} />
-          <CurrentStock stock={data.availableItems} items={data.items} />
+
+          {/* Disponibilidad y acciones */}
+          <div className="bg-surface-container-lowest border border-outline-variant/70 rounded-DEFAULT p-5 shadow-xs font-sans flex flex-col">
+            <div className="flex justify-between items-center pb-3 border-b border-outline-variant/50">
+              <span className="text-label-caps text-on-surface-variant font-bold">
+                Disponibilidad
+              </span>
+              <span
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${
+                  data.availableItems > 0
+                    ? "bg-surface-container text-on-surface border-outline-variant"
+                    : "bg-error-container text-on-error-container border-error/30"
+                }`}
+              >
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    data.availableItems > 0 ? "bg-primary" : "bg-error"
+                  }`}
+                />
+                {data.availableItems > 0 ? "Disponible" : "Sin ejemplares"}
+              </span>
+            </div>
+
+            <div className="my-4">
+              <span className="text-4xl font-serif font-bold text-on-surface block">
+                {data.availableItems}
+              </span>
+              <span className="text-xs text-on-surface-variant uppercase tracking-wider font-medium">
+                {data.availableItems === 1 ? "ejemplar disponible" : "ejemplares disponibles"} de{" "}
+                {data.totalItems || data.items?.length || 0}
+              </span>
+            </div>
+
+            {locations && (
+              <div className="flex items-center gap-2 text-xs text-on-surface-variant bg-surface-container-low px-3 py-2 rounded-DEFAULT border border-outline-variant/50 mb-4">
+                <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
+                <span className="truncate">
+                  Ubicación: <strong className="text-on-surface font-medium">{locations}</strong>
+                </span>
+              </div>
+            )}
+
+            {/* Lectores */}
+            {!canManageBook && (
+              <div className="flex flex-col gap-2.5 pt-1">
+                <button
+                  type="button"
+                  onClick={handleReserveBook}
+                  disabled={isReserving || data.availableItems <= 0}
+                  className={`w-full py-2.5 px-4 rounded-DEFAULT text-label-caps transition-colors inline-flex items-center justify-center gap-2 shadow-2xs cursor-pointer ${
+                    data.availableItems > 0
+                      ? "bg-primary text-on-primary hover:bg-inverse-surface"
+                      : "bg-surface-container text-outline cursor-not-allowed"
+                  }`}
+                >
+                  <BookmarkCheck className="w-4 h-4" />
+                  {isReserving ? "RESERVANDO..." : "RESERVAR EJEMPLAR"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleToggleFavorite}
+                  disabled={isFavoriteLoading}
+                  className="w-full py-2 px-4 rounded-DEFAULT text-label-caps border border-outline text-on-surface hover:bg-surface-container transition-colors inline-flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
+                >
+                  <Heart
+                    className={`w-4 h-4 ${
+                      isFavorited ? "fill-primary text-primary" : "text-on-surface-variant"
+                    }`}
+                  />
+                  {isFavorited ? "EN TUS FAVORITOS" : "GUARDAR EN FAVORITOS"}
+                </button>
+              </div>
+            )}
+
+            {/* Bibliotecarios */}
+            {canManageBook && (
+              <div className="pt-4 border-t border-outline-variant/60 flex flex-col gap-2">
+                <span className="text-label-caps text-outline font-bold tracking-wider mb-1">
+                  Gestión de Obra
+                </span>
+                <button
+                  type="button"
+                  onClick={handleOpenEdit}
+                  className="w-full py-2 px-3 rounded-DEFAULT text-label-caps border border-outline-variant bg-surface-container-lowest text-on-surface hover:bg-surface-container transition-colors inline-flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
+                >
+                  <Pencil className="w-3.5 h-3.5" />
+                  Editar Libro
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigate("/librarian/inventory/newItem")}
+                  className="w-full py-2 px-3 rounded-DEFAULT text-label-caps bg-primary text-on-primary hover:bg-inverse-surface transition-colors inline-flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  Añadir Ejemplar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDeleteError(null);
+                    setShowDeleteConfirm(true);
+                  }}
+                  className="w-full py-1.5 px-3 rounded-DEFAULT text-label-caps text-error border border-error/40 hover:bg-error hover:text-on-error transition-colors inline-flex items-center justify-center gap-2 cursor-pointer mt-1"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  Eliminar Libro
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Columna Derecha (2/3) */}
-        <div className="md:col-span-2 flex flex-col gap-stack-lg">
+        {/* Columna derecha */}
+        <div className="lg:col-span-8 flex flex-col gap-6">
           <BookInfo
             ISBN={data.isbn}
             title={data.title}
@@ -330,9 +567,76 @@ export default function BookDetail() {
             publicationDate={data.year}
             description={data.description}
             tags={data.genres}
+            location={locations}
           />
-          <BookReviews bookId={data.id} />
 
+          {/* Ejemplares físicos (solo bibliotecarios) */}
+          {canManageBook && (
+            <div className="bg-surface-container-lowest border border-outline-variant/70 rounded-DEFAULT p-5 shadow-2xs font-sans">
+              <div className="flex justify-between items-center mb-3 pb-2 border-b border-outline-variant/40">
+                <h3 className="text-label-caps text-primary font-bold uppercase tracking-widest">
+                  Ejemplares Físicos{" "}
+                  <span className="text-on-surface-variant font-normal">
+                    ({data.items?.length || 0})
+                  </span>
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => navigate("/librarian/inventory/newItem")}
+                  className="text-label-caps text-primary hover:underline cursor-pointer inline-flex items-center gap-1"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  Añadir ejemplar
+                </button>
+              </div>
+
+              {data.items && data.items.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm font-sans">
+                    <thead className="border-b border-outline-variant/40 text-label-caps text-on-surface-variant">
+                      <tr>
+                        <th className="py-2 px-3">Código</th>
+                        <th className="py-2 px-3">Ubicación</th>
+                        <th className="py-2 px-3">Estado</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-outline-variant/30 text-on-surface">
+                      {data.items.map((item) => {
+                        const isAvailable = item.status === "AVAILABLE";
+                        return (
+                          <tr key={item.id} className="hover:bg-surface-container/30 transition-colors">
+                            <td className="py-2.5 px-3 font-mono font-medium text-primary">
+                              {item.inventory_code}
+                            </td>
+                            <td className="py-2.5 px-3 text-on-surface-variant">
+                              {item.location || "Sin asignar"}
+                            </td>
+                            <td className="py-2.5 px-3">
+                              <span
+                                className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
+                                  isAvailable
+                                    ? "bg-surface-container text-on-surface border-outline-variant"
+                                    : "bg-tertiary-fixed text-on-tertiary-fixed-variant border-transparent"
+                                }`}
+                              >
+                                {item.status_display || item.status}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p className="text-body-md text-on-surface-variant py-2">
+                  No hay ejemplares físicos registrados para esta obra.
+                </p>
+              )}
+            </div>
+          )}
+
+          <BookReviews bookId={data.id} />
         </div>
       </div>
 
@@ -340,7 +644,6 @@ export default function BookDetail() {
       {isEditing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 overflow-y-auto">
           <div className="bg-surface border border-outline-variant rounded-sm shadow-xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden animate-fade-in">
-            {/* Cabecera del Modal */}
             <div className="px-6 py-4 bg-surface-container border-b border-outline-variant flex items-center justify-between">
               <div>
                 <span className="text-label-caps text-primary block">
@@ -360,7 +663,6 @@ export default function BookDetail() {
               </button>
             </div>
 
-            {/* Formulario de Edición */}
             <form onSubmit={handleUpdateBook} className="p-6 overflow-y-auto space-y-5 flex-1">
               {saveError && (
                 <div className="p-3 bg-error-container border border-error text-on-error-container text-sm rounded-sm">
@@ -368,7 +670,6 @@ export default function BookDetail() {
                 </div>
               )}
 
-              {/* Título y Editorial */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-label-caps text-on-surface-variant mb-1.5">
@@ -400,7 +701,6 @@ export default function BookDetail() {
                 </div>
               </div>
 
-              {/* ISBN y Año de Publicación */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-label-caps text-on-surface-variant mb-1.5">
@@ -579,7 +879,7 @@ export default function BookDetail() {
                 </div>
               </div>
 
-              {/* Sinopsis / Descripción */}
+              {/* Sinopsis */}
               <div>
                 <label className="block text-label-caps text-on-surface-variant mb-1.5">
                   Sinopsis / Descripción
@@ -595,7 +895,6 @@ export default function BookDetail() {
                 />
               </div>
 
-              {/* Botones de Acción */}
               <div className="flex justify-end gap-3 pt-4 border-t border-outline-variant">
                 <button
                   type="button"
@@ -775,7 +1074,14 @@ export default function BookDetail() {
           </div>
         </div>
       )}
+
+      <FeedbackModal
+        isOpen={feedbackModal.isOpen}
+        type={feedbackModal.type}
+        title={feedbackModal.title}
+        message={feedbackModal.message}
+        onClose={() => setFeedbackModal((prev) => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 }
-
