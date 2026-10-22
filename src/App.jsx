@@ -13,8 +13,12 @@ import ProtectedRoute from "./auth/ProtectedRoute";
 const FoliumLanding = lazy(() => import("./pages/FoliumLanding"));
 const BookCatalog = lazy(() => import("./pages/BookCatalog"));
 const BookDetail = lazy(() => import("./pages/BookDetail"));
-const LoginForm = lazy(() => import("./components/Login&RegisterComponents/LoginForm"));
-const RegisterForm = lazy(() => import("./components/Login&RegisterComponents/RegisterForm"));
+const LoginForm = lazy(
+  () => import("./components/Login&RegisterComponents/LoginForm"),
+);
+const RegisterForm = lazy(
+  () => import("./components/Login&RegisterComponents/RegisterForm"),
+);
 
 // Páginas de usuario y administración
 const Profile = lazy(() => import("./pages/Profile"));
@@ -47,9 +51,8 @@ function App() {
       <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* Rutas Públicas con Botón de Asistente */}
+          <Route index element={<FoliumLanding />} />
           <Route element={<BotLayout />}>
-            <Route index element={<FoliumLanding />} />
-
             {/* Catálogo público accesible para invitados */}
             <Route path="catalog" element={<UserLayout />}>
               <Route index element={<BookCatalog />} />

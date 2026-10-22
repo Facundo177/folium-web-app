@@ -5,16 +5,15 @@ export default function FoliumLandingProducts({handleUserButtonClick, handleLibr
       {/* Encabezado de la Sección */}
       <div className="max-w-4xl mx-auto text-center mb-stack-lg">
         <span className="text-label-caps text-on-surface-variant tracking-[0.2em] uppercase">
-          Dos perspectivas, una sola vocación
+          Un ecosistema, dos experiencias
         </span>
 
         <h2 className="font-serif text-display-lg-mobile md:text-display-lg text-on-surface mt-4 mb-4 leading-tight">
-          El puente entre lectores devotos y custodios del saber.
+          La plataforma que conecta a los lectores con sus bibliotecas.
         </h2>
 
         <p className="font-serif italic font-extrabold text-title-lg text-on-surface-variant max-w-3xl mx-auto">
-          Una arquitectura concebida tanto para la contemplación literaria como
-          para la rigurosa administración bibliográfica.
+          Acceso ágil al catálogo y reservas para quienes disfrutan de leer; control total de inventario y préstamos para quienes cuidan los libros.
         </p>
       </div>
 
@@ -32,13 +31,11 @@ export default function FoliumLandingProducts({handleUserButtonClick, handleLibr
           </div>
 
           <h3 className="font-serif text-headline-md text-on-surface mb-4">
-            Explora libros y comparte tus reseñas
+            Tu biblioteca abierta, en cualquier momento
           </h3>
 
           <p className="text-body-md text-on-surface-variant mb-stack-md pb-stack-md border-b border-outline-variant/50 leading-relaxed">
-            Descubre obras recomendadas por la comunidad, accede a notas de
-            lectura y publica tus propias valoraciones críticas sobre ejemplares
-            únicos.
+            Explora el catálogo general, comprueba la disponibilidad física de cada libro en tiempo real, reserva ejemplares con un clic y lleva el control de tus préstamos y lecturas favoritas.
           </p>
 
           <ul className="flex flex-col gap-4 mb-stack-lg flex-1">
@@ -46,26 +43,32 @@ export default function FoliumLandingProducts({handleUserButtonClick, handleLibr
               <span className="text-on-surface text-lg leading-none">
                 ✦
               </span>
-              Catálogo colaborativo y recomendaciones
+              <span>
+                <strong className="font-semibold text-on-surface">Catálogo en vivo:</strong> consulta disponibilidad inmediata y ubicación en sala.
+              </span>
             </li>
             <li className="flex items-start gap-3 text-body-md text-on-surface-variant">
               <span className="text-on-surface text-lg leading-none">
                 ✦
               </span>
-              Anotaciones al margen y reseñas verificadas
+              <span>
+                <strong className="font-semibold text-on-surface">Reservas y préstamos:</strong> solicita títulos y revisa tus fechas de devolución.
+              </span>
             </li>
             <li className="flex items-start gap-3 text-body-md text-on-surface-variant">
               <span className="text-on-surface text-lg leading-none">
                 ✦
               </span>
-              Colección personal de favoritos
+              <span>
+                <strong className="font-semibold text-on-surface">Espacio personal:</strong> guarda favoritos, califica lecturas y comparte opiniones.
+              </span>
             </li>
           </ul>
 
           <button 
           className="w-full border border-on-surface text-on-surface text-label-caps uppercase tracking-wider py-4 px-6 flex justify-between items-center hover:bg-tertiary-container/5 transition-colors bg-surface-variant"
           onClick={handleUserButtonClick}>
-            Explorar catálogo y reseñas
+            Explorar el catálogo
             <ArrowRightIcon />
           </button>
         </div>
@@ -74,7 +77,7 @@ export default function FoliumLandingProducts({handleUserButtonClick, handleLibr
         <div className="bg-surface-container-lowest border border-outline-variant p-stack-md md:p-stack-lg flex flex-col shadow-sm">
           <div className="flex justify-between items-center mb-stack-sm">
             <span className="text-label-caps text-on-surface-variant tracking-wider uppercase">
-              Para bibliotecas y archivos
+              Para bibliotecas y administradores
             </span>
             <div className="w-10 h-10 p-1.5 rounded-full bg-tertiary-container flex items-center justify-center text-on-tertiary">
               <InstitutionIcon />
@@ -82,13 +85,11 @@ export default function FoliumLandingProducts({handleUserButtonClick, handleLibr
           </div>
 
           <h3 className="font-serif text-headline-md text-on-surface mb-4">
-            Gestión integral de inventario y colecciones
+            Control integral de inventario y préstamos
           </h3>
 
           <p className="text-body-md text-on-surface-variant mb-stack-md pb-stack-md border-b border-outline-variant/50 leading-relaxed">
-            Una solución moderna y eficiente diseñada para simplificar el
-            catalogado, la trazabilidad por RFID/código de barras y el control
-            de fondos patrimoniales sin fricción.
+            Una herramienta moderna e intuitiva para simplificar la gestión bibliotecaria: registra libros y copias físicas, atiende reservas al instante y monitorea préstamos sin fricción.
           </p>
 
           <ul className="flex flex-col gap-4 mb-stack-lg flex-1">
@@ -96,26 +97,32 @@ export default function FoliumLandingProducts({handleUserButtonClick, handleLibr
               <span className="text-on-surface text-lg leading-none">
                 ✦
               </span>
-              Catalogación normalizada MARC21 & RDA
+              <span>
+                <strong className="font-semibold text-on-surface">Inventario centralizado:</strong> alta rápida de libros, datos editoriales y copias.
+              </span>
             </li>
             <li className="flex items-start gap-3 text-body-md text-on-surface-variant">
               <span className="text-on-surface text-lg leading-none">
                 ✦
               </span>
-              Trazabilidad y auditoría de fondos en tiempo real
+              <span>
+                <strong className="font-semibold text-on-surface">Circulación ágil:</strong> panel de préstamos activos, devoluciones y vencimientos.
+              </span>
             </li>
             <li className="flex items-start gap-3 text-body-md text-on-surface-variant">
               <span className="text-on-surface text-lg leading-none">
                 ✦
               </span>
-              Automatización de préstamos y reportes
+              <span>
+                <strong className="font-semibold text-on-surface">Atención a reservas:</strong> sincronización inmediata con las solicitudes de los usuarios.
+              </span>
             </li>
           </ul>
 
           <button 
           className="w-full bg-tertiary-container border border-on-tertiary-container text-on-tertiary-container text-label-caps uppercase tracking-wider py-4 px-6 flex justify-between items-center hover:opacity-90 transition-opacity"
           onClick={handleLibrarianButtonClick}>
-            Conocer la solución institucional
+            Gestionar mi biblioteca
             <ArrowRightIcon />
           </button>
         </div>
@@ -129,24 +136,6 @@ export default function FoliumLandingProducts({handleUserButtonClick, handleLibr
 // ==========================================
 
 const ReaderIcon = () => (
-  //   <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-  //     <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-  //     <g
-  //       id="SVGRepo_tracerCarrier"
-  //       strokeLinecap="round"
-  //       strokeLinejoin="round"
-  //     ></g>
-  //     <g id="SVGRepo_iconCarrier">
-  //       {" "}
-  //       <path
-  //         d="M5 19V6.2C5 5.0799 5 4.51984 5.21799 4.09202C5.40973 3.71569 5.71569 3.40973 6.09202 3.21799C6.51984 3 7.0799 3 8.2 3H15.8C16.9201 3 17.4802 3 17.908 3.21799C18.2843 3.40973 18.5903 3.71569 18.782 4.09202C19 4.51984 19 5.0799 19 6.2V17H7C5.89543 17 5 17.8954 5 19ZM5 19C5 20.1046 5.89543 21 7 21H19M18 17V21M15 13.5C14.7164 12.3589 13.481 11.5 12 11.5C10.519 11.5 9.28364 12.3589 9 13.5M12 7.5H12.01M13 7.5C13 8.05228 12.5523 8.5 12 8.5C11.4477 8.5 11 8.05228 11 7.5C11 6.94772 11.4477 6.5 12 6.5C12.5523 6.5 13 6.94772 13 7.5Z"
-  //         stroke="#000000"
-  //         strokeWidth="2"
-  //         strokeLinecap="round"
-  //         strokeLinejoin="round"
-  //       ></path>{" "}
-  //     </g>
-  //   </svg>
   <svg fill="#000000" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
     <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
     <g
