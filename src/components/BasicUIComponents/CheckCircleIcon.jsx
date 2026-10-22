@@ -1,8 +1,5 @@
-import { MorphIcon } from "morphicons/react";
-import { CheckCircle2} from "lucide";
+import { CheckCircle2 } from "lucide-react";
 
-export default function CheckCircleIcon(){
-    return(
-        <MorphIcon icon={CheckCircle2} />
-    );
+export default function CheckCircleIcon({ className = "w-5 h-5" }) {
+  return <CheckCircle2 className={className} />;
 }

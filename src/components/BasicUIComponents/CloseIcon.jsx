@@ -1,8 +1,5 @@
-import { MorphIcon } from "morphicons/react";
-import { X} from "lucide";
+import { X } from "lucide-react";
 
-export default function CloseIcon(){
-    return(
-        <MorphIcon icon={X} />
-    );
+export default function CloseIcon({ className = "w-5 h-5" }) {
+  return <X className={className} />;
 }

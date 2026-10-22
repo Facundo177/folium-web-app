@@ -1,8 +1,13 @@
 import { useState, useEffect } from "react";
 import { loanService } from "../api/services/loanService";
 import FeedbackModal from "../components/BasicUIComponents/FeedbackModal";
+import { useDocumentMetadata } from "../hooks/useDocumentMetadata";
 
 export default function LoansDashboard() {
+  useDocumentMetadata({
+    title: "Control de Préstamos",
+    description: "Panel de control y registro de préstamos activos e históricos para bibliotecarios.",
+  });
   const [loans, setLoans] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);

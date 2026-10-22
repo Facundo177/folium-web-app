@@ -1,19 +1,22 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ScrollIndicator from "../components/BasicUIComponents/ScrollIndicator";
 import FoliumLandingBackground from "../components/FoliumLandingComponents/FoliumLandingBackground";
 import FoliumLandingHero from "../components/FoliumLandingComponents/FoliumLandingHero";
 import FoliumLandingNavbar from "../components/FoliumLandingComponents/FoliumLandingNavbar";
 import FoliumLandingProducts from "../components/FoliumLandingComponents/FoliumLandingProducts";
-import { useEffect } from "react";
+import { useDocumentMetadata } from "../hooks/useDocumentMetadata";
 
 export default function FoliumLanding() {
   const navigate = useNavigate();
 
-  const handleLoginButtonClick = () => navigate("/login");
-  const handleRegisterButtonClick = () => navigate("/register");
+  useDocumentMetadata({
+    title: "Inicio — Preservación y Catálogo",
+    description: "Folium: El software de gestión silencioso para bibliotecas, lectura pública y archivos de patrimonio cultural.",
+  });
+
   const handleUserButtonClick = () => navigate("/user");
   const handleLibrarianButtonClick = () => navigate("/librarian");
-  const handleCatalogButtonClick = () => navigate("/catalog");
 
   useEffect(() => {
     const root = document.documentElement;
@@ -37,16 +40,12 @@ export default function FoliumLanding() {
     <div className="force-light bg-background text-on-background min-h-screen">
       <div className="relative min-h-screen bg-background overflow-hidden font-sans selection:bg-tertiary-container/20 flex flex-col">
         <FoliumLandingBackground />
-        
 
-        <FoliumLandingNavbar
-          handleLoginButtonClick={handleLoginButtonClick}
-          handleRegisterButtonClick={handleRegisterButtonClick}
-        />
+        <FoliumLandingNavbar />
 
-        <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-margin-edge mt-stack-lg md:mt-0">
-          <FoliumLandingHero handleCatalogButtonClick={handleCatalogButtonClick} />
-        </main>
+        <section className="relative z-10 flex-1 flex flex-col items-center justify-center px-margin-edge mt-stack-lg md:mt-0">
+          <FoliumLandingHero />
+        </section>
 
         <ScrollIndicator />
       </div>

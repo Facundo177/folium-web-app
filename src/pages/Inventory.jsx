@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import DescriptionOfInventory from "../components/InventoryComponents/DescriptionOfInventory";
 import InventoryTable from "../components/InventoryComponents/InventoryTable";
+import { useDocumentMetadata } from "../hooks/useDocumentMetadata";
 
 // import PageHeader from "../components/PageHeader";
 // import StatsRow from "../components/StatsRow";
@@ -10,6 +11,10 @@ import { useBooks } from "../hooks/useBooks";
 import { adaptBook, adaptItem } from "../api/adapters";
 
 export const Inventory = () => {
+  useDocumentMetadata({
+    title: "Inventario de Ejemplares",
+    description: "Gestión archivística de ejemplares físicos, códigos de inventario y estado de conservación.",
+  });
   const {
     items,
     isLoading: loadingItems,

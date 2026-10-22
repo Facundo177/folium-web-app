@@ -1,8 +1,5 @@
-import { MorphIcon } from "morphicons/react";
-import { Star} from "lucide";
+import { Star } from "lucide-react";
 
-export default function StarIcon(){
-    return(
-        <MorphIcon icon={Star} />
-    );
+export default function StarIcon({ className = "w-5 h-5 text-amber-500 fill-amber-500" }) {
+  return <Star className={className} />;
 }

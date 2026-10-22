@@ -1,8 +1,5 @@
-import { MorphIcon } from "morphicons/react";
-import { BookSearch} from "lucide";
+import { Search } from "lucide-react";
 
-export default function SearchIcon(){
-    return(
-        <MorphIcon icon={BookSearch} />
-    );
+export default function SearchIcon({ className = "w-5 h-5" }) {
+  return <Search className={className} />;
 }

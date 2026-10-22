@@ -156,7 +156,7 @@ export default function CatalogBookCard({
 
   return (
     <>
-      <div
+      <article
         onClick={handleCardClick}
         className="bg-surface-container border border-outline-variant/50 rounded-md p-4 flex flex-col hover:border-primary transition-colors group cursor-pointer shadow-md hover:shadow-lg animate-fade-in"
       >
@@ -229,7 +229,7 @@ export default function CatalogBookCard({
             </span>
           </button>
         </div>
-      </div>
+      </article>
 
       <FeedbackModal
         isOpen={modal.isOpen}

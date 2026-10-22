@@ -3,8 +3,13 @@ import { reservationService } from "../api/services/reservationService";
 import { loanService } from "../api/services/loanService";
 import { itemService } from "../api/services/itemService";
 import FeedbackModal from "../components/BasicUIComponents/FeedbackModal";
+import { useDocumentMetadata } from "../hooks/useDocumentMetadata";
 
 export default function ReservationDashboard() {
+  useDocumentMetadata({
+    title: "Gestión de Reservas",
+    description: "Panel de administración de reservas de ejemplares físicos para bibliotecarios.",
+  });
   const [reservations, setReservations] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);

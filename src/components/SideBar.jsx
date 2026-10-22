@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 
 import { ThemeToggle } from '../theme/ThemeToggle';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider';
 import { useUserProfile } from '../hooks/useUserProfile';
 
@@ -173,12 +173,10 @@ export default function Sidebar() {
         </div>
 
         {/* Perfil del Usuario */}
-        <div
-          className="flex items-center gap-4 relative cursor-pointer group/profile"
-          onClick={() => {
-            setIsMobileOpen(false);
-            navigate(user ? '/user/profile' : '/register');
-          }}
+        <Link
+          to={user ? '/user/profile' : '/register'}
+          onClick={() => setIsMobileOpen(false)}
+          className="flex items-center gap-4 relative cursor-pointer group/profile text-inherit no-underline"
           title={user ? 'Ver mi perfil' : 'Registrarse en Folium'}
         >
           <div className="w-11 h-11 flex-shrink-0 bg-primary-container rounded-full flex items-center justify-center border border-outline-variant/30">
@@ -193,33 +191,36 @@ export default function Sidebar() {
               {displayRole}
             </p>
           </div>
-        </div>
+        </Link>
 
         {/* Navegación Principal */}
         <nav className="flex flex-col gap-2 mt-4 flex-1">
           {navItems.map((item) => (
-            <button
+            <NavLink
               key={item.id}
-              onClick={() => {
-                setIsMobileOpen(false);
-                navigate(item.navigateTo);
-              }}
-              className={`relative flex items-center gap-4 h-12 w-full rounded-xl transition-colors cursor-pointer ${
-                activeTab === item.id 
-                  ? 'text-primary font-bold' 
-                  : 'text-on-surface-variant hover:text-on-surface'
-              }`}
+              to={item.navigateTo}
+              onClick={() => setIsMobileOpen(false)}
+              className={({ isActive }) =>
+                `relative flex items-center gap-4 h-12 w-full rounded-xl transition-colors cursor-pointer no-underline ${
+                  (isActive || activeTab === item.id)
+                    ? 'text-primary font-bold' 
+                    : 'text-on-surface-variant hover:text-on-surface'
+                }`
+              }
             >
-              {activeTab === item.id && (
-                <div className="absolute inset-0 bg-primary/10 rounded-xl" />
+              {({ isActive }) => (
+                <>
+                  {(isActive || activeTab === item.id) && (
+                    <div className="absolute inset-0 bg-primary/10 rounded-xl" />
+                  )}
+                  
+                  <item.icon className="w-[22px] h-[22px] flex-shrink-0 ml-[11px] relative z-10" />
+                  <p className="hide-on-collapse font-sans text-sm font-medium m-0 whitespace-nowrap relative z-10">
+                    {item.label}
+                  </p>
+                </>
               )}
-              
-              <item.icon className="w-[22px] h-[22px] flex-shrink-0 ml-[11px] relative z-10" />
-              <p className="hide-on-collapse font-sans text-sm font-medium m-0 whitespace-nowrap relative z-10">
-                {item.label}
-              </p>
-              
-            </button>
+            </NavLink>
           ))}
         </nav>
 

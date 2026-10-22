@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   X,
   AlertTriangle,
@@ -9,6 +9,9 @@ import {
   Pencil,
   Plus,
   Trash2,
+  Sparkles,
+  UserPlus,
+  LogIn,
 } from "lucide-react";
 import BookCover from "../components/BookDetailComponents/BookCover";
 import BookDetailHeader from "../components/BookDetailComponents/BookDetailHeader";
@@ -17,6 +20,7 @@ import BookReviews from "../components/BookDetailComponents/BookReviews";
 import FeedbackModal from "../components/BasicUIComponents/FeedbackModal";
 import { useBook } from "../hooks/useBook";
 import { adaptBookDetail } from "../api/adapters";
+import { useDocumentMetadata } from "../hooks/useDocumentMetadata";
 
 import { bookService } from "../api/services/bookService";
 import { authorService } from "../api/services/authorService";
@@ -26,6 +30,7 @@ import { favoriteService } from "../api/services/favoriteService";
 import { useAuth } from "../auth/AuthProvider";
 
 export default function BookDetail() {
+  
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -412,6 +417,8 @@ export default function BookDetail() {
 
   const data = adaptBookDetail(book);
 
+
+
   const filteredAuthors = allAuthors.filter((a) =>
     `${a.name} ${a.last_name}`.toLowerCase().includes(authorSearch.toLowerCase())
   );
@@ -550,8 +557,8 @@ export default function BookDetail() {
               </div>
             )}
 
-            {/* Lectores */}
-            {!canManageBook && (
+            {/* Lectores autenticados */}
+            {!canManageBook && user && (
               <div className="flex flex-col gap-2.5 pt-1">
                 <button
                   type="button"
@@ -580,6 +587,38 @@ export default function BookDetail() {
                   />
                   {isFavorited ? "EN TUS FAVORITOS" : "GUARDAR EN FAVORITOS"}
                 </button>
+              </div>
+            )}
+
+            {/* Visitantes no autenticados (GUEST): Ficha limitada con invitación */}
+            {!user && (
+              <div className="mt-2 p-4 bg-surface-container/70 border border-outline-variant/60 rounded-DEFAULT flex flex-col gap-3">
+                <div className="inline-flex items-center gap-1.5 text-primary text-[10px] font-bold uppercase tracking-widest">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Modo Lectura Limitada</span>
+                </div>
+                <h4 className="font-serif text-lg text-on-surface font-medium leading-snug">
+                  Viví la experiencia completa
+                </h4>
+                <p className="text-xs text-on-surface-variant leading-relaxed">
+                  Para solicitar préstamos físicos, reservar este volumen o compartir tus reseñas con la comunidad, unite a Folium.
+                </p>
+                <div className="flex flex-col gap-2 pt-1">
+                  <Link
+                    to="/register"
+                    className="w-full py-2 px-3 rounded-DEFAULT text-label-caps bg-primary text-on-primary hover:opacity-90 transition-opacity text-center text-xs font-bold uppercase tracking-wider no-underline inline-flex items-center justify-center gap-1.5 shadow-2xs"
+                  >
+                    <UserPlus className="w-3.5 h-3.5" />
+                    Crear cuenta gratis
+                  </Link>
+                  <Link
+                    to="/login"
+                    className="w-full py-1.5 px-3 rounded-DEFAULT text-label-caps border border-outline text-on-surface hover:bg-surface-container transition-colors text-center text-xs font-bold uppercase tracking-wider no-underline inline-flex items-center justify-center gap-1.5"
+                  >
+                    <LogIn className="w-3.5 h-3.5" />
+                    Iniciar sesión
+                  </Link>
+                </div>
               </div>
             )}
 
@@ -698,10 +737,12 @@ export default function BookDetail() {
         </div>
       </div>
 
-      {/* Reseñas a todo el ancho (ocupa ambas columnas) */}
-      <div className="mt-stack-lg">
-        <BookReviews bookId={data.id} />
-      </div>
+      {/* Reseñas a todo el ancho (solo para lectores registrados y bibliotecarios) */}
+      {user && (
+        <div className="mt-stack-lg">
+          <BookReviews bookId={data.id} />
+        </div>
+      )}
 
       {/* MODAL DE EDICIÓN DE LIBRO (Bibliotecario / Admin) */}
       {isEditing && (

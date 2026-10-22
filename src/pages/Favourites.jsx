@@ -6,9 +6,14 @@ import { adaptBook } from "../api/adapters";
 import CatalogBookCard from "../components/CatalogSearchComponents/CatalogBookCard";
 import FeedbackModal from "../components/BasicUIComponents/FeedbackModal";
 import { Heart } from "lucide-react";
+import { useDocumentMetadata } from "../hooks/useDocumentMetadata";
 
 export default function Favourites() {
   const navigate = useNavigate();
+  useDocumentMetadata({
+    title: "Mis Libros Favoritos",
+    description: "Tu colección personalizada de volúmenes y obras guardadas en Folium.",
+  });
   const { books, isLoading: loadingBooks } = useBooks();
 
   const [favorites, setFavorites] = useState([]);
