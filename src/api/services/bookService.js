@@ -8,11 +8,13 @@ import api from '../axiosConfig';
 const BASE = '/book/';
 
 export const bookService = {
-  getAll:  (params)   => api.get(BASE, { params }),
-  getById: (id)       => api.get(`${BASE}${id}/`),
-  create:  (data, config) => api.post(BASE, data, config), 
-  update:  (id, data, config) => api.put(`${BASE}${id}/`, data, config),
-  patch:   (id, data, config) => api.patch(`${BASE}${id}/`, data, config),
-  remove:  (id)       => api.delete(`${BASE}${id}/`),
+  getAll: (params) => api.get(BASE, { params }),
+  getById: (id) => api.get(`${BASE}${id}/`),
+  getRandom: () => api.get('/random/'),
+  getRecommendations: () => api.get('/recommendation/'),
+  create: (data, config) => api.post(BASE, data, config), 
+  update: (id, data, config) => api.put(`${BASE}${id}/`, data, config),
+  patch: (id, data, config) => api.patch(`${BASE}${id}/`, data, config),
+  remove: (id) => api.delete(`${BASE}${id}/`),
 };
 
