@@ -52,16 +52,18 @@ export default function ReservationDashboard() {
 
     setIsProcessing(true);
     try {
-      // 1. Buscamos los ejemplares físicos disponibles de este libro
+      // 1. Buscamos los ejemplares físicos de este libro
       const { data: items } = await itemService.getAll({
         book: reservation.book,
       });
       const bookItems = items.filter((item) => item.book == reservation.book);
-      const availableItems = bookItems.filter(
-        (item) => item.status === "AVAILABLE"
-      );
+      // Priorizamos el ejemplar que fue puesto en estado RESERVED para esta obra,
+      // y si no hubiera, cualquier ejemplar AVAILABLE
+      const reservedItem = bookItems.find((item) => item.status === "RESERVED");
+      const availableItem = bookItems.find((item) => item.status === "AVAILABLE");
+      const targetItem = reservedItem || availableItem;
 
-      if (availableItems.length === 0) {
+      if (!targetItem) {
         setReservationToAccept(null);
         setFeedbackModal({
           isOpen: true,
@@ -72,10 +74,10 @@ export default function ReservationDashboard() {
         return;
       }
 
-      const itemToLoan = availableItems[0].id;
+      const itemToLoan = targetItem.id;
       const userId = reservation.user_detail?.id || reservation.user;
 
-      // 2. Creamos el préstamo (loan) con el primer ejemplar físico disponible
+      // 2. Creamos el préstamo (loan) con el ejemplar físico seleccionado
       const loanPayload = {
         item: itemToLoan,
         user: userId,
