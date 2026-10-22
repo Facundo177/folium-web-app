@@ -154,10 +154,9 @@ export default function Sidebar() {
         
         lg:sticky lg:top-6 lg:h-[calc(100vh-48px)] lg:ml-6 lg:rounded-xl lg:border lg:border-outline-variant/50 lg:translate-x-0
         
-
         fixed top-0 left-0 h-full rounded-r-2xl border-r border-outline-variant/20 
-        transform
-        ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'}
+        transform 
+        ${isMobileOpen ? 'translate-x-0 transition-transform duration-300 ease-out will-change-transform' : '-translate-x-full'}
         ${showLogoutModal ? 'is-modal-open' : ''}
       `}>    
         

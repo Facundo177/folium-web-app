@@ -1,4 +1,4 @@
-export default function BookInfo({ description = "", location = "", className = "" }) {
+export default function BookInfo({ description = "", className = "" }) {
   return (
     <div className={`bg-surface-container-lowest border border-outline-variant/70 rounded-DEFAULT p-6 md:p-8 shadow-2xs font-sans ${className}`}>
       <h2 className="font-serif text-headline-sm text-on-surface mb-4 pb-3 border-b border-outline-variant/50">

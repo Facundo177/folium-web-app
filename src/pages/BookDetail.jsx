@@ -625,14 +625,8 @@ export default function BookDetail() {
         <div className="lg:col-span-8 lg:order-1 flex flex-col gap-6">
           <BookInfo
             className="flex-1"
-            ISBN={data.isbn}
-            title={data.title}
-            author={data.author}
-            editorial={data.editorial}
-            publicationDate={data.year}
             description={data.description}
-            tags={data.genres}
-            location={locations}
+
           />
 
           {/* Ejemplares físicos (solo bibliotecarios) */}
