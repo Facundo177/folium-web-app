@@ -63,7 +63,7 @@ export default function FoliumLandingProducts({handleUserButtonClick, handleLibr
           </ul>
 
           <button 
-          className="w-full border border-on-surface-variant text-on-surface-variant text-label-caps uppercase tracking-wider py-4 px-6 flex justify-between items-center hover:bg-tertiary-container/5 transition-colors bg-surface-variant"
+          className="w-full border border-on-surface text-on-surface text-label-caps uppercase tracking-wider py-4 px-6 flex justify-between items-center hover:bg-tertiary-container/5 transition-colors bg-surface-variant"
           onClick={handleUserButtonClick}>
             Explorar catálogo y reseñas
             <ArrowRightIcon />

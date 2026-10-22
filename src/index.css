@@ -83,8 +83,8 @@
   /* =======================================================
      FUENTES
      ======================================================= */
-  --font-serif: "EB Garamond", serif;
-  --font-sans: "Hanken Grotesk", sans-serif;
+  --font-serif: "EB Garamond Variable", "EB Garamond", serif;
+  --font-sans: "Hanken Grotesk Variable", "Hanken Grotesk", sans-serif;
 
   /* =======================================================
      TIPOGRAFÍA — TAILWIND V4
