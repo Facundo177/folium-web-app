@@ -54,7 +54,7 @@ export default function RegisterForm() {
       username: formData.username,
       email: formData.email,
       password: formData.password,
-      // dni: formData.dni // Descomentar si a futuro agregas el campo 'dni' en el backend
+      dni: formData.dni
     };
 
     try {
