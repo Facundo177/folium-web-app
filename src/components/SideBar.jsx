@@ -11,6 +11,7 @@ import {
   BookUp2Icon,
   UserRoundArrowLeft,
   LogIn,
+  UserPlus,
   BookLock
 } from 'lucide-react';
 
@@ -53,10 +54,11 @@ export default function Sidebar() {
       { id: 'loans', label: 'Préstamos Activos', icon: BookMarked, navigateTo: '/user/loans' },
     ];
   } else {
-    // Usuario NO logueado (Invitado)
+    // Usuario NO logueado (Invitado / GUEST)
     navItems = [
       { id: 'catalog', label: 'Catálogo Público', icon: Library, navigateTo: '/catalog' },
-      // Aquí puedes agregar páginas estáticas como 'Acerca de', 'Contacto', etc.
+      { id: 'register', label: 'Crear Cuenta', icon: UserPlus, navigateTo: '/register' },
+      { id: 'login', label: 'Iniciar Sesión', icon: LogIn, navigateTo: '/login' },
     ];
   }
 
@@ -171,8 +173,14 @@ export default function Sidebar() {
         </div>
 
         {/* Perfil del Usuario */}
-        <div className="flex items-center gap-4 relative cursor-pointer group/profile"
-        onClick={() => navigate('/user/profile')}>
+        <div
+          className="flex items-center gap-4 relative cursor-pointer group/profile"
+          onClick={() => {
+            setIsMobileOpen(false);
+            navigate(user ? '/user/profile' : '/register');
+          }}
+          title={user ? 'Ver mi perfil' : 'Registrarse en Folium'}
+        >
           <div className="w-11 h-11 flex-shrink-0 bg-primary-container rounded-full flex items-center justify-center border border-outline-variant/30">
             <UserCircle className="w-6 h-6 text-on-primary-container" />
           </div>
@@ -225,7 +233,6 @@ export default function Sidebar() {
             <button 
               title="Cerrar Sesión"
               className="action-btn w-11 h-11 bg-surface-variant rounded-xl flex items-center justify-center text-on-surface hover:bg-error hover:text-on-error transition-colors shadow-sm border border-outline-variant/30 shrink-0"
-              // CAMBIO PRINCIPAL AQUÍ: En lugar de llamar a logout(), abrimos el modal
               onClick={() => setShowLogoutModal(true)} 
             >
               <LogOut className="w-6 h-6" />

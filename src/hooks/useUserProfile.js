@@ -7,6 +7,13 @@ export function useUserProfile() {
   const [error, setError] = useState(null);
 
   const fetchProfile = useCallback(async () => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      setProfile(null);
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
     try {

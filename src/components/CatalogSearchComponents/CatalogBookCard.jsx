@@ -11,6 +11,7 @@ export default function CatalogBookCard({
   isFavorite = false,
   favoriteId = null,
   onToggleFavorite,
+  onRequireAuth,
 }) {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -21,6 +22,9 @@ export default function CatalogBookCard({
     type: "info",
     title: "",
     message: "",
+    confirmText: "Aceptar",
+    cancelText: "Cancelar",
+    onConfirm: null,
   });
 
   useEffect(() => {
@@ -36,16 +40,38 @@ export default function CatalogBookCard({
     return d.toISOString().slice(0, 16);
   };
 
+  const promptGuestRegistration = (actionText) => {
+    if (onRequireAuth) {
+      onRequireAuth(actionText);
+      return;
+    }
+    setModal({
+      isOpen: true,
+      type: "info",
+      title: "Únete a la comunidad de Folium",
+      message: `Estás explorando el catálogo como invitado.\n\nCrea una cuenta gratuita o inicia sesión para ${actionText}.`,
+      confirmText: "Crear cuenta gratis",
+      cancelText: "Seguir explorando",
+      onConfirm: () => {
+        setModal((prev) => ({ ...prev, isOpen: false }));
+        navigate("/register");
+      },
+    });
+  };
+
+  const handleCardClick = () => {
+    if (!user || !user.id) {
+      promptGuestRegistration("consultar la ficha detallada y reseñas de este ejemplar");
+      return;
+    }
+    navigate(`/book/${book.id}`);
+  };
+
   const handleFavorite = async (e) => {
     e.stopPropagation();
 
     if (!user || !user.id) {
-      setModal({
-        isOpen: true,
-        type: "info",
-        title: "Inicio de sesión requerido",
-        message: "Debes iniciar sesión para poder guardar un volumen en favoritos.",
-      });
+      promptGuestRegistration("guardar un volumen en tu colección de favoritos");
       return;
     }
 
@@ -71,6 +97,8 @@ export default function CatalogBookCard({
         type: "error",
         title: "Error en favoritos",
         message: "No se pudo actualizar el estado de favoritos.",
+        confirmText: "Aceptar",
+        onConfirm: null,
       });
     }
   };
@@ -79,12 +107,7 @@ export default function CatalogBookCard({
     e.stopPropagation();
 
     if (!user || !user.id) {
-      setModal({
-        isOpen: true,
-        type: "info",
-        title: "Inicio de sesión requerido",
-        message: "Debes iniciar sesión para poder reservar un volumen.",
-      });
+      promptGuestRegistration("reservar un volumen de la colección");
       return;
     }
 
@@ -100,6 +123,8 @@ export default function CatalogBookCard({
         type: "success",
         title: "¡Reserva confirmada!",
         message: `Has reservado "${book.title}".`,
+        confirmText: "Aceptar",
+        onConfirm: null,
       });
     } catch (error) {
       if (error.response && error.response.data) {
@@ -111,6 +136,8 @@ export default function CatalogBookCard({
           type: "error",
           title: "No se pudo procesar la reserva",
           message: errorMessages,
+          confirmText: "Aceptar",
+          onConfirm: null,
         });
       } else {
         console.error("Error en la reserva:", error);
@@ -120,6 +147,8 @@ export default function CatalogBookCard({
           title: "Error de conexión",
           message:
             "Ocurrió un error inesperado al intentar comunicarse con el archivo.",
+          confirmText: "Aceptar",
+          onConfirm: null,
         });
       }
     }
@@ -128,7 +157,7 @@ export default function CatalogBookCard({
   return (
     <>
       <div
-        onClick={() => navigate(`/book/${book.id}`)}
+        onClick={handleCardClick}
         className="bg-surface-container border border-outline-variant/50 rounded-md p-4 flex flex-col hover:border-primary transition-colors group cursor-pointer shadow-md hover:shadow-lg animate-fade-in"
       >
         {/* Tapa del Libro */}
@@ -207,6 +236,9 @@ export default function CatalogBookCard({
         type={modal.type}
         title={modal.title}
         message={modal.message}
+        confirmText={modal.confirmText}
+        cancelText={modal.cancelText}
+        onConfirm={modal.onConfirm}
         onClose={() => setModal((prev) => ({ ...prev, isOpen: false }))}
       />
     </>

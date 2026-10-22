@@ -63,8 +63,11 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   }, []);
 
+  const role = user?.role ?? 'GUEST';
+  const isGuest = !user;
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, role, isGuest, login, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

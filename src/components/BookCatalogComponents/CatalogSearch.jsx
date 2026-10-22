@@ -11,10 +11,10 @@ export default function CatalogSearch({
   error,
   favoritesMap = {},
   onToggleFavorite,
+  onRequireAuth,
 }) {
-
   // 2. Desestructuramos los géneros directamente desde la API
-  const { genres: apiGenres, isLoading: isLoadingGenres } = useGenres();
+  const { genres: apiGenres } = useGenres();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [activeCategory, setActiveCategory] = useState(null);
@@ -32,7 +32,6 @@ export default function CatalogSearch({
 
   // 2. Extraer las editoriales únicas de los libros cargados (igual que con genres)
   const editorials = useMemo(() => {
-    // Si tus libros traen el campo 'editorial'
     const allEditorials = adaptedBooks.map((b) => b.editorial).filter(Boolean);
     return [...new Set(allEditorials)].sort();
   }, [adaptedBooks]);
@@ -59,7 +58,7 @@ export default function CatalogSearch({
 
       // Filtro de Año
       let matchYear = true;
-      const bookYear = Number(book.publication_year || book.year); // Dependiendo de cómo lo llames
+      const bookYear = Number(book.publication_year || book.year);
 
       if (yearRange.start && bookYear < Number(yearRange.start)) {
         matchYear = false;
@@ -144,6 +143,7 @@ export default function CatalogSearch({
                   isFavorite={Boolean(favoritesMap?.[book.id])}
                   favoriteId={favoritesMap?.[book.id] ?? null}
                   onToggleFavorite={onToggleFavorite}
+                  onRequireAuth={onRequireAuth}
                 />
               ))}
             </div>
