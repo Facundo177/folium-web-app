@@ -180,12 +180,12 @@ export const InventoryTable = ({ rows = [], books = [], onRefetch }) => {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-base">
-          <div className="relative flex items-center">
+        <div className="flex items-center gap-base w-full md:w-fit">
+          <div className="relative flex items-center w-full">
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="border border-outline-variant rounded-DEFAULT pl-6 pr-10 py-2 text-label-caps text-on-surface hover:bg-surface-container appearance-none bg-transparent outline-none focus:border-primary cursor-pointer transition-colors"
+              className="border border-outline-variant rounded-DEFAULT pl-6 pr-10 py-2 text-label-caps text-on-surface hover:bg-surface-container appearance-none bg-transparent outline-none focus:border-primary cursor-pointer transition-colors justify-center w-full"
             >
               <option value="">Todos los estados</option>
 
