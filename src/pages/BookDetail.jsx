@@ -160,7 +160,9 @@ export default function BookDetail() {
       description: book.description || "",
     });
     setSelectedAuthors(book.authors || []);
-    setSelectedGenres((book.genres || []).map((g) => g.id));
+    setSelectedGenres(
+      (book.genres || []).map((g) => (typeof g === "object" && g !== null ? g.id : g)).filter(Boolean)
+    );
     setCoverFile(null);
     setCoverPreview(book.cover_image || null);
     setSaveError(null);

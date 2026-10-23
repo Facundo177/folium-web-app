@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { normalizeApiData } from './adapters';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1',
@@ -17,7 +18,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// ── Response Interceptor: maneja 401 y renueva el token automáticamente ───────
+// ── Response Interceptor: normaliza datos al formato clásico y renueva JWT ──────
 let isRefreshing = false;
 let failedQueue = [];
 
@@ -29,7 +30,12 @@ const processQueue = (error, token = null) => {
 };
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (response && response.data) {
+      response.data = normalizeApiData(response.data);
+    }
+    return response;
+  },
   async (error) => {
     const originalRequest = error.config;
 
@@ -80,4 +86,3 @@ api.interceptors.response.use(
 );
 
 export default api;
-

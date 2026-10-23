@@ -47,14 +47,38 @@ export default function BookCard({
   // Extracción segura de datos con Optional Chaining (?.) por si la base de datos devuelve arrays vacíos
   const title = book.title;
   const author =
-    book.authors?.map((a) => a.name + " " + a.last_name).join(", ") ||
+    (Array.isArray(book.authors) && book.authors.length > 0
+      ? book.authors
+          .map((a) =>
+            typeof a === "object" && a !== null
+              ? `${a.name || ""} ${a.last_name || ""}`.trim()
+              : String(a || "")
+          )
+          .filter(Boolean)
+          .join(", ")
+      : null) ||
+    (typeof book.author === "string" ? book.author : null) ||
     "Autor desconocido";
-  const category = book.genres?.map((g) => g.name).join(", ") || "General";
-  const year = book.publication_year;
+  const category =
+    (Array.isArray(book.genres) && book.genres.length > 0
+      ? book.genres
+          .map((g) =>
+            typeof g === "object" && g !== null
+              ? g.name
+              : typeof g === "string"
+              ? g
+              : ""
+          )
+          .filter(Boolean)
+          .join(", ")
+      : null) ||
+    (typeof book.category === "string" ? book.category : null) ||
+    "General";
+  const year = book.publication_year ?? book.year ?? "";
   const stock = book.stock || "Disponible"; // Fallback si no tienes el campo en Django
   const tag = book.tag || "ARCHIVO";
   const description = book.description;
-  const image = book.cover_image;
+  const image = book.cover_image ?? book.cover ?? null;
 
   return (
     <div
