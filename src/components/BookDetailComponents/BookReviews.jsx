@@ -41,7 +41,8 @@ export default function BookReviews({ bookId }) {
       setError(null);
       try {
         const { data } = await reviewService.getAll({ book: bookId });
-        setReviews(data);
+        const list = Array.isArray(data) ? data : (data?.results || []);
+        setReviews(list);
       } catch (err) {
         console.error("Error al cargar reseñas:", err);
         setError("No se pudieron cargar las reseñas de este volumen.");
@@ -55,7 +56,7 @@ export default function BookReviews({ bookId }) {
 
   // Verificamos si el usuario actual ya dejó una reseña en este libro
   const myReview = useMemo(() => {
-    if (!user?.id) return null;
+    if (!user?.id || !Array.isArray(reviews)) return null;
     return reviews.find(
       (r) => (r.user_detail?.id ?? r.user) === user.id
     );
@@ -63,7 +64,7 @@ export default function BookReviews({ bookId }) {
 
   // Promedio de calificación del libro
   const averageRating = useMemo(() => {
-    if (reviews.length === 0) return null;
+    if (!Array.isArray(reviews) || reviews.length === 0) return null;
     const sum = reviews.reduce((acc, r) => acc + Number(r.rating || 0), 0);
     return (sum / reviews.length).toFixed(1);
   }, [reviews]);

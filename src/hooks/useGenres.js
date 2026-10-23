@@ -25,7 +25,8 @@ export function useGenres(initialParams = {}) {
     setError(null);
     try {
       const { data } = await genreService.getAll(params);
-      setGenres(data);
+      const list = Array.isArray(data) ? data : (data?.results || []);
+      setGenres(list);
     } catch (err) {
       setError(err.response?.data?.detail || 'Error al cargar los géneros.');
     } finally {

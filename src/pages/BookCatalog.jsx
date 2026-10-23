@@ -179,14 +179,14 @@ export default function BookCatalog() {
 
       <BookCoverFlow
         showToast={showToast}
-        heroBooks={books.slice(0, 10)}
+        heroBooks={(Array.isArray(books) ? books : []).slice(0, 10)}
         favoritesMap={favoritesMap}
         onToggleFavorite={handleToggleFavorite}
         onRequireAuth={openGuestPrompt}
       />
 
       <CatalogSearch
-        books={books}
+        books={Array.isArray(books) ? books : []}
         isLoading={isLoading}
         error={error}
         favoritesMap={favoritesMap}

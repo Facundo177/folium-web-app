@@ -25,7 +25,8 @@ export function useBooks(initialParams = {}) {
     setError(null);
     try {
       const { data } = await bookService.getAll(params);
-      setBooks(data);
+      const bookList = Array.isArray(data) ? data : (data?.results || []);
+      setBooks(bookList);
     } catch (err) {
       setError(err.response?.data?.detail || 'Error al cargar los libros.');
     } finally {
