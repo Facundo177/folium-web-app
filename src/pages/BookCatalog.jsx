@@ -12,7 +12,7 @@ import { useDocumentMetadata } from "../hooks/useDocumentMetadata";
 
 export default function BookCatalog() {
   const navigate = useNavigate();
-  const { books, isLoading, error } = useBooks();
+  const { books, isLoading, error, filters, setFilters, setPage, totalCount, totalPages } = useBooks();
   const { user, isGuest } = useAuth();
 
   useDocumentMetadata({
@@ -192,6 +192,11 @@ export default function BookCatalog() {
         favoritesMap={favoritesMap}
         onToggleFavorite={handleToggleFavorite}
         onRequireAuth={openGuestPrompt}
+        filters={filters}
+        setFilters={setFilters}
+        setPage={setPage}
+        totalCount={totalCount}
+        totalPages={totalPages}
       />
 
       <div className="max-w-[var(--spacing-container-max)] mx-auto px-margin-edge py-stack-lg flex flex-col gap-stack-lg">
