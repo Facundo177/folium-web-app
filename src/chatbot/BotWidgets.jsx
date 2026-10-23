@@ -285,65 +285,48 @@ export function BookRecommendationWidget(props) {
   const navigate = useNavigate();
   const genreHint = props.payload?.genreHint || "";
 
-  const [books, setBooks] = useState([]);
   const [currentBook, setCurrentBook] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isFetchingAnother, setIsFetchingAnother] = useState(false);
 
   useEffect(() => {
-    let mounted = true;
-    const fetchCatalog = async () => {
-      setIsLoading(true);
-      try {
-        const { data } = await bookService.getAll();
-        if (!mounted) return;
-        const list = Array.isArray(data) ? data : (data?.results || []);
-        const adapted = list.map(adaptBook);
-        setBooks(adapted);
+    let isMounted = true;
+    const params = genreHint ? { genre: genreHint } : undefined;
 
-        if (adapted.length > 0) {
-          const pool = filterByHint(adapted, genreHint);
-          const randomBook = pool[Math.floor(Math.random() * pool.length)];
-          setCurrentBook(randomBook);
+    bookService
+      .getRandom(params)
+      .then(({ data }) => {
+        if (!isMounted) return;
+        if (data) {
+          setCurrentBook(adaptBook(data));
         }
-      } catch (err) {
+      })
+      .catch((err) => {
         console.error("Error en recomendación del bot:", err);
-      } finally {
-        if (mounted) setIsLoading(false);
-      }
-    };
+      })
+      .finally(() => {
+        if (isMounted) setIsLoading(false);
+      });
 
-    fetchCatalog();
     return () => {
-      mounted = false;
+      isMounted = false;
     };
   }, [genreHint]);
 
-  const filterByHint = (list, hint) => {
-    if (!hint) return list;
-    const clean = hint
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "");
-    const matched = list.filter((b) =>
-      b.genres?.some((g) =>
-        g
-          .toLowerCase()
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .includes(clean)
-      )
-    );
-    return matched.length > 0 ? matched : list;
-  };
-
-  const handleAnother = () => {
-    if (books.length <= 1) return;
-    const pool = filterByHint(books, genreHint).filter(
-      (b) => b.id !== currentBook?.id
-    );
-    const source = pool.length > 0 ? pool : books;
-    const next = source[Math.floor(Math.random() * source.length)];
-    setCurrentBook(next);
+  const handleAnother = async () => {
+    if (isFetchingAnother) return;
+    setIsFetchingAnother(true);
+    try {
+      const params = genreHint ? { genre: genreHint } : undefined;
+      const { data } = await bookService.getRandom(params);
+      if (data) {
+        setCurrentBook(adaptBook(data));
+      }
+    } catch (err) {
+      console.error("Error al obtener otra recomendación:", err);
+    } finally {
+      setIsFetchingAnother(false);
+    }
   };
 
   if (isLoading) {
@@ -414,17 +397,18 @@ export function BookRecommendationWidget(props) {
           <BookOpen className="w-3 h-3" />
           Ver Ficha
         </button>
-        {books.length > 1 && (
-          <button
-            type="button"
-            onClick={handleAnother}
-            className="bg-surface-container text-on-surface hover:bg-surface-container-high border border-outline-variant/50 py-1.5 px-2.5 rounded-sm text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-1 transition-colors cursor-pointer"
-            title="Probar otra recomendación"
-          >
-            <RefreshCw className="w-3 h-3" />
-            Otro
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={handleAnother}
+          disabled={isFetchingAnother}
+          className="bg-surface-container text-on-surface hover:bg-surface-container-high border border-outline-variant/50 py-1.5 px-2.5 rounded-sm text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-1 transition-colors cursor-pointer disabled:opacity-50"
+          title="Probar otra recomendación"
+        >
+          <RefreshCw
+            className={`w-3 h-3 ${isFetchingAnother ? "animate-spin" : ""}`}
+          />
+          Otro
+        </button>
       </div>
 
       <button
