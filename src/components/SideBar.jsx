@@ -79,9 +79,9 @@ export default function Sidebar() {
   })();
 
   // Nombres seguros para evitar romper la página
-  const displayFirstName = profile?.first_name || user?.username || 'Invitado';
+  const displayFirstName = profile?.first_name || user?.username || '';
   const displayLastName = profile?.last_name || '';
-  const displayRole = user ? (roleLibrarian ? 'BIBLIOTECARIO/A' : 'LECTOR/A') : 'VISITANTE';
+  const displayRole = user ? (roleLibrarian ? 'BIBLIOTECARIO/A' : 'LECTOR/A') : 'INVITADO';
 
 
   return (
@@ -183,13 +183,21 @@ export default function Sidebar() {
             <UserCircle className="w-6 h-6 text-on-primary-container" />
           </div>
           
-          <div className="hide-on-collapse flex flex-col whitespace-nowrap">
-            <p className="font-serif text-base font-medium text-on-surface leading-tight">
-              {displayFirstName} {displayLastName}
-            </p>
-            <p className="font-sans text-xs text-on-surface-variant font-semibold tracking-widest uppercase">
-              {displayRole}
-            </p>
+          <div className="hide-on-collapse flex flex-col justify-center whitespace-nowrap">
+            {user ? (
+              <>
+                <p className="font-serif text-base font-medium text-on-surface leading-tight">
+                  {displayFirstName} {displayLastName}
+                </p>
+                <p className="font-sans text-xs text-on-surface-variant font-semibold tracking-widest uppercase">
+                  {displayRole}
+                </p>
+              </>
+            ) : (
+              <p className="font-sans text-xs text-on-surface-variant font-semibold tracking-widest uppercase">
+                {displayRole}
+              </p>
+            )}
           </div>
         </Link>
 

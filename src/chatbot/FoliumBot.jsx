@@ -16,6 +16,9 @@ export default function FoliumBot() {
   const [isOpen, setIsOpen] = useState(false);
   const { user } = useAuth(); // Obtenemos al usuario actual
 
+  // El bot solo se muestra a usuarios registrados
+  if (!user) return null;
+
   const toggleBot = () => setIsOpen(!isOpen);
 
   // Sobrescribimos el estado inicial de la configuración para inyectar el rol
