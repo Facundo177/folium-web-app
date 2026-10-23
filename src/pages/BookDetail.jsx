@@ -449,7 +449,7 @@ export default function BookDetail() {
                 {data.genres.map((g) => (
                   <span
                     key={g}
-                    className="px-3 py-1 text-label-caps rounded-DEFAULT border border-secondary-container/60 text-secondary-container"
+                    className="px-3 py-1 text-label-caps rounded-DEFAULT border border-on-secondary/60 text-on-secondary"
                   >
                     {g}
                   </span>
@@ -464,7 +464,7 @@ export default function BookDetail() {
               por {data.author}
             </p>
 
-            <div className="w-16 h-px bg-secondary-container mb-6" />
+            <div className="w-16 h-px bg-on-secondary mb-6" />
 
             <dl className="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-5">
               <div>
