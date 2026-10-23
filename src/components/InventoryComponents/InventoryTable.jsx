@@ -9,6 +9,7 @@ import {
   X,
   AlertTriangle,
   CheckCircle2,
+  MapPin,
 } from "lucide-react";
 
 export const InventoryTable = ({ rows = [], books = [], onRefetch }) => {
@@ -202,11 +203,100 @@ export const InventoryTable = ({ rows = [], books = [], onRefetch }) => {
         </div>
       </div>
 
-      {/* Table Section */}
-      <div className="overflow-x-auto w-full">
+      {/* Mobile Card List (Visible únicamente en mobile < md) */}
+      <div className="block md:hidden divide-y divide-outline-variant/60">
+        {filtered.length === 0 ? (
+          <div className="p-8 text-center text-on-surface-variant italic text-sm">
+            No se encontraron ejemplares que coincidan con la búsqueda.
+          </div>
+        ) : (
+          filtered.map((row) => (
+            <div
+              key={row.id}
+              className="p-4 flex flex-col gap-3 bg-surface-container-lowest hover:bg-surface/40 transition-colors"
+            >
+              {/* Header de la tarjeta: Código de inventario + Badge de Estado */}
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-mono font-bold text-xs bg-surface-container px-2 py-0.5 rounded border border-outline-variant text-on-surface tracking-wider">
+                  {row.code}
+                </span>
+                <span
+                  className={`text-label-caps px-2 py-0.5 rounded-sm font-semibold text-[11px] ${getStatusBadgeStyle(row.status)}`}
+                >
+                  {row.statusLabel}
+                </span>
+              </div>
+
+              {/* Cuerpo: Portada en miniatura + Título y Autor */}
+              <div className="flex items-start gap-3">
+                <div className="w-12 h-16 bg-surface-container border border-outline-variant overflow-hidden p-0.5 shrink-0 rounded-xs shadow-xs flex items-center justify-center">
+                  {row.cover ? (
+                    <img
+                      src={row.cover}
+                      alt={`Portada de ${row.title}`}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="font-serif text-lg text-on-surface-variant">
+                      {row.title?.[0] || "—"}
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-serif text-base font-medium text-on-surface leading-snug line-clamp-2">
+                    {row.title}
+                  </h3>
+                  <p className="text-xs text-on-surface-variant line-clamp-1 mt-0.5">
+                    {row.author}
+                  </p>
+                </div>
+              </div>
+
+              {/* Pie de tarjeta: Ubicación física + Acciones táctiles */}
+              <div className="flex items-center justify-between pt-2 border-t border-outline-variant/40 text-xs">
+                <div className="flex items-center gap-1.5 text-on-surface-variant font-medium truncate pr-2">
+                  <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
+                  <span className="truncate">{row.location || "Sin asignar"}</span>
+                </div>
+
+                <div className="inline-flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => handleOpenEdit(row)}
+                    title="Editar ejemplar"
+                    aria-label={`Editar ejemplar ${row.code}`}
+                    className="p-2 border border-outline-variant bg-surface-container-lowest text-on-surface hover:bg-primary hover:text-on-primary hover:border-primary rounded-sm transition-colors shadow-xs cursor-pointer active:scale-95"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDeleteError(null);
+                      setDeletingItem(row);
+                    }}
+                    title="Eliminar ejemplar"
+                    aria-label={`Eliminar ejemplar ${row.code}`}
+                    className="p-2 border border-error/40 bg-surface-container-lowest text-error hover:bg-error hover:text-on-error rounded-sm transition-colors shadow-xs cursor-pointer active:scale-95"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Desktop Table Section (Visible en md en adelante) con orden jerárquico optimizado */}
+      <div className="hidden md:block overflow-x-auto w-full">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-y border-outline-variant bg-surface-container-lowest">
+              <th className="w-1/8 py-stack-sm px-gutter text-label-caps text-on-surface-variant">
+                CODIGO
+              </th>
               <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">
                 PORTADA
               </th>
@@ -214,19 +304,16 @@ export const InventoryTable = ({ rows = [], books = [], onRefetch }) => {
                 TITULO & AUTOR
               </th>
               <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">
-                ISBN
-              </th>
-              <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">
-                GENERO
-              </th>
-              <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">
-                CODIGO
+                ESTADO
               </th>
               <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">
                 UBICACION
               </th>
-              <th className="w-1/6 py-stack-sm px-gutter text-label-caps text-on-surface-variant">
-                STATUS
+              <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">
+                ISBN
+              </th>
+              <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">
+                GENERO
               </th>
               <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant text-right">
                 ACCIONES
@@ -234,90 +321,103 @@ export const InventoryTable = ({ rows = [], books = [], onRefetch }) => {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((row) => (
-              <tr
-                key={row.id}
-                className="border-b border-outline-variant hover:bg-surface"
-              >
-                {/* Cover */}
-                <td className="py-stack-sm px-gutter">
-                  <div className="w-12 h-16 bg-surface-container border border-outline-variant overflow-hidden p-1 shadow-sm">
-                    {row.cover ? (
-                      <img
-                        src={row.cover}
-                        alt={`Portada de ${row.title}`}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <span className="font-serif text-xl text-on-surface-variant">
-                        {row.title[0]}
-                      </span>
-                    )}
-                  </div>
-                </td>
-                {/* Title & Author */}
-                <td className="py-stack-sm px-gutter">
-                  <div className="flex flex-col">
-                    <span className="text-title-lg text-on-surface font-medium">
-                      {row.title}
-                    </span>
-                    <span className="text-body-md text-on-surface-variant">
-                      {row.author}
-                    </span>
-                  </div>
-                </td>
-                {/* ISBN */}
-                <td className="py-stack-sm px-gutter text-body-md text-on-surface-variant">
-                  {row.isbn}
-                </td>
-                {/* Genre */}
-                <td className="py-stack-sm px-gutter text-body-md text-on-surface-variant">
-                  {row.genres.join(", ")}
-                </td>
-                {/* Code */}
-                <td className="py-stack-sm px-gutter text-body-md text-on-surface-variant">
-                  {row.code}
-                </td>
-                {/* Location */}
-                <td className="py-stack-sm px-gutter text-body-md text-on-surface-variant">
-                  {row.location || "—"}
-                </td>
-                {/* Status Badge */}
-                <td className="py-stack-sm px-gutter">
-                  <span
-                    className={`text-label-caps px-2 py-1 rounded-sm ${getStatusBadgeStyle(row.status)}`}
-                  >
-                    {row.statusLabel}
-                  </span>
-                </td>
-                {/* Actions */}
-                <td className="py-stack-sm px-gutter text-right">
-                  <div className="inline-flex items-center justify-end gap-2">
-                    <button
-                      type="button"
-                      onClick={() => handleOpenEdit(row)}
-                      title="Editar ejemplar"
-                      aria-label={`Editar ejemplar ${row.code}`}
-                      className="p-2 border border-outline-variant bg-surface-container-lowest text-on-surface hover:bg-primary hover:text-on-primary hover:border-primary rounded-sm transition-colors shadow-xs cursor-pointer"
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setDeleteError(null);
-                        setDeletingItem(row);
-                      }}
-                      title="Eliminar ejemplar"
-                      aria-label={`Eliminar ejemplar ${row.code}`}
-                      className="p-2 border border-error/40 bg-surface-container-lowest text-error hover:bg-error hover:text-on-error rounded-sm transition-colors shadow-xs cursor-pointer"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
+            {filtered.length === 0 ? (
+              <tr>
+                <td
+                  colSpan="8"
+                  className="p-8 text-center text-on-surface-variant italic text-sm"
+                >
+                  No se encontraron ejemplares que coincidan con la búsqueda.
                 </td>
               </tr>
-            ))}
+            ) : (
+              filtered.map((row) => (
+                <tr
+                  key={row.id}
+                  className="border-b border-outline-variant hover:bg-surface"
+                >
+                  {/* Code */}
+                  <td className="py-stack-sm px-gutter font-mono font-bold text-xs text-on-surface">
+                    <span className="bg-surface-container px-2 py-0.5 rounded border border-outline-variant/60">
+                      {row.code}
+                    </span>
+                  </td>
+                  {/* Cover */}
+                  <td className="py-stack-sm px-gutter">
+                    <div className="w-12 h-16 bg-surface-container border border-outline-variant overflow-hidden p-1 shadow-sm">
+                      {row.cover ? (
+                        <img
+                          src={row.cover}
+                          alt={`Portada de ${row.title}`}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="font-serif text-xl text-on-surface-variant">
+                          {row.title[0]}
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  {/* Title & Author */}
+                  <td className="py-stack-sm px-gutter">
+                    <div className="flex flex-col">
+                      <span className="text-title-lg text-on-surface font-medium">
+                        {row.title}
+                      </span>
+                      <span className="text-body-md text-on-surface-variant">
+                        {row.author}
+                      </span>
+                    </div>
+                  </td>
+                  {/* Status Badge */}
+                  <td className="py-stack-sm px-gutter">
+                    <span
+                      className={`text-label-caps px-2 py-1 rounded-sm ${getStatusBadgeStyle(row.status)}`}
+                    >
+                      {row.statusLabel}
+                    </span>
+                  </td>
+                  {/* Location */}
+                  <td className="py-stack-sm px-gutter text-body-md text-on-surface-variant">
+                    {row.location || "—"}
+                  </td>
+                  {/* ISBN */}
+                  <td className="py-stack-sm px-gutter text-body-md text-on-surface-variant">
+                    {row.isbn}
+                  </td>
+                  {/* Genre */}
+                  <td className="py-stack-sm px-gutter text-body-md text-on-surface-variant">
+                    {row.genres.join(", ")}
+                  </td>
+                  {/* Actions */}
+                  <td className="py-stack-sm px-gutter text-right">
+                    <div className="inline-flex items-center justify-end gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleOpenEdit(row)}
+                        title="Editar ejemplar"
+                        aria-label={`Editar ejemplar ${row.code}`}
+                        className="p-2 border border-outline-variant bg-surface-container-lowest text-on-surface hover:bg-primary hover:text-on-primary hover:border-primary rounded-sm transition-colors shadow-xs cursor-pointer"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDeleteError(null);
+                          setDeletingItem(row);
+                        }}
+                        title="Eliminar ejemplar"
+                        aria-label={`Eliminar ejemplar ${row.code}`}
+                        className="p-2 border border-error/40 bg-surface-container-lowest text-error hover:bg-error hover:text-on-error rounded-sm transition-colors shadow-xs cursor-pointer"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
