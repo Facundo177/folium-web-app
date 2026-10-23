@@ -465,7 +465,7 @@ export default function BookDetail() {
               por {data.author}
             </p>
 
-            <div className="w-16 h-px bg-on-secondary mb-6" />
+            <div className="w-full h-px bg-on-secondary mb-6" />
 
             <dl className="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-5">
               <div>
