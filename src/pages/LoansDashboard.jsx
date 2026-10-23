@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import { loanService } from "../api/services/loanService";
 import FeedbackModal from "../components/BasicUIComponents/FeedbackModal";
 import { useDocumentMetadata } from "../hooks/useDocumentMetadata";
+import { itemService } from "../api/services/itemService";
+import { ITEM_STATUS } from "../api/constants";
+import ReturnLoanModal from "../components/LoanComponents/ReturnLoanModal";
 
 export default function LoansDashboard() {
   useDocumentMetadata({
@@ -15,6 +18,10 @@ export default function LoansDashboard() {
   // Estados para modales personalizados
   const [loanToInterrupt, setLoanToInterrupt] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
+    // Estado en el que vuelve el ejemplar; arranca en "Devuelto".
+  const [returnCondition, setReturnCondition] = useState(ITEM_STATUS.AVAILABLE);
+  // Error del servidor que se muestra dentro de la ventana de cierre.
+  const [returnError, setReturnError] = useState("");
   const [alertModal, setAlertModal] = useState({
     isOpen: false,
     type: "error",
@@ -39,32 +46,65 @@ export default function LoansDashboard() {
     fetchLoans();
   }, []);
 
+    // Abre la ventana de cierre con "Devuelto" preseleccionado y sin errores viejos.
+  const openInterruptModal = (loan) => {
+    setReturnCondition(ITEM_STATUS.AVAILABLE);
+    setReturnError("");
+    setLoanToInterrupt(loan);
+  };
+
+  // Marca un préstamo como devuelto en la tabla, sin volver a pedir la lista.
+  const markLoanAsReturned = (loanId, returnedAt) => {
+    setLoans((prevLoans) =>
+      prevLoans.map((loan) =>
+        loan.id === loanId ? { ...loan, returned_at: returnedAt } : loan
+      )
+    );
+  };
+
+  // Cierra el préstamo y deja el ejemplar en el estado elegido (devuelto, dañado o perdido).
   const confirmInterruptLoan = async () => {
     if (!loanToInterrupt) return;
     setIsProcessing(true);
+    setReturnError("");
+
+    const currentTime = new Date().toISOString();
+    // Distingue si falló el primer pedido (nada se guardó) o el segundo (préstamo ya cerrado).
+    let loanClosed = false;
 
     try {
-      const currentTime = new Date().toISOString();
+      // 1. Se registra la devolución en el préstamo.
       await loanService.patch(loanToInterrupt.id, { returned_at: currentTime });
+      loanClosed = true;
 
-      setLoans((prevLoans) =>
-        prevLoans.map((loan) =>
-          loan.id === loanToInterrupt.id
-            ? { ...loan, returned_at: currentTime }
-            : loan
-        )
-      );
+      // 2. Se actualiza el estado del ejemplar con lo que eligió el bibliotecario.
+      await itemService.patch(loanToInterrupt.item, { status: returnCondition });
+
+      markLoanAsReturned(loanToInterrupt.id, currentTime);
       setLoanToInterrupt(null);
     } catch (err) {
       console.error("Error al finalizar el préstamo:", err);
-      setLoanToInterrupt(null);
-      setAlertModal({
-        isOpen: true,
-        type: "error",
-        title: "Error al procesar devolución",
-        message:
-          "No se pudo procesar la devolución. Verifica la conexión con el servidor.",
-      });
+
+      if (loanClosed) {
+        // El préstamo quedó cerrado pero el ejemplar no se actualizó: se avisa para corregirlo a mano.
+        markLoanAsReturned(loanToInterrupt.id, currentTime);
+        setLoanToInterrupt(null);
+        setAlertModal({
+          isOpen: true,
+          type: "error",
+          title: "Estado del ejemplar sin actualizar",
+          message:
+            "El préstamo se cerró, pero no se pudo actualizar el estado del ejemplar. Actualícelo desde el inventario.",
+        });
+      } else {
+        // No se guardó nada: el error queda en la ventana para poder reintentar.
+        const data = err.response?.data;
+        const backendMessage =
+          data && typeof data === "object" ? Object.values(data).flat().join(" ") : "";
+        setReturnError(
+          backendMessage || "No se pudo cerrar el préstamo. Verifique la conexión con el servidor."
+        );
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -112,7 +152,7 @@ export default function LoansDashboard() {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-6 md:p-10 font-sans animate-fade-in">
+    <div className="w-full max-w-7xl mx-auto p-6 md:p-10 font-sans">
       {/* Cabecera */}
       <div className="mb-8">
         <h1 className="text-headline-md font-serif text-on-background mb-2">
@@ -180,7 +220,7 @@ export default function LoansDashboard() {
 
                     <td className="p-4 text-center">
                       <button
-                        onClick={() => setLoanToInterrupt(loan)}
+                        onClick={() => openInterruptModal(loan)}
                         disabled={isReturned}
                         className={`px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-md transition-colors shadow-sm ${
                           isReturned
@@ -199,26 +239,18 @@ export default function LoansDashboard() {
         </table>
       </div>
 
-      {/* Modal de confirmación de devolución / interrupción */}
-      <FeedbackModal
-        isOpen={!!loanToInterrupt}
-        type="warning"
-        title="Confirmar devolución"
-        message={
-          loanToInterrupt
-            ? `¿Estás seguro de que deseas interrumpir este préstamo de "${
-                loanToInterrupt.book?.title || `Item #${loanToInterrupt.item}`
-              }" y marcar el ejemplar como devuelto?`
-            : ""
-        }
-        confirmText="Sí, marcar devuelto"
-        cancelText="Cancelar"
+            {/* Ventana para cerrar el préstamo indicando el estado del libro */}
+      <ReturnLoanModal
+        loan={loanToInterrupt}
+        condition={returnCondition}
+        onConditionChange={setReturnCondition}
+        error={returnError}
         isLoading={isProcessing}
         onClose={() => setLoanToInterrupt(null)}
         onConfirm={confirmInterruptLoan}
       />
 
-      {/* Modal de error/aviso */}
+      {/* Aviso cuando el préstamo se cerró pero el ejemplar no se pudo actualizar */}
       <FeedbackModal
         isOpen={alertModal.isOpen}
         type={alertModal.type}
