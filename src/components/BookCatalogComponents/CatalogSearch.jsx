@@ -10,6 +10,8 @@ export default function CatalogSearch({
   isLoading,
   error,
   favoritesMap = {},
+  userReservationsMap = {},
+  onReservationSuccess,
   onToggleFavorite,
   onRequireAuth,
 }) {
@@ -142,6 +144,8 @@ export default function CatalogSearch({
                   book={book}
                   isFavorite={Boolean(favoritesMap?.[book.id])}
                   favoriteId={favoritesMap?.[book.id] ?? null}
+                  isReservedByUser={Boolean(userReservationsMap?.[book.id])}
+                  onReservationSuccess={onReservationSuccess}
                   onToggleFavorite={onToggleFavorite}
                   onRequireAuth={onRequireAuth}
                 />

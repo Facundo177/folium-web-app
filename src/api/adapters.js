@@ -29,6 +29,22 @@ export const adaptBook = (b) => {
 
   const category = genres[0] ?? "Sin género";
 
+  const availableItems =
+    typeof b.available_items === "number"
+      ? b.available_items
+      : Array.isArray(b.available_items)
+      ? b.available_items.length
+      : typeof b.stock === "number"
+      ? b.stock
+      : null;
+
+  const totalItems =
+    typeof b.total_items === "number"
+      ? b.total_items
+      : Array.isArray(b.total_items)
+      ? b.total_items.length
+      : null;
+
   return {
     id: b.id,
     isbn: b.isbn ? String(b.isbn) : "",
@@ -39,6 +55,8 @@ export const adaptBook = (b) => {
     category,
     year: b.publication_year ?? b.year ?? "—",
     cover: b.cover_image ?? b.cover ?? null,
+    availableItems,
+    totalItems,
   };
 };
 
@@ -214,6 +232,12 @@ function normalizeBookInPlace(book) {
   }
   if (book.cover === undefined && book.cover_image !== undefined) {
     book.cover = book.cover_image;
+  }
+  if (book.availableItems === undefined && book.available_items !== undefined) {
+    book.availableItems = book.available_items;
+  }
+  if (book.totalItems === undefined && book.total_items !== undefined) {
+    book.totalItems = book.total_items;
   }
 
   return book;

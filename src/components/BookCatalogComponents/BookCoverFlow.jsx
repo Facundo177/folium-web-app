@@ -10,6 +10,8 @@ export default function BookCoverFlow({
   showToast,
   heroBooks,
   favoritesMap = {},
+  userReservationsMap = {},
+  onReservationSuccess,
   onToggleFavorite,
   onRequireAuth,
 }) {
@@ -113,6 +115,7 @@ export default function BookCoverFlow({
             <div className="coverflow-track relative w-full max-w-4xl h-[600px] flex items-center justify-center perspective-[1200px]">
               {heroBooks.map((book, idx) => (
                 <BookCard
+                  book={book}
                   key={book.id}
                   quickView={(e) => {
                     e.stopPropagation();
@@ -133,6 +136,7 @@ export default function BookCoverFlow({
                         book: book.id,
                         expires_at: getInitialDateTime(14),
                       });
+                      onReservationSuccess?.(book.id);
                       showToast(`Reserva confirmada para "${book.title}"`);
                     } catch (err) {
                       const detail = err.response?.data
@@ -154,6 +158,7 @@ export default function BookCoverFlow({
                     }
                   }}
                   isFavorite={Boolean(favoritesMap?.[book.id])}
+                  isReservedByUser={Boolean(userReservationsMap?.[book.id])}
                   styles={getStyles(idx)}
                   onClick={() => setCurrentIndex(idx)}
                   idx={idx}

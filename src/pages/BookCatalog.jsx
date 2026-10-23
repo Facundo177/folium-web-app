@@ -6,13 +6,16 @@ import CatalogSearch from "../components/BookCatalogComponents/CatalogSearch";
 import Toast from "../components/BasicUIComponents/Toast";
 import FeedbackModal from "../components/BasicUIComponents/FeedbackModal";
 import { useBooks } from "../hooks/useBooks";
+import { useRecommendations } from "../hooks/useRecommendations";
 import { useAuth } from "../auth/AuthProvider";
 import { favoriteService } from "../api/services/favoriteService";
+import { reservationService } from "../api/services/reservationService";
 import { useDocumentMetadata } from "../hooks/useDocumentMetadata";
 
 export default function BookCatalog() {
   const navigate = useNavigate();
   const { books, isLoading, error } = useBooks();
+  const { recommendations } = useRecommendations();
   const { user, isGuest } = useAuth();
 
   useDocumentMetadata({
@@ -22,6 +25,9 @@ export default function BookCatalog() {
 
   // Mapa { [bookId]: favoriteId } de los favoritos actuales del usuario
   const [favoritesMap, setFavoritesMap] = useState({});
+
+  // Mapa { [bookId]: reservationId } de las reservas activas (PENDING) del usuario
+  const [userReservationsMap, setUserReservationsMap] = useState({});
 
   // Estado para el Toast
   const [toastMessage, setToastMessage] = useState("");
@@ -79,6 +85,33 @@ export default function BookCatalog() {
     };
 
     fetchFavorites();
+  }, [user]);
+
+  // Cargar reservas activas del usuario lector
+  useEffect(() => {
+    if (!user) {
+      setUserReservationsMap({});
+      return;
+    }
+
+    const fetchReservations = async () => {
+      try {
+        const res = await reservationService.getAll();
+        const list = res.data?.results || res.data || [];
+        const map = {};
+        list.forEach((r) => {
+          if (r.status === "PENDING") {
+            const bId = r.book?.id ?? r.book;
+            if (bId) map[bId] = r.id;
+          }
+        });
+        setUserReservationsMap(map);
+      } catch (err) {
+        console.warn("No se pudieron cargar las reservas en el catálogo:", err);
+      }
+    };
+
+    fetchReservations();
   }, [user]);
 
   const handleToggleFavorite = async (book) => {
@@ -179,8 +212,16 @@ export default function BookCatalog() {
 
       <BookCoverFlow
         showToast={showToast}
-        heroBooks={(Array.isArray(books) ? books : []).slice(0, 10)}
+        heroBooks={
+          recommendations.length > 0
+            ? recommendations
+            : (Array.isArray(books) ? books : []).slice(0, 10)
+        }
         favoritesMap={favoritesMap}
+        userReservationsMap={userReservationsMap}
+        onReservationSuccess={(bookId) => {
+          setUserReservationsMap((prev) => ({ ...prev, [bookId]: true }));
+        }}
         onToggleFavorite={handleToggleFavorite}
         onRequireAuth={openGuestPrompt}
       />
@@ -190,6 +231,10 @@ export default function BookCatalog() {
         isLoading={isLoading}
         error={error}
         favoritesMap={favoritesMap}
+        userReservationsMap={userReservationsMap}
+        onReservationSuccess={(bookId) => {
+          setUserReservationsMap((prev) => ({ ...prev, [bookId]: true }));
+        }}
         onToggleFavorite={handleToggleFavorite}
         onRequireAuth={openGuestPrompt}
       />

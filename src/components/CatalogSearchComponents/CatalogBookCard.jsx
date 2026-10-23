@@ -10,6 +10,8 @@ export default function CatalogBookCard({
   book,
   isFavorite = false,
   favoriteId = null,
+  isReservedByUser = false,
+  onReservationSuccess,
   onToggleFavorite,
   onRequireAuth,
 }) {
@@ -118,6 +120,7 @@ export default function CatalogBookCard({
       };
 
       await reservationService.create(reservationPayload);
+      onReservationSuccess?.(book.id);
       setModal({
         isOpen: true,
         type: "success",
@@ -219,15 +222,63 @@ export default function CatalogBookCard({
             {book.author}
           </p>
 
-          <button
-            onClick={handleReserve}
-            className="mt-auto w-full bg-secondary text-on-secondary hover:bg-secondary-container hover:text-on-secondary-container border border-outline-variant/30 py-2.5 rounded-sm flex items-center justify-center gap-2 text-xs font-bold tracking-widest uppercase transition-colors cursor-pointer"
-          >
-            Reservar
-            <span className="text-[16px]">
-              <LockKeyhole />
-            </span>
-          </button>
+          {(() => {
+            const availableItems =
+              typeof book.available_items === "number"
+                ? book.available_items
+                : typeof book.availableItems === "number"
+                ? book.availableItems
+                : Array.isArray(book.available_items)
+                ? book.available_items.length
+                : Array.isArray(book.items)
+                ? book.items.filter((i) => i.status === "AVAILABLE").length
+                : typeof book.stock === "number"
+                ? book.stock
+                : null;
+
+            const totalItems =
+              typeof book.total_items === "number"
+                ? book.total_items
+                : typeof book.totalItems === "number"
+                ? book.totalItems
+                : Array.isArray(book.total_items)
+                ? book.total_items.length
+                : Array.isArray(book.items)
+                ? book.items.length
+                : null;
+
+            const hasAvailableCopies =
+              availableItems !== null
+                ? availableItems > 0
+                : totalItems !== null && totalItems === 0
+                ? false
+                : book.stock
+                ? book.stock !== "Sin ejemplares" && book.stock !== "Agotado"
+                : true;
+
+            const isReservable = hasAvailableCopies && !isReservedByUser;
+
+            return (
+              <button
+                onClick={handleReserve}
+                disabled={!isReservable}
+                className={`mt-auto w-full border py-2.5 rounded-sm flex items-center justify-center gap-2 text-xs font-bold tracking-widest uppercase transition-colors ${
+                  !isReservable
+                    ? "bg-surface-container-highest text-on-surface-variant/40 border-outline-variant/30 cursor-not-allowed pointer-events-none opacity-60"
+                    : "bg-secondary text-on-secondary hover:bg-secondary-container hover:text-on-secondary-container border-outline-variant/30 cursor-pointer"
+                }`}
+              >
+                {isReservedByUser
+                  ? "Ya reservado"
+                  : hasAvailableCopies
+                  ? "Reservar"
+                  : "Sin ejemplares"}
+                <span className="text-[16px]">
+                  <LockKeyhole />
+                </span>
+              </button>
+            );
+          })()}
         </div>
       </article>
 

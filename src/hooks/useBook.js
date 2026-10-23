@@ -7,6 +7,10 @@ export function useBook(id) {
   const [error, setError] = useState(null);
 
   const fetchBook = useCallback(async () => {
+    if (!id) {
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     setError(null);
     try {

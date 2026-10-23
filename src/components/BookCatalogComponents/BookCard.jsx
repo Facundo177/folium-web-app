@@ -2,17 +2,24 @@ import { useBook } from "../../hooks/useBook";
 import HeartIcon from "../BasicUIComponents/HeartIcon";
 
 export default function BookCard({
+  book: initialBook,
   quickView,
   requestLoan,
   onFavourite,
   isFavorite = false,
+  isReservedByUser = false,
   styles,
   onClick,
   idx,
   currentIndex,
   id,
 }) {
-  const { book, isLoading, error } = useBook(id);
+  const { book: fetchedBook, isLoading: fetchingBook, error: fetchError } = useBook(
+    initialBook ? null : id
+  );
+  const book = initialBook || fetchedBook;
+  const isLoading = !book && fetchingBook;
+  const error = !book && fetchError;
   const isActive = idx === currentIndex;
 
   // Estado de Carga: Mantiene la estructura y dimensiones exactas del Coverflow
@@ -75,7 +82,47 @@ export default function BookCard({
     (typeof book.category === "string" ? book.category : null) ||
     "General";
   const year = book.publication_year ?? book.year ?? "";
-  const stock = book.stock || "Disponible"; // Fallback si no tienes el campo en Django
+  const availableItems =
+    typeof book.available_items === "number"
+      ? book.available_items
+      : Array.isArray(book.available_items)
+      ? book.available_items.length
+      : Array.isArray(book.items)
+      ? book.items.filter((i) => i.status === "AVAILABLE").length
+      : typeof book.availableItems === "number"
+      ? book.availableItems
+      : typeof book.stock === "number"
+      ? book.stock
+      : null;
+
+  const totalItems =
+    typeof book.total_items === "number"
+      ? book.total_items
+      : Array.isArray(book.total_items)
+      ? book.total_items.length
+      : Array.isArray(book.items)
+      ? book.items.length
+      : typeof book.totalItems === "number"
+      ? book.totalItems
+      : null;
+
+  // Determinar si hay ejemplares libres para reservar
+  const hasAvailableCopies =
+    availableItems !== null
+      ? availableItems > 0
+      : totalItems !== null && totalItems === 0
+      ? false
+      : book.stock
+      ? book.stock !== "Sin ejemplares" && book.stock !== "Agotado"
+      : false;
+
+  const isReservable = hasAvailableCopies && !isReservedByUser;
+
+  const stock = isReservedByUser
+    ? "Reservado"
+    : hasAvailableCopies
+    ? "Disponible"
+    : "Sin ejemplares";
   const tag = book.tag || "ARCHIVO";
   const description = book.description;
   const image = book.cover_image ?? book.cover ?? null;
@@ -199,8 +246,24 @@ export default function BookCard({
         <span className="text-[10px] font-bold tracking-[0.14em] uppercase text-primary dark:text-outline truncate">
           {category} {year ? `• ${year}` : ""}
         </span>
-        <span className="shrink-0 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-surface-container-lowest/75 border border-outline-variant/40 text-[10px] font-bold tracking-wider uppercase text-on-surface-variant">
-          <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+        <span
+          className={`shrink-0 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] font-bold tracking-wider uppercase transition-colors ${
+            isReservedByUser
+              ? "bg-secondary-container/40 border-secondary/30 text-on-surface"
+              : hasAvailableCopies
+              ? "bg-surface-container-lowest/75 border-outline-variant/40 text-on-surface-variant"
+              : "bg-error-container/20 border-error/30 text-error"
+          }`}
+        >
+          <span
+            className={`w-1.5 h-1.5 rounded-full ${
+              isReservedByUser
+                ? "bg-secondary"
+                : hasAvailableCopies
+                ? "bg-primary animate-pulse"
+                : "bg-error"
+            }`}
+          />
           {stock}
         </span>
       </div>
@@ -242,17 +305,25 @@ export default function BookCard({
           </button>
 
           <button
-            className={`bg-primary text-on-primary border border-outline/30 px-5 py-2 text-[11px] font-bold tracking-widest uppercase rounded-sm shadow-md transition-all duration-200 ${
-              isActive
-                ? "hover:opacity-95 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
-                : "pointer-events-none opacity-45"
+            disabled={!isReservable}
+            className={`border px-5 py-2 text-[11px] font-bold tracking-widest uppercase rounded-sm shadow-md transition-all duration-200 ${
+              !isReservable
+                ? "bg-surface-container-highest text-on-surface-variant/40 border-outline-variant/30 cursor-not-allowed pointer-events-none opacity-60"
+                : isActive
+                ? "bg-primary text-on-primary border-outline/30 hover:opacity-95 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+                : "bg-primary text-on-primary border-outline/30 pointer-events-none opacity-45"
             }`}
             onClick={(e) => {
               e.stopPropagation();
+              if (!isReservable) return;
               requestLoan(e);
             }}
           >
-            Reservar
+            {isReservedByUser
+              ? "Ya reservado"
+              : hasAvailableCopies
+              ? "Reservar"
+              : "Sin stock"}
           </button>
         </div>
       </div>
