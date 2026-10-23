@@ -20,7 +20,6 @@ import BookReviews from "../components/BookDetailComponents/BookReviews";
 import FeedbackModal from "../components/BasicUIComponents/FeedbackModal";
 import { useBook } from "../hooks/useBook";
 import { adaptBookDetail } from "../api/adapters";
-import { useDocumentMetadata } from "../hooks/useDocumentMetadata";
 
 import { bookService } from "../api/services/bookService";
 import { authorService } from "../api/services/authorService";
@@ -80,7 +79,12 @@ export default function BookDetail() {
   const [isFavorited, setIsFavorited] = useState(false);
   const [favoriteId, setFavoriteId] = useState(null);
   const [isFavoriteLoading, setIsFavoriteLoading] = useState(false);
+  const [isReserved, setIsReserved] = useState(false);
   const [isReserving, setIsReserving] = useState(false);
+
+  // Valores derivados para lectores activos
+  const isReservedByUser = Boolean(user?.id && !canManageBook && isReserved);
+  const isFavoritedByUser = Boolean(user?.id && !canManageBook && isFavorited);
 
   // Modal de notificación
   const [feedbackModal, setFeedbackModal] = useState({
@@ -114,16 +118,37 @@ export default function BookDetail() {
         const current = favList.find(
           (f) => f.book === parseInt(id, 10) || f.book?.id === parseInt(id, 10)
         );
-        if (current) {
-          setIsFavorited(true);
-          setFavoriteId(current.id);
-        } else {
-          setIsFavorited(false);
-          setFavoriteId(null);
-        }
+        setIsFavorited(Boolean(current));
+        setFavoriteId(current ? current.id : null);
       })
       .catch((err) => {
         console.warn("No se pudieron cargar los favoritos:", err);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [id, user, canManageBook]);
+
+  // Cargar estado de reserva activa si el usuario es un lector autenticado
+  useEffect(() => {
+    if (!user?.id || canManageBook) return;
+
+    let isMounted = true;
+    reservationService
+      .getAll()
+      .then((res) => {
+        if (!isMounted) return;
+        const list = res.data?.results || res.data || [];
+        const current = list.find((r) => {
+          if (r.status !== "PENDING") return false;
+          const bId = r.book?.id ?? r.book;
+          return String(bId) === String(id);
+        });
+        setIsReserved(Boolean(current));
+      })
+      .catch((err) => {
+        console.warn("No se pudieron cargar las reservas:", err);
       });
 
     return () => {
@@ -333,6 +358,16 @@ export default function BookDetail() {
       return;
     }
 
+    if (isReservedByUser) {
+      setFeedbackModal({
+        isOpen: true,
+        type: "info",
+        title: "Ya reservado",
+        message: "Ya tienes una reserva activa pendiente para este ejemplar.",
+      });
+      return;
+    }
+
     if (data.availableItems <= 0) {
       setFeedbackModal({
         isOpen: true,
@@ -354,6 +389,8 @@ export default function BookDetail() {
         book: data.id,
         expires_at: expiresAt,
       });
+
+      setIsReserved(true);
 
       setFeedbackModal({
         isOpen: true,
@@ -392,7 +429,7 @@ export default function BookDetail() {
 
     setIsFavoriteLoading(true);
     try {
-      if (isFavorited && favoriteId) {
+      if (isFavoritedByUser && favoriteId) {
         await favoriteService.remove(favoriteId);
         setIsFavorited(false);
         setFavoriteId(null);
@@ -527,17 +564,27 @@ export default function BookDetail() {
               </span>
               <span
                 className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${
-                  data.availableItems > 0
+                  isReservedByUser
+                    ? "bg-secondary-container/40 border-secondary/30 text-on-surface"
+                    : data.availableItems > 0
                     ? "bg-surface-container text-on-surface border-outline-variant"
                     : "bg-error-container text-on-error-container border-error/30"
                 }`}
               >
                 <span
                   className={`w-1.5 h-1.5 rounded-full ${
-                    data.availableItems > 0 ? "bg-primary" : "bg-error"
+                    isReservedByUser
+                      ? "bg-secondary"
+                      : data.availableItems > 0
+                      ? "bg-primary animate-pulse"
+                      : "bg-error"
                   }`}
                 />
-                {data.availableItems > 0 ? "Disponible" : "Sin ejemplares"}
+                {isReservedByUser
+                  ? "Reservado por ti"
+                  : data.availableItems > 0
+                  ? "Disponible"
+                  : "Sin ejemplares"}
               </span>
             </div>
 
@@ -566,15 +613,23 @@ export default function BookDetail() {
                 <button
                   type="button"
                   onClick={handleReserveBook}
-                  disabled={isReserving || data.availableItems <= 0}
-                  className={`w-full py-2.5 px-4 rounded-DEFAULT text-label-caps transition-colors inline-flex items-center justify-center gap-2 shadow-2xs cursor-pointer ${
-                    data.availableItems > 0
-                      ? "bg-primary text-on-primary hover:bg-inverse-surface"
-                      : "bg-surface-container text-outline cursor-not-allowed"
+                  disabled={isReserving || isReservedByUser || data.availableItems <= 0}
+                  className={`w-full py-2.5 px-4 rounded-DEFAULT text-label-caps transition-colors inline-flex items-center justify-center gap-2 shadow-2xs ${
+                    isReservedByUser
+                      ? "bg-surface-container-highest text-on-surface-variant/40 border border-outline-variant/30 cursor-not-allowed pointer-events-none opacity-60"
+                      : data.availableItems <= 0
+                      ? "bg-surface-container text-outline border border-outline-variant/30 cursor-not-allowed pointer-events-none"
+                      : "bg-primary text-on-primary hover:bg-inverse-surface cursor-pointer"
                   }`}
                 >
                   <BookmarkCheck className="w-4 h-4" />
-                  {isReserving ? "RESERVANDO..." : "RESERVAR EJEMPLAR"}
+                  {isReserving
+                    ? "RESERVANDO..."
+                    : isReservedByUser
+                    ? "YA RESERVADO"
+                    : data.availableItems <= 0
+                    ? "SIN EJEMPLARES DISPONIBLES"
+                    : "RESERVAR EJEMPLAR"}
                 </button>
 
                 <button
@@ -585,10 +640,10 @@ export default function BookDetail() {
                 >
                   <Heart
                     className={`w-4 h-4 ${
-                      isFavorited ? "fill-primary text-primary" : "text-on-surface-variant"
+                      isFavoritedByUser ? "fill-primary text-primary" : "text-on-surface-variant"
                     }`}
                   />
-                  {isFavorited ? "EN TUS FAVORITOS" : "GUARDAR EN FAVORITOS"}
+                  {isFavoritedByUser ? "EN TUS FAVORITOS" : "GUARDAR EN FAVORITOS"}
                 </button>
               </div>
             )}
