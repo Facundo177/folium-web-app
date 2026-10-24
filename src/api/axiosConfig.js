@@ -1,8 +1,28 @@
 import axios from 'axios';
 import { normalizeApiData } from './adapters';
 
+/**
+ * Obtiene la URL base de la API de forma flexible:
+ * - Si no está definida VITE_API_BASE_URL:
+ *   - En desarrollo local (DEV) apunta a http://localhost:8080/api/v1
+ *   - En producción (Vercel) usa '/api/v1' para aprovechar el proxy de vercel.json y evitar Mixed Content y CORS.
+ * - Si está definida VITE_API_BASE_URL:
+ *   - Normaliza eliminando barras finales y garantizando el sufijo '/api/v1'.
+ */
+export const getBaseURL = () => {
+  const envUrl = import.meta.env.VITE_API_BASE_URL;
+  if (!envUrl) {
+    return import.meta.env.DEV ? 'http://localhost:8080/api/v1' : '/api/v1';
+  }
+  const clean = envUrl.trim().replace(/\/+$/, '');
+  if (!clean || clean === '/') {
+    return '/api/v1';
+  }
+  return clean.endsWith('/api/v1') ? clean : `${clean}/api/v1`;
+};
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL + 'api/v1',
+  baseURL: getBaseURL(),
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -61,7 +81,7 @@ api.interceptors.response.use(
       }
 
       try {
-        const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1';
+        const baseURL = getBaseURL();
         const { data } = await axios.post(
           `${baseURL}/token/refresh/`,
           { refresh: refreshToken }
