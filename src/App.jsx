@@ -29,6 +29,7 @@ const Inventory = lazy(() => import("./pages/Inventory"));
 const LoadBook = lazy(() => import("./pages/LoadBook"));
 const AddAnItem = lazy(() => import("./pages/AddAnItem"));
 const CatalogImporter = lazy(() => import("./pages/CatalogImporter"));
+const LibraryPricingPage = lazy(() => import("./pages/LibraryPricingPage"));
 const LoansDashboard = lazy(() => import("./pages/LoansDashboard"));
 const ReservationDashboard = lazy(() => import("./pages/ReservationDashboard"));
 const Error404 = lazy(() => import("./pages/Error404"));
@@ -54,6 +55,9 @@ function App() {
           {/* Rutas Públicas con Botón de Asistente */}
           <Route index element={<FoliumLanding />} />
           <Route element={<BotLayout />}>
+            {/* Página pública de planes y suscripciones para bibliotecas (MercadoPago) */}
+            <Route path="pricing" element={<LibraryPricingPage />} />
+
             {/* Catálogo público accesible para invitados */}
             <Route path="catalog" element={<UserLayout />}>
               <Route index element={<BookCatalog />} />
