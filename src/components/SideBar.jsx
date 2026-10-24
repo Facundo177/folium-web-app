@@ -12,7 +12,8 @@ import {
   UserRoundArrowLeft,
   LogIn,
   UserPlus,
-  BookLock
+  BookLock,
+  FileSpreadsheet
 } from 'lucide-react';
 
 import { ThemeToggle } from '../theme/ThemeToggle';
@@ -42,6 +43,7 @@ export default function Sidebar() {
       { id: 'catalog', label: 'Catálogo General', icon: Library, navigateTo: '/catalog' },
       { id: 'inventory', label: 'Inventario', icon: LayoutDashboard, navigateTo: '/librarian/inventory' },
       { id: 'newBook', label: 'Añadir Nuevo Libro', icon: BookUp2Icon, navigateTo: '/librarian/inventory/newBook'},
+      { id: 'importer', label: 'Importar Catálogo', icon: FileSpreadsheet, navigateTo: '/librarian/importer'},
       { id: 'reservations', label: 'Reservas', icon: BookLock, navigateTo: '/librarian/reservations'},
       { id: 'loans', label: 'Préstamos', icon: UserRoundArrowLeft, navigateTo: '/librarian/loans'},
     ];
