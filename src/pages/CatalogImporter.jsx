@@ -22,7 +22,7 @@ import { importerService } from "../api/services/importerService";
 const FOLIUM_FIELDS = [
   { id: "title", label: "Título de la Obra", required: true, description: "Nombre principal del libro" },
   { id: "author", label: "Autor(es)", required: true, description: "Nombre y apellido del autor o autores" },
-  { id: "isbn", label: "ISBN", required: false, description: "ISBN-10 o ISBN-13 (si falta, se autogenera)" },
+  { id: "isbn", label: "ISBN", required: false, description: "ISBN-10 o ISBN-13 (opcional; si falta, la obra queda sin ISBN)" },
   { id: "editorial", label: "Editorial", required: false, description: "Casa publicadora o sello editorial" },
   { id: "year", label: "Año de Publicación", required: false, description: "Año numérico (ej. 1985)" },
   { id: "genre", label: "Género / Materia", required: false, description: "Categoría literaria temática" },

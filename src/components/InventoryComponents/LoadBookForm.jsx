@@ -143,7 +143,9 @@ export default function BookForm() {
     
     const submitData = new FormData();
     submitData.append("title", formData.title);
-    submitData.append("isbn", formData.isbn);
+    if (formData.isbn && formData.isbn.trim()) {
+      submitData.append("isbn", formData.isbn.trim());
+    }
     submitData.append("editorial", formData.editorial); // NUEVO
     submitData.append("publication_year", Number(formData.publication_year));
     submitData.append("description", formData.description);
@@ -197,8 +199,10 @@ export default function BookForm() {
             <input type="text" name="title" value={formData.title} onChange={handleChange} required className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors" />
           </div>
           <div className="flex flex-col gap-2">
-            <label className="text-label-caps text-on-surface font-bold">ISBN</label>
-            <input type="text" name="isbn" value={formData.isbn} onChange={handleChange} required className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors" />
+            <label className="text-label-caps text-on-surface font-bold">
+              ISBN <span className="text-on-surface-variant font-normal text-xs normal-case">(opcional)</span>
+            </label>
+            <input type="text" name="isbn" value={formData.isbn} onChange={handleChange} placeholder="Ej: 9789500419574" className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors" />
           </div>
         </div>
 
