@@ -1,3 +1,19 @@
+/**
+ * Convierte URLs absolutas de medios (ej. http://54.160.130.29/media/...) en rutas relativas (/media/...)
+ * para que sean servidas de forma segura por el proxy de Vercel bajo HTTPS, previniendo Mixed Content.
+ */
+export function sanitizeMediaUrl(url) {
+  if (!url || typeof url !== "string") return url;
+  const mediaIdx = url.indexOf("/media/");
+  if (mediaIdx === -1) return url;
+
+  // En producción (Vercel HTTPS) o cuando apunta a la IP de AWS sobre HTTP inseguro
+  if (url.startsWith("http://") || import.meta.env?.PROD) {
+    return url.slice(mediaIdx);
+  }
+  return url;
+}
+
 export const adaptBook = (b) => {
   if (!b) return {};
 
@@ -54,7 +70,7 @@ export const adaptBook = (b) => {
     genres,
     category,
     year: b.publication_year ?? b.year ?? "—",
-    cover: b.cover_image ?? b.cover ?? null,
+    cover: sanitizeMediaUrl(b.cover_image ?? b.cover ?? null),
     availableItems,
     totalItems,
   };
@@ -120,7 +136,7 @@ export const adaptItem = (item, booksById = {}) => {
     genres: Array.isArray(book?.genres)
       ? book.genres.map((g) => (typeof g === "object" && g !== null ? g.name : String(g || "")))
       : [],
-    cover: book?.cover ?? book?.cover_image ?? null,
+    cover: sanitizeMediaUrl(book?.cover ?? book?.cover_image ?? null),
   };
 };
 
@@ -229,6 +245,12 @@ function normalizeBookInPlace(book) {
   }
   if (book.year === undefined && book.publication_year !== undefined) {
     book.year = book.publication_year;
+  }
+  if (book.cover_image) {
+    book.cover_image = sanitizeMediaUrl(book.cover_image);
+  }
+  if (book.cover) {
+    book.cover = sanitizeMediaUrl(book.cover);
   }
   if (book.cover === undefined && book.cover_image !== undefined) {
     book.cover = book.cover_image;

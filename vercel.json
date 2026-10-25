@@ -2,10 +2,14 @@
   "rewrites": [
     {
       "source": "/api/((?!proxy).*)",
-      "destination": "/api/proxy?path=$1"
+      "destination": "/api/proxy?prefix=api&path=$1"
     },
     {
-      "source": "/((?!api/).*)",
+      "source": "/media/(.*)",
+      "destination": "/api/proxy?prefix=media&path=$1"
+    },
+    {
+      "source": "/((?!api/|media/).*)",
       "destination": "/index.html"
     }
   ]

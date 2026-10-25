@@ -5,4 +5,12 @@ import { defineConfig } from 'vite'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  server: {
+    proxy: {
+      '/media': {
+        target: 'http://54.160.130.29',
+        changeOrigin: true,
+      },
+    },
+  },
 })

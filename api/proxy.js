@@ -1,45 +1,59 @@
 /**
- * Vercel Serverless Function: Proxy Reverso para el Backend en AWS EC2.
+ * Vercel Serverless Function: Proxy Reverso para API y Archivos Multimedia (AWS EC2).
  *
- * NOTA DE UBICACIÓN IMPORTANTE:
- * Este archivo DEBE estar obligatoriamente en la raíz del proyecto:
- *   /api/proxy.js  (NO dentro de /src/api/)
+ * Ubicación: /api/proxy.js en la raíz del proyecto.
  *
- * Vercel solo detecta y despliega Serverless Functions si residen en la carpeta
- * '/api' de la raíz.
+ * Funcionalidades:
+ * 1. Proxy para endpoints de API (/api/v1/...) hacia Django REST en AWS.
+ * 2. Proxy para archivos multimedia (/media/books/covers/...) sirviéndolos en HTTPS seguro
+ *    con caché y Content-Type adecuado, solucionando el bloqueo de Mixed Content para imágenes.
  */
 
 export const config = {
   api: {
-    bodyParser: false, // Permite transmitir streams crudos (JSON, multipart/form-data para portadas e importador)
+    bodyParser: false, // Permite transmitir streams crudos (JSON, multipart/form-data)
   },
+};
+
+const MIME_TYPES = {
+  webp: "image/webp",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  gif: "image/gif",
+  svg: "image/svg+xml",
+  avif: "image/avif",
+  ico: "image/x-icon",
 };
 
 export default async function handler(req, res) {
   const BACKEND_HOST = process.env.BACKEND_HOST || "http://54.160.130.29";
 
   try {
-    // 1. Extraer la ruta relativa (ej: v1/token/ o v1/genre/)
     const rawPath = req.query?.path || "";
     const cleanPath = Array.isArray(rawPath) ? rawPath.join("/") : rawPath;
+    const prefix = req.query?.prefix || "api";
 
-    // Si se accede directamente a /api/proxy sin path, devolver estado del servicio
-    if (!cleanPath) {
-      return res.status(200).json({ status: "ok", message: "Folium API Proxy active" });
+    // Si se accede directamente a /api/proxy sin path
+    if (!cleanPath && prefix === "api") {
+      return res.status(200).json({ status: "ok", message: "Folium API & Media Proxy active" });
     }
 
-    // 2. Asegurar que las rutas de la API terminen con '/' para Django (evita redirects 301)
-    const lastSegment = cleanPath.split("/").pop();
-    const hasExtension = lastSegment && lastSegment.includes(".");
-    const normalizedPath = cleanPath.endsWith("/") || hasExtension
-      ? cleanPath
-      : `${cleanPath}/`;
+    let normalizedPath = cleanPath;
+    // Para endpoints de API (Django DRF), asegurar la barra final si no es un archivo con extensión
+    if (prefix === "api") {
+      const lastSegment = cleanPath.split("/").pop();
+      const hasExtension = lastSegment && lastSegment.includes(".");
+      normalizedPath = cleanPath.endsWith("/") || hasExtension
+        ? cleanPath
+        : `${cleanPath}/`;
+    }
 
-    // 3. Reconstruir los query params (excluyendo el parámetro interno 'path' del rewrite)
+    // Reconstruir query params (excluyendo parámetros de control 'path' y 'prefix')
     const searchParams = new URLSearchParams();
     if (req.query) {
       for (const [key, val] of Object.entries(req.query)) {
-        if (key !== "path") {
+        if (key !== "path" && key !== "prefix") {
           if (Array.isArray(val)) {
             val.forEach((v) => searchParams.append(key, v));
           } else if (val !== undefined && val !== null) {
@@ -50,12 +64,12 @@ export default async function handler(req, res) {
     }
     const queryString = searchParams.toString();
 
-    // 4. Construir la URL completa hacia el backend en AWS
-    const targetUrl = `${BACKEND_HOST.replace(/\/+$/, "")}/api/${normalizedPath.replace(/^\/+/, "")}${
+    // Construir la URL completa hacia AWS EC2
+    const targetUrl = `${BACKEND_HOST.replace(/\/+$/, "")}/${prefix}/${normalizedPath.replace(/^\/+/, "")}${
       queryString ? `?${queryString}` : ""
     }`;
 
-    // 5. Clonar headers eliminando los conflictivos de host/conexión
+    // Clonar headers eliminando los conflictivos de host/conexión
     const forwardHeaders = {};
     for (const [key, value] of Object.entries(req.headers || {})) {
       const lower = key.toLowerCase();
@@ -64,13 +78,12 @@ export default async function handler(req, res) {
       }
     }
 
-    // 6. Configurar opciones de petición HTTP
     const fetchOptions = {
       method: req.method,
       headers: forwardHeaders,
     };
 
-    // Leer el cuerpo para métodos que transmiten payload (POST, PUT, PATCH, DELETE)
+    // Leer el cuerpo para métodos que transmiten payload
     if (!["GET", "HEAD"].includes(req.method.toUpperCase())) {
       const chunks = [];
       for await (const chunk of req) {
@@ -81,13 +94,12 @@ export default async function handler(req, res) {
       }
     }
 
-    // 7. Consultar a AWS EC2 (servidor a servidor, sin restricciones Mixed Content ni CORS)
+    // Consultar a AWS EC2 (servidor a servidor)
     const backendResponse = await fetch(targetUrl, fetchOptions);
 
-    // 8. Enviar código de estado HTTP recibido de AWS
     res.status(backendResponse.status);
 
-    // 9. Reenviar headers de respuesta
+    // Reenviar headers de respuesta
     backendResponse.headers.forEach((val, key) => {
       const lowerKey = key.toLowerCase();
       if (!["content-encoding", "transfer-encoding"].includes(lowerKey)) {
@@ -95,11 +107,19 @@ export default async function handler(req, res) {
       }
     });
 
-    // 10. Devolver el payload al cliente
+    // Si es un archivo multimedia, asegurar Content-Type correcto y caché
+    if (prefix === "media") {
+      const ext = normalizedPath.split(".").pop()?.toLowerCase();
+      if (MIME_TYPES[ext]) {
+        res.setHeader("Content-Type", MIME_TYPES[ext]);
+      }
+      res.setHeader("Cache-Control", "public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800");
+    }
+
     const arrayBuffer = await backendResponse.arrayBuffer();
     return res.send(Buffer.from(arrayBuffer));
   } catch (error) {
-    console.error("Error en Vercel API Proxy:", error);
+    console.error("Error en Vercel Proxy:", error);
     return res.status(502).json({
       error: "Bad Gateway",
       detail: "No se pudo establecer conexión con el backend en AWS.",
