@@ -8,17 +8,18 @@ import api from '../axiosConfig';
  * - POST /api/v1/importer/execute/
  */
 const BASE = '/importer/';
+const UPLOAD_TIMEOUT = 120000; // 2 minutos para soportar archivos de gran volumen
 
 export const importerService = {
   /**
    * Envía el archivo para inspeccionar columnas, total de filas y obtener una muestra con mapeo sugerido.
    * @param {File} file
-   * @returns {Promise<AxiosResponse<{filename: string, total_rows: number, headers: string[], suggested_mapping: Record<string, string>, sample_rows: object[]}>>}
    */
   preview: (file) => {
     const formData = new FormData();
     formData.append('file', file);
     return api.post(`${BASE}preview/`, formData, {
+      timeout: UPLOAD_TIMEOUT,
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -29,13 +30,13 @@ export const importerService = {
    * Ejecuta un dry-run de validación sobre el archivo con el mapa de columnas seleccionado.
    * @param {File} file
    * @param {Record<string, string>} mapping
-   * @returns {Promise<AxiosResponse<{success: boolean, total_rows: number, valid_rows: number, new_books: number, existing_books: number, rows_with_errors: number, error_details: Array<{row: number, error: string}>, sample_previews: object[]}>>}
    */
   simulate: (file, mapping) => {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('mapping', JSON.stringify(mapping));
     return api.post(`${BASE}simulate/`, formData, {
+      timeout: UPLOAD_TIMEOUT,
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -46,13 +47,13 @@ export const importerService = {
    * Ejecuta la importación masiva definitiva en base de datos.
    * @param {File} file
    * @param {Record<string, string>} mapping
-   * @returns {Promise<AxiosResponse<{success: boolean, imported_books: number, imported_items: number, skipped_rows: number, message: string}>>}
    */
   execute: (file, mapping) => {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('mapping', JSON.stringify(mapping));
     return api.post(`${BASE}execute/`, formData, {
+      timeout: UPLOAD_TIMEOUT,
       headers: {
         'Content-Type': 'multipart/form-data',
       },
