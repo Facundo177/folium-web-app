@@ -14,6 +14,15 @@ export const getBaseURL = () => {
   if (!envUrl) {
     return import.meta.env.DEV ? 'http://localhost:8080/api/v1' : '/api/v1';
   }
+
+  // En producción (Vercel con HTTPS), una URL con http:// causaría 'Mixed Content' en el navegador.
+  // En ese caso priorizamos el proxy relativo '/api/v1'.
+  if (import.meta.env.PROD && envUrl.startsWith('http://')) {
+    return '/api/v1';
+  }
+
+
+
   const clean = envUrl.trim().replace(/\/+$/, '');
   if (!clean || clean === '/') {
     return '/api/v1';
