@@ -1,8 +1,8 @@
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import FilterSidebar from "../CatalogSearchComponents/FilterSidebar";
 import CatalogBookCard from "../CatalogSearchComponents/CatalogBookCard";
 import { adaptBook } from "../../api/adapters";
-import { Search } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { useGenres } from "../../hooks/useGenres";
 
 export default function CatalogSearch({
@@ -14,65 +14,29 @@ export default function CatalogSearch({
   onReservationSuccess,
   onToggleFavorite,
   onRequireAuth,
+  // Props de filtros y paginación (server-side)
+  filters,
+  setFilters,
+  setPage,
+  totalCount,
+  totalPages,
 }) {
-  // 2. Desestructuramos los géneros directamente desde la API
   const { genres: apiGenres } = useGenres();
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const [activeCategory, setActiveCategory] = useState(null);
+  const adaptedBooks = useMemo(
+    () => (Array.isArray(books) ? books.map(adaptBook) : []),
+    [books]
+  );
 
-  const adaptedBooks = useMemo(() => books.map(adaptBook), [books]);
-
-  // 3. Mapeamos los nombres de los géneros traídos de la base de datos
+  // Géneros traídos desde la API para la sidebar
   const categories = useMemo(() => {
-    return apiGenres.map((genre) => genre.name).sort();
+    return (Array.isArray(apiGenres) ? apiGenres : []).map((genre) => genre.name).sort();
   }, [apiGenres]);
 
-  // 1. Nuevos estados para los filtros
-  const [activeEditorial, setActiveEditorial] = useState(null);
-  const [yearRange, setYearRange] = useState({ start: "", end: "" });
-
-  // 2. Extraer las editoriales únicas de los libros cargados (igual que con genres)
-  const editorials = useMemo(() => {
-    const allEditorials = adaptedBooks.map((b) => b.editorial).filter(Boolean);
-    return [...new Set(allEditorials)].sort();
-  }, [adaptedBooks]);
-
-  // 3. Lógica de Filtrado Actualizada
-  const filteredBooks = useMemo(() => {
-    const term = searchTerm.toLowerCase();
-
-    return adaptedBooks.filter((book) => {
-      // Filtro de Texto
-      const matchText =
-        book.title.toLowerCase().includes(term) ||
-        book.author.toLowerCase().includes(term);
-
-      // Filtro de Categoría
-      const matchCategory = activeCategory
-        ? book.genres.includes(activeCategory)
-        : true;
-
-      // Filtro de Editorial
-      const matchEditorial = activeEditorial
-        ? book.editorial === activeEditorial
-        : true;
-
-      // Filtro de Año
-      let matchYear = true;
-      const bookYear = Number(book.publication_year || book.year);
-
-      if (yearRange.start && bookYear < Number(yearRange.start)) {
-        matchYear = false;
-      }
-      if (yearRange.end && bookYear > Number(yearRange.end)) {
-        matchYear = false;
-      }
-
-      // El libro debe cumplir TODAS las condiciones
-      return matchText && matchCategory && matchEditorial && matchYear;
-    });
-  }, [adaptedBooks, searchTerm, activeCategory, activeEditorial, yearRange]);
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+    document.getElementById("catalog-grid-header")?.scrollIntoView({ behavior: "smooth" });
+  };
 
   if (isLoading)
     return (
@@ -83,9 +47,9 @@ export default function CatalogSearch({
   if (error) return <p className="pt-24 px-6 text-error font-sans">{error}</p>;
 
   return (
-    <div className="min-h-screen bg-background text-on-background font-sans pt-24 px-6 md:px-12 transition-colors duration-300">
+    <div className="min-h-screen bg-background text-on-background font-sans pt-12 sm:pt-20 px-4 sm:px-6 md:px-12 transition-colors duration-300">
       {/* Barra de Búsqueda Superior */}
-      <div className="max-w-[1400px] mx-auto mb-10">
+      <div className="max-w-[1400px] mx-auto mb-8 sm:mb-10">
         <div className="flex items-center bg-surface-container-lowest border border-outline/50 rounded-md px-4 py-3 shadow-sm focus-within:border-primary transition-colors">
           <span className="text-outline mr-3">
             <Search />
@@ -94,13 +58,13 @@ export default function CatalogSearch({
             type="text"
             className="bg-transparent flex-1 outline-none font-serif italic text-on-surface placeholder:text-outline"
             placeholder="Buscar por título o autor..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            value={filters?.search || ""}
+            onChange={(e) => setFilters({ search: e.target.value })}
           />
-          {searchTerm && (
+          {filters?.search && (
             <button
-              onClick={() => setSearchTerm("")}
-              className="text-xs text-outline hover:text-primary uppercase tracking-widest font-bold transition-colors"
+              onClick={() => setFilters({ search: "" })}
+              className="text-xs text-outline hover:text-primary uppercase tracking-widest font-bold transition-colors cursor-pointer"
             >
               Limpiar
             </button>
@@ -113,32 +77,40 @@ export default function CatalogSearch({
         <aside className="w-full lg:w-64 flex-shrink-0">
           <FilterSidebar
             categories={categories}
-            activeCategory={activeCategory}
-            setActiveCategory={setActiveCategory}
-            editorials={editorials}
-            activeEditorial={activeEditorial}
-            setActiveEditorial={setActiveEditorial}
-            yearRange={yearRange}
-            setYearRange={setYearRange}
+            activeCategory={filters?.genre || null}
+            setActiveCategory={(cat) => setFilters({ genre: cat || "" })}
+            yearRange={{
+              start: filters?.year || "",
+              end: "",
+            }}
+            setYearRange={(range) => setFilters({ year: range.start || "" })}
           />
         </aside>
 
         {/* Panel Derecho (Resultados) */}
         <main className="flex-1">
           {/* Cabecera de Resultados */}
-          <div className="flex justify-between items-end mb-6 pb-3 border-b border-outline-variant/50">
+          <div
+            id="catalog-grid-header"
+            className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 mb-6 pb-3 border-b border-outline-variant/50 scroll-mt-24"
+          >
             <span className="text-xs text-primary uppercase tracking-widest font-bold">
-              {filteredBooks.length} Volúmenes Disponibles{" "}
+              {totalCount} Volúmenes Disponibles{" "}
               <span className="text-outline font-normal ml-2">
-                • Filtros Activos: {activeCategory || "Todos"}
+                • Filtros Activos: {filters?.genre || "Todos los géneros"}
               </span>
             </span>
+            {totalPages > 1 && (
+              <span className="text-xs text-on-surface-variant font-medium">
+                Página {filters?.page} de {totalPages}
+              </span>
+            )}
           </div>
 
           {/* Grilla de Libros */}
-          {filteredBooks.length > 0 ? (
+          {adaptedBooks.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-              {filteredBooks.map((book) => (
+              {adaptedBooks.map((book) => (
                 <CatalogBookCard
                   key={book.id}
                   book={book}
@@ -156,6 +128,67 @@ export default function CatalogSearch({
               <p className="text-sm uppercase tracking-widest font-bold text-outline">
                 Ningún volumen coincide con los criterios estipulados.
               </p>
+            </div>
+          )}
+
+          {/* Controles de Paginación */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-10">
+              {/* Botón anterior */}
+              <button
+                onClick={() => handlePageChange(filters.page - 1)}
+                disabled={filters.page <= 1}
+                className="p-2 rounded-sm border border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                aria-label="Página anterior"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+
+              {/* Botones de página numerados */}
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => {
+                // Mostrar solo páginas cercanas a la actual para no sobrecargar la UI
+                const isNearCurrent =
+                  pageNum === 1 ||
+                  pageNum === totalPages ||
+                  Math.abs(pageNum - filters.page) <= 2;
+                const isEllipsisBefore =
+                  pageNum === 2 && filters.page > 4;
+                const isEllipsisAfter =
+                  pageNum === totalPages - 1 && filters.page < totalPages - 3;
+
+                if (!isNearCurrent) return null;
+                if (isEllipsisBefore || isEllipsisAfter) {
+                  return (
+                    <span key={`ellipsis-${pageNum}`} className="text-outline text-xs px-1">
+                      …
+                    </span>
+                  );
+                }
+
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => handlePageChange(pageNum)}
+                    className={`w-8 h-8 rounded-sm text-xs font-bold uppercase tracking-widest transition-colors cursor-pointer ${
+                      filters.page === pageNum
+                        ? "bg-primary text-on-primary"
+                        : "border border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary"
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+
+              {/* Botón siguiente */}
+              <button
+                onClick={() => handlePageChange(filters.page + 1)}
+                disabled={filters.page >= totalPages}
+                className="p-2 rounded-sm border border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                aria-label="Página siguiente"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
           )}
         </main>
