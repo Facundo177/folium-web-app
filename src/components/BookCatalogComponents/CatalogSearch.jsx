@@ -1,11 +1,9 @@
-import { useState, useMemo, useEffect } from "react";
+import { useMemo } from "react";
 import FilterSidebar from "../CatalogSearchComponents/FilterSidebar";
 import CatalogBookCard from "../CatalogSearchComponents/CatalogBookCard";
 import { adaptBook } from "../../api/adapters";
-import { Search } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { useGenres } from "../../hooks/useGenres";
-
-const ITEMS_PER_PAGE = 16;
 
 export default function CatalogSearch({
   books,
@@ -16,77 +14,28 @@ export default function CatalogSearch({
   onReservationSuccess,
   onToggleFavorite,
   onRequireAuth,
+  // Props de filtros y paginación (server-side)
+  filters,
+  setFilters,
+  setPage,
+  totalCount,
+  totalPages,
 }) {
   const { genres: apiGenres } = useGenres();
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const [activeCategory, setActiveCategory] = useState(null);
-  const [activeEditorial, setActiveEditorial] = useState(null);
-  const [yearRange, setYearRange] = useState({ start: "", end: "" });
-  const [currentPage, setCurrentPage] = useState(1);
+  const adaptedBooks = useMemo(
+    () => (Array.isArray(books) ? books.map(adaptBook) : []),
+    [books]
+  );
 
-  const adaptedBooks = useMemo(() => books.map(adaptBook), [books]);
-
+  // Géneros traídos desde la API para la sidebar
   const categories = useMemo(() => {
-    return apiGenres.map((genre) => genre.name).sort();
+    return (Array.isArray(apiGenres) ? apiGenres : []).map((genre) => genre.name).sort();
   }, [apiGenres]);
 
-  const editorials = useMemo(() => {
-    const allEditorials = adaptedBooks.map((b) => b.editorial).filter(Boolean);
-    return [...new Set(allEditorials)].sort();
-  }, [adaptedBooks]);
-
-  // Filtrado reactivo optimizado
-  const filteredBooks = useMemo(() => {
-    const term = searchTerm.toLowerCase();
-
-    return adaptedBooks.filter((book) => {
-      const matchText =
-        !term ||
-        book.title.toLowerCase().includes(term) ||
-        book.author.toLowerCase().includes(term);
-
-      const matchCategory = activeCategory
-        ? book.genres.includes(activeCategory)
-        : true;
-
-      const matchEditorial = activeEditorial
-        ? book.editorial === activeEditorial
-        : true;
-
-      let matchYear = true;
-      const bookYear = Number(book.publication_year || book.year);
-
-      if (yearRange.start && bookYear < Number(yearRange.start)) {
-        matchYear = false;
-      }
-      if (yearRange.end && bookYear > Number(yearRange.end)) {
-        matchYear = false;
-      }
-
-      return matchText && matchCategory && matchEditorial && matchYear;
-    });
-  }, [adaptedBooks, searchTerm, activeCategory, activeEditorial, yearRange]);
-
-  // Reiniciar a la página 1 cuando el usuario altera cualquier filtro
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm, activeCategory, activeEditorial, yearRange]);
-
-  // Paginación en memoria
-  const totalPages = Math.ceil(filteredBooks.length / ITEMS_PER_PAGE);
-  const paginatedBooks = useMemo(() => {
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredBooks.slice(start, start + ITEMS_PER_PAGE);
-  }, [filteredBooks, currentPage]);
-
-  const scrollToGridHeader = () => {
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
     document.getElementById("catalog-grid-header")?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-    scrollToGridHeader();
   };
 
   if (isLoading)
@@ -109,12 +58,12 @@ export default function CatalogSearch({
             type="text"
             className="bg-transparent flex-1 outline-none font-serif italic text-on-surface placeholder:text-outline"
             placeholder="Buscar por título o autor..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            value={filters?.search || ""}
+            onChange={(e) => setFilters({ search: e.target.value })}
           />
-          {searchTerm && (
+          {filters?.search && (
             <button
-              onClick={() => setSearchTerm("")}
+              onClick={() => setFilters({ search: "" })}
               className="text-xs text-outline hover:text-primary uppercase tracking-widest font-bold transition-colors cursor-pointer"
             >
               Limpiar
@@ -128,13 +77,13 @@ export default function CatalogSearch({
         <aside className="w-full lg:w-64 flex-shrink-0">
           <FilterSidebar
             categories={categories}
-            activeCategory={activeCategory}
-            setActiveCategory={setActiveCategory}
-            editorials={editorials}
-            activeEditorial={activeEditorial}
-            setActiveEditorial={setActiveEditorial}
-            yearRange={yearRange}
-            setYearRange={setYearRange}
+            activeCategory={filters?.genre || null}
+            setActiveCategory={(cat) => setFilters({ genre: cat || "" })}
+            yearRange={{
+              start: filters?.year || "",
+              end: "",
+            }}
+            setYearRange={(range) => setFilters({ year: range.start || "" })}
           />
         </aside>
 
@@ -146,86 +95,100 @@ export default function CatalogSearch({
             className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 mb-6 pb-3 border-b border-outline-variant/50 scroll-mt-24"
           >
             <span className="text-xs text-primary uppercase tracking-widest font-bold">
-              {filteredBooks.length} Volúmenes Disponibles{" "}
+              {totalCount} Volúmenes Disponibles{" "}
               <span className="text-outline font-normal ml-2">
-                • Filtros: {activeCategory || "Todos los géneros"}
+                • Filtros Activos: {filters?.genre || "Todos los géneros"}
               </span>
             </span>
-
             {totalPages > 1 && (
               <span className="text-xs text-on-surface-variant font-medium">
-                Página {currentPage} de {totalPages} (Mostrando {paginatedBooks.length} de {filteredBooks.length})
+                Página {filters?.page} de {totalPages}
               </span>
             )}
           </div>
 
-          {/* Grilla de Libros Paginada */}
-          {paginatedBooks.length > 0 ? (
-            <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-                {paginatedBooks.map((book) => (
-                  <CatalogBookCard
-                    key={book.id}
-                    book={book}
-                    isFavorite={Boolean(favoritesMap?.[book.id])}
-                    favoriteId={favoritesMap?.[book.id] ?? null}
-                    isReservedByUser={Boolean(userReservationsMap?.[book.id])}
-                    onReservationSuccess={onReservationSuccess}
-                    onToggleFavorite={onToggleFavorite}
-                    onRequireAuth={onRequireAuth}
-                  />
-                ))}
-              </div>
-
-              {/* Controles de Paginación */}
-              {totalPages > 1 && (
-                <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 mt-12 pt-6 border-t border-outline-variant/40">
-                  <button
-                    disabled={currentPage === 1}
-                    onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
-                    className="px-3.5 py-1.5 rounded-sm border border-outline-variant text-xs font-bold uppercase tracking-wider text-on-surface hover:bg-surface-container disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
-                  >
-                    Anterior
-                  </button>
-
-                  {Array.from({ length: totalPages }, (_, i) => i + 1)
-                    .filter((p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 2)
-                    .map((p, idx, arr) => {
-                      const prev = arr[idx - 1];
-                      return (
-                        <span key={p} className="flex items-center gap-1">
-                          {prev && p - prev > 1 && (
-                            <span className="px-1 text-on-surface-variant/50">…</span>
-                          )}
-                          <button
-                            onClick={() => handlePageChange(p)}
-                            className={`w-8 h-8 rounded-sm text-xs font-bold transition-all cursor-pointer ${
-                              currentPage === p
-                                ? "bg-primary text-on-primary shadow-sm"
-                                : "border border-outline-variant/60 text-on-surface hover:bg-surface-container"
-                            }`}
-                          >
-                            {p}
-                          </button>
-                        </span>
-                      );
-                    })}
-
-                  <button
-                    disabled={currentPage === totalPages}
-                    onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))}
-                    className="px-3.5 py-1.5 rounded-sm border border-outline-variant text-xs font-bold uppercase tracking-wider text-on-surface hover:bg-surface-container disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
-                  >
-                    Siguiente
-                  </button>
-                </div>
-              )}
-            </>
+          {/* Grilla de Libros */}
+          {adaptedBooks.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+              {adaptedBooks.map((book) => (
+                <CatalogBookCard
+                  key={book.id}
+                  book={book}
+                  isFavorite={Boolean(favoritesMap?.[book.id])}
+                  favoriteId={favoritesMap?.[book.id] ?? null}
+                  isReservedByUser={Boolean(userReservationsMap?.[book.id])}
+                  onReservationSuccess={onReservationSuccess}
+                  onToggleFavorite={onToggleFavorite}
+                  onRequireAuth={onRequireAuth}
+                />
+              ))}
+            </div>
           ) : (
             <div className="w-full py-24 flex flex-col items-center justify-center text-center opacity-70 animate-fade-in">
               <p className="text-sm uppercase tracking-widest font-bold text-outline">
                 Ningún volumen coincide con los criterios estipulados.
               </p>
+            </div>
+          )}
+
+          {/* Controles de Paginación */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-10">
+              {/* Botón anterior */}
+              <button
+                onClick={() => handlePageChange(filters.page - 1)}
+                disabled={filters.page <= 1}
+                className="p-2 rounded-sm border border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                aria-label="Página anterior"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+
+              {/* Botones de página numerados */}
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => {
+                // Mostrar solo páginas cercanas a la actual para no sobrecargar la UI
+                const isNearCurrent =
+                  pageNum === 1 ||
+                  pageNum === totalPages ||
+                  Math.abs(pageNum - filters.page) <= 2;
+                const isEllipsisBefore =
+                  pageNum === 2 && filters.page > 4;
+                const isEllipsisAfter =
+                  pageNum === totalPages - 1 && filters.page < totalPages - 3;
+
+                if (!isNearCurrent) return null;
+                if (isEllipsisBefore || isEllipsisAfter) {
+                  return (
+                    <span key={`ellipsis-${pageNum}`} className="text-outline text-xs px-1">
+                      …
+                    </span>
+                  );
+                }
+
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => handlePageChange(pageNum)}
+                    className={`w-8 h-8 rounded-sm text-xs font-bold uppercase tracking-widest transition-colors cursor-pointer ${
+                      filters.page === pageNum
+                        ? "bg-primary text-on-primary"
+                        : "border border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary"
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+
+              {/* Botón siguiente */}
+              <button
+                onClick={() => handlePageChange(filters.page + 1)}
+                disabled={filters.page >= totalPages}
+                className="p-2 rounded-sm border border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                aria-label="Página siguiente"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
           )}
         </main>

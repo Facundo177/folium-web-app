@@ -83,23 +83,13 @@ export default function FilterSidebar({
       {/* SECCIÓN AÑO DE PUBLICACIÓN */}
       <FilterSection title="Año de Edición" defaultOpen={false}>
         <div className="flex flex-col gap-4 mt-1">
-          <div className="flex items-center gap-2">
-            <input
-              type="number"
-              placeholder="Desde"
-              value={yearRange?.start || ""}
-              onChange={(e) => handleYearChange('start', e.target.value)}
-              className="w-full px-3 py-2 bg-surface-container-lowest border border-outline-variant/50 rounded-md text-sm text-on-surface focus:outline-none focus:border-primary transition-colors placeholder:text-on-surface-variant/50 shadow-sm"
-            />
-            <span className="text-on-surface-variant font-bold">-</span>
-            <input
-              type="number"
-              placeholder="Hasta"
-              value={yearRange?.end || ""}
-              onChange={(e) => handleYearChange('end', e.target.value)}
-              className="w-full px-3 py-2 bg-surface-container-lowest border border-outline-variant/50 rounded-md text-sm text-on-surface focus:outline-none focus:border-primary transition-colors placeholder:text-on-surface-variant/50 shadow-sm"
-            />
-          </div>
+          <input
+            type="number"
+            placeholder="Ej. 2020"
+            value={yearRange?.start || ""}
+            onChange={(e) => setYearRange({ start: e.target.value, end: "" })}
+            className="w-full px-3 py-2 bg-surface-container-lowest border border-outline-variant/50 rounded-md text-sm text-on-surface focus:outline-none focus:border-primary transition-colors placeholder:text-on-surface-variant/50 shadow-sm"
+          />
           
           {/* Botón para limpiar los años si hay alguno escrito */}
           {(yearRange?.start || yearRange?.end) && (
