@@ -3,7 +3,7 @@ import { bookService } from '../api/services/bookService';
 
 export function useBook(id) {
   const [book, setBook] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(Boolean(id));
   const [error, setError] = useState(null);
 
   const fetchBook = useCallback(async () => {
@@ -24,8 +24,9 @@ export function useBook(id) {
   }, [id]);
 
   useEffect(() => {
+    if (!id) return;
     fetchBook();
-  }, [fetchBook]);
+  }, [id, fetchBook]);
 
   return { book, isLoading, error, refetch: fetchBook };
 }

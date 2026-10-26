@@ -1,7 +1,8 @@
+import { memo } from "react";
 import { useBook } from "../../hooks/useBook";
 import HeartIcon from "../BasicUIComponents/HeartIcon";
 
-export default function BookCard({
+function BookCard({
   book: initialBook,
   quickView,
   requestLoan,
@@ -14,6 +15,7 @@ export default function BookCard({
   currentIndex,
   id,
 }) {
+  // Solo consulta useBook si initialBook no vino provisto
   const { book: fetchedBook, isLoading: fetchingBook, error: fetchError } = useBook(
     initialBook ? null : id
   );
@@ -26,7 +28,7 @@ export default function BookCard({
   if (isLoading || !book) {
     return (
       <div
-        className="coverflow-item absolute w-90 h-160 bg-surface-container border-2 border-outline-variant/50 rounded-md shadow-2xl p-5 flex flex-col items-center justify-center transition-all duration-500"
+        className="coverflow-item absolute w-[84vw] max-w-[340px] h-[540px] sm:w-90 sm:h-160 bg-surface-container border-2 border-outline-variant/50 rounded-md shadow-2xl p-5 flex flex-col items-center justify-center transition-[transform,opacity] duration-500 ease-out will-change-[transform,opacity]"
         style={styles}
       >
         <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mb-3"></div>
@@ -41,7 +43,7 @@ export default function BookCard({
   if (error) {
     return (
       <div
-        className="coverflow-item absolute w-90 h-160 bg-surface-container border-2 border-error/50 rounded-md shadow-2xl p-5 flex flex-col items-center justify-center text-center transition-all duration-500"
+        className="coverflow-item absolute w-[84vw] max-w-[340px] h-[540px] sm:w-90 sm:h-160 bg-surface-container border-2 border-error/50 rounded-md shadow-2xl p-5 flex flex-col items-center justify-center text-center transition-[transform,opacity] duration-500 ease-out will-change-[transform,opacity]"
         style={styles}
       >
         <span className="text-error font-bold text-xs uppercase tracking-widest">
@@ -130,7 +132,7 @@ export default function BookCard({
   return (
     <div
       key={id}
-      className={`coverflow-item group/card absolute w-90 h-160 bg-surface-container rounded-md p-5 flex flex-col transition-all duration-500 ${
+      className={`coverflow-item group/card absolute w-[84vw] max-w-[340px] h-[540px] sm:w-90 sm:h-160 bg-surface-container rounded-md p-4 sm:p-5 flex flex-col transition-[transform,opacity] duration-500 ease-out will-change-[transform,opacity] select-none ${
         isActive
           ? "is-active border-2 border-outline/70 shadow-[0_25px_50px_-12px_rgba(28,19,20,0.55)]"
           : "cursor-pointer border-2 border-outline-variant/50 shadow-2xl hover:border-outline/50"
@@ -138,6 +140,13 @@ export default function BookCard({
       style={styles}
       onClick={onClick}
     >
+      {/* Filtro sutil acelerado por GPU para dar profundidad a cartas laterales sin causar repaints de CSS filter */}
+      <div
+        className={`pointer-events-none absolute inset-0 bg-black rounded-md transition-opacity duration-500 z-30 ${
+          isActive ? "opacity-0" : "opacity-25"
+        }`}
+      />
+
       {/* Marco interior ornamental sutil */}
       <div className="pointer-events-none absolute inset-1.5 border border-outline-variant/25 rounded-[3px]" />
 
@@ -180,24 +189,20 @@ export default function BookCard({
       </div>
 
       {/* Pedestal y Volumen del Libro (Efecto de Encuadernación Física) */}
-      <div className="relative w-full py-3 mb-3 flex items-center justify-center bg-surface-container-low/45 border border-outline-variant/30 rounded-sm shadow-inner">
+      <div className="relative w-full py-2 sm:py-3 mb-2 sm:mb-3 flex items-center justify-center bg-surface-container-low/45 border border-outline-variant/30 rounded-sm shadow-inner">
         {/* Contenedor del Tomo 3D */}
-        <div
-          className="relative w-54 h-82  overflow-hidden transition-transform duration-500 group-hover/card:scale-[1.04]"
-          //  style={{
-          //    boxShadow:
-          //      "2px 0 0 #fbf6ec, 3px 0 0 #cbb89d, 4px 0 0 #fbf6ec, 5px 0 0 #b8a386, 10px 14px 24px -4px rgba(20, 13, 14, 0.45), 0 4px 10px rgba(20, 13, 14, 0.2)",
-          //  }}
-        >
+        <div className="relative w-44 h-68 sm:w-54 sm:h-82 overflow-hidden transition-transform duration-500 group-hover/card:scale-[1.03]">
           {image ? (
             <img
               src={image}
               alt={title}
-              className="w-full h-full object-cover object-top transition-transform duration-700"
+              loading={isActive ? "eager" : "lazy"}
+              decoding="async"
+              className="w-full h-full object-cover object-top"
             />
           ) : (
             /* Portada Clásica Ornamental cuando no hay imagen */
-            <div className="w-full h-full flex flex-col justify-between p-5 bg-primary-container text-on-primary-container relative select-none">
+            <div className="w-full h-full flex flex-col justify-between p-4 sm:p-5 bg-primary-container text-on-primary-container relative select-none">
               {/* Marco dorado interno de encuadernación */}
               <div className="pointer-events-none absolute inset-2.5 border border-outline/40 rounded-[2px]" />
               <div className="pointer-events-none absolute inset-3.5 border border-outline/20 rounded-[1px]" />
@@ -208,7 +213,7 @@ export default function BookCard({
 
               <div className="my-auto text-center z-10 px-2">
                 <div className="w-6 h-[1px] bg-outline/50 mx-auto mb-3" />
-                <span className="font-serif italic text-2xl text-on-primary-container leading-snug line-clamp-3 block">
+                <span className="font-serif italic text-xl sm:text-2xl text-on-primary-container leading-snug line-clamp-3 block">
                   {title}
                 </span>
                 <span className="font-sans text-[10px] uppercase tracking-widest text-outline/80 mt-2 block line-clamp-1">
@@ -220,7 +225,7 @@ export default function BookCard({
               <span className="text-[9px] tracking-[0.2em] uppercase text-outline/75 text-center font-bold z-10 mb-1">
                 {year || tag}
               </span>
-              {/* Efecto de Lomo y Pliegue de Encuadernación (Spine crease & lighting) */}
+              {/* Efecto de Lomo y Pliegue de Encuadernación */}
               <div
                 className="pointer-events-none absolute inset-y-0 left-0 w-6 z-20"
                 style={{
@@ -228,21 +233,18 @@ export default function BookCard({
                     "linear-gradient(90deg, rgba(0,0,0,0.42) 0%, rgba(255,255,255,0.18) 28%, rgba(0,0,0,0.22) 52%, rgba(255,255,255,0.08) 70%, transparent 100%)",
                 }}
               />
-            {/* Hendidura del lomo */}
-            <div className="pointer-events-none absolute inset-y-0 left-3 w-[1px] bg-black/30 shadow-[1px_0_0_rgba(255,255,255,0.2)] z-20" />
+              <div className="pointer-events-none absolute inset-y-0 left-3 w-[1px] bg-black/30 shadow-[1px_0_0_rgba(255,255,255,0.2)] z-20" />
             </div>
           )}
-
 
           {/* Brillo ambiental sutil sobre la cubierta */}
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-black/20 via-transparent to-white/15 z-10" />
           <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-black/15 rounded-l-[2px] rounded-r-[4px] z-20" />
-       
         </div>
       </div>
 
       {/* Metadatos del Libro (Categoría, Año y Disponibilidad) */}
-      <div className="flex justify-between items-center gap-2 mb-2 z-10">
+      <div className="flex justify-between items-center gap-2 mb-1.5 sm:mb-2 z-10">
         <span className="text-[10px] font-bold tracking-[0.14em] uppercase text-primary dark:text-outline truncate">
           {category} {year ? `• ${year}` : ""}
         </span>
@@ -269,15 +271,15 @@ export default function BookCard({
       </div>
 
       {/* Título y Autor */}
-      <div className="z-10 mb-2">
+      <div className="z-10 mb-1.5 sm:mb-2">
         <h3
-          className="font-serif text-[26px] font-medium text-on-surface leading-tight tracking-tight line-clamp-1"
+          className="font-serif text-[22px] sm:text-[26px] font-medium text-on-surface leading-tight tracking-tight line-clamp-1"
           title={title}
         >
           {title}
         </h3>
         <p
-          className="font-serif italic text-base text-on-surface-variant line-clamp-1 mt-0.5"
+          className="font-serif italic text-sm sm:text-base text-on-surface-variant line-clamp-1 mt-0.5"
           title={author}
         >
           {author}
@@ -286,12 +288,12 @@ export default function BookCard({
 
       {/* Descripción y Botones de Acción */}
       <div className="flex flex-col flex-grow z-10">
-        <p className="font-sans text-xs text-on-surface/75 leading-relaxed line-clamp-2 mb-3">
+        <p className="font-sans text-xs text-on-surface/75 leading-relaxed line-clamp-2 mb-2 sm:mb-3">
           {description || "Ejemplar catalogado en la colección general de Folium."}
         </p>
 
         {/* Botones de Acción */}
-        <div className="flex justify-between items-center pt-3 border-t border-outline-variant/40 mt-auto">
+        <div className="flex justify-between items-center pt-2 sm:pt-3 border-t border-outline-variant/40 mt-auto">
           <button
             className="group/qv inline-flex items-center gap-1.5 text-[11px] font-bold tracking-widest uppercase text-on-surface-variant hover:text-primary transition-colors cursor-pointer"
             onClick={(e) => {
@@ -306,7 +308,7 @@ export default function BookCard({
 
           <button
             disabled={!isReservable}
-            className={`border px-5 py-2 text-[11px] font-bold tracking-widest uppercase rounded-sm shadow-md transition-all duration-200 ${
+            className={`border px-4 sm:px-5 py-2 text-[11px] font-bold tracking-widest uppercase rounded-sm shadow-md transition-all duration-200 ${
               !isReservable
                 ? "bg-surface-container-highest text-on-surface-variant/40 border-outline-variant/30 cursor-not-allowed pointer-events-none opacity-60"
                 : isActive
@@ -330,3 +332,5 @@ export default function BookCard({
     </div>
   );
 }
+
+export default memo(BookCard);
