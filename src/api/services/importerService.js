@@ -1,7 +1,7 @@
 import api from '../axiosConfig';
 
 /**
- * Servicio para el importador masivo de catálogos (Fase 1: Excel / CSV).
+ * Servicio para el importador masivo de catálogos (Fase 1: Excel / CSV / BibTeX).
  * Endpoints:
  * - POST /api/v1/importer/preview/
  * - POST /api/v1/importer/simulate/

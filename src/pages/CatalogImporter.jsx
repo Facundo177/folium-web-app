@@ -38,6 +38,36 @@ Rayuela;Julio Cortázar;9788466331906;Sudamericana;1963;Novela Experimental;INV-
 El túnel;Ernesto Sabato;9789500401494;Sur;1948;Novela Psicológica;INV-SABATO-01;Pasillo C - Estante 4;La confesión de Juan Pablo Castel.
 La invención de Morel;Adolfo Bioy Casares;9788420658421;Losada;1940;Ciencia Ficción;INV-BIOY-01;Pasillo B - Estante 2;Clásico de ciencia ficción y misterio.`;
 
+const SAMPLE_BIB = `@book{garciamarquez1967cien,
+  title = {Cien años de soledad},
+  author = {García Márquez, Gabriel},
+  isbn = {9780307474728},
+  publisher = {Sudamericana},
+  year = {1967},
+  keywords = {Realismo Mágico},
+  abstract = {Obra cumbre de la literatura hispanoamericana.}
+}
+
+@book{borges1944ficciones,
+  title = {Ficciones},
+  author = {Borges, Jorge Luis},
+  isbn = {9789500419574},
+  publisher = {Sur},
+  year = {1944},
+  keywords = {Ficción Filosófica},
+  abstract = {Colección de relatos memorables.}
+}
+
+@book{cortazar1963rayuela,
+  title = {Rayuela},
+  author = {Cortázar, Julio},
+  isbn = {9788466331906},
+  publisher = {Sudamericana},
+  year = {1963},
+  keywords = {Novela Experimental},
+  abstract = {Contrarrelato lúdico en París y Buenos Aires.}
+}`;
+
 export default function CatalogImporter() {
   const [currentStep, setCurrentStep] = useState(1);
   const [file, setFile] = useState(null);
@@ -61,13 +91,18 @@ export default function CatalogImporter() {
 
   const fileInputRef = useRef(null);
 
-  // Descargar plantilla CSV de muestra
-  const handleDownloadSample = () => {
-    const blob = new Blob(["\uFEFF" + SAMPLE_CSV], { type: "text/csv;charset=utf-8;" });
+  // Descargar plantilla CSV o BibTeX de muestra
+  const handleDownloadSample = (format = "csv") => {
+    const isBib = format === "bib";
+    const contentData = isBib ? SAMPLE_BIB : "\uFEFF" + SAMPLE_CSV;
+    const mime = isBib ? "application/x-bibtex;charset=utf-8;" : "text/csv;charset=utf-8;";
+    const filename = isBib ? "folium_plantilla_catalogo.bib" : "folium_plantilla_catalogo.csv";
+
+    const blob = new Blob([contentData], { type: mime });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", "folium_plantilla_catalogo.csv");
+    link.setAttribute("download", filename);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -77,13 +112,13 @@ export default function CatalogImporter() {
   // Manejo de archivo seleccionado
   const handleFileSelect = (selectedFile) => {
     if (!selectedFile) return;
-    const validExtensions = [".xlsx", ".csv", ".tsv", ".txt"];
+    const validExtensions = [".xlsx", ".csv", ".tsv", ".txt", ".bib"];
     const hasValidExt = validExtensions.some((ext) =>
       selectedFile.name.toLowerCase().endsWith(ext)
     );
 
     if (!hasValidExt) {
-      setErrorMessage("Por favor selecciona un archivo con formato válido (.xlsx, .csv, .tsv o .txt).");
+      setErrorMessage("Por favor selecciona un archivo con formato válido (.xlsx, .csv, .tsv, .txt o .bib).");
       return;
     }
 
@@ -198,7 +233,7 @@ export default function CatalogImporter() {
           Importador Masivo de Catálogos
         </h1>
         <p className="text-on-surface-variant text-sm md:text-base max-w-2xl">
-          Carga colecciones enteras en lote mediante planillas Excel (.xlsx) o archivos CSV.
+          Carga colecciones enteras en lote mediante planillas Excel (.xlsx), archivos CSV o BibTeX (.bib).
           El asistente detecta los encabezados, previene duplicados y genera los ejemplares físicos automáticamente.
         </p>
       </div>
@@ -277,7 +312,7 @@ export default function CatalogImporter() {
             <input
               ref={fileInputRef}
               type="file"
-              accept=".xlsx,.csv,.tsv,.txt"
+              accept=".xlsx,.csv,.tsv,.txt,.bib"
               className="hidden"
               onChange={(e) => handleFileSelect(e.target.files[0])}
             />
@@ -296,6 +331,7 @@ export default function CatalogImporter() {
             <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-on-surface-variant font-mono">
               <span className="px-2 py-1 bg-surface-container rounded border border-outline-variant/60">.xlsx (Excel)</span>
               <span className="px-2 py-1 bg-surface-container rounded border border-outline-variant/60">.csv (UTF-8 / Latin-1)</span>
+              <span className="px-2 py-1 bg-surface-container rounded border border-outline-variant/60">.bib (BibTeX)</span>
               <span className="px-2 py-1 bg-surface-container rounded border border-outline-variant/60">.tsv / .txt</span>
             </div>
           </div>
@@ -342,14 +378,24 @@ export default function CatalogImporter() {
                 Puedes descargar nuestra planilla de ejemplo con 5 libros clásicos listos para probar la importación.
               </div>
             </div>
-            <button
-              type="button"
-              onClick={handleDownloadSample}
-              className="flex items-center justify-center gap-2 px-4 py-2 bg-surface-container-highest border border-outline-variant text-on-surface rounded-lg text-xs font-semibold hover:border-primary transition-colors shrink-0"
-            >
-              <Download className="w-4 h-4 text-primary" />
-              Descargar Plantilla CSV
-            </button>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => handleDownloadSample("csv")}
+                className="flex items-center justify-center gap-2 px-3 py-2 bg-surface-container-highest border border-outline-variant text-on-surface rounded-lg text-xs font-semibold hover:border-primary transition-colors cursor-pointer"
+              >
+                <Download className="w-3.5 h-3.5 text-primary" />
+                Plantilla CSV
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDownloadSample("bib")}
+                className="flex items-center justify-center gap-2 px-3 py-2 bg-surface-container-highest border border-outline-variant text-on-surface rounded-lg text-xs font-semibold hover:border-primary transition-colors cursor-pointer"
+              >
+                <Download className="w-3.5 h-3.5 text-primary" />
+                Ejemplo .bib
+              </button>
+            </div>
           </div>
         </div>
       )}
