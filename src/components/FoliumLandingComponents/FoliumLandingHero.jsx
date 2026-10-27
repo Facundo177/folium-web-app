@@ -7,7 +7,7 @@ export default function FoliumLandingHero() {
       
       {/* Etiqueta superior */}
       <div className="flex items-center gap-base text-label-caps text-on-surface-variant mb-stack-md">
-        <span className="w-2 h-2 rounded-full bg-tertiary-container" style={{filter: 'drop-shadow(0px 0px 1px #ffffff)'}}></span>
+        <span className="w-2 h-2 rounded-full bg-tertiary-container"></span>
         Edición de archivo & patrimonio
       </div>
 
@@ -28,7 +28,7 @@ export default function FoliumLandingHero() {
       <p className="text-label-caps text-outline max-w-2xl mb-stack-lg flex flex-wrap justify-center items-center gap-x-2">
         <span>Cultura en un solo lugar</span>
         <span className="text-outline-variant text-lg leading-none">&middot;</span>
-        <span>Comunicacion inmediata con bibliotecas</span>
+        <span>Comunicación inmediata con bibliotecas</span>
       </p>
       
       {/* Botones de Acción */}

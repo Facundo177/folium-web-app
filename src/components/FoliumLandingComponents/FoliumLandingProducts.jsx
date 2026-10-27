@@ -12,7 +12,7 @@ export default function FoliumLandingProducts({handleUserButtonClick, handleLibr
           La plataforma que conecta a los lectores con sus bibliotecas.
         </h2>
 
-        <p className="font-serif italic font-extrabold text-title-lg text-on-surface-variant max-w-3xl mx-auto">
+        <p className="font-serif italic font-normal text-title-lg text-on-surface-variant max-w-3xl mx-auto">
           Acceso ágil al catálogo y reservas para quienes disfrutan de leer; control total de inventario y préstamos para quienes cuidan los libros.
         </p>
       </div>
@@ -40,25 +40,19 @@ export default function FoliumLandingProducts({handleUserButtonClick, handleLibr
 
           <ul className="flex flex-col gap-4 mb-stack-lg flex-1">
             <li className="flex items-start gap-3 text-body-md text-on-surface-variant">
-              <span className="text-on-surface text-lg leading-none">
-                ✦
-              </span>
+              <span className="w-1.5 h-1.5 rounded-xs bg-tertiary-container mt-2 shrink-0"></span>
               <span>
                 <strong className="font-semibold text-on-surface">Catálogo en vivo:</strong> consulta disponibilidad inmediata y ubicación en sala.
               </span>
             </li>
             <li className="flex items-start gap-3 text-body-md text-on-surface-variant">
-              <span className="text-on-surface text-lg leading-none">
-                ✦
-              </span>
+              <span className="w-1.5 h-1.5 rounded-xs bg-tertiary-container mt-2 shrink-0"></span>
               <span>
                 <strong className="font-semibold text-on-surface">Reservas y préstamos:</strong> solicita títulos y revisa tus fechas de devolución.
               </span>
             </li>
             <li className="flex items-start gap-3 text-body-md text-on-surface-variant">
-              <span className="text-on-surface text-lg leading-none">
-                ✦
-              </span>
+              <span className="w-1.5 h-1.5 rounded-xs bg-tertiary-container mt-2 shrink-0"></span>
               <span>
                 <strong className="font-semibold text-on-surface">Espacio personal:</strong> guarda favoritos, califica lecturas y comparte opiniones.
               </span>
@@ -94,25 +88,19 @@ export default function FoliumLandingProducts({handleUserButtonClick, handleLibr
 
           <ul className="flex flex-col gap-4 mb-stack-lg flex-1">
             <li className="flex items-start gap-3 text-body-md text-on-surface-variant">
-              <span className="text-on-surface text-lg leading-none">
-                ✦
-              </span>
+              <span className="w-1.5 h-1.5 rounded-xs bg-tertiary-container mt-2 shrink-0"></span>
               <span>
                 <strong className="font-semibold text-on-surface">Inventario centralizado:</strong> alta rápida de libros, datos editoriales y copias.
               </span>
             </li>
             <li className="flex items-start gap-3 text-body-md text-on-surface-variant">
-              <span className="text-on-surface text-lg leading-none">
-                ✦
-              </span>
+              <span className="w-1.5 h-1.5 rounded-xs bg-tertiary-container mt-2 shrink-0"></span>
               <span>
                 <strong className="font-semibold text-on-surface">Circulación ágil:</strong> panel de préstamos activos, devoluciones y vencimientos.
               </span>
             </li>
             <li className="flex items-start gap-3 text-body-md text-on-surface-variant">
-              <span className="text-on-surface text-lg leading-none">
-                ✦
-              </span>
+              <span className="w-1.5 h-1.5 rounded-xs bg-tertiary-container mt-2 shrink-0"></span>
               <span>
                 <strong className="font-semibold text-on-surface">Atención a reservas:</strong> sincronización inmediata con las solicitudes de los usuarios.
               </span>
