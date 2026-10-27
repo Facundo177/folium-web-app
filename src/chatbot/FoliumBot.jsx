@@ -58,7 +58,7 @@ export default function FoliumBot() {
         onClick={toggleBot}
         className="w-14 h-14 bg-primary text-on-primary border-2 border-outline/70 rounded-full shadow-[0_12px_28px_-6px_rgba(20,13,14,0.55)] flex items-center justify-center hover:opacity-95 transition-all hover:scale-105 active:scale-95 cursor-pointer"
         aria-label={isOpen ? "Cerrar asistente" : "Abrir asistente"}
-        title={isOpen ? "Cerrar Curador de Folium" : "Abrir Curador de Folium"}
+        title={isOpen ? "Cerrar Tomito" : "Abrir Tomito"}
       >
         {isOpen ? <CloseIcon /> : <LibrarianBotIcon />}
       </button>

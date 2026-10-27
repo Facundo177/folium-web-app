@@ -19,7 +19,7 @@ const FoliumBotHeader = () => (
       </div>
       <div className="flex flex-col">
         <span className="font-serif text-base font-bold text-on-surface leading-tight tracking-wide">
-          Curador de Folium
+          Tomito
         </span>
         <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
           <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
@@ -32,7 +32,7 @@ const FoliumBotHeader = () => (
 
 const FoliumBotAvatar = () => (
   <div className="w-8 h-8 rounded-full bg-primary text-on-primary border border-outline/60 flex items-center justify-center shadow-xs shrink-0 mt-0.5">
-    <span className="font-serif font-bold text-sm leading-none">F</span>
+    <span className="font-serif font-bold text-sm leading-none">T</span>
   </div>
 );
 
@@ -45,13 +45,13 @@ const FoliumUserAvatar = () => (
 const config = {
   initialMessages: [
     createChatBotMessage(
-      "¡Hola! Soy el Curador de Folium. Para comenzar, seleccioná primero una opción del menú de abajo (por ejemplo, elegí «Buscar por Título o Autor» y luego escribí tu consulta):",
+      "¡Hola! Soy Tomito. Para comenzar, seleccioná primero una opción del menú de abajo (por ejemplo, elegí «Buscar por Título o Autor» y luego escribí tu consulta):",
       {
         widget: "mainMenu",
       }
     ),
   ],
-  botName: "FoliumBot",
+  botName: "Tomito",
   state: {
     userRole: "GUEST",
     awaitingMode: null,
