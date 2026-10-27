@@ -367,3 +367,15 @@
     .folium-sidebar .action-btn:nth-child(3) { left: 104px; }
   }
 }
+
+
+/* =======================================================
+   MODAL DIALOG OVERSCROLL CONTAINMENT (Modern Web Guidance)
+   ======================================================= */
+dialog:modal {
+  overscroll-behavior: contain;
+}
+dialog::backdrop {
+  overflow: hidden;
+  overscroll-behavior: contain;
+}

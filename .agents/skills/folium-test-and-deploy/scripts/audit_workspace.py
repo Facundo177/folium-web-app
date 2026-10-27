@@ -29,6 +29,8 @@ def run_git(repo_path, args):
 
 def check_conflicts(repo_path):
     conflicts = []
+    marker_start = "<" * 7
+    marker_end = ">" * 7
     for root, dirs, files in os.walk(repo_path):
         if ".git" in dirs:
             dirs.remove(".git")
@@ -37,10 +39,13 @@ def check_conflicts(repo_path):
         for f in files:
             if f.endswith((".js", ".jsx", ".ts", ".tsx", ".py", ".html", ".css", ".json")):
                 p = os.path.join(root, f)
+                # Omitir el propio script de auditoría
+                if os.path.basename(p) == "audit_workspace.py":
+                    continue
                 try:
                     with open(p, "r", encoding="utf-8", errors="ignore") as fh:
                         content = fh.read()
-                        if "<<<<<<<" in content or ">>>>>>>" in content:
+                        if marker_start in content or marker_end in content:
                             conflicts.append(os.path.relpath(p, repo_path))
                 except Exception:
                     pass
