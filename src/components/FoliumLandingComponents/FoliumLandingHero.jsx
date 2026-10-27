@@ -6,8 +6,8 @@ export default function FoliumLandingHero() {
     <div className="max-w-4xl w-full flex flex-col items-center text-center pb-stack-lg">
       
       {/* Sello de procedencia bibliográfica */}
-      <div className="inline-flex items-center gap-2.5 px-3.5 py-1 rounded-full border border-outline-variant/60 bg-surface-container-lowest/60 backdrop-blur-xs text-caption uppercase tracking-[0.2em] text-on-surface-variant mb-stack-md font-sans shadow-xs">
-        <span className="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-outline-variant/60 bg-surface-container-lowest/70 backdrop-blur-xs text-[11px] font-bold uppercase tracking-[0.14em] text-on-surface-variant mb-stack-md font-sans shadow-xs">
+        <span className="w-1.5 h-1.5 rounded-full bg-tertiary shrink-0"></span>
         <span>Fondo Bibliográfico &middot; Consulta Pública</span>
       </div>
 
@@ -19,8 +19,8 @@ export default function FoliumLandingHero() {
         </div>
       </h1>
 
-      {/* Subtítulo Editorial */}
-      <h2 className="font-serif text-headline-sm sm:text-headline-md italic text-on-surface max-w-2xl mb-stack-xs leading-relaxed font-normal">
+      {/* Subtítulo Editorial — Calibrado para máxima comodidad visual */}
+      <h2 className="font-serif text-headline-sm sm:text-headline-md text-on-surface max-w-2xl mb-stack-xs leading-snug sm:leading-normal font-normal text-balance">
         Donde la memoria impresa se preserva y la lectura comunitaria cobra vida.
       </h2>
 
@@ -35,7 +35,7 @@ export default function FoliumLandingHero() {
       </div>
 
       {/* Texto descriptivo de propósito */}
-      <p className="text-body-md text-on-surface-variant max-w-xl mb-stack-lg leading-relaxed font-sans">
+      <p className="text-body-md text-on-surface-variant max-w-xl mb-stack-lg leading-relaxed font-sans text-balance">
         Accede al catálogo vivo de tu biblioteca: descubre qué ejemplares están disponibles en sala, resérvalos al instante y acompaña la custodia de nuestro patrimonio cultural.
       </p>
       
