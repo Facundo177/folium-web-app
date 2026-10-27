@@ -13,6 +13,7 @@ export default function Favourites() {
   useDocumentMetadata({
     title: "Mis Libros Favoritos",
     description: "Tu colección personalizada de volúmenes y obras guardadas en Folium.",
+    noIndex: true,
   });
   const { books, isLoading: loadingBooks } = useBooks();
 

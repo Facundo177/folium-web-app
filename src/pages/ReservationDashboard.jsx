@@ -11,6 +11,7 @@ export default function ReservationDashboard() {
   useDocumentMetadata({
     title: "Gestión de Reservas — Folium",
     description: "Panel de administración de reservas de ejemplares físicos para bibliotecarios.",
+    noIndex: true,
   });
   const [reservations, setReservations] = useState([]);
   const [isLoading, setIsLoading] = useState(true);

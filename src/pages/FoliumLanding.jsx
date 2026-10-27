@@ -12,7 +12,20 @@ export default function FoliumLanding() {
 
   useDocumentMetadata({
     title: "Inicio — Preservación y Catálogo",
-    description: "Folium: El software de gestión silencioso para bibliotecas, lectura pública y archivos de patrimonio cultural.",
+    description:
+      "Folium: El software de gestión silencioso para bibliotecas, lectura pública y archivos de patrimonio cultural.",
+    canonicalPath: "/",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: "Folium",
+      url: "https://folium-psi.vercel.app/",
+      potentialAction: {
+        "@type": "SearchAction",
+        target: "https://folium-psi.vercel.app/catalog?search={search_term_string}",
+        "query-input": "required name=search_term_string",
+      },
+    },
   });
 
   const handleUserButtonClick = () => navigate("/user");

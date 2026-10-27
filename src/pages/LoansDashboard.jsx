@@ -12,6 +12,7 @@ export default function LoansDashboard() {
   useDocumentMetadata({
     title: "Control de Préstamos — Folium",
     description: "Panel de control y registro de préstamos activos e históricos para bibliotecarios.",
+    noIndex: true,
   });
   const [loans, setLoans] = useState([]);
   const [isLoading, setIsLoading] = useState(true);

@@ -20,7 +20,9 @@ export default function BookCatalog() {
 
   useDocumentMetadata({
     title: "Catálogo General de Libros — Folium",
-    description: "Explorá el catálogo de Folium: ediciones de archivo, clásicos y colecciones patrimoniales disponibles para consulta y préstamo.",
+    description:
+      "Explorá el catálogo de Folium: ediciones de archivo, clásicos y colecciones patrimoniales disponibles para consulta y préstamo.",
+    canonicalPath: "/catalog",
   });
 
   // Mapa { [bookId]: favoriteId } de los favoritos actuales del usuario

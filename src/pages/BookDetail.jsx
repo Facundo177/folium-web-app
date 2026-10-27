@@ -23,12 +23,51 @@ import { bookService } from "../api/services/bookService";
 import { reservationService } from "../api/services/reservationService";
 import { favoriteService } from "../api/services/favoriteService";
 import { useAuth } from "../auth/AuthProvider";
+import { useDocumentMetadata } from "../hooks/useDocumentMetadata";
 
 export default function BookDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { book, isLoading, error, refetch } = useBook(id);
+
+  const bookData = book ? adaptBookDetail(book) : null;
+
+  useDocumentMetadata({
+    title: bookData?.title ? `${bookData.title} — Ficha Bibliográfica` : "Ficha Bibliográfica",
+    description:
+      bookData?.description ||
+      (bookData?.title
+        ? `Consulta la ficha patrimonial y disponibilidad de "${bookData.title}".`
+        : undefined),
+    ogImage: bookData?.cover,
+    canonicalPath: id ? `/book/${id}` : "/catalog",
+    schema: bookData?.title
+      ? {
+          "@context": "https://schema.org",
+          "@type": "Book",
+          name: bookData.title,
+          isbn: bookData.isbn || undefined,
+          author: Array.isArray(bookData.authors)
+            ? bookData.authors.map((a) => ({
+                "@type": "Person",
+                name: typeof a === "string" ? a : `${a.name} ${a.last_name || ""}`.trim(),
+              }))
+            : bookData.author
+            ? [{ "@type": "Person", "name": bookData.author }]
+            : undefined,
+          publisher: bookData.editorial
+            ? {
+                "@type": "Organization",
+                name: typeof bookData.editorial === "string" ? bookData.editorial : bookData.editorial.name,
+              }
+            : undefined,
+          datePublished: bookData.year ? String(bookData.year) : undefined,
+          description: bookData.description || undefined,
+          image: bookData.cover || undefined,
+        }
+      : undefined,
+  });
 
   const canManageBook = ["LIBRARIAN", "ADMIN"].includes(user?.role);
 

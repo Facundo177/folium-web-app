@@ -4,6 +4,7 @@ import { loanService } from "../api/services/loanService";
 import { useBooks } from "../hooks/useBooks";
 import { adaptBook } from "../api/adapters";
 import GoBackButton from "../components/BasicUIComponents/GoBackButton";
+import { useDocumentMetadata } from "../hooks/useDocumentMetadata";
 import {
   BookMarked,
   Calendar,
@@ -13,6 +14,11 @@ import {
 } from "lucide-react";
 
 export default function UserLoans() {
+  useDocumentMetadata({
+    title: "Mis Préstamos — Folium",
+    description: "Historial y estado de tus préstamos bibliográficos activos.",
+    noIndex: true,
+  });
   const navigate = useNavigate();
   const { books, isLoading: loadingBooks } = useBooks();
 

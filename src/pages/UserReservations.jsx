@@ -5,9 +5,15 @@ import { useBooks } from "../hooks/useBooks";
 import { adaptBook } from "../api/adapters";
 import FeedbackModal from "../components/BasicUIComponents/FeedbackModal";
 import GoBackButton from "../components/BasicUIComponents/GoBackButton";
+import { useDocumentMetadata } from "../hooks/useDocumentMetadata";
 import { BookLock, Calendar, Clock, XCircle, CheckCircle2, AlertCircle } from "lucide-react";
 
 export default function UserReservations() {
+  useDocumentMetadata({
+    title: "Mis Reservas — Folium",
+    description: "Consulta el estado de tus reservas pendientes o completadas en Folium.",
+    noIndex: true,
+  });
   const navigate = useNavigate();
   const { books, isLoading: loadingBooks } = useBooks();
 

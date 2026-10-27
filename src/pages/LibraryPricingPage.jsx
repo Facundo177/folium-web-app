@@ -38,6 +38,7 @@ export default function LibraryPricingPage() {
     title: "Planes para Bibliotecas y Archivos — Folium",
     description:
       "Conoce los planes institucionales de Folium para bibliotecas populares, escolares, universitarias y archivos patrimoniales con MercadoPago.",
+    canonicalPath: "/pricing",
   });
 
   const [searchParams, setSearchParams] = useSearchParams();
