@@ -1,188 +1,174 @@
-export default function FoliumLandingProducts({ handleUserButtonClick, handleLibrarianButtonClick }) {
-  return (
-    <section className="bg-background py-stack-xl px-margin-edge font-sans border-t border-outline-variant/30">
-      {/* Encabezado Editorial */}
-      <div className="max-w-3xl mx-auto text-center mb-stack-xl">
-        <div className="inline-flex items-center gap-2 text-caption uppercase tracking-[0.2em] text-on-surface-variant/80 border-b border-outline-variant/50 pb-1 mb-4 font-sans">
-          Un ecosistema &middot; Dos perspectivas
-        </div>
+export default function FoliumLandingProducts({handleUserButtonClick, handleLibrarianButtonClick}) {
 
-        <h2 className="font-serif text-display-lg-mobile md:text-display-lg text-on-surface mb-4 leading-tight font-normal">
-          La plataforma que conecta a los lectores con sus bibliotecas
+  return (
+    <section className="bg-background py-stack-lg px-margin-edge font-sans">
+      {/* Encabezado de la Sección */}
+      <div className="max-w-4xl mx-auto text-center mb-stack-lg">
+        <span className="text-label-caps text-on-surface-variant tracking-[0.2em] uppercase">
+          Un ecosistema, dos experiencias
+        </span>
+
+        <h2 className="font-serif text-display-lg-mobile md:text-display-lg text-on-surface mt-4 mb-4 leading-tight">
+          La plataforma que conecta a los lectores con sus bibliotecas.
         </h2>
 
-        <p className="font-serif italic text-title-lg text-on-surface-variant max-w-2xl mx-auto leading-relaxed">
-          Acceso ágil y reservas para quienes disfrutan de leer; control riguroso de inventario y circulación para quienes cuidan los libros.
+        <p className="font-serif italic font-extrabold text-title-lg text-on-surface-variant max-w-3xl mx-auto">
+          Acceso ágil al catálogo y reservas para quienes disfrutan de leer; control total de inventario y préstamos para quienes cuidan los libros.
         </p>
       </div>
 
-      {/* Grid de Experiencias Tangibles */}
-      <div className="max-w-(--spacing-container-max) mx-auto grid grid-cols-1 lg:grid-cols-2 gap-stack-lg items-stretch">
-        
-        {/* Tarjeta 1: Lectores y Comunidad */}
-        <div className="bg-surface-container-lowest border border-outline-variant/80 rounded-sm p-6 sm:p-8 flex flex-col justify-between shadow-xs">
-          <div>
-            <div className="flex items-center justify-between gap-4 mb-4 pb-3 border-b border-outline-variant/40">
-              <span className="text-caption uppercase tracking-[0.18em] text-primary font-semibold font-sans">
-                Para Lectores & Investigadores
-              </span>
-              <span className="px-2.5 py-0.5 text-xs font-serif italic text-on-surface-variant bg-surface-container/60 rounded-xs border border-outline-variant/40">
-                Consulta en Sala
-              </span>
+      {/* Grid de Tarjetas */}
+      <div className="max-w-(--spacing-container-max) mx-auto grid grid-cols-1 md:grid-cols-2 gap-stack-md">
+        {/* Tarjeta 1: Lectores */}
+        <div className="bg-surface-container-lowest border border-outline-variant p-stack-md md:p-stack-lg flex flex-col shadow-sm">
+          <div className="flex justify-between items-center mb-stack-sm">
+            <span className="text-label-caps text-on-surface-variant tracking-wider uppercase">
+              Para lectores y comunidad
+            </span>
+            <div className="w-10 h-10 p-1 rounded-full bg-surface-variant flex items-center justify-center text-tertiary-container">
+              <ReaderIcon />
             </div>
-
-            <h3 className="font-serif text-headline-md text-on-surface mb-3 leading-snug font-normal">
-              Tu biblioteca viva, abierta al descubrimiento
-            </h3>
-
-            <p className="text-body-md text-on-surface-variant mb-5 leading-relaxed">
-              Explora el fondo bibliográfico general, comprueba si el ejemplar físico está en sala antes de salir de casa y gestiona tus reservas personales sin demoras.
-            </p>
-
-            {/* Fragmento Tangible de UI: Ficha de Disponibilidad Real */}
-            <div className="bg-background/90 border border-outline-variant/70 rounded-sm p-4 mb-6 shadow-xs font-sans">
-              <div className="flex gap-4 items-start">
-                <div className="w-12 h-16 bg-primary/10 border border-primary/20 rounded-xs flex flex-col items-center justify-center text-primary shrink-0">
-                  <span className="font-serif text-xs font-bold leading-none">VOL.</span>
-                  <span className="font-mono text-[10px] text-primary/80 mt-1">1967</span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-800 bg-emerald-600/10 px-2 py-0.5 rounded-xs border border-emerald-600/20">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
-                      Disponible en Sala Central
-                    </span>
-                    <span className="text-xs text-on-surface-variant/80 font-mono">EST-04B</span>
-                  </div>
-                  <h4 className="font-serif text-title-md font-medium text-on-surface mt-1.5 truncate">
-                    Cien años de soledad
-                  </h4>
-                  <p className="text-xs text-on-surface-variant truncate">
-                    Gabriel García Márquez &middot; Editorial Sudamericana
-                  </p>
-                </div>
-              </div>
-              <div className="mt-3 pt-2.5 border-t border-outline-variant/40 flex items-center justify-between text-xs text-on-surface-variant">
-                <span>Signatura: <strong className="text-on-surface font-mono font-medium">LIT-HIS-042</strong></span>
-                <span className="text-primary font-medium">Reserva activa inmediata</span>
-              </div>
-            </div>
-
-            {/* Capacidades Clave */}
-            <ul className="space-y-3 mb-stack-lg text-body-sm text-on-surface-variant">
-              <li className="flex items-start gap-3">
-                <span className="text-primary font-bold select-none">&bull;</span>
-                <span><strong className="text-on-surface font-semibold">Catálogo en tiempo real:</strong> disponibilidad física y ubicación precisa en sala.</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-primary font-bold select-none">&bull;</span>
-                <span><strong className="text-on-surface font-semibold">Reserva anticipada:</strong> asegura tu ejemplar antes de acudir a la institución.</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-primary font-bold select-none">&bull;</span>
-                <span><strong className="text-on-surface font-semibold">Cuaderno del lector:</strong> historial de obras prestadas, favoritos y valoraciones.</span>
-              </li>
-            </ul>
           </div>
 
-          {/* Botón de Entrada */}
+          <h3 className="font-serif text-headline-md text-on-surface mb-4">
+            Tu biblioteca abierta, en cualquier momento
+          </h3>
+
+          <p className="text-body-md text-on-surface-variant mb-stack-md pb-stack-md border-b border-outline-variant/50 leading-relaxed">
+            Explora el catálogo general, comprueba la disponibilidad física de cada libro en tiempo real, reserva ejemplares con un clic y lleva el control de tus préstamos y lecturas favoritas.
+          </p>
+
+          <ul className="flex flex-col gap-4 mb-stack-lg flex-1">
+            <li className="flex items-start gap-3 text-body-md text-on-surface-variant">
+              <span className="text-on-surface text-lg leading-none">
+                ✦
+              </span>
+              <span>
+                <strong className="font-semibold text-on-surface">Catálogo en vivo:</strong> consulta disponibilidad inmediata y ubicación en sala.
+              </span>
+            </li>
+            <li className="flex items-start gap-3 text-body-md text-on-surface-variant">
+              <span className="text-on-surface text-lg leading-none">
+                ✦
+              </span>
+              <span>
+                <strong className="font-semibold text-on-surface">Reservas y préstamos:</strong> solicita títulos y revisa tus fechas de devolución.
+              </span>
+            </li>
+            <li className="flex items-start gap-3 text-body-md text-on-surface-variant">
+              <span className="text-on-surface text-lg leading-none">
+                ✦
+              </span>
+              <span>
+                <strong className="font-semibold text-on-surface">Espacio personal:</strong> guarda favoritos, califica lecturas y comparte opiniones.
+              </span>
+            </li>
+          </ul>
+
           <button 
-            type="button"
-            className="w-full bg-surface-container-lowest border border-primary text-primary hover:bg-primary hover:text-on-primary py-3.5 px-6 rounded-sm text-label-caps uppercase tracking-wider flex items-center justify-between transition-colors font-medium shadow-xs cursor-pointer group"
-            onClick={handleUserButtonClick}
-          >
-            <span>Explorar el Catálogo Abierto</span>
-            <span className="transition-transform group-hover:translate-x-1">
-              <ArrowRightIcon />
-            </span>
+          className="w-full border border-on-surface text-on-surface text-label-caps uppercase tracking-wider py-4 px-6 flex justify-between items-center hover:bg-tertiary-container/5 transition-colors bg-surface-variant"
+          onClick={handleUserButtonClick}>
+            Explorar el catálogo
+            <ArrowRightIcon />
           </button>
         </div>
 
-        {/* Tarjeta 2: Bibliotecas y Custodios */}
-        <div className="bg-surface-container-lowest border border-outline-variant/80 rounded-sm p-6 sm:p-8 flex flex-col justify-between shadow-xs">
-          <div>
-            <div className="flex items-center justify-between gap-4 mb-4 pb-3 border-b border-outline-variant/40">
-              <span className="text-caption uppercase tracking-[0.18em] text-tertiary font-semibold font-sans">
-                Para Instituciones & Custodios
-              </span>
-              <span className="px-2.5 py-0.5 text-xs font-mono uppercase tracking-wider text-on-surface-variant bg-surface-container/60 rounded-xs border border-outline-variant/40">
-                Mesa de Control
-              </span>
+        {/* Tarjeta 2: Bibliotecas */}
+        <div className="bg-surface-container-lowest border border-outline-variant p-stack-md md:p-stack-lg flex flex-col shadow-sm">
+          <div className="flex justify-between items-center mb-stack-sm">
+            <span className="text-label-caps text-on-surface-variant tracking-wider uppercase">
+              Para bibliotecas y administradores
+            </span>
+            <div className="w-10 h-10 p-1.5 rounded-full bg-tertiary-container flex items-center justify-center text-on-tertiary">
+              <InstitutionIcon />
             </div>
-
-            <h3 className="font-serif text-headline-md text-on-surface mb-3 leading-snug font-normal">
-              Control integral de fondo, inventario y circulación
-            </h3>
-
-            <p className="text-body-md text-on-surface-variant mb-5 leading-relaxed">
-              La herramienta profesional que simplifica la administración diaria: altas con signatura, mesa de préstamos en mostrador y control estricto de ejemplares.
-            </p>
-
-            {/* Fragmento Tangible de UI: Registro de Préstamo y Estado */}
-            <div className="bg-background/90 border border-outline-variant/70 rounded-sm p-4 mb-6 shadow-xs font-sans">
-              <div className="flex items-center justify-between gap-2 mb-2">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-xs font-bold text-on-surface">#PR-2026-142</span>
-                  <span className="text-xs text-on-surface-variant">&middot; Lector: M. Valenzuela</span>
-                </div>
-                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-amber-900 bg-amber-600/10 px-2 py-0.5 rounded-xs border border-amber-600/20">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-700"></span>
-                  En Término (Vence en 4d)
-                </span>
-              </div>
-              <div className="text-xs text-on-surface-variant mb-3">
-                Ejemplar: <span className="font-serif italic text-on-surface font-medium">Don Quijote de la Mancha (Tomo I)</span>
-              </div>
-              <div className="grid grid-cols-3 gap-2 pt-2.5 border-t border-outline-variant/40 text-center text-xs">
-                <div>
-                  <span className="block font-mono font-bold text-on-surface">1,420</span>
-                  <span className="text-[10px] uppercase text-on-surface-variant/80">Volúmenes</span>
-                </div>
-                <div>
-                  <span className="block font-mono font-bold text-emerald-800">98.2%</span>
-                  <span className="text-[10px] uppercase text-on-surface-variant/80">En Sala</span>
-                </div>
-                <div>
-                  <span className="block font-mono font-bold text-on-surface">0</span>
-                  <span className="text-[10px] uppercase text-on-surface-variant/80">Extravíos</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Capacidades Clave */}
-            <ul className="space-y-3 mb-stack-lg text-body-sm text-on-surface-variant">
-              <li className="flex items-start gap-3">
-                <span className="text-tertiary font-bold select-none">&bull;</span>
-                <span><strong className="text-on-surface font-semibold">Inventario centralizado:</strong> alta ágil, carga masiva (.xlsx, .csv, .bib) y signaturas.</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-tertiary font-bold select-none">&bull;</span>
-                <span><strong className="text-on-surface font-semibold">Circulación ágil:</strong> préstamos activos, devoluciones y vencimientos en un solo tablero.</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-tertiary font-bold select-none">&bull;</span>
-                <span><strong className="text-on-surface font-semibold">Atención a reservas:</strong> sincronización inmediata con las solicitudes de los usuarios.</span>
-              </li>
-            </ul>
           </div>
 
-          {/* Botón de Administración */}
+          <h3 className="font-serif text-headline-md text-on-surface mb-4">
+            Control integral de inventario y préstamos
+          </h3>
+
+          <p className="text-body-md text-on-surface-variant mb-stack-md pb-stack-md border-b border-outline-variant/50 leading-relaxed">
+            Una herramienta moderna e intuitiva para simplificar la gestión bibliotecaria: registra libros y copias físicas, atiende reservas al instante y monitorea préstamos sin fricción.
+          </p>
+
+          <ul className="flex flex-col gap-4 mb-stack-lg flex-1">
+            <li className="flex items-start gap-3 text-body-md text-on-surface-variant">
+              <span className="text-on-surface text-lg leading-none">
+                ✦
+              </span>
+              <span>
+                <strong className="font-semibold text-on-surface">Inventario centralizado:</strong> alta rápida de libros, datos editoriales y copias.
+              </span>
+            </li>
+            <li className="flex items-start gap-3 text-body-md text-on-surface-variant">
+              <span className="text-on-surface text-lg leading-none">
+                ✦
+              </span>
+              <span>
+                <strong className="font-semibold text-on-surface">Circulación ágil:</strong> panel de préstamos activos, devoluciones y vencimientos.
+              </span>
+            </li>
+            <li className="flex items-start gap-3 text-body-md text-on-surface-variant">
+              <span className="text-on-surface text-lg leading-none">
+                ✦
+              </span>
+              <span>
+                <strong className="font-semibold text-on-surface">Atención a reservas:</strong> sincronización inmediata con las solicitudes de los usuarios.
+              </span>
+            </li>
+          </ul>
+
           <button 
-            type="button"
-            className="w-full bg-tertiary-container border border-on-tertiary-container text-on-tertiary-container hover:opacity-95 py-3.5 px-6 rounded-sm text-label-caps uppercase tracking-wider flex items-center justify-between transition-opacity font-medium shadow-xs cursor-pointer group"
-            onClick={handleLibrarianButtonClick}
-          >
-            <span>Gestionar mi Biblioteca</span>
-            <span className="transition-transform group-hover:translate-x-1">
-              <ArrowRightIcon />
-            </span>
+          className="w-full bg-tertiary-container border border-on-tertiary-container text-on-tertiary-container text-label-caps uppercase tracking-wider py-4 px-6 flex justify-between items-center hover:opacity-90 transition-opacity"
+          onClick={handleLibrarianButtonClick}>
+            Gestionar mi biblioteca
+            <ArrowRightIcon />
           </button>
         </div>
-
       </div>
     </section>
   );
 }
+
+// ==========================================
+// Íconos SVG extraídos y adaptados
+// ==========================================
+
+const ReaderIcon = () => (
+  <svg fill="#000000" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+    <g
+      id="SVGRepo_tracerCarrier"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    ></g>
+    <g id="SVGRepo_iconCarrier">
+      <path d="M20.18,10.19A11.9,11.9,0,0,0,18,10c-.42,0-.83,0-1.24.08a5.91,5.91,0,0,0-1.91-1.65,3.81,3.81,0,0,0,1-2.57,3.86,3.86,0,0,0-7.72,0,3.81,3.81,0,0,0,1,2.57,6.11,6.11,0,0,0-1.91,1.64C6.83,10,6.42,10,6,10a11.9,11.9,0,0,0-2.18.21,1,1,0,0,0-.82,1v8.25a1,1,0,0,0,.36.77,1,1,0,0,0,.82.22A9.75,9.75,0,0,1,6,20.23a9.89,9.89,0,0,1,5.45,1.63h0l0,0,.13.05h0A1.09,1.09,0,0,0,12,22a.87.87,0,0,0,.28-.05l.07,0,.13-.05,0,0h0A9.89,9.89,0,0,1,18,20.23a9.75,9.75,0,0,1,1.82.18,1,1,0,0,0,.82-.22,1,1,0,0,0,.36-.77V11.17A1,1,0,0,0,20.18,10.19ZM12,4a1.86,1.86,0,0,1,0,3.71h0A1.86,1.86,0,0,1,12,4ZM11,19.33a11.92,11.92,0,0,0-5-1.1c-.33,0-.66,0-1,.05V12a9.63,9.63,0,0,1,2.52.05l.11,0A10,10,0,0,1,11,13.33Zm1-7.73a11.77,11.77,0,0,0-1.38-.68l-.06,0c-.33-.13-.66-.26-1-.36A4,4,0,0,1,12,9.69h0a4,4,0,0,1,2.44.85A12.43,12.43,0,0,0,12,11.6Zm7,6.68a11.6,11.6,0,0,0-6,1v-6a9.76,9.76,0,0,1,3.37-1.22l.2,0A9.39,9.39,0,0,1,19,12Z"></path>
+    </g>
+  </svg>
+);
+
+const InstitutionIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+    <g
+      id="SVGRepo_tracerCarrier"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    ></g>
+    <g id="SVGRepo_iconCarrier">
+      {" "}
+      <path
+        d="M5 8V17.0192M9 8V17M15 8V17M19 8V17.0192M5 17.0192C5.31428 17 5.70173 17 6.2 17H17.8C18.2983 17 18.6857 17 19 17.0192M5 17.0192C4.60779 17.0431 4.32953 17.097 4.09202 17.218C3.71569 17.4097 3.40973 17.7157 3.21799 18.092C3 18.5198 3 19.0799 3 20.2V21H21V20.2C21 19.0799 21 18.5198 20.782 18.092C20.5903 17.7157 20.2843 17.4097 19.908 17.218C19.6705 17.097 19.3922 17.0431 19 17.0192M3 5.5V8H21V5.5L12 3L3 5.5Z"
+        stroke="#ffffff"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      ></path>{" "}
+    </g>
+  </svg>
+);
 
 const ArrowRightIcon = () => (
   <svg

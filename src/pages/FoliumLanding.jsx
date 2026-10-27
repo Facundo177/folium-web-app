@@ -28,7 +28,7 @@ export default function FoliumLanding() {
     },
   });
 
-  const handleUserButtonClick = () => navigate("/catalog");
+  const handleUserButtonClick = () => navigate("/user");
   const handleLibrarianButtonClick = () => navigate("/librarian");
 
   useEffect(() => {
