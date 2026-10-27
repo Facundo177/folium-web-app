@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Library, 
   BookMarked, 
@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 
 import { ThemeToggle } from '../theme/ThemeToggle';
+import FeedbackModal from './BasicUIComponents/FeedbackModal';
 import { useNavigate, useLocation, Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider';
 import { useUserProfile } from '../hooks/useUserProfile';
@@ -34,6 +35,18 @@ export default function Sidebar() {
   
   // Verificamos de forma segura si el usuario existe antes de leer el rol
   const roleLibrarian = user?.role === "LIBRARIAN";
+
+  // Cerrar menú móvil con tecla Escape
+  useEffect(() => {
+    if (!isMobileOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setIsMobileOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isMobileOpen]);
   
   // Determinamos qué menú mostrar según si hay sesión y qué rol tiene
   let navItems;
@@ -85,61 +98,33 @@ export default function Sidebar() {
   const displayLastName = profile?.last_name || '';
   const displayRole = user ? (roleLibrarian ? 'BIBLIOTECARIO/A' : 'LECTOR/A') : 'INVITADO';
 
-
   return (
     <>
       {/* =========================================================
-          MODAL DE CONFIRMACIÓN DE CIERRE DE SESIÓN
+          MODAL ACCESIBLE DE CIERRE DE SESIÓN (FeedbackModal / dialog)
       ========================================================= */}
-      {showLogoutModal && (
-        <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/65 px-4"
-          onClick={() => setShowLogoutModal(false)}
-        >
-          <div
-            className="bg-surface-container-lowest border border-outline-variant/50 rounded-xl p-6 w-full max-w-sm shadow-2xl flex flex-col items-center text-center animate-fade-in will-change-transform"
-            onClick={(e) => e.stopPropagation()}
-          >
-            
-            {/* Ícono de Advertencia / Salida */}
-            <div className="w-12 h-12 bg-error/10 text-error rounded-full flex items-center justify-center mb-4">
-              <LogOut className="w-6 h-6" />
-            </div>
-            
-            <h3 className="text-title-lg text-on-surface font-serif font-bold mb-2">
-              Cerrar Sesión
-            </h3>
-            <p className="text-body-md text-on-surface-variant mb-6">
-              ¿Estás seguro de que deseas salir de folium?
-            </p>
-            
-            <div className="flex w-full gap-3">
-              <button 
-                onClick={() => setShowLogoutModal(false)} 
-                className="flex-1 bg-surface-variant text-on-surface hover:bg-outline-variant py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest transition-colors cursor-pointer"
-              >
-                Cancelar
-              </button>
-              <button 
-                onClick={() => {
-                  setShowLogoutModal(false);
-                  logout(); // Aquí ejecutamos el logout real
-                }} 
-                className="flex-1 bg-error text-on-error hover:opacity-90 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest transition-colors shadow-md cursor-pointer"
-              >
-                Salir
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-
+      <FeedbackModal
+        isOpen={showLogoutModal}
+        type="warning"
+        title="Cerrar Sesión"
+        message="¿Estás seguro de que deseas salir de Folium?"
+        confirmText="Salir"
+        cancelText="Cancelar"
+        onConfirm={() => {
+          setShowLogoutModal(false);
+          logout();
+        }}
+        onClose={() => setShowLogoutModal(false)}
+      />
 
       {/* BOTÓN HAMBURGUESA (Visible solo en móvil) */}
       <button 
+        type="button"
         onClick={() => setIsMobileOpen(true)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2.5 bg-surface-container border border-outline-variant/50 rounded-lg text-on-surface shadow-md hover:text-primary transition-colors"
+        aria-label="Abrir menú de navegación"
+        aria-expanded={isMobileOpen}
+        aria-controls="folium-sidebar-navigation"
+        className="lg:hidden fixed top-4 left-4 z-50 p-2.5 bg-surface-container border border-outline-variant/50 rounded-lg text-on-surface shadow-md hover:text-primary transition-colors cursor-pointer"
       >
         <Menu className="w-6 h-6" />
       </button>
@@ -147,28 +132,31 @@ export default function Sidebar() {
       {/* OVERLAY FONDO OSCURO (Visible solo en móvil al abrir) */}
       {isMobileOpen && (
         <div 
+          aria-hidden="true"
           className="lg:hidden fixed inset-0 bg-black/65 z-50 transition-opacity"
           onClick={() => setIsMobileOpen(false)}
         />
       )}
 
       {/* SIDEBAR PRINCIPAL */}
-      <aside className={`
-        folium-sidebar flex flex-col gap-4 p-5 overflow-hidden flex-shrink-0 bg-surface-container shadow-2xl z-50
-        
-        lg:sticky lg:top-6 lg:h-[calc(100vh-48px)] lg:ml-6 lg:rounded-xl lg:border lg:border-outline-variant/50 lg:translate-x-0
-        
-        fixed top-0 left-0 h-full rounded-r-2xl border-r border-outline-variant/20 
-        transform 
-        ${isMobileOpen ? 'translate-x-0 transition-transform duration-300 ease-out will-change-transform' : '-translate-x-full'}
-        ${showLogoutModal ? 'is-modal-open' : ''}
-      `}>    
-        
+      <aside 
+        id="folium-sidebar-navigation"
+        aria-label="Navegación principal"
+        className={`
+          folium-sidebar flex flex-col gap-4 p-5 overflow-hidden flex-shrink-0 bg-surface-container shadow-2xl z-50
+          lg:sticky lg:top-6 lg:h-[calc(100dvh-48px)] lg:ml-6 lg:rounded-xl lg:border lg:border-outline-variant/50 lg:translate-x-0
+          fixed top-0 left-0 h-[100dvh] rounded-r-2xl border-r border-outline-variant/20 
+          transform 
+          ${isMobileOpen ? 'translate-x-0 transition-transform duration-300 ease-out will-change-transform' : '-translate-x-full'}
+        `}
+      >    
         {/* Cabecera Móvil con Botón Cerrar */}
         <div className="lg:hidden flex justify-end mb-2">
           <button 
+            type="button"
             onClick={() => setIsMobileOpen(false)}
-            className="p-1.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-outline-variant/30 transition-colors"
+            aria-label="Cerrar menú de navegación"
+            className="p-1.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-outline-variant/30 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -239,19 +227,22 @@ export default function Sidebar() {
 
         {/* Acciones y Tema */}
         <div className="actions-container mt-auto flex flex-row shrink-0 w-full">
-
           {user ? (
             <button 
+              type="button"
               title="Cerrar Sesión"
-              className="action-btn w-11 h-11 bg-surface-variant rounded-xl flex items-center justify-center text-on-surface hover:bg-error hover:text-on-error transition-colors shadow-sm border border-outline-variant/30 shrink-0"
+              aria-label="Cerrar sesión"
+              className="action-btn w-11 h-11 bg-surface-variant rounded-xl flex items-center justify-center text-on-surface hover:bg-error hover:text-on-error transition-colors shadow-sm border border-outline-variant/30 shrink-0 cursor-pointer"
               onClick={() => setShowLogoutModal(true)} 
             >
               <LogOut className="w-6 h-6" />
             </button>
           ) : (
             <button 
+              type="button"
               title="Iniciar Sesión"
-              className="action-btn w-11 h-11 bg-primary text-on-primary rounded-xl flex items-center justify-center hover:opacity-90 transition-colors shadow-sm border border-outline-variant/30 shrink-0"
+              aria-label="Iniciar sesión"
+              className="action-btn w-11 h-11 bg-primary text-on-primary rounded-xl flex items-center justify-center hover:opacity-90 transition-colors shadow-sm border border-outline-variant/30 shrink-0 cursor-pointer"
               onClick={() => {
                 setIsMobileOpen(false);
                 navigate('/login');
