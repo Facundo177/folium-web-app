@@ -4,6 +4,7 @@ import { reservationService } from "../api/services/reservationService";
 import { useBooks } from "../hooks/useBooks";
 import { adaptBook } from "../api/adapters";
 import FeedbackModal from "../components/BasicUIComponents/FeedbackModal";
+import GoBackButton from "../components/BasicUIComponents/GoBackButton";
 import { BookLock, Calendar, Clock, XCircle, CheckCircle2, AlertCircle } from "lucide-react";
 
 export default function UserReservations() {
@@ -26,20 +27,24 @@ export default function UserReservations() {
   });
 
   useEffect(() => {
+    let isMounted = true;
     const fetchReservations = async () => {
       setIsLoading(true);
       try {
         const { data } = await reservationService.getAll();
-        setReservations(data);
+        if (isMounted) setReservations(data);
       } catch (err) {
-        setError("Error al cargar tus reservas.");
+        if (isMounted) setError("Error al cargar tus reservas.");
         console.error(err);
       } finally {
-        setIsLoading(false);
+        if (isMounted) setIsLoading(false);
       }
     };
 
     fetchReservations();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Diccionario de libros adaptados por ID para obtener portada, autor, categoría y año
@@ -103,11 +108,12 @@ export default function UserReservations() {
             ? {
                 ...res,
                 status: updated?.status || "CANCELLED",
-                status_display: updated?.status_display || "Cancelado",
+                status_display: updated?.status_display || "Cancelada",
               }
             : res
         )
       );
+
       setReservationToCancel(null);
     } catch (err) {
       console.error("Error al cancelar la reserva:", err);
@@ -116,7 +122,7 @@ export default function UserReservations() {
         isOpen: true,
         type: "error",
         title: "Error al cancelar",
-        message: "No se pudo cancelar la reserva. Intenta nuevamente.",
+        message: "No se pudo cancelar la solicitud de reserva. Intente nuevamente.",
       });
     } finally {
       setIsCancelling(false);
@@ -126,16 +132,17 @@ export default function UserReservations() {
   const getStatusBadge = (status, expiresAt) => {
     if (status === "COMPLETED") {
       return {
-        label: "Préstamo Otorgado",
-        subtext: "Reserva completada",
+        label: "Préstamo Activo",
+        subtext: "Retirado en sala",
         badgeClass: "bg-secondary text-on-secondary",
         icon: CheckCircle2,
       };
     }
+
     if (status === "CANCELLED") {
       return {
         label: "Cancelada",
-        subtext: "Reserva sin efecto",
+        subtext: "Reserva anulada",
         badgeClass: "bg-surface-variant text-on-surface-variant",
         icon: XCircle,
       };
@@ -145,10 +152,10 @@ export default function UserReservations() {
     const expDate = new Date(expiresAt);
     const diffDays = Math.ceil((expDate - now) / (1000 * 60 * 60 * 24));
 
-    if (status === "EXPIRED" || diffDays < 0) {
+    if (diffDays < 0 || status === "EXPIRED") {
       return {
         label: "Expirada",
-        subtext: `Venció hace ${Math.abs(diffDays)} ${Math.abs(diffDays) === 1 ? "día" : "días"}`,
+        subtext: "Tiempo límite superado",
         badgeClass: "bg-error text-on-error",
         icon: AlertCircle,
       };
@@ -157,15 +164,15 @@ export default function UserReservations() {
     if (diffDays === 0) {
       return {
         label: "Expira Hoy",
-        subtext: "Retiro pendiente hoy",
+        subtext: "Último día para retirar",
         badgeClass: "bg-tertiary text-on-tertiary",
         icon: Clock,
       };
     }
 
     return {
-      label: "Reservado",
-      subtext: `${diffDays} ${diffDays === 1 ? "día restante" : "días restantes"}`,
+      label: "Vigente",
+      subtext: `${diffDays} ${diffDays === 1 ? "día para retirar" : "días para retirar"}`,
       badgeClass: "bg-primary text-on-primary",
       icon: Clock,
     };
@@ -173,14 +180,23 @@ export default function UserReservations() {
 
   if (isLoading || loadingBooks) {
     return (
-      <div className="p-8 text-on-background font-sans">
-        Cargando tus volúmenes reservados...
+      <div className="w-full min-h-[50vh] flex flex-col items-center justify-center gap-4 animate-fade-in font-sans">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+        <p className="text-on-surface-variant font-bold tracking-widest uppercase text-xs">
+          Cargando tus reservas...
+        </p>
       </div>
     );
   }
 
   if (error) {
-    return <div className="p-8 text-error font-bold font-sans">{error}</div>;
+    return (
+      <div className="w-full min-h-[50vh] flex items-center justify-center animate-fade-in font-sans p-6">
+        <p className="text-on-error bg-error px-6 py-3 rounded-md font-bold shadow-md">
+          {error}
+        </p>
+      </div>
+    );
   }
 
   const pendingCount = enrichedReservations.filter(
@@ -189,14 +205,18 @@ export default function UserReservations() {
 
   return (
     <div className="w-full max-w-7xl mx-auto p-6 md:p-10 font-sans animate-fade-in">
+      <div className="mb-4">
+        <GoBackButton />
+      </div>
+
       {/* Cabecera */}
       <div className="mb-8 pb-4 border-b border-outline-variant/50 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-headline-md font-serif text-on-background mb-2">
-            Mis Libros Reservados
+          <h1 className="text-headline-md font-serif text-on-surface mb-2">
+            Mis Reservas
           </h1>
           <p className="text-body-md text-on-surface-variant">
-            Consulta el estado visual de los volúmenes que has solicitado y su vigencia de retiro.
+            Seguimiento de ejemplares reservados para retirar en el mostrador de biblioteca.
           </p>
         </div>
 
@@ -212,10 +232,11 @@ export default function UserReservations() {
           ].map((tab) => (
             <button
               key={tab.key}
+              type="button"
               onClick={() => setStatusFilter(tab.key)}
               className={`px-3.5 py-1.5 rounded-sm text-xs font-bold uppercase tracking-widest transition-colors cursor-pointer border ${
                 statusFilter === tab.key
-                  ? "bg-primary text-on-primary border-primary"
+                  ? "bg-primary text-on-primary border-primary shadow-xs"
                   : "bg-surface-container-lowest text-on-surface-variant border-outline-variant/50 hover:border-primary"
               }`}
             >
@@ -227,19 +248,20 @@ export default function UserReservations() {
 
       {/* Contenido Visual */}
       {filteredReservations.length === 0 ? (
-        <div className="w-full py-24 bg-surface-container-lowest border border-outline-variant/50 rounded-lg flex flex-col items-center justify-center text-center p-8 shadow-sm">
+        <div className="w-full py-24 bg-surface-container-lowest border border-outline-variant rounded-md flex flex-col items-center justify-center text-center p-8 shadow-xs">
           <div className="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-outline mb-4">
             <BookLock className="w-6 h-6" />
           </div>
-          <p className="text-sm uppercase tracking-widest font-bold text-on-surface mb-2">
+          <h2 className="text-sm uppercase tracking-widest font-bold text-on-surface mb-2">
             No tienes reservas en esta sección
-          </p>
+          </h2>
           <p className="text-body-md text-on-surface-variant max-w-md mb-6">
             Explora el catálogo general para reservar un ejemplar y asegurar su disponibilidad en biblioteca.
           </p>
           <button
+            type="button"
             onClick={() => navigate("/catalog")}
-            className="bg-primary text-on-primary px-6 py-2.5 rounded-sm text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-opacity shadow-sm cursor-pointer"
+            className="bg-primary text-on-primary px-6 py-2.5 rounded-sm text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-opacity shadow-xs cursor-pointer"
           >
             Explorar Catálogo
           </button>
@@ -259,17 +281,18 @@ export default function UserReservations() {
               <div
                 key={reservation.id}
                 onClick={() => navigate(`/book/${bookData.id}`)}
-                className={`bg-surface-container border border-outline-variant/50 rounded-md p-4 flex flex-col hover:border-primary transition-all group cursor-pointer shadow-md hover:shadow-lg animate-fade-in ${
+                className={`bg-surface-container border border-outline-variant/50 rounded-md p-4 flex flex-col hover:border-primary transition-all group cursor-pointer shadow-sm hover:shadow-md animate-fade-in ${
                   !isPending ? "opacity-80" : ""
                 }`}
               >
-                {/* Portada del Libro */}
+                {/* Portada del Libro con prevención de CLS */}
                 <div className="relative w-full aspect-[2/3] bg-surface-container-highest border border-outline-variant/30 mb-4 flex flex-col justify-between p-3 overflow-hidden shadow-inner rounded-sm">
                   {bookData.cover && (
                     <img
                       src={bookData.cover}
                       alt={bookData.title}
                       loading="lazy"
+                      decoding="async"
                       className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   )}
@@ -280,11 +303,11 @@ export default function UserReservations() {
 
                   {/* Fila superior: Categoría y Estado de Reserva */}
                   <div className="flex items-start justify-between gap-2 z-10">
-                    <span className="bg-surface-container-lowest/90 backdrop-blur-sm text-on-surface px-2 py-1 text-[9px] font-bold uppercase tracking-widest rounded-sm shadow-sm truncate">
+                    <span className="bg-surface-container-lowest/90 backdrop-blur-xs text-on-surface px-2 py-1 text-[9px] font-bold uppercase tracking-widest rounded-sm shadow-xs truncate">
                       ★ {bookData.category}
                     </span>
                     <span
-                      className={`${statusInfo.badgeClass} px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest rounded-sm shadow-sm flex items-center gap-1 shrink-0`}
+                      className={`${statusInfo.badgeClass} px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest rounded-sm shadow-xs flex items-center gap-1 shrink-0`}
                     >
                       <StatusIcon className="w-3 h-3" />
                       {statusInfo.label}
@@ -295,7 +318,7 @@ export default function UserReservations() {
                   {!bookData.cover && (
                     <>
                       <div className="my-auto text-center z-10">
-                        <span className="font-serif text-3xl text-on-surface italic font-normal px-2 block leading-none">
+                        <span className="font-serif text-2xl text-on-surface italic font-normal px-2 block leading-snug line-clamp-3">
                           {bookData.title}
                         </span>
                       </div>
@@ -308,11 +331,11 @@ export default function UserReservations() {
 
                   {/* Cinta inferior de vigencia sobre la portada */}
                   <div className="z-10 mt-auto pt-2">
-                    <div className="bg-surface-container-lowest/90 backdrop-blur-sm border border-outline-variant/40 rounded-sm px-2.5 py-1.5 flex items-center justify-between text-[10px]">
+                    <div className="bg-surface-container-lowest/90 backdrop-blur-xs border border-outline-variant/40 rounded-sm px-2.5 py-1.5 flex items-center justify-between text-[10px]">
                       <span className="font-bold uppercase tracking-wider text-on-surface">
                         {statusInfo.subtext}
                       </span>
-                      <span className="text-on-surface-variant">
+                      <span className="text-on-surface-variant font-mono">
                         #{reservation.id}
                       </span>
                     </div>
@@ -321,9 +344,9 @@ export default function UserReservations() {
 
                 {/* Información del Libro y de la Reserva */}
                 <div className="flex flex-col flex-1">
-                  <h4 className="text-sm text-on-surface font-bold uppercase tracking-widest mb-1 line-clamp-1">
+                  <h2 className="text-sm text-on-surface font-bold uppercase tracking-widest mb-1 line-clamp-1">
                     {bookData.title}
-                  </h4>
+                  </h2>
                   <p className="text-xs text-on-surface-variant mb-3 font-serif italic line-clamp-1">
                     {bookData.author}
                   </p>
@@ -335,10 +358,8 @@ export default function UserReservations() {
                         <Calendar className="w-3.5 h-3.5 text-primary" />
                         Solicitado:
                       </span>
-                      <span className="font-medium text-on-surface">
-                        {new Date(reservation.created_at).toLocaleDateString(
-                          "es-AR"
-                        )}
+                      <span className="font-medium text-on-surface font-mono">
+                        {new Date(reservation.created_at).toLocaleDateString("es-AR")}
                       </span>
                     </div>
                     <div className="flex items-center justify-between text-on-surface-variant">
@@ -346,33 +367,24 @@ export default function UserReservations() {
                         <Clock className="w-3.5 h-3.5 text-tertiary" />
                         Vencimiento:
                       </span>
-                      <span className="font-medium text-on-surface">
-                        {new Date(reservation.expires_at).toLocaleDateString(
-                          "es-AR"
-                        )}
+                      <span className="font-medium text-on-surface font-mono">
+                        {new Date(reservation.expires_at).toLocaleDateString("es-AR")}
                       </span>
                     </div>
                   </div>
 
-                  {/* Acción según estado */}
-                  {isPending ? (
-                    <button
-                      onClick={(e) => handleRequestCancel(e, reservation)}
-                      className="mt-auto w-full bg-surface-container-lowest text-error hover:bg-error hover:text-on-error border border-error/40 py-2.5 rounded-sm flex items-center justify-center gap-2 text-xs font-bold tracking-widest uppercase transition-colors cursor-pointer"
-                    >
-                      Cancelar Reserva
-                      <XCircle className="w-4 h-4" />
-                    </button>
-                  ) : (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/book/${bookData.id}`);
-                      }}
-                      className="mt-auto w-full bg-secondary text-on-secondary hover:bg-secondary-container hover:text-on-secondary-container border border-outline-variant/30 py-2.5 rounded-sm flex items-center justify-center gap-2 text-xs font-bold tracking-widest uppercase transition-colors cursor-pointer"
-                    >
-                      Ver Ficha del Libro
-                    </button>
+                  {/* Acciones de Lector (Cancelar Reserva) */}
+                  {isPending && (
+                    <div className="mt-auto pt-2 border-t border-outline-variant/30 flex justify-end">
+                      <button
+                        type="button"
+                        onClick={(e) => handleRequestCancel(e, reservation)}
+                        className="text-xs text-error hover:opacity-80 transition-opacity font-bold uppercase tracking-widest flex items-center gap-1 cursor-pointer py-1"
+                      >
+                        <XCircle className="w-4 h-4" />
+                        Cancelar Reserva
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>
@@ -383,22 +395,22 @@ export default function UserReservations() {
 
       {/* Modal de confirmación para cancelar reserva */}
       <FeedbackModal
-        isOpen={!!reservationToCancel}
-        type="error"
-        title="¿Cancelar reserva?"
+        isOpen={Boolean(reservationToCancel)}
+        type="warning"
+        title="Cancelar Reserva"
         message={
           reservationToCancel
-            ? `¿Deseas cancelar tu reserva de "${reservationToCancel.bookData?.title}"?`
+            ? `¿Estás seguro de que deseas cancelar la reserva de "${reservationToCancel.bookData.title}"? El ejemplar quedará liberado para otros lectores.`
             : ""
         }
         confirmText="Sí, cancelar reserva"
-        cancelText="Volver"
+        cancelText="Conservar reserva"
         isLoading={isCancelling}
         onClose={() => setReservationToCancel(null)}
         onConfirm={confirmCancelReservation}
       />
 
-      {/* Modal de notificación / error */}
+      {/* Modal de error */}
       <FeedbackModal
         isOpen={feedbackModal.isOpen}
         type={feedbackModal.type}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Sparkles, UserPlus, LogIn, BookOpen, Heart, LockKeyhole } from "lucide-react";
 import BookCoverFlow from "../components/BookCatalogComponents/BookCoverFlow";
@@ -19,7 +19,7 @@ export default function BookCatalog() {
   const { user, isGuest } = useAuth();
 
   useDocumentMetadata({
-    title: "Catálogo General de Libros",
+    title: "Catálogo General de Libros — Folium",
     description: "Explorá el catálogo de Folium: ediciones de archivo, clásicos y colecciones patrimoniales disponibles para consulta y préstamo.",
   });
 
@@ -32,7 +32,7 @@ export default function BookCatalog() {
   // Estado para el Toast
   const [toastMessage, setToastMessage] = useState("");
 
-  // Estado para el modal personalizado
+  // Estado para el modal de autenticación requerida
   const [modal, setModal] = useState({
     isOpen: false,
     type: "info",
@@ -43,25 +43,32 @@ export default function BookCatalog() {
     onConfirm: null,
   });
 
-  const showToast = (message) => {
+  const showToast = useCallback((message) => {
     setToastMessage(message);
     setTimeout(() => setToastMessage(""), 3500);
-  };
+  }, []);
 
-  const openGuestPrompt = (actionDescription = "acceder a todas las funciones del catálogo") => {
-    setModal({
-      isOpen: true,
-      type: "info",
-      title: "Únete a la comunidad de Folium",
-      message: `Estás explorando el catálogo como invitado.\n\nCrea una cuenta gratuita o inicia sesión para ${actionDescription}, gestionar préstamos y compartir tus reseñas.`,
-      confirmText: "Crear cuenta gratis",
-      cancelText: "Seguir explorando",
-      onConfirm: () => {
-        setModal((prev) => ({ ...prev, isOpen: false }));
-        navigate("/register");
-      },
-    });
-  };
+  const openGuestPrompt = useCallback(
+    (actionDescription = "acceder a todas las funciones del catálogo") => {
+      setModal({
+        isOpen: true,
+        type: "info",
+        title: "Únete a la comunidad de Folium",
+        message: `Estás explorando el catálogo como invitado.\n\nCrea una cuenta gratuita o inicia sesión para ${actionDescription}, gestionar préstamos y compartir tus reseñas.`,
+        confirmText: "Crear cuenta gratis",
+        cancelText: "Seguir explorando",
+        onConfirm: () => {
+          setModal((prev) => ({ ...prev, isOpen: false }));
+          navigate("/register");
+        },
+      });
+    },
+    [navigate]
+  );
+
+  const handleReservationSuccess = useCallback((bookId) => {
+    setUserReservationsMap((prev) => ({ ...prev, [bookId]: true }));
+  }, []);
 
   useEffect(() => {
     if (!user) {
@@ -69,9 +76,11 @@ export default function BookCatalog() {
       return;
     }
 
+    let isMounted = true;
     const fetchFavorites = async () => {
       try {
         const res = await favoriteService.getAll();
+        if (!isMounted) return;
         const list = res.data?.results || res.data || [];
         const map = {};
         list.forEach((fav) => {
@@ -85,6 +94,9 @@ export default function BookCatalog() {
     };
 
     fetchFavorites();
+    return () => {
+      isMounted = false;
+    };
   }, [user]);
 
   // Cargar reservas activas del usuario lector
@@ -94,9 +106,11 @@ export default function BookCatalog() {
       return;
     }
 
+    let isMounted = true;
     const fetchReservations = async () => {
       try {
         const res = await reservationService.getAll();
+        if (!isMounted) return;
         const list = res.data?.results || res.data || [];
         const map = {};
         list.forEach((r) => {
@@ -112,42 +126,48 @@ export default function BookCatalog() {
     };
 
     fetchReservations();
+    return () => {
+      isMounted = false;
+    };
   }, [user]);
 
-  const handleToggleFavorite = async (book) => {
-    if (!user) {
-      openGuestPrompt("guardar este volumen en tu lista de favoritos");
-      return;
-    }
+  const handleToggleFavorite = useCallback(
+    async (book) => {
+      if (!user) {
+        openGuestPrompt("guardar este volumen en tu lista de favoritos");
+        return;
+      }
 
-    const currentFavId = favoritesMap[book.id];
-    if (currentFavId) {
-      try {
-        await favoriteService.remove(currentFavId);
-        setFavoritesMap((prev) => {
-          const next = { ...prev };
-          delete next[book.id];
-          return next;
-        });
-        showToast(`Eliminado de tus favoritos: "${book.title}"`);
-      } catch (err) {
-        console.error("Error al quitar favorito:", err);
-        showToast("No se pudo quitar de favoritos");
+      const currentFavId = favoritesMap[book.id];
+      if (currentFavId) {
+        try {
+          await favoriteService.remove(currentFavId);
+          setFavoritesMap((prev) => {
+            const next = { ...prev };
+            delete next[book.id];
+            return next;
+          });
+          showToast(`Eliminado de tus favoritos: "${book.title}"`);
+        } catch (err) {
+          console.error("Error al quitar favorito:", err);
+          showToast("No se pudo quitar de favoritos");
+        }
+      } else {
+        try {
+          const { data: newFav } = await favoriteService.create({ book: book.id });
+          setFavoritesMap((prev) => ({
+            ...prev,
+            [book.id]: newFav?.id ?? true,
+          }));
+          showToast(`Añadido a tus favoritos: "${book.title}"`);
+        } catch (err) {
+          console.error("Error al añadir favorito:", err);
+          showToast("No se pudo guardar en favoritos");
+        }
       }
-    } else {
-      try {
-        const { data: newFav } = await favoriteService.create({ book: book.id });
-        setFavoritesMap((prev) => ({
-          ...prev,
-          [book.id]: newFav?.id ?? true,
-        }));
-        showToast(`Añadido a tus favoritos: "${book.title}"`);
-      } catch (err) {
-        console.error("Error al añadir favorito:", err);
-        showToast("No se pudo guardar en favoritos");
-      }
-    }
-  };
+    },
+    [user, favoritesMap, openGuestPrompt, showToast]
+  );
 
   return (
     <div className="min-h-screen bg-background font-sans">
@@ -192,14 +212,14 @@ export default function BookCatalog() {
               <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 shrink-0">
                 <Link
                   to="/register"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-primary text-on-primary px-5 py-2.5 rounded-sm text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-opacity shadow-sm cursor-pointer"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-primary text-on-primary px-5 py-2.5 rounded-sm text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-opacity shadow-sm cursor-pointer no-underline"
                 >
                   <UserPlus className="w-4 h-4" />
                   Crear cuenta gratis
                 </Link>
                 <Link
                   to="/login"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-surface-container-lowest text-on-surface border border-outline-variant hover:bg-surface px-5 py-2.5 rounded-sm text-xs font-bold uppercase tracking-widest transition-colors cursor-pointer"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-surface-container-lowest text-on-surface border border-outline-variant hover:bg-surface px-5 py-2.5 rounded-sm text-xs font-bold uppercase tracking-widest transition-colors cursor-pointer no-underline"
                 >
                   <LogIn className="w-4 h-4" />
                   Iniciar sesión
@@ -219,9 +239,7 @@ export default function BookCatalog() {
         }
         favoritesMap={favoritesMap}
         userReservationsMap={userReservationsMap}
-        onReservationSuccess={(bookId) => {
-          setUserReservationsMap((prev) => ({ ...prev, [bookId]: true }));
-        }}
+        onReservationSuccess={handleReservationSuccess}
         onToggleFavorite={handleToggleFavorite}
         onRequireAuth={openGuestPrompt}
       />
@@ -232,9 +250,7 @@ export default function BookCatalog() {
         error={error}
         favoritesMap={favoritesMap}
         userReservationsMap={userReservationsMap}
-        onReservationSuccess={(bookId) => {
-          setUserReservationsMap((prev) => ({ ...prev, [bookId]: true }));
-        }}
+        onReservationSuccess={handleReservationSuccess}
         onToggleFavorite={handleToggleFavorite}
         onRequireAuth={openGuestPrompt}
         filters={filters}

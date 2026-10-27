@@ -1,16 +1,17 @@
 import { useState, useEffect } from "react";
 import { bookService } from "../../api/services/bookService";
 import { authorService } from "../../api/services/authorService";
-import { genreService } from "../../api/services/genreService"; // Añadido el servicio de géneros
+import { genreService } from "../../api/services/genreService";
 import GoBackButton from "../BasicUIComponents/GoBackButton";
+import FeedbackModal from "../BasicUIComponents/FeedbackModal";
 import { useNavigate } from "react-router-dom";
 import { useGenres } from "../../hooks/useGenres";
-import { Delete, X } from "lucide-react";
+import { Trash2, X, Plus, BookPlus } from "lucide-react";
 
-export default function BookForm() {
+export default function LoadBookForm() {
   const navigate = useNavigate();
-  
-  // Extraemos también 'refetch' del hook para recargar los géneros tras crear uno nuevo
+
+  // Géneros desde el hook
   const { genres: availableGenres, isLoading: isLoadingGenres, refetch: refetchGenres } = useGenres();
 
   // --- ESTADOS DEL LIBRO ---
@@ -18,13 +19,14 @@ export default function BookForm() {
     title: "",
     isbn: "",
     publication_year: "",
-    editorial: "", // NUEVO: Campo Editorial
+    editorial: "",
     cover_image: null,
     description: "",
     genres: [],
   });
-  
-  const [imagePreview, setImagePreview] = useState(null); 
+
+  const [imagePreview, setImagePreview] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // --- ESTADOS DE AUTORES ---
   const [availableAuthors, setAvailableAuthors] = useState([]);
@@ -36,11 +38,30 @@ export default function BookForm() {
   const [newGenreName, setNewGenreName] = useState("");
   const [isCreatingGenre, setIsCreatingGenre] = useState(false);
 
-  // Cargar autores
+  // --- MODAL DE FEEDBACK ACCESIBLE ---
+  const [feedbackModal, setFeedbackModal] = useState({
+    isOpen: false,
+    type: "info",
+    title: "",
+    message: "",
+    confirmText: "Aceptar",
+    cancelText: null,
+    onConfirm: null,
+  });
+
+  // Cargar autores existentes
   useEffect(() => {
-    authorService.getAll()
-      .then((res) => setAvailableAuthors(res.data))
+    let isMounted = true;
+    authorService
+      .getAll()
+      .then((res) => {
+        if (!isMounted) return;
+        setAvailableAuthors(res.data?.results || res.data || []);
+      })
       .catch((err) => console.error("Error cargando autores:", err));
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // --- MANEJADORES GLOBALES ---
@@ -49,7 +70,7 @@ export default function BookForm() {
   };
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (file) {
       setFormData({ ...formData, cover_image: file });
       setImagePreview(URL.createObjectURL(file));
@@ -71,27 +92,32 @@ export default function BookForm() {
 
   const handleCreateNewGenre = async (e) => {
     e.preventDefault();
-    if (!newGenreName.trim()) return;
+    const cleanName = newGenreName.trim();
+    if (!cleanName) return;
 
     setIsCreatingGenre(true);
     try {
-      // 1. Creamos el género en el backend
-      const res = await genreService.create({ name: newGenreName.trim() });
+      const res = await genreService.create({ name: cleanName });
       const createdGenre = res.data;
 
-      // 2. Recargamos la lista global de géneros del hook
       await refetchGenres();
 
-      // 3. Lo añadimos automáticamente a los géneros seleccionados del libro actual
       setFormData((prev) => ({
         ...prev,
-        genres: [...prev.genres, createdGenre.id]
+        genres: [...prev.genres, createdGenre.id],
       }));
-      
-      setNewGenreName(""); // Limpiamos el input
+
+      setNewGenreName("");
     } catch (error) {
       console.error("Error al crear género:", error);
-      alert("Hubo un error al registrar el nuevo género.");
+      setFeedbackModal({
+        isOpen: true,
+        type: "error",
+        title: "Error al crear género",
+        message: error.response?.data
+          ? Object.values(error.response.data).flat().join(" ")
+          : "No se pudo registrar el nuevo género. Verifique si ya existe.",
+      });
     } finally {
       setIsCreatingGenre(false);
     }
@@ -101,7 +127,7 @@ export default function BookForm() {
   const handleAddExistingAuthor = (e) => {
     const authorId = Number(e.target.value);
     if (!authorId) return;
-    
+
     const author = availableAuthors.find((a) => a.id === authorId);
     if (author && !selectedAuthors.find((a) => a.id === authorId)) {
       setSelectedAuthors([...selectedAuthors, author]);
@@ -115,151 +141,292 @@ export default function BookForm() {
 
   const handleCreateNewAuthor = async (e) => {
     e.preventDefault();
-    if (!newAuthor.name || !newAuthor.last_name) return;
+    if (!newAuthor.name.trim() || !newAuthor.last_name.trim()) return;
 
     setIsCreatingAuthor(true);
     try {
-      const res = await authorService.create(newAuthor);
+      const res = await authorService.create({
+        name: newAuthor.name.trim(),
+        last_name: newAuthor.last_name.trim(),
+      });
       const createdAuthor = res.data;
-      setAvailableAuthors([...availableAuthors, createdAuthor]);
-      setSelectedAuthors([...selectedAuthors, createdAuthor]);
+      setAvailableAuthors((prev) => [...prev, createdAuthor]);
+      setSelectedAuthors((prev) => [...prev, createdAuthor]);
       setNewAuthor({ name: "", last_name: "" });
     } catch (error) {
       console.error("Error al crear autor:", error);
-      alert("Hubo un error al registrar el autor.");
+      setFeedbackModal({
+        isOpen: true,
+        type: "error",
+        title: "Error al crear autor",
+        message: error.response?.data
+          ? Object.values(error.response.data).flat().join(" ")
+          : "No se pudo registrar el autor. Intente nuevamente.",
+      });
     } finally {
       setIsCreatingAuthor(false);
     }
   };
 
   // --- ENVÍO FINAL DEL LIBRO ---
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (selectedAuthors.length === 0) {
-      alert("Debes seleccionar o crear al menos un autor para el libro.");
+      setFeedbackModal({
+        isOpen: true,
+        type: "warning",
+        title: "Autor requerido",
+        message: "Debes seleccionar o crear al menos un autor para registrar el libro en el catálogo.",
+      });
       return;
     }
-    
-    const submitData = new FormData();
-    submitData.append("title", formData.title);
-    if (formData.isbn && formData.isbn.trim()) {
-      submitData.append("isbn", formData.isbn.trim());
-    }
-    submitData.append("editorial", formData.editorial); // NUEVO
-    submitData.append("publication_year", Number(formData.publication_year));
-    submitData.append("description", formData.description);
 
-    if (formData.cover_image) {
-      submitData.append("cover_image", formData.cover_image);
-    }
-
-    selectedAuthors.forEach(author => submitData.append("authors", author.id));
-    if (selectedAuthors.length === 1) {
-      submitData.append("authors", selectedAuthors[0].id);
-    }
-
-    formData.genres.forEach(genreId => submitData.append("genres", genreId));
-    if (formData.genres.length === 1) {
-      submitData.append("genres", formData.genres[0]);
-    }
-
-    bookService.create(submitData, { headers: { 'Content-Type': 'multipart/form-data' } })
-      .then(() => {
-        alert("Libro guardado exitosamente en el archivo.");
-        // navigate('/librarian/inventory');
-      })
-      .catch((error) => {
-        console.error("Error al guardar:", error.response?.data || error.message);
-        alert("Hubo un error al registrar el libro. Revisa la consola.");
+    if (formData.genres.length === 0) {
+      setFeedbackModal({
+        isOpen: true,
+        type: "warning",
+        title: "Género requerido",
+        message: "Selecciona al menos un género temático para clasificar la obra.",
       });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const submitData = new FormData();
+      submitData.append("title", formData.title.trim());
+      if (formData.isbn && formData.isbn.trim()) {
+        submitData.append("isbn", formData.isbn.trim());
+      }
+      submitData.append("editorial", formData.editorial.trim());
+      submitData.append("publication_year", Number(formData.publication_year));
+      submitData.append("description", formData.description.trim());
+
+      if (formData.cover_image instanceof File) {
+        submitData.append("cover_image", formData.cover_image);
+      }
+
+      selectedAuthors.forEach((author) => submitData.append("authors", author.id));
+      if (selectedAuthors.length === 1) {
+        submitData.append("authors", selectedAuthors[0].id);
+      }
+
+      formData.genres.forEach((genreId) => submitData.append("genres", genreId));
+      if (formData.genres.length === 1) {
+        submitData.append("genres", formData.genres[0]);
+      }
+
+      await bookService.create(submitData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      const bookTitle = formData.title;
+
+      // Reseteo del formulario
+      setFormData({
+        title: "",
+        isbn: "",
+        publication_year: "",
+        editorial: "",
+        cover_image: null,
+        description: "",
+        genres: [],
+      });
+      setSelectedAuthors([]);
+      setImagePreview(null);
+
+      setFeedbackModal({
+        isOpen: true,
+        type: "success",
+        title: "¡Libro registrado exitosamente!",
+        message: `"${bookTitle}" fue añadido al acervo de Folium. ¿Deseas ir al inventario o registrar otro libro?`,
+        confirmText: "Ir al Inventario",
+        cancelText: "Añadir Otro",
+        onConfirm: () => navigate("/librarian/inventory"),
+      });
+    } catch (error) {
+      console.error("Error al guardar libro:", error);
+      let errorMsg = "Ocurrió un error inesperado al registrar el libro.";
+      if (error.response?.data && typeof error.response.data === "object") {
+        errorMsg = Object.entries(error.response.data)
+          .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(" ") : v}`)
+          .join("\n");
+      }
+      setFeedbackModal({
+        isOpen: true,
+        type: "error",
+        title: "Error al registrar el libro",
+        message: errorMsg,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <div className="w-full max-w-[600px] flex flex-col items-center pb-12 mx-auto animate-fade-in">
-      <div className="flex mr-auto">
+    <div className="w-full max-w-[660px] flex flex-col items-center pb-12 mx-auto animate-fade-in font-sans">
+      <div className="flex mr-auto mb-4">
         <GoBackButton />
       </div>
-      
-      <div className="w-full my-8">
-        <h2 className="text-headline-md font-serif text-on-surface mb-2">
+
+      <div className="w-full mb-8">
+        <h1 className="text-headline-md font-serif text-on-surface mb-2">
           Registrar Nuevo Libro
-        </h2>
+        </h1>
         <p className="text-body-md text-on-surface-variant">
-          Completa los datos para añadir un título al catálogo de Folium.
+          Completa los datos para catalogar una nueva obra en el archivo de Folium.
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="w-full flex flex-col gap-6">
-        
         {/* === FILA 1: Título e ISBN === */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <div className="flex flex-col gap-2">
-            <label className="text-label-caps text-on-surface font-bold">TÍTULO</label>
-            <input type="text" name="title" value={formData.title} onChange={handleChange} required className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors" />
+            <label htmlFor="load-book-title" className="text-label-caps text-on-surface font-bold">
+              TÍTULO *
+            </label>
+            <input
+              id="load-book-title"
+              type="text"
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
+              required
+              placeholder="Ej. Ficciones"
+              className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-md text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors"
+            />
           </div>
           <div className="flex flex-col gap-2">
-            <label className="text-label-caps text-on-surface font-bold">
+            <label htmlFor="load-book-isbn" className="text-label-caps text-on-surface font-bold">
               ISBN <span className="text-on-surface-variant font-normal text-xs normal-case">(opcional)</span>
             </label>
-            <input type="text" name="isbn" value={formData.isbn} onChange={handleChange} placeholder="Ej: 9789500419574" className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors" />
+            <input
+              id="load-book-isbn"
+              type="text"
+              inputMode="numeric"
+              name="isbn"
+              value={formData.isbn}
+              onChange={handleChange}
+              placeholder="Ej. 9789500419574"
+              className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-md text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors font-mono"
+            />
           </div>
         </div>
 
         {/* === FILA 2: Editorial y Año === */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <div className="flex flex-col gap-2">
-            <label className="text-label-caps text-on-surface font-bold">EDITORIAL</label>
-            <input type="text" name="editorial" value={formData.editorial} onChange={handleChange} required placeholder="Ej. Penguin Classics" className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors" />
+            <label htmlFor="load-book-editorial" className="text-label-caps text-on-surface font-bold">
+              EDITORIAL *
+            </label>
+            <input
+              id="load-book-editorial"
+              type="text"
+              name="editorial"
+              value={formData.editorial}
+              onChange={handleChange}
+              required
+              placeholder="Ej. Editorial Sur"
+              className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-md text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors"
+            />
           </div>
           <div className="flex flex-col gap-2">
-            <label className="text-label-caps text-on-surface font-bold">AÑO DE PUBLICACIÓN</label>
-            <input type="number" name="publication_year" value={formData.publication_year} onChange={handleChange} required placeholder="Ej. 1967" className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors" />
+            <label htmlFor="load-book-year" className="text-label-caps text-on-surface font-bold">
+              AÑO DE PUBLICACIÓN *
+            </label>
+            <input
+              id="load-book-year"
+              type="number"
+              inputMode="numeric"
+              name="publication_year"
+              min={868}
+              max={new Date().getFullYear()}
+              value={formData.publication_year}
+              onChange={handleChange}
+              required
+              placeholder="Ej. 1944"
+              className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-md text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors font-mono"
+            />
           </div>
         </div>
 
         {/* === FILA 3: Portada === */}
         <div className="flex flex-col gap-2">
-          <label className="text-label-caps text-on-surface font-bold">PORTADA DEL LIBRO</label>
-          <input 
-            type="file" 
-            name="cover_image" 
-            accept=".jpg, .jpeg, .png, .webp" 
-            onChange={handleFileChange} 
-            className="w-full px-4 py-2 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-bold file:uppercase file:tracking-widest file:bg-secondary file:text-on-secondary hover:file:bg-secondary-container hover:file:text-on-secondary-container file:cursor-pointer file:transition-colors cursor-pointer" 
+          <label htmlFor="load-book-cover" className="text-label-caps text-on-surface font-bold">
+            IMAGEN DE PORTADA <span className="text-on-surface-variant font-normal text-xs normal-case">(opcional)</span>
+          </label>
+          <input
+            id="load-book-cover"
+            type="file"
+            name="cover_image"
+            accept=".jpg, .jpeg, .png, .webp"
+            onChange={handleFileChange}
+            className="w-full px-4 py-2.5 bg-surface-container-lowest border border-outline-variant rounded-md text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors file:mr-4 file:py-1.5 file:px-3 file:rounded-sm file:border-0 file:text-xs file:font-bold file:uppercase file:tracking-widest file:bg-primary file:text-on-primary hover:file:opacity-90 file:cursor-pointer cursor-pointer"
           />
         </div>
 
         {imagePreview && (
-          <div className="w-32 aspect-[2/3] border-2 border-primary rounded-lg overflow-hidden shadow-lg mx-auto my-2 relative group">
-            <img src={imagePreview} alt="Vista previa" className="w-full h-full object-cover" />
-            <button type="button" onClick={() => { setFormData({...formData, cover_image: null}); setImagePreview(null); }} className="absolute inset-0 bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-              <span className="w-5 h-5">
-                <Delete/>
-              </span>
+          <div className="w-32 aspect-[2/3] border border-outline-variant rounded-md overflow-hidden shadow-md mx-auto my-2 relative group">
+            <img
+              src={imagePreview}
+              alt="Vista previa de portada seleccionada"
+              width={128}
+              height={192}
+              decoding="async"
+              className="w-full h-full object-cover"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                setFormData({ ...formData, cover_image: null });
+                setImagePreview(null);
+              }}
+              aria-label="Eliminar vista previa de portada"
+              className="absolute inset-0 bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity cursor-pointer"
+            >
+              <Trash2 className="w-6 h-6 text-error" />
             </button>
           </div>
         )}
 
         {/* === FILA 4: Descripción === */}
         <div className="flex flex-col gap-2">
-          <label className="text-label-caps text-on-surface font-bold">DESCRIPCIÓN / SINOPSIS</label>
-          <textarea name="description" value={formData.description} onChange={handleChange} required rows={3} className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors resize-y" />
+          <label htmlFor="load-book-description" className="text-label-caps text-on-surface font-bold">
+            DESCRIPCIÓN / SINOPSIS *
+          </label>
+          <textarea
+            id="load-book-description"
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            required
+            rows={3}
+            placeholder="Reseña o sinopsis de la obra..."
+            className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-md text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors resize-y"
+          />
         </div>
 
         {/* === SECCIÓN DE AUTORES === */}
-        <div className="p-5 border border-outline-variant rounded-lg bg-surface-container-lowest shadow-sm flex flex-col gap-4">
-          <h3 className="text-label-caps text-on-surface font-bold">GESTIÓN DE AUTORES</h3>
-          
+        <div className="p-5 border border-outline-variant rounded-md bg-surface-container-lowest shadow-xs flex flex-col gap-4">
+          <h2 className="text-label-caps text-on-surface font-bold">GESTIÓN DE AUTORES *</h2>
+
           {selectedAuthors.length > 0 && (
-            <div className="flex flex-wrap gap-2 p-3 bg-surface-container rounded-md">
+            <div className="flex flex-wrap gap-2 p-3 bg-surface-container rounded-sm">
               {selectedAuthors.map((author) => (
-                <div key={author.id} className="flex items-center gap-2 bg-secondary text-on-secondary px-3 py-1.5 rounded-md text-sm font-medium shadow-sm">
-                  {author.name} {author.last_name}
-                  <button type="button" onClick={() => handleRemoveAuthor(author.id)} className="hover:text-primary transition-colors flex items-center">
-                    <span className="w-5 h-5 text-[16px]">
-                      <X/>
-                    </span>
+                <div
+                  key={author.id}
+                  className="flex items-center gap-2 bg-secondary-container text-on-secondary-container px-3 py-1.5 rounded-full text-xs font-medium shadow-xs"
+                >
+                  <span>{author.name} {author.last_name}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveAuthor(author.id)}
+                    aria-label={`Quitar autor ${author.name} ${author.last_name}`}
+                    className="hover:text-error transition-colors flex items-center font-bold cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
                   </button>
                 </div>
               ))}
@@ -268,21 +435,52 @@ export default function BookForm() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex flex-col gap-2">
-              <label className="text-xs text-on-surface-variant font-bold">Elegir existente</label>
-              <select onChange={handleAddExistingAuthor} defaultValue="" className="w-full px-3 py-2.5 bg-surface-container border border-outline-variant rounded-md text-sm text-on-surface cursor-pointer focus:border-primary focus:outline-none transition-colors">
+              <label htmlFor="load-book-author-select" className="text-xs text-on-surface-variant font-bold">
+                Elegir autor existente
+              </label>
+              <select
+                id="load-book-author-select"
+                onChange={handleAddExistingAuthor}
+                defaultValue=""
+                className="w-full px-3 py-2.5 bg-surface-container border border-outline-variant rounded-sm text-sm text-on-surface cursor-pointer focus:border-primary focus:outline-none transition-colors"
+              >
                 <option value="" disabled>Buscar en el archivo...</option>
-                {availableAuthors.map(a => (
-                  <option key={a.id} value={a.id}>{a.name} {a.last_name}</option>
+                {availableAuthors.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.name} {a.last_name}
+                  </option>
                 ))}
               </select>
             </div>
 
-            <div className="flex flex-col gap-2 border-l border-outline-variant/50 pl-0 md:pl-6">
-              <label className="text-xs text-on-surface-variant font-bold">Registrar nuevo</label>
+            <div className="flex flex-col gap-2 border-t md:border-t-0 md:border-l border-outline-variant/50 pt-4 md:pt-0 pl-0 md:pl-6">
+              <span className="text-xs text-on-surface-variant font-bold">Registrar nuevo autor</span>
               <div className="flex flex-col gap-2">
-                <input type="text" placeholder="Nombre" value={newAuthor.name} onChange={(e) => setNewAuthor({...newAuthor, name: e.target.value})} className="w-full px-3 py-2 bg-surface-container border border-outline-variant rounded-md text-sm text-on-surface focus:border-primary transition-colors" />
-                <input type="text" placeholder="Apellido" value={newAuthor.last_name} onChange={(e) => setNewAuthor({...newAuthor, last_name: e.target.value})} className="w-full px-3 py-2 bg-surface-container border border-outline-variant rounded-md text-sm text-on-surface focus:border-primary transition-colors" />
-                <button type="button" onClick={handleCreateNewAuthor} disabled={isCreatingAuthor} className="bg-tertiary text-on-tertiary text-xs font-bold uppercase tracking-widest py-2 rounded-md hover:opacity-90 disabled:opacity-50 transition-colors mt-1 shadow-sm">
+                <label htmlFor="load-book-author-name" className="sr-only">Nombre del autor</label>
+                <input
+                  id="load-book-author-name"
+                  type="text"
+                  placeholder="Nombre"
+                  value={newAuthor.name}
+                  onChange={(e) => setNewAuthor({ ...newAuthor, name: e.target.value })}
+                  className="w-full px-3 py-2 bg-surface-container border border-outline-variant rounded-sm text-sm text-on-surface focus:border-primary transition-colors"
+                />
+                <label htmlFor="load-book-author-lastname" className="sr-only">Apellido del autor</label>
+                <input
+                  id="load-book-author-lastname"
+                  type="text"
+                  placeholder="Apellido"
+                  value={newAuthor.last_name}
+                  onChange={(e) => setNewAuthor({ ...newAuthor, last_name: e.target.value })}
+                  className="w-full px-3 py-2 bg-surface-container border border-outline-variant rounded-sm text-sm text-on-surface focus:border-primary transition-colors"
+                />
+                <button
+                  type="button"
+                  onClick={handleCreateNewAuthor}
+                  disabled={isCreatingAuthor}
+                  className="bg-primary text-on-primary text-xs font-bold uppercase tracking-widest py-2 rounded-sm hover:opacity-90 disabled:opacity-50 transition-colors mt-1 shadow-xs cursor-pointer inline-flex items-center justify-center gap-1"
+                >
+                  <Plus className="w-3.5 h-3.5" />
                   {isCreatingAuthor ? "Registrando..." : "Añadir Autor"}
                 </button>
               </div>
@@ -291,22 +489,31 @@ export default function BookForm() {
         </div>
 
         {/* === SECCIÓN DE GÉNEROS === */}
-        <div className="p-5 border border-outline-variant rounded-lg bg-surface-container-lowest shadow-sm flex flex-col gap-4">
-          <h3 className="text-label-caps text-on-surface font-bold">GÉNEROS LITERARIOS</h3>
-          
+        <div className="p-5 border border-outline-variant rounded-md bg-surface-container-lowest shadow-xs flex flex-col gap-4">
+          <h2 className="text-label-caps text-on-surface font-bold">GÉNEROS LITERARIOS *</h2>
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
             {/* Checkboxes de Géneros Existentes */}
             <div className="lg:col-span-2 flex flex-col gap-2">
-              <label className="text-xs text-on-surface-variant font-bold">Seleccionar existentes</label>
+              <span className="text-xs text-on-surface-variant font-bold">Seleccionar categorías</span>
               {isLoadingGenres ? (
-                <p className="text-sm text-on-surface-variant italic p-3 bg-surface-container rounded-md">Cargando géneros...</p>
+                <p className="text-sm text-on-surface-variant italic p-3 bg-surface-container rounded-sm">
+                  Cargando géneros...
+                </p>
               ) : (
-                <div className="grid grid-cols-2 gap-3 p-4 bg-surface-container border border-outline-variant rounded-md max-h-48 overflow-y-auto shadow-inner">
+                <div className="grid grid-cols-2 gap-3 p-4 bg-surface-container border border-outline-variant rounded-sm max-h-48 overflow-y-auto shadow-inner">
                   {availableGenres.map((genre) => (
-                    <label key={genre.id} className="flex items-center gap-2 cursor-pointer group">
-                      <input type="checkbox" value={genre.id} checked={formData.genres.includes(genre.id)} onChange={() => handleGenreToggle(genre.id)} className="w-4 h-4 accent-primary cursor-pointer" />
-                      <span className="text-sm text-on-surface group-hover:text-primary transition-colors">{genre.name}</span>
+                    <label key={genre.id} className="flex items-center gap-2 cursor-pointer group select-none">
+                      <input
+                        type="checkbox"
+                        value={genre.id}
+                        checked={formData.genres.includes(genre.id)}
+                        onChange={() => handleGenreToggle(genre.id)}
+                        className="w-4 h-4 accent-primary cursor-pointer"
+                      />
+                      <span className="text-sm text-on-surface group-hover:text-primary transition-colors">
+                        {genre.name}
+                      </span>
                     </label>
                   ))}
                 </div>
@@ -315,22 +522,54 @@ export default function BookForm() {
 
             {/* Crear Nuevo Género */}
             <div className="flex flex-col gap-2 border-t lg:border-t-0 lg:border-l border-outline-variant/50 pt-4 lg:pt-0 pl-0 lg:pl-6">
-              <label className="text-xs text-on-surface-variant font-bold">Crear nueva categoría</label>
+              <label htmlFor="load-book-new-genre" className="text-xs text-on-surface-variant font-bold">
+                Crear nueva categoría
+              </label>
               <div className="flex flex-col gap-2">
-                <input type="text" placeholder="Ej. Ciberpunk" value={newGenreName} onChange={(e) => setNewGenreName(e.target.value)} className="w-full px-3 py-2 bg-surface-container border border-outline-variant rounded-md text-sm text-on-surface focus:border-primary transition-colors" />
-                <button type="button" onClick={handleCreateNewGenre} disabled={isCreatingGenre} className="bg-tertiary text-on-tertiary text-xs font-bold uppercase tracking-widest py-2 rounded-md hover:opacity-90 disabled:opacity-50 transition-colors mt-1 shadow-sm">
+                <input
+                  id="load-book-new-genre"
+                  type="text"
+                  placeholder="Ej. Ciberpunk"
+                  value={newGenreName}
+                  onChange={(e) => setNewGenreName(e.target.value)}
+                  className="w-full px-3 py-2 bg-surface-container border border-outline-variant rounded-sm text-sm text-on-surface focus:border-primary transition-colors"
+                />
+                <button
+                  type="button"
+                  onClick={handleCreateNewGenre}
+                  disabled={isCreatingGenre}
+                  className="bg-primary text-on-primary text-xs font-bold uppercase tracking-widest py-2 rounded-sm hover:opacity-90 disabled:opacity-50 transition-colors mt-1 shadow-xs cursor-pointer inline-flex items-center justify-center gap-1"
+                >
+                  <Plus className="w-3.5 h-3.5" />
                   {isCreatingGenre ? "Registrando..." : "Añadir Género"}
                 </button>
               </div>
             </div>
-            
           </div>
         </div>
 
-        <button type="submit" className="w-full bg-primary text-on-primary text-body-lg font-bold tracking-widest uppercase py-3 rounded-lg mt-6 hover:opacity-90 shadow-md transition-opacity">
-          Guardar Libro
+        {/* Botón Submit */}
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full bg-primary text-on-primary text-body-md font-bold tracking-widest uppercase py-3.5 rounded-md mt-4 hover:opacity-90 shadow-sm transition-opacity flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+        >
+          <BookPlus className="w-5 h-5" />
+          {isSubmitting ? "Catalogando libro..." : "Guardar Libro en el Archivo"}
         </button>
       </form>
+
+      {/* Modal accesible de Feedback */}
+      <FeedbackModal
+        isOpen={feedbackModal.isOpen}
+        type={feedbackModal.type}
+        title={feedbackModal.title}
+        message={feedbackModal.message}
+        confirmText={feedbackModal.confirmText}
+        cancelText={feedbackModal.cancelText}
+        onConfirm={feedbackModal.onConfirm}
+        onClose={() => setFeedbackModal((prev) => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 }

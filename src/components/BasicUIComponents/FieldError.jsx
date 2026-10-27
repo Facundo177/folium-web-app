@@ -1,7 +1,20 @@
-// Muestra el error de un campo. Acepta una lista (formato del back) o un texto.
-// Se usa en todos los formularios para que los errores se vean igual.
-export default function FieldError({ messages }) {
+/**
+ * Muestra el error de un campo de forma accesible con anuncio dinámico para lectores de pantalla.
+ * Acepta una lista (formato DRF) o un string.
+ */
+export default function FieldError({ messages, id }) {
   if (!messages) return null;
   const text = Array.isArray(messages) ? messages.join(" ") : messages;
-  return <p className="text-error text-xs mt-1">{text}</p>;
+  if (!text) return null;
+
+  return (
+    <p
+      id={id}
+      role="alert"
+      aria-live="polite"
+      className="text-error text-xs mt-1 font-medium flex items-center gap-1"
+    >
+      {text}
+    </p>
+  );
 }
