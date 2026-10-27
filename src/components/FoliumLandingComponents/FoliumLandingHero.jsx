@@ -3,7 +3,7 @@ import FoliumFullLogo from "../BasicUIComponents/FoliumFullLogo";
 
 export default function FoliumLandingHero() {
   return (
-    <div className="max-w-4xl w-full flex flex-col items-center text-center pb-stack-lg">
+    <div className="max-w-5xl w-full flex flex-col items-center text-center pb-stack-lg">
       
       {/* Sello de procedencia bibliográfica */}
       <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-outline-variant/60 bg-surface-container-lowest/70 backdrop-blur-xs text-[11px] font-bold uppercase tracking-[0.14em] text-on-surface-variant mb-stack-md font-sans shadow-xs">
@@ -20,7 +20,7 @@ export default function FoliumLandingHero() {
       </h1>
 
       {/* Subtítulo Editorial — Calibrado para máxima comodidad visual */}
-      <h2 className="font-serif text-headline-sm sm:text-headline-md text-on-surface max-w-2xl mb-stack-xs leading-snug sm:leading-normal font-normal text-balance">
+      <h2 className="font-serif text-headline-sm sm:text-headline-md text-on-surface max-w-5xl mb-stack-xs leading-snug sm:leading-normal font-normal text-balance">
         Donde la memoria impresa se preserva y la lectura comunitaria cobra vida.
       </h2>
 
