@@ -1,179 +1,174 @@
-export default function FoliumLandingProducts({ handleUserButtonClick, handleLibrarianButtonClick }) {
-  return (
-    <section className="bg-background py-stack-xl px-margin-edge font-sans border-t border-outline-variant/30">
-      {/* Encabezado Editorial de la Sección */}
-      <div className="max-w-3xl mx-auto text-center mb-stack-xl">
-        <div className="inline-flex items-center gap-2 text-caption uppercase tracking-[0.2em] text-on-surface-variant/70 border-b border-outline-variant/40 pb-1 mb-4 font-sans">
-          Dos dimensiones &middot; Un mismo fondo bibliográfico
-        </div>
+export default function FoliumLandingProducts({handleUserButtonClick, handleLibrarianButtonClick}) {
 
-        <h2 className="font-serif text-display-lg-mobile md:text-display-lg text-on-surface mb-4 leading-tight font-normal">
-          La plataforma que conecta a los lectores con sus bibliotecas
+  return (
+    <section className="bg-background py-stack-lg px-margin-edge font-sans">
+      {/* Encabezado de la Sección */}
+      <div className="max-w-4xl mx-auto text-center mb-stack-lg">
+        <span className="text-label-caps text-on-surface-variant tracking-[0.2em] uppercase">
+          Un ecosistema, dos experiencias
+        </span>
+
+        <h2 className="font-serif text-display-lg-mobile md:text-display-lg text-on-surface mt-4 mb-4 leading-tight">
+          La plataforma que conecta a los lectores con sus bibliotecas.
         </h2>
 
-        <p className="font-serif italic text-title-lg text-on-surface-variant max-w-2xl mx-auto leading-relaxed">
-          Consulta ágil y reservas para quienes buscan conocimiento; control riguroso de inventario y circulación para quienes custodian los ejemplares.
+        <p className="font-serif italic font-extrabold text-title-lg text-on-surface-variant max-w-3xl mx-auto">
+          Acceso ágil al catálogo y reservas para quienes disfrutan de leer; control total de inventario y préstamos para quienes cuidan los libros.
         </p>
       </div>
 
-      {/* Doble Pliego Editorial Asimétrico */}
-      <div className="max-w-(--spacing-container-max) mx-auto grid grid-cols-1 lg:grid-cols-2 gap-stack-lg items-stretch">
-        
-        {/* Folio I: El Salón de Lectura (Comunidad y Lectores) */}
-        <div className="bg-surface-container-lowest border border-outline-variant/60 p-stack-md md:p-stack-lg flex flex-col justify-between shadow-xs relative">
-          <div>
-            {/* Cabecera de Pliego */}
-            <div className="border-b border-outline-variant/50 pb-3 mb-stack-md flex justify-between items-baseline">
-              <span className="text-caption uppercase tracking-[0.18em] text-tertiary-container font-semibold font-sans">
-                Folio I &mdash; Lectura y Consulta
-              </span>
-              <span className="text-caption text-on-surface-variant/60 font-serif italic">
-                Acceso libre a la comunidad
-              </span>
-            </div>
-
-            <h3 className="font-serif text-headline-md text-on-surface mb-3 leading-snug font-normal">
-              Tu biblioteca viva, abierta al descubrimiento
-            </h3>
-
-            <p className="text-body-md text-on-surface-variant mb-stack-md leading-relaxed">
-              Explora el catálogo general sin fricciones: comprueba la disponibilidad física de cada volumen en tiempo real, reserva ejemplares antes de visitar la sala y organiza tu propio registro de lecturas.
-            </p>
-
-            {/* Índice Tipográfico de Capacidades */}
-            <div className="space-y-4 mb-stack-lg pt-stack-xs border-t border-outline-variant/30">
-              <div className="flex items-start gap-4">
-                <span className="font-serif italic text-tertiary-container text-title-md font-semibold select-none leading-none pt-0.5">
-                  01
-                </span>
-                <div>
-                  <h4 className="text-body-md font-semibold text-on-surface mb-0.5">Catálogo en sala y depósito</h4>
-                  <p className="text-body-sm text-on-surface-variant leading-relaxed">
-                    Disponibilidad inmediata, signatura topográfica y estado de conservación de cada ejemplar en tiempo real.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4">
-                <span className="font-serif italic text-tertiary-container text-title-md font-semibold select-none leading-none pt-0.5">
-                  02
-                </span>
-                <div>
-                  <h4 className="text-body-md font-semibold text-on-surface mb-0.5">Reservas y préstamos inmediatos</h4>
-                  <p className="text-body-sm text-on-surface-variant leading-relaxed">
-                    Solicitud anticipada con fecha de retiro garantizada y alertas de devolución para mantener tus lecturas al día.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4">
-                <span className="font-serif italic text-tertiary-container text-title-md font-semibold select-none leading-none pt-0.5">
-                  03
-                </span>
-                <div>
-                  <h4 className="text-body-md font-semibold text-on-surface mb-0.5">Cuaderno del lector</h4>
-                  <p className="text-body-sm text-on-surface-variant leading-relaxed">
-                    Historial de obras consultadas, favoritos anotados y valoraciones críticas compartidas con la comunidad.
-                  </p>
-                </div>
-              </div>
+      {/* Grid de Tarjetas */}
+      <div className="max-w-(--spacing-container-max) mx-auto grid grid-cols-1 md:grid-cols-2 gap-stack-md">
+        {/* Tarjeta 1: Lectores */}
+        <div className="bg-surface-container-lowest border border-outline-variant p-stack-md md:p-stack-lg flex flex-col shadow-sm">
+          <div className="flex justify-between items-center mb-stack-sm">
+            <span className="text-label-caps text-on-surface-variant tracking-wider uppercase">
+              Para lectores y comunidad
+            </span>
+            <div className="w-10 h-10 p-1 rounded-full bg-surface-variant flex items-center justify-center text-tertiary-container">
+              <ReaderIcon />
             </div>
           </div>
 
-          {/* Botón de Entrada */}
+          <h3 className="font-serif text-headline-md text-on-surface mb-4">
+            Tu biblioteca abierta, en cualquier momento
+          </h3>
+
+          <p className="text-body-md text-on-surface-variant mb-stack-md pb-stack-md border-b border-outline-variant/50 leading-relaxed">
+            Explora el catálogo general, comprueba la disponibilidad física de cada libro en tiempo real, reserva ejemplares con un clic y lleva el control de tus préstamos y lecturas favoritas.
+          </p>
+
+          <ul className="flex flex-col gap-4 mb-stack-lg flex-1">
+            <li className="flex items-start gap-3 text-body-md text-on-surface-variant">
+              <span className="text-on-surface text-lg leading-none">
+                ✦
+              </span>
+              <span>
+                <strong className="font-semibold text-on-surface">Catálogo en vivo:</strong> consulta disponibilidad inmediata y ubicación en sala.
+              </span>
+            </li>
+            <li className="flex items-start gap-3 text-body-md text-on-surface-variant">
+              <span className="text-on-surface text-lg leading-none">
+                ✦
+              </span>
+              <span>
+                <strong className="font-semibold text-on-surface">Reservas y préstamos:</strong> solicita títulos y revisa tus fechas de devolución.
+              </span>
+            </li>
+            <li className="flex items-start gap-3 text-body-md text-on-surface-variant">
+              <span className="text-on-surface text-lg leading-none">
+                ✦
+              </span>
+              <span>
+                <strong className="font-semibold text-on-surface">Espacio personal:</strong> guarda favoritos, califica lecturas y comparte opiniones.
+              </span>
+            </li>
+          </ul>
+
           <button 
-            type="button"
-            className="w-full border border-on-surface text-on-surface hover:bg-tertiary-container hover:text-on-tertiary-container hover:border-tertiary-container text-label-caps uppercase tracking-wider py-4 px-6 flex justify-between items-center transition-all bg-surface-container-lowest group cursor-pointer"
-            onClick={handleUserButtonClick}
-          >
-            <span>Ingresar a la sala de consulta</span>
-            <span className="transition-transform group-hover:translate-x-1">
-              <ArrowRightIcon />
-            </span>
+          className="w-full border border-on-surface text-on-surface text-label-caps uppercase tracking-wider py-4 px-6 flex justify-between items-center hover:bg-tertiary-container/5 transition-colors bg-surface-variant"
+          onClick={handleUserButtonClick}>
+            Explorar el catálogo
+            <ArrowRightIcon />
           </button>
         </div>
 
-        {/* Folio II: Ficha de Custodia (Bibliotecas y Administradores) */}
-        <div className="bg-surface-container-lowest border border-outline-variant/80 p-stack-md md:p-stack-lg flex flex-col justify-between shadow-xs relative">
-          <div>
-            {/* Cabecera Técnica de Registro */}
-            <div className="border-b border-outline-variant/60 pb-3 mb-stack-md flex justify-between items-baseline bg-surface-container/20 -mx-stack-md -mt-stack-md p-stack-md md:-mx-stack-lg md:-mt-stack-lg md:p-stack-lg md:pb-3">
-              <div className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 bg-tertiary-container rounded-xs"></span>
-                <span className="text-caption uppercase tracking-[0.18em] text-on-surface font-semibold font-sans">
-                  Folio II &mdash; Custodia & Depósito
-                </span>
-              </div>
-              <span className="text-caption text-on-surface-variant font-mono text-xs uppercase tracking-wider">
-                REG. ARCHIVO
-              </span>
-            </div>
-
-            <h3 className="font-serif text-headline-md text-on-surface mb-3 leading-snug font-normal">
-              Control integral de fondo, inventario y circulación
-            </h3>
-
-            <p className="text-body-md text-on-surface-variant mb-stack-md leading-relaxed">
-              Una herramienta sobria y rigurosa para la gestión bibliotecaria: registro de volúmenes y ejemplares físicos, atención de reservas al instante y monitoreo continuo de circulación.
-            </p>
-
-            {/* Asignaturas Técnicas */}
-            <div className="space-y-4 mb-stack-lg pt-stack-xs border-t border-outline-variant/30">
-              <div className="flex items-start gap-4">
-                <span className="font-mono text-xs text-on-surface-variant bg-surface-variant/70 border border-outline-variant/40 px-2 py-0.5 rounded-xs select-none mt-0.5 font-medium shrink-0">
-                  CAT-A
-                </span>
-                <div>
-                  <h4 className="text-body-md font-semibold text-on-surface mb-0.5">Inventario y catalogación centralizada</h4>
-                  <p className="text-body-sm text-on-surface-variant leading-relaxed">
-                    Alta masiva de libros, asignación de signaturas, ISBN/ISSN y trazabilidad individual de cada copia física.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4">
-                <span className="font-mono text-xs text-on-surface-variant bg-surface-variant/70 border border-outline-variant/40 px-2 py-0.5 rounded-xs select-none mt-0.5 font-medium shrink-0">
-                  CIRC-B
-                </span>
-                <div>
-                  <h4 className="text-body-md font-semibold text-on-surface mb-0.5">Mesa de préstamos y circulación ágil</h4>
-                  <p className="text-body-sm text-on-surface-variant leading-relaxed">
-                    Tablero de control para préstamos activos, devoluciones pendientes y alertas preventivas de vencimiento.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4">
-                <span className="font-mono text-xs text-on-surface-variant bg-surface-variant/70 border border-outline-variant/40 px-2 py-0.5 rounded-xs select-none mt-0.5 font-medium shrink-0">
-                  CUST-C
-                </span>
-                <div>
-                  <h4 className="text-body-md font-semibold text-on-surface mb-0.5">Gestión de usuarios y reservas en cola</h4>
-                  <p className="text-body-sm text-on-surface-variant leading-relaxed">
-                    Atención prioritaria según orden de solicitud, control de carnets y registro histórico de movimientos institucionales.
-                  </p>
-                </div>
-              </div>
+        {/* Tarjeta 2: Bibliotecas */}
+        <div className="bg-surface-container-lowest border border-outline-variant p-stack-md md:p-stack-lg flex flex-col shadow-sm">
+          <div className="flex justify-between items-center mb-stack-sm">
+            <span className="text-label-caps text-on-surface-variant tracking-wider uppercase">
+              Para bibliotecas y administradores
+            </span>
+            <div className="w-10 h-10 p-1.5 rounded-full bg-tertiary-container flex items-center justify-center text-on-tertiary">
+              <InstitutionIcon />
             </div>
           </div>
 
-          {/* Botón de Administración */}
+          <h3 className="font-serif text-headline-md text-on-surface mb-4">
+            Control integral de inventario y préstamos
+          </h3>
+
+          <p className="text-body-md text-on-surface-variant mb-stack-md pb-stack-md border-b border-outline-variant/50 leading-relaxed">
+            Una herramienta moderna e intuitiva para simplificar la gestión bibliotecaria: registra libros y copias físicas, atiende reservas al instante y monitorea préstamos sin fricción.
+          </p>
+
+          <ul className="flex flex-col gap-4 mb-stack-lg flex-1">
+            <li className="flex items-start gap-3 text-body-md text-on-surface-variant">
+              <span className="text-on-surface text-lg leading-none">
+                ✦
+              </span>
+              <span>
+                <strong className="font-semibold text-on-surface">Inventario centralizado:</strong> alta rápida de libros, datos editoriales y copias.
+              </span>
+            </li>
+            <li className="flex items-start gap-3 text-body-md text-on-surface-variant">
+              <span className="text-on-surface text-lg leading-none">
+                ✦
+              </span>
+              <span>
+                <strong className="font-semibold text-on-surface">Circulación ágil:</strong> panel de préstamos activos, devoluciones y vencimientos.
+              </span>
+            </li>
+            <li className="flex items-start gap-3 text-body-md text-on-surface-variant">
+              <span className="text-on-surface text-lg leading-none">
+                ✦
+              </span>
+              <span>
+                <strong className="font-semibold text-on-surface">Atención a reservas:</strong> sincronización inmediata con las solicitudes de los usuarios.
+              </span>
+            </li>
+          </ul>
+
           <button 
-            type="button"
-            className="w-full bg-tertiary-container border border-on-tertiary-container text-on-tertiary-container hover:opacity-90 text-label-caps uppercase tracking-wider py-4 px-6 flex justify-between items-center transition-opacity shadow-sm group cursor-pointer"
-            onClick={handleLibrarianButtonClick}
-          >
-            <span>Administrar biblioteca o archivo</span>
-            <span className="transition-transform group-hover:translate-x-1">
-              <ArrowRightIcon />
-            </span>
+          className="w-full bg-tertiary-container border border-on-tertiary-container text-on-tertiary-container text-label-caps uppercase tracking-wider py-4 px-6 flex justify-between items-center hover:opacity-90 transition-opacity"
+          onClick={handleLibrarianButtonClick}>
+            Gestionar mi biblioteca
+            <ArrowRightIcon />
           </button>
         </div>
-
       </div>
     </section>
   );
 }
+
+// ==========================================
+// Íconos SVG extraídos y adaptados
+// ==========================================
+
+const ReaderIcon = () => (
+  <svg fill="#000000" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+    <g
+      id="SVGRepo_tracerCarrier"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    ></g>
+    <g id="SVGRepo_iconCarrier">
+      <path d="M20.18,10.19A11.9,11.9,0,0,0,18,10c-.42,0-.83,0-1.24.08a5.91,5.91,0,0,0-1.91-1.65,3.81,3.81,0,0,0,1-2.57,3.86,3.86,0,0,0-7.72,0,3.81,3.81,0,0,0,1,2.57,6.11,6.11,0,0,0-1.91,1.64C6.83,10,6.42,10,6,10a11.9,11.9,0,0,0-2.18.21,1,1,0,0,0-.82,1v8.25a1,1,0,0,0,.36.77,1,1,0,0,0,.82.22A9.75,9.75,0,0,1,6,20.23a9.89,9.89,0,0,1,5.45,1.63h0l0,0,.13.05h0A1.09,1.09,0,0,0,12,22a.87.87,0,0,0,.28-.05l.07,0,.13-.05,0,0h0A9.89,9.89,0,0,1,18,20.23a9.75,9.75,0,0,1,1.82.18,1,1,0,0,0,.82-.22,1,1,0,0,0,.36-.77V11.17A1,1,0,0,0,20.18,10.19ZM12,4a1.86,1.86,0,0,1,0,3.71h0A1.86,1.86,0,0,1,12,4ZM11,19.33a11.92,11.92,0,0,0-5-1.1c-.33,0-.66,0-1,.05V12a9.63,9.63,0,0,1,2.52.05l.11,0A10,10,0,0,1,11,13.33Zm1-7.73a11.77,11.77,0,0,0-1.38-.68l-.06,0c-.33-.13-.66-.26-1-.36A4,4,0,0,1,12,9.69h0a4,4,0,0,1,2.44.85A12.43,12.43,0,0,0,12,11.6Zm7,6.68a11.6,11.6,0,0,0-6,1v-6a9.76,9.76,0,0,1,3.37-1.22l.2,0A9.39,9.39,0,0,1,19,12Z"></path>
+    </g>
+  </svg>
+);
+
+const InstitutionIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+    <g
+      id="SVGRepo_tracerCarrier"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    ></g>
+    <g id="SVGRepo_iconCarrier">
+      {" "}
+      <path
+        d="M5 8V17.0192M9 8V17M15 8V17M19 8V17.0192M5 17.0192C5.31428 17 5.70173 17 6.2 17H17.8C18.2983 17 18.6857 17 19 17.0192M5 17.0192C4.60779 17.0431 4.32953 17.097 4.09202 17.218C3.71569 17.4097 3.40973 17.7157 3.21799 18.092C3 18.5198 3 19.0799 3 20.2V21H21V20.2C21 19.0799 21 18.5198 20.782 18.092C20.5903 17.7157 20.2843 17.4097 19.908 17.218C19.6705 17.097 19.3922 17.0431 19 17.0192M3 5.5V8H21V5.5L12 3L3 5.5Z"
+        stroke="#ffffff"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      ></path>{" "}
+    </g>
+  </svg>
+);
 
 const ArrowRightIcon = () => (
   <svg
@@ -187,6 +182,6 @@ const ArrowRightIcon = () => (
     strokeLinejoin="round"
   >
     <line x1="5" y1="12" x2="19" y2="12" />
-    <polyline points="12 5 19 12 12 19"></polyline>
+    <polyline points="12 5 19 12 12 19" />
   </svg>
 );
