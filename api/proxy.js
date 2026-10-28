@@ -7,11 +7,13 @@
  * 1. Proxy para endpoints de API (/api/v1/...) hacia Django REST en AWS.
  * 2. Proxy para archivos multimedia (/media/books/covers/...) sirviéndolos en HTTPS seguro
  *    con caché y Content-Type adecuado, solucionando el bloqueo de Mixed Content para imágenes.
- * 3. Streaming directo de respuestas HTTP vía Readable.fromWeb() para minimizar TTFB y uso de RAM.
+ * 3. Streaming directo y asíncrono vía Readable.fromWeb() y pipeline() para minimizar TTFB y uso de RAM.
  * 4. Sanitización defensiva contra Path Traversal ('..') y validación de prefijos por lista blanca.
+ * 5. Exclusión de cabeceras hop-by-hop y content-length para evitar Content-Length mismatch en respuestas comprimidas.
  */
 
 import { Readable } from "node:stream";
+import { pipeline } from "node:stream/promises";
 
 export const config = {
   api: {
@@ -87,8 +89,8 @@ export default async function handler(req, res) {
     // Clonar headers eliminando los conflictivos de host/conexión
     const forwardHeaders = {};
     for (const [key, value] of Object.entries(req.headers || {})) {
-      const lower = key.toLowerCase();
-      if (!["host", "connection", "content-length"].includes(lower) && value) {
+      const lowerKey = key.toLowerCase();
+      if (!["host", "connection", "content-length"].includes(lowerKey) && value) {
         forwardHeaders[key] = value;
       }
     }
@@ -114,10 +116,18 @@ export default async function handler(req, res) {
 
     res.status(backendResponse.status);
 
-    // Reenviar headers de respuesta
+    // Reenviar headers de respuesta excluyendo hop-by-hop y los que colisionan con streaming/descompresión
+    const STRIPPED_RESPONSE_HEADERS = new Set([
+      "content-encoding",
+      "content-length",
+      "transfer-encoding",
+      "connection",
+      "keep-alive",
+    ]);
+
     backendResponse.headers.forEach((val, key) => {
       const lowerKey = key.toLowerCase();
-      if (!["content-encoding", "transfer-encoding"].includes(lowerKey)) {
+      if (!STRIPPED_RESPONSE_HEADERS.has(lowerKey)) {
         res.setHeader(key, val);
       }
     });
@@ -134,18 +144,22 @@ export default async function handler(req, res) {
       );
     }
 
-    // Transmisión directa por streaming sin almacenar en memoria RAM
+    // Transmisión asíncrona segura por streaming garantizando el vaciado y cierre completo
     if (backendResponse.body) {
-      return Readable.fromWeb(backendResponse.body).pipe(res);
+      await pipeline(Readable.fromWeb(backendResponse.body), res);
+      return;
     }
 
     return res.end();
   } catch (error) {
     console.error("Error en Vercel Proxy:", error);
-    return res.status(502).json({
-      error: "Bad Gateway",
-      detail: "No se pudo establecer conexión con el backend en AWS.",
-      ...(process.env.NODE_ENV !== "production" ? { message: error.message } : {}),
-    });
+    if (!res.headersSent) {
+      return res.status(502).json({
+        error: "Bad Gateway",
+        detail: "No se pudo establecer conexión con el backend en AWS.",
+        ...(process.env.NODE_ENV !== "production" ? { message: error.message } : {}),
+      });
+    }
+    return res.end();
   }
 }

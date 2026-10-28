@@ -1,7 +1,15 @@
-import { Link } from "react-router-dom";
 import FoliumFullLogo from "../BasicUIComponents/FoliumFullLogo";
 
 export default function FoliumLandingHero() {
+  const handleScrollToCards = () => {
+    const target =
+      document.getElementById("tarjetas-lector-bibliotecario") ||
+      document.getElementById("propuestas");
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
     <div className="max-w-5xl w-full flex flex-col items-center text-center pb-stack-lg">
       
@@ -41,11 +49,12 @@ export default function FoliumLandingHero() {
       
       {/* Botón de Acción */}
       <div className="flex flex-col sm:flex-row items-center gap-stack-sm w-full sm:w-auto">
-        <Link 
-          to="/catalog"
+        <button 
+          type="button"
+          onClick={handleScrollToCards}
           className="w-full sm:w-auto bg-tertiary-container text-on-tertiary-container border border-on-tertiary-container px-8 py-4 text-label-caps tracking-wider rounded-DEFAULT transition-all hover:opacity-90 hover:shadow-sm flex items-center justify-center gap-3 no-underline group cursor-pointer"
         >
-          <span>Explorar el Catálogo Abierto</span>
+          <span>Ver nuestras propuestas</span>
           <svg 
             width="14" 
             height="14" 
@@ -55,13 +64,13 @@ export default function FoliumLandingHero() {
             strokeWidth="2" 
             strokeLinecap="round" 
             strokeLinejoin="round"
-            className="transition-transform group-hover:translate-x-1"
+            className="transition-transform group-hover:translate-y-1"
             aria-hidden="true"
           >
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-            <polyline points="12 5 19 12 12 19"></polyline>
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <polyline points="19 12 12 19 5 12"></polyline>
           </svg>
-        </Link>
+        </button>
       </div>
 
     </div>    

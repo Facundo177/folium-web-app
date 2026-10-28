@@ -162,7 +162,7 @@ export default function LoginForm() {
       </form>
 
       {/* Recuperar Contraseña */}
-      <p className="text-body-md text-on-surface-variant mt-8">
+      {/* <p className="text-body-md text-on-surface-variant mt-8">
         ¿Olvidaste tu contraseña?{" "}
         <a
           href="#"
@@ -170,7 +170,7 @@ export default function LoginForm() {
         >
           Recuperar acceso
         </a>
-      </p>
+      </p> */}
     </div>
   );
 }
