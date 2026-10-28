@@ -5,6 +5,7 @@ export const Profile = () => {
   useDocumentMetadata({
     title: "Mi Perfil de Lector",
     description: "Configuración y datos personales de tu cuenta en Folium.",
+    noIndex: true,
   });
 
   return (

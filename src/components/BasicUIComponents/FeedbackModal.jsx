@@ -1,9 +1,16 @@
+import { useEffect, useRef, useId } from "react";
 import { createPortal } from "react-dom";
 import { CheckCircle2, AlertTriangle, Info, X } from "lucide-react";
 
 /**
- * Modal reutilizable de notificación (reemplazo de alert) y confirmación (reemplazo de window.confirm)
- * con la estética editorial de Folium.
+ * Modal accesible de notificación y confirmación basado en el elemento nativo <dialog>.
+ *
+ * Implementa las directrices de Modern Web Guidance:
+ * - Promoción al top-layer nativo mediante dialog.showModal()
+ * - Trampa de foco y página de fondo 'inert' proporcionada por el motor del navegador
+ * - Soporte nativo para cierre con tecla Escape y gestos de retroceso
+ * - Cierre por clic exterior (Light Dismiss) controlado por puntero
+ * - Bloqueo de scroll de fondo con overscroll-behavior: contain
  *
  * Props:
  * - isOpen: boolean
@@ -27,6 +34,54 @@ export default function FeedbackModal({
   onConfirm,
   isLoading = false,
 }) {
+  const dialogRef = useRef(null);
+  const pressedOutsideRef = useRef(false);
+  const headingId = useId();
+
+  // Sincronización del estado isOpen con el elemento nativo <dialog>
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+
+    if (isOpen) {
+      if (!dialog.open) {
+        dialog.showModal();
+      }
+    } else {
+      if (dialog.open) {
+        dialog.close();
+      }
+    }
+  }, [isOpen]);
+
+  // Manejo de la tecla Escape nativa (evento cancel)
+  const handleCancel = (e) => {
+    e.preventDefault();
+    if (!isLoading) {
+      onClose?.();
+    }
+  };
+
+  // Manejo de Light Dismiss (clic afuera sobre el ::backdrop)
+  const handlePointerDown = (e) => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    const r = dialog.getBoundingClientRect();
+    pressedOutsideRef.current =
+      e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
+  };
+
+  const handlePointerUp = (e) => {
+    const dialog = dialogRef.current;
+    if (!dialog || isLoading) return;
+    const r = dialog.getBoundingClientRect();
+    const releasedOutside =
+      e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
+    if (pressedOutsideRef.current && releasedOutside) {
+      onClose?.();
+    }
+  };
+
   if (!isOpen) return null;
 
   const isConfirmMode = typeof onConfirm === "function";
@@ -62,24 +117,22 @@ export default function FeedbackModal({
   const IconComponent = current.icon;
 
   return createPortal(
-    <div
-      className="fixed inset-0 z-[120] flex items-center justify-center bg-black/60 p-4 animate-overlay-in font-sans"
-      onClick={(e) => {
-        e.stopPropagation();
-        if (!isLoading) onClose?.();
-      }}
+    <dialog
+      ref={dialogRef}
+      onCancel={handleCancel}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      aria-labelledby={headingId}
+      className="p-0 border-0 bg-transparent rounded-sm shadow-2xl max-w-md w-[calc(100%-2rem)] mx-auto my-auto overflow-hidden animate-fade-in backdrop:bg-black/65 backdrop:backdrop-blur-xs focus:outline-none"
     >
-      <div
-        className="bg-surface border border-outline-variant rounded-sm shadow-xl max-w-md w-full overflow-hidden animate-fade-in"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="bg-surface border border-outline-variant rounded-sm overflow-hidden font-sans">
         {/* Cabecera */}
         <div className="px-6 py-4 bg-surface-container border-b border-outline-variant flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <IconComponent className={`w-6 h-6 shrink-0 ${current.iconColor}`} />
-            <h3 className="text-headline-sm font-serif text-on-surface">
+            <h2 id={headingId} className="text-headline-sm font-serif text-on-surface">
               {title || current.defaultTitle}
-            </h3>
+            </h2>
           </div>
           <button
             type="button"
@@ -103,15 +156,17 @@ export default function FeedbackModal({
             {isConfirmMode && (
               <button
                 type="button"
+                autoFocus
                 disabled={isLoading}
                 onClick={onClose}
-                className="px-4 py-2 text-xs font-semibold uppercase tracking-wider border border-outline-variant text-on-surface hover:bg-surface-container rounded-sm cursor-pointer disabled:opacity-50"
+                className="px-4 py-2 text-xs font-semibold uppercase tracking-wider border border-outline-variant text-on-surface hover:bg-surface-container rounded-sm cursor-pointer disabled:opacity-50 transition-colors"
               >
                 {cancelText}
               </button>
             )}
             <button
               type="button"
+              autoFocus={!isConfirmMode}
               disabled={isLoading}
               onClick={() => {
                 if (isConfirmMode) {
@@ -120,14 +175,14 @@ export default function FeedbackModal({
                   onClose?.();
                 }
               }}
-              className={`px-5 py-2 text-xs font-semibold uppercase tracking-wider rounded-sm shadow-sm cursor-pointer disabled:opacity-50 ${current.confirmBtnClass}`}
+              className={`px-5 py-2 text-xs font-semibold uppercase tracking-wider rounded-sm shadow-sm cursor-pointer disabled:opacity-50 transition-opacity ${current.confirmBtnClass}`}
             >
               {isLoading ? "Procesando..." : confirmText}
             </button>
           </div>
         </div>
       </div>
-    </div>,
+    </dialog>,
     document.body
   );
 }

@@ -14,6 +14,7 @@ export const Inventory = () => {
   useDocumentMetadata({
     title: "Inventario de Ejemplares",
     description: "Gestión archivística de ejemplares físicos, códigos de inventario y estado de conservación.",
+    noIndex: true,
   });
   const {
     items,

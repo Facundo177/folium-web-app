@@ -2,7 +2,15 @@
 User-agent: *
 Allow: /
 Allow: /catalog
+Allow: /pricing
 Allow: /book/
-Disallow: /librarian/
+
+# Preservación de Crawl Budget y Privacidad
+Disallow: /login
+Disallow: /register
 Disallow: /user/
+Disallow: /librarian/
 Disallow: /test
+Disallow: /api/
+
+Sitemap: https://folium-psi.vercel.app/sitemap.xml

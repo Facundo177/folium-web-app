@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useDeferredValue } from "react";
 import { ITEM_STATUS } from "../../api/constants";
 import { itemService } from "../../api/services/itemService";
 import {
@@ -7,23 +7,19 @@ import {
   Pencil,
   Trash2,
   X,
-  AlertTriangle,
   CheckCircle2,
   MapPin,
 } from "lucide-react";
+import FeedbackModal from "../BasicUIComponents/FeedbackModal";
+import ItemEditModal from "./ItemEditModal";
 
 export const InventoryTable = ({ rows = [], books = [], onRefetch }) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const deferredSearchTerm = useDeferredValue(searchTerm);
   const [statusFilter, setStatusFilter] = useState("");
 
   // Estados para edición de ejemplar (Item)
   const [editingItem, setEditingItem] = useState(null);
-  const [editForm, setEditForm] = useState({
-    book: "",
-    inventory_code: "",
-    location: "",
-    status: ITEM_STATUS.AVAILABLE,
-  });
   const [isSaving, setIsSaving] = useState(false);
   const [editError, setEditError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
@@ -39,7 +35,7 @@ export const InventoryTable = ({ rows = [], books = [], onRefetch }) => {
   );
 
   const filtered = useMemo(() => {
-    const term = searchTerm.toLowerCase();
+    const term = deferredSearchTerm.toLowerCase();
     return rows.filter((r) => {
       const matchText =
         r.title.toLowerCase().includes(term) ||
@@ -49,7 +45,7 @@ export const InventoryTable = ({ rows = [], books = [], onRefetch }) => {
       const matchStatus = statusFilter ? r.statusLabel === statusFilter : true;
       return matchText && matchStatus;
     });
-  }, [rows, searchTerm, statusFilter]);
+  }, [rows, deferredSearchTerm, statusFilter]);
 
   // Función para asignar los estilos del badge según el estado
   const getStatusBadgeStyle = (status) => {
@@ -60,17 +56,10 @@ export const InventoryTable = ({ rows = [], books = [], onRefetch }) => {
 
   const handleOpenEdit = (row) => {
     setEditingItem(row);
-    setEditForm({
-      book: row.bookId ?? "",
-      inventory_code: row.code || "",
-      location: row.location || "",
-      status: row.status || ITEM_STATUS.AVAILABLE,
-    });
     setEditError(null);
   };
 
-  const handleSaveEdit = async (e) => {
-    e.preventDefault();
+  const handleSaveEdit = async (editForm) => {
     if (!editingItem) return;
 
     const cleanCode = editForm.inventory_code.trim().toUpperCase();
@@ -141,6 +130,7 @@ export const InventoryTable = ({ rows = [], books = [], onRefetch }) => {
         err.response?.data?.detail ||
           "No se pudo eliminar el ejemplar. Verifique que no tenga préstamos activos asociados."
       );
+      setDeletingItem(null);
     } finally {
       setIsDeleting(false);
     }
@@ -159,6 +149,7 @@ export const InventoryTable = ({ rows = [], books = [], onRefetch }) => {
             type="button"
             onClick={() => setSuccessMessage(null)}
             className="text-emerald-700 hover:text-emerald-950 p-1 cursor-pointer"
+            aria-label="Cerrar notificación"
           >
             <X className="w-4 h-4" />
           </button>
@@ -167,13 +158,17 @@ export const InventoryTable = ({ rows = [], books = [], onRefetch }) => {
 
       {/* Top Toolbar: Search & Filters */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-gutter gap-stack-md">
-        {/* Search Input */}
+        {/* Search Input con accesibilidad */}
         <div className="flex items-center gap-base border-b border-outline pb-1 w-full md:w-80">
+          <label htmlFor="inventory-search-input" className="sr-only">
+            Buscar en inventario
+          </label>
           <Search className="w-[18px] h-[18px] text-on-surface-variant shrink-0" />
           <input
+            id="inventory-search-input"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            type="text"
+            type="search"
             placeholder="Título, autor, ISBN o código"
             className="bg-transparent border-none outline-none text-body-md w-full text-on-surface placeholder:text-on-surface-variant"
           />
@@ -182,7 +177,11 @@ export const InventoryTable = ({ rows = [], books = [], onRefetch }) => {
         {/* Action Buttons */}
         <div className="flex items-center gap-base w-full md:w-fit">
           <div className="relative flex items-center w-full">
+            <label htmlFor="inventory-status-filter" className="sr-only">
+              Filtrar por estado
+            </label>
             <select
+              id="inventory-status-filter"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
               className="border border-outline-variant rounded-DEFAULT pl-6 pr-10 py-2 text-label-caps text-on-surface hover:bg-surface-container appearance-none bg-transparent outline-none focus:border-primary cursor-pointer transition-colors justify-center w-full"
@@ -227,14 +226,18 @@ export const InventoryTable = ({ rows = [], books = [], onRefetch }) => {
                 </span>
               </div>
 
-              {/* Cuerpo: Portada en miniatura + Título y Autor */}
+              {/* Cuerpo: Portada en miniatura con prevención de CLS + Título y Autor */}
               <div className="flex items-start gap-3">
-                <div className="w-12 h-16 bg-surface-container border border-outline-variant overflow-hidden p-0.5 shrink-0 rounded-xs shadow-xs flex items-center justify-center">
+                <div className="w-12 h-16 bg-surface-container border border-outline-variant overflow-hidden p-0.5 shrink-0 rounded-xs shadow-xs flex items-center justify-center aspect-[3/4]">
                   {row.cover ? (
                     <img
                       src={row.cover}
                       alt={`Portada de ${row.title}`}
-                      className="w-full h-full object-cover"
+                      width={48}
+                      height={64}
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-cover aspect-[3/4]"
                     />
                   ) : (
                     <span className="font-serif text-lg text-on-surface-variant">
@@ -289,33 +292,38 @@ export const InventoryTable = ({ rows = [], books = [], onRefetch }) => {
         )}
       </div>
 
-      {/* Desktop Table Section (Visible en md en adelante) con orden jerárquico optimizado */}
-      <div className="hidden md:block overflow-x-auto w-full">
+      {/* Desktop Table Section conforme a responsive-table guidance */}
+      <div
+        tabIndex={0}
+        role="region"
+        aria-label="Inventario de ejemplares"
+        className="hidden md:block overflow-x-auto w-full focus:outline-none focus:ring-1 focus:ring-primary/40"
+      >
         <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="border-y border-outline-variant bg-surface-container-lowest">
-              <th className="w-1/8 py-stack-sm px-gutter text-label-caps text-on-surface-variant">
+          <thead className="sticky top-0 z-1 bg-surface-container-lowest">
+            <tr className="border-y border-outline-variant">
+              <th scope="col" className="w-1/8 py-stack-sm px-gutter text-label-caps text-on-surface-variant">
                 CODIGO
               </th>
-              <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">
+              <th scope="col" className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">
                 PORTADA
               </th>
-              <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">
+              <th scope="col" className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">
                 TITULO & AUTOR
               </th>
-              <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">
+              <th scope="col" className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">
                 ESTADO
               </th>
-              <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">
+              <th scope="col" className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">
                 UBICACION
               </th>
-              <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">
+              <th scope="col" className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">
                 ISBN
               </th>
-              <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">
+              <th scope="col" className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">
                 GENERO
               </th>
-              <th className="py-stack-sm px-gutter text-label-caps text-on-surface-variant text-right">
+              <th scope="col" className="py-stack-sm px-gutter text-label-caps text-on-surface-variant text-right">
                 ACCIONES
               </th>
             </tr>
@@ -334,7 +342,7 @@ export const InventoryTable = ({ rows = [], books = [], onRefetch }) => {
               filtered.map((row) => (
                 <tr
                   key={row.id}
-                  className="border-b border-outline-variant hover:bg-surface"
+                  className="border-b border-outline-variant hover:bg-surface/50 transition-colors"
                 >
                   {/* Code */}
                   <td className="py-stack-sm px-gutter font-mono font-bold text-xs text-on-surface">
@@ -342,14 +350,18 @@ export const InventoryTable = ({ rows = [], books = [], onRefetch }) => {
                       {row.code}
                     </span>
                   </td>
-                  {/* Cover */}
+                  {/* Cover con prevención de CLS */}
                   <td className="py-stack-sm px-gutter">
-                    <div className="w-12 h-16 bg-surface-container border border-outline-variant overflow-hidden p-1 shadow-sm">
+                    <div className="w-12 h-16 bg-surface-container border border-outline-variant overflow-hidden p-1 shadow-xs aspect-[3/4] flex items-center justify-center">
                       {row.cover ? (
                         <img
                           src={row.cover}
                           alt={`Portada de ${row.title}`}
-                          className="w-full h-full object-cover"
+                          width={48}
+                          height={64}
+                          loading="lazy"
+                          decoding="async"
+                          className="w-full h-full object-cover aspect-[3/4]"
                         />
                       ) : (
                         <span className="font-serif text-xl text-on-surface-variant">
@@ -382,7 +394,7 @@ export const InventoryTable = ({ rows = [], books = [], onRefetch }) => {
                     {row.location || "—"}
                   </td>
                   {/* ISBN */}
-                  <td className="py-stack-sm px-gutter text-body-md text-on-surface-variant">
+                  <td className="py-stack-sm px-gutter text-body-md text-on-surface-variant font-mono text-xs">
                     {row.isbn}
                   </td>
                   {/* Genre */}
@@ -454,191 +466,50 @@ export const InventoryTable = ({ rows = [], books = [], onRefetch }) => {
         </div>
       </div>
 
-      {/* MODAL DE EDICIÓN DE ITEM */}
-      {editingItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="bg-surface border border-outline-variant rounded-sm shadow-xl w-full max-w-lg overflow-hidden animate-fade-in">
-            <div className="px-6 py-4 bg-surface-container border-b border-outline-variant flex items-center justify-between">
-              <div>
-                <span className="text-label-caps text-primary block">
-                  Gestión de Inventario
-                </span>
-                <h2 className="text-headline-sm font-serif text-on-surface">
-                  Editar Ejemplar ({editingItem.code})
-                </h2>
-              </div>
-              <button
-                type="button"
-                onClick={() => setEditingItem(null)}
-                className="text-on-surface-variant hover:text-on-surface p-1 cursor-pointer"
-                aria-label="Cerrar modal"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+      {/* Modal accesible de edición de ejemplar */}
+      <ItemEditModal
+        isOpen={Boolean(editingItem)}
+        item={editingItem}
+        books={books}
+        isSaving={isSaving}
+        error={editError}
+        onSave={handleSaveEdit}
+        onClose={() => {
+          setEditingItem(null);
+          setEditError(null);
+        }}
+      />
 
-            <form onSubmit={handleSaveEdit} className="p-6 space-y-4">
-              {editError && (
-                <div className="p-3 bg-error-container border border-error text-on-error-container text-xs rounded-sm">
-                  {editError}
-                </div>
-              )}
+      {/* Modal accesible de confirmación de eliminación de ejemplar */}
+      <FeedbackModal
+        isOpen={Boolean(deletingItem)}
+        type="warning"
+        title="¿Eliminar ejemplar?"
+        message={
+          deletingItem
+            ? `Estás por eliminar del inventario el ejemplar ${deletingItem.code} correspondiente a "${deletingItem.title}". Esta acción no se puede deshacer.`
+            : ""
+        }
+        confirmText="Sí, Eliminar"
+        cancelText="Cancelar"
+        isLoading={isDeleting}
+        onConfirm={handleConfirmDelete}
+        onClose={() => {
+          if (!isDeleting) {
+            setDeletingItem(null);
+          }
+        }}
+      />
 
-              {/* Obra asociada */}
-              <div>
-                <label className="block text-label-caps text-on-surface-variant mb-1.5">
-                  Obra de Referencia *
-                </label>
-                <div className="relative flex items-center">
-                  <select
-                    required
-                    value={editForm.book}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, book: e.target.value })
-                    }
-                    className="w-full pl-3 pr-10 py-2.5 bg-surface-container-lowest border border-outline-variant rounded-sm text-sm text-on-surface focus:outline-none focus:border-primary appearance-none cursor-pointer"
-                  >
-                    <option value="" disabled>
-                      Seleccione una obra...
-                    </option>
-                    {books.map((b) => (
-                      <option key={b.id} value={b.id}>
-                        #{b.id} — {b.title}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="absolute right-3 pointer-events-none text-on-surface-variant flex items-center justify-center">
-                    <ChevronDown className="w-4 h-4" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Código y Ubicación */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-label-caps text-on-surface-variant mb-1.5">
-                    Código de Inventario *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={editForm.inventory_code}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, inventory_code: e.target.value })
-                    }
-                    placeholder="Ej. INV-00134"
-                    className="w-full p-2.5 bg-surface-container-lowest border border-outline-variant rounded-sm text-sm text-on-surface focus:outline-none focus:border-primary"
-                  />
-                </div>
-                <div>
-                  <label className="block text-label-caps text-on-surface-variant mb-1.5">
-                    Ubicación Física *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={editForm.location}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, location: e.target.value })
-                    }
-                    placeholder="Ej. Estante A3"
-                    className="w-full p-2.5 bg-surface-container-lowest border border-outline-variant rounded-sm text-sm text-on-surface focus:outline-none focus:border-primary"
-                  />
-                </div>
-              </div>
-
-              {/* Estado */}
-              <div>
-                <label className="block text-label-caps text-on-surface-variant mb-1.5">
-                  Estado del Ejemplar *
-                </label>
-                <div className="relative flex items-center">
-                  <select
-                    required
-                    value={editForm.status}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, status: e.target.value })
-                    }
-                    className="w-full pl-3 pr-10 py-2.5 bg-surface-container-lowest border border-outline-variant rounded-sm text-sm text-on-surface focus:outline-none focus:border-primary appearance-none cursor-pointer"
-                  >
-                    <option value={ITEM_STATUS.AVAILABLE}>Disponible</option>
-                    <option value={ITEM_STATUS.LOANED}>Prestado</option>
-                    <option value={ITEM_STATUS.RESERVED}>Reservado</option>
-                    <option value={ITEM_STATUS.DAMAGED}>Dañado</option>
-                    <option value={ITEM_STATUS.LOST}>Perdido</option>
-                  </select>
-                  <div className="absolute right-3 pointer-events-none text-on-surface-variant flex items-center justify-center">
-                    <ChevronDown className="w-4 h-4" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-3 pt-4 border-t border-outline-variant">
-                <button
-                  type="button"
-                  onClick={() => setEditingItem(null)}
-                  disabled={isSaving}
-                  className="px-4 py-2 text-xs font-semibold uppercase tracking-wider border border-outline-variant text-on-surface hover:bg-surface-container rounded-sm cursor-pointer"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="px-5 py-2 text-xs font-semibold uppercase tracking-wider bg-primary text-on-primary hover:opacity-90 rounded-sm shadow-sm disabled:opacity-50 cursor-pointer"
-                >
-                  {isSaving ? "Guardando..." : "Guardar Cambios"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL DE CONFIRMACIÓN DE ELIMINACIÓN DE ITEM */}
-      {deletingItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="bg-surface border border-outline-variant rounded-sm shadow-xl max-w-md w-full p-6">
-            <div className="flex items-center gap-3 text-error mb-3">
-              <AlertTriangle className="w-7 h-7 shrink-0" />
-              <h3 className="text-headline-sm font-serif text-on-surface">
-                ¿Eliminar ejemplar?
-              </h3>
-            </div>
-            <p className="text-body-md text-on-surface-variant mb-4">
-              Estás por eliminar del inventario el ejemplar{" "}
-              <strong className="text-on-surface">{deletingItem.code}</strong> correspondiente a{" "}
-              <strong className="text-on-surface">&ldquo;{deletingItem.title}&rdquo;</strong>.
-              Esta acción no se puede deshacer.
-            </p>
-
-            {deleteError && (
-              <div className="mb-4 p-3 bg-error-container border border-error text-on-error-container text-xs rounded-sm">
-                {deleteError}
-              </div>
-            )}
-
-            <div className="flex justify-end gap-3 pt-2">
-              <button
-                type="button"
-                onClick={() => setDeletingItem(null)}
-                disabled={isDeleting}
-                className="px-4 py-2 text-xs font-semibold uppercase tracking-wider border border-outline-variant text-on-surface hover:bg-surface-container rounded-sm cursor-pointer"
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                onClick={handleConfirmDelete}
-                disabled={isDeleting}
-                className="px-5 py-2 text-xs font-semibold uppercase tracking-wider bg-error text-on-error hover:opacity-90 rounded-sm shadow-sm disabled:opacity-50 cursor-pointer"
-              >
-                {isDeleting ? "Eliminando..." : "Sí, Eliminar"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Modal accesible de error si falla la eliminación */}
+      <FeedbackModal
+        isOpen={Boolean(deleteError)}
+        type="error"
+        title="Error al eliminar ejemplar"
+        message={deleteError || ""}
+        confirmText="Entendido"
+        onClose={() => setDeleteError(null)}
+      />
     </div>
   );
 };

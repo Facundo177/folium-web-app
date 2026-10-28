@@ -38,6 +38,104 @@ Rayuela;Julio Cortázar;9788466331906;Sudamericana;1963;Novela Experimental;INV-
 El túnel;Ernesto Sabato;9789500401494;Sur;1948;Novela Psicológica;INV-SABATO-01;Pasillo C - Estante 4;La confesión de Juan Pablo Castel.
 La invención de Morel;Adolfo Bioy Casares;9788420658421;Losada;1940;Ciencia Ficción;INV-BIOY-01;Pasillo B - Estante 2;Clásico de ciencia ficción y misterio.`;
 
+const SAMPLE_BIB = `@book{garciamarquez1967cien,
+  title = {Cien años de soledad},
+  author = {García Márquez, Gabriel},
+  isbn = {9780307474728},
+  publisher = {Sudamericana},
+  year = {1967},
+  keywords = {Realismo Mágico},
+  abstract = {Obra cumbre de la literatura hispanoamericana.}
+}
+
+@book{borges1944ficciones,
+  title = {Ficciones},
+  author = {Borges, Jorge Luis},
+  isbn = {9789500419574},
+  publisher = {Sur},
+  year = {1944},
+  keywords = {Ficción Filosófica},
+  abstract = {Colección de relatos memorables.}
+}
+
+@book{cortazar1963rayuela,
+  title = {Rayuela},
+  author = {Cortázar, Julio},
+  isbn = {9788466331906},
+  publisher = {Sudamericana},
+  year = {1963},
+  keywords = {Novela Experimental},
+  abstract = {Contrarrelato lúdico en París y Buenos Aires.}
+}`;
+
+const SAMPLE_MARCXML = `<?xml version="1.0" encoding="UTF-8"?>
+<collection xmlns="http://www.loc.gov/MARC21/slim">
+  <record>
+    <leader>00725nam a2200217 u 4500</leader>
+    <controlfield tag="001">FOL-0001</controlfield>
+    <controlfield tag="008">850314s1967    ck            000 0 spa  </controlfield>
+    <datafield tag="020" ind1=" " ind2=" ">
+      <subfield code="a">9780307474728</subfield>
+    </datafield>
+    <datafield tag="100" ind1="1" ind2=" ">
+      <subfield code="a">García Márquez, Gabriel,</subfield>
+      <subfield code="d">1927-2014.</subfield>
+    </datafield>
+    <datafield tag="245" ind1="1" ind2="0">
+      <subfield code="a">Cien años de soledad /</subfield>
+      <subfield code="c">Gabriel García Márquez.</subfield>
+    </datafield>
+    <datafield tag="264" ind1=" " ind2="1">
+      <subfield code="b">Sudamericana,</subfield>
+      <subfield code="c">1967.</subfield>
+    </datafield>
+    <datafield tag="650" ind1=" " ind2="0">
+      <subfield code="a">Realismo mágico.</subfield>
+    </datafield>
+    <datafield tag="852" ind1=" " ind2=" ">
+      <subfield code="p">INV-GABO-01</subfield>
+      <subfield code="c">Sala A</subfield>
+      <subfield code="h">Estante 3</subfield>
+    </datafield>
+    <datafield tag="520" ind1=" " ind2=" ">
+      <subfield code="a">Obra cumbre de la literatura hispanoamericana.</subfield>
+    </datafield>
+  </record>
+  <record>
+    <leader>00680nam a2200205 u 4500</leader>
+    <controlfield tag="001">FOL-0002</controlfield>
+    <controlfield tag="008">850314s1944    ag            000 0 spa  </controlfield>
+    <datafield tag="020" ind1=" " ind2=" ">
+      <subfield code="a">9789500419574</subfield>
+    </datafield>
+    <datafield tag="100" ind1="1" ind2=" ">
+      <subfield code="a">Borges, Jorge Luis,</subfield>
+      <subfield code="d">1899-1986.</subfield>
+    </datafield>
+    <datafield tag="245" ind1="1" ind2="0">
+      <subfield code="a">Ficciones /</subfield>
+      <subfield code="c">Jorge Luis Borges.</subfield>
+    </datafield>
+    <datafield tag="264" ind1=" " ind2="1">
+      <subfield code="b">Sur,</subfield>
+      <subfield code="c">1944.</subfield>
+    </datafield>
+    <datafield tag="650" ind1=" " ind2="0">
+      <subfield code="a">Ficción Filosófica.</subfield>
+    </datafield>
+    <datafield tag="852" ind1=" " ind2=" ">
+      <subfield code="p">INV-BORGES-01</subfield>
+      <subfield code="c">Sector Archivo</subfield>
+      <subfield code="h">Estantería 4</subfield>
+    </datafield>
+    <datafield tag="520" ind1=" " ind2=" ">
+      <subfield code="a">Colección canónica de relatos sobre laberintos e infinitud.</subfield>
+    </datafield>
+  </record>
+</collection>`;
+
+const SAMPLE_MRC_B64 = "MDA0MjFuYW0gYTIyMDAxMzMgdSA0NTAwMDAxMDAwOTAwMDAwMDA4MDA0MTAwMDA5MDIwMDAxODAwMDUwMTAwMDAzMTAwMDY4MjQ1MDA1NTAwMDk5MjY0MDAyNTAwMTU0NjUwMDAyMjAwMTc5ODUyMDAzNTAwMjAxNTIwMDA1MTAwMjM2HkZPTC0wMDAxHjg1MDMxNHMxOTY3ICAgIGNrICAgICAgICAgICAgMDAwIDAgc3BhICAeICAfYTk3ODAzMDc0NzQ3MjgeMSAfYUdhcmPDrWEgTcOhcnF1ZXosIEdhYnJpZWwsHjEwH2FDaWVuIGHDsW9zIGRlIHNvbGVkYWQgLx9jR2FicmllbCBHYXJjw61hIE3DoXJxdWV6Lh4gMR9iU3VkYW1lcmljYW5hLB9jMTk2Ny4eIDAfYVJlYWxpc21vIG3DoWdpY28uHiAgH3BJTlYtR0FCTy0wMR9jU2FsYSBBH2hFc3RhbnRlIDMeICAfYU9icmEgY3VtYnJlIGRlIGxhIGxpdGVyYXR1cmEgaGlzcGFub2FtZXJpY2FuYS4eHTAwNDA5bmFtIGEyMjAwMTMzIHUgNDUwMDAwMTAwMDkwMDAwMDAwODAwNDEwMDAwOTAyMDAwMTgwMDA1MDEwMDAwMjQwMDA2ODI0NTAwMzYwMDA5MjI2NDAwMTYwMDEyODY1MDAwMjYwMDE0NDg1MjAwNDkwMDE3MDUyMDAwNTYwMDIxOR5GT0wtMDAwMh44NTAzMTRzMTk0NCAgICBhZyAgICAgICAgICAgIDAwMCAwIHNwYSAgHiAgH2E5Nzg5NTAwNDE5NTc0HjEgH2FCb3JnZXMsIEpvcmdlIEx1aXMsHjEwH2FGaWNjaW9uZXMgLx9jSm9yZ2UgTHVpcyBCb3JnZXMuHiAxH2JTdXIsH2MxOTQ0Lh4gMB9hRmljY2nDs24gRmlsb3PDs2ZpY2EuHiAgH3BJTlYtQk9SR0VTLTAxH2NTZWN0b3IgQXJjaGl2bx9oRXN0YW50ZXLDrWEgNB4gIB9hQ29sZWNjacOzbiBkZSByZWxhdG9zIHNvYnJlIGxhYmVyaW50b3MgZSBpbmZpbml0dWQuHh0wMDM5N25hbSBhMjIwMDEzMyB1IDQ1MDAwMDEwMDA5MDAwMDAwMDgwMDQxMDAwMDkwMjAwMDE4MDAwNTAxMDAwMDIyMDAwNjgyNDUwMDMyMDAwOTAyNjQwMDI1MDAxMjI2NTAwMDI1MDAxNDc4NTIwMDM5MDAxNzI1MjAwMDUyMDAyMTEeRk9MLTAwMDMeODUwMzE0czE5NjMgICAgZnIgICAgICAgICAgICAwMDAgMCBzcGEgIB4gIB9hOTc4ODQ2NjMzMTkwNh4xIB9hQ29ydMOhemFyLCBKdWxpbyweMTAfYVJheXVlbGEgLx9jSnVsaW8gQ29ydMOhemFyLh4gMR9iU3VkYW1lcmljYW5hLB9jMTk2My4eIDAfYU5vdmVsYSBFeHBlcmltZW50YWwuHiAgH3BJTlYtQ09SVEFaQVItMDEfY1NhbGEgQR9oRXN0YW50ZSAyHiAgH2FDb250cmFycmVsYXRvIGzDumRpY28gZW4gUGFyw61zIHkgQnVlbm9zIEFpcmVzLh4d";
+
 export default function CatalogImporter() {
   const [currentStep, setCurrentStep] = useState(1);
   const [file, setFile] = useState(null);
@@ -61,13 +159,34 @@ export default function CatalogImporter() {
 
   const fileInputRef = useRef(null);
 
-  // Descargar plantilla CSV de muestra
-  const handleDownloadSample = () => {
-    const blob = new Blob(["\uFEFF" + SAMPLE_CSV], { type: "text/csv;charset=utf-8;" });
+  // Descargar plantilla CSV, BibTeX o MARC de muestra
+  const handleDownloadSample = (format = "csv") => {
+    let blob;
+    let filename;
+
+    if (format === "mrc") {
+      const binaryString = atob(SAMPLE_MRC_B64);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      blob = new Blob([bytes], { type: "application/marc" });
+      filename = "folium_plantilla_catalogo.mrc";
+    } else if (format === "marcxml") {
+      blob = new Blob([SAMPLE_MARCXML], { type: "application/marcxml+xml;charset=utf-8;" });
+      filename = "folium_plantilla_catalogo.xml";
+    } else if (format === "bib") {
+      blob = new Blob([SAMPLE_BIB], { type: "application/x-bibtex;charset=utf-8;" });
+      filename = "folium_plantilla_catalogo.bib";
+    } else {
+      blob = new Blob(["\uFEFF" + SAMPLE_CSV], { type: "text/csv;charset=utf-8;" });
+      filename = "folium_plantilla_catalogo.csv";
+    }
+
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", "folium_plantilla_catalogo.csv");
+    link.setAttribute("download", filename);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -77,13 +196,13 @@ export default function CatalogImporter() {
   // Manejo de archivo seleccionado
   const handleFileSelect = (selectedFile) => {
     if (!selectedFile) return;
-    const validExtensions = [".xlsx", ".csv", ".tsv", ".txt"];
+    const validExtensions = [".xlsx", ".csv", ".tsv", ".txt", ".bib", ".mrc", ".marc", ".xml", ".marcxml"];
     const hasValidExt = validExtensions.some((ext) =>
       selectedFile.name.toLowerCase().endsWith(ext)
     );
 
     if (!hasValidExt) {
-      setErrorMessage("Por favor selecciona un archivo con formato válido (.xlsx, .csv, .tsv o .txt).");
+      setErrorMessage("Por favor selecciona un archivo con formato válido (.xlsx, .csv, .tsv, .txt, .bib, .mrc, .marc o .xml).");
       return;
     }
 
@@ -198,7 +317,7 @@ export default function CatalogImporter() {
           Importador Masivo de Catálogos
         </h1>
         <p className="text-on-surface-variant text-sm md:text-base max-w-2xl">
-          Carga colecciones enteras en lote mediante planillas Excel (.xlsx) o archivos CSV.
+          Carga colecciones enteras en lote mediante planillas Excel (.xlsx), archivos CSV, BibTeX (.bib) o registros MARC 21 / MARCXML (.mrc, .xml).
           El asistente detecta los encabezados, previene duplicados y genera los ejemplares físicos automáticamente.
         </p>
       </div>
@@ -277,7 +396,7 @@ export default function CatalogImporter() {
             <input
               ref={fileInputRef}
               type="file"
-              accept=".xlsx,.csv,.tsv,.txt"
+              accept=".xlsx,.csv,.tsv,.txt,.bib,.mrc,.marc,.xml,.marcxml"
               className="hidden"
               onChange={(e) => handleFileSelect(e.target.files[0])}
             />
@@ -296,6 +415,9 @@ export default function CatalogImporter() {
             <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-on-surface-variant font-mono">
               <span className="px-2 py-1 bg-surface-container rounded border border-outline-variant/60">.xlsx (Excel)</span>
               <span className="px-2 py-1 bg-surface-container rounded border border-outline-variant/60">.csv (UTF-8 / Latin-1)</span>
+              <span className="px-2 py-1 bg-surface-container rounded border border-outline-variant/60">.bib (BibTeX)</span>
+              <span className="px-2 py-1 bg-surface-container rounded border border-outline-variant/60">.mrc / .marc (MARC 21)</span>
+              <span className="px-2 py-1 bg-surface-container rounded border border-outline-variant/60">.xml (MARCXML)</span>
               <span className="px-2 py-1 bg-surface-container rounded border border-outline-variant/60">.tsv / .txt</span>
             </div>
           </div>
@@ -342,14 +464,40 @@ export default function CatalogImporter() {
                 Puedes descargar nuestra planilla de ejemplo con 5 libros clásicos listos para probar la importación.
               </div>
             </div>
-            <button
-              type="button"
-              onClick={handleDownloadSample}
-              className="flex items-center justify-center gap-2 px-4 py-2 bg-surface-container-highest border border-outline-variant text-on-surface rounded-lg text-xs font-semibold hover:border-primary transition-colors shrink-0"
-            >
-              <Download className="w-4 h-4 text-primary" />
-              Descargar Plantilla CSV
-            </button>
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => handleDownloadSample("csv")}
+                className="flex items-center justify-center gap-2 px-3 py-2 bg-surface-container-highest border border-outline-variant text-on-surface rounded-lg text-xs font-semibold hover:border-primary transition-colors cursor-pointer"
+              >
+                <Download className="w-3.5 h-3.5 text-primary" />
+                Plantilla CSV
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDownloadSample("bib")}
+                className="flex items-center justify-center gap-2 px-3 py-2 bg-surface-container-highest border border-outline-variant text-on-surface rounded-lg text-xs font-semibold hover:border-primary transition-colors cursor-pointer"
+              >
+                <Download className="w-3.5 h-3.5 text-primary" />
+                Ejemplo .bib
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDownloadSample("mrc")}
+                className="flex items-center justify-center gap-2 px-3 py-2 bg-surface-container-highest border border-outline-variant text-on-surface rounded-lg text-xs font-semibold hover:border-primary transition-colors cursor-pointer"
+              >
+                <Download className="w-3.5 h-3.5 text-primary" />
+                Ejemplo .mrc (MARC 21)
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDownloadSample("marcxml")}
+                className="flex items-center justify-center gap-2 px-3 py-2 bg-surface-container-highest border border-outline-variant text-on-surface rounded-lg text-xs font-semibold hover:border-primary transition-colors cursor-pointer"
+              >
+                <Download className="w-3.5 h-3.5 text-primary" />
+                Ejemplo MARCXML
+              </button>
+            </div>
           </div>
         </div>
       )}

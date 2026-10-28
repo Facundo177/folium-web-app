@@ -4,18 +4,54 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
     <title>Folium — Archivo y Biblioteca de Patrimonio</title>
     <meta
       name="description"
       content="Plataforma de preservación, consulta y gestión de colecciones bibliográficas, libros raros y archivos patrimoniales."
     />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://folium-psi.vercel.app/" />
+
+    <!-- Open Graph (Facebook, WhatsApp, LinkedIn) -->
+    <meta property="og:site_name" content="Folium" />
+    <meta property="og:locale" content="es_ES" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://folium-psi.vercel.app/" />
     <meta property="og:title" content="Folium — Archivo y Biblioteca de Patrimonio" />
     <meta
       property="og:description"
       content="Plataforma de preservación, consulta y gestión de colecciones bibliográficas, libros raros y archivos patrimoniales."
     />
-    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://folium-psi.vercel.app/favicon.svg" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Folium — Archivo y Biblioteca de Patrimonio" />
+    <meta
+      name="twitter:description"
+      content="Plataforma de preservación, consulta y gestión de colecciones bibliográficas, libros raros y archivos patrimoniales."
+    />
+    <meta name="twitter:image" content="https://folium-psi.vercel.app/favicon.svg" />
+
     <meta name="theme-color" content="#380007" />
+
+    <!-- Schema.org JSON-LD para Organización y Biblioteca Patrimonial -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Library",
+      "name": "Folium",
+      "url": "https://folium-psi.vercel.app",
+      "logo": "https://folium-psi.vercel.app/favicon.svg",
+      "description": "Plataforma de preservación, consulta y gestión de colecciones bibliográficas, libros raros y archivos patrimoniales.",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://folium-psi.vercel.app/catalog?search={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>

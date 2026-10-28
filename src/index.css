@@ -195,7 +195,16 @@
 /* 2. Reemplazo de las variables de color cuando el modo oscuro está activo */
 @layer base {
 
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    scrollbar-color: var(--color-outline-variant) transparent;
+  }
+
   .dark {
+    color-scheme: dark;
     /* BACKGROUND */
     --color-background: #1c1314; /* Espresso muy profundo */
     --color-on-background: #e0ceb4; /* PARCHMENT */
@@ -366,4 +375,16 @@
     .folium-sidebar .action-btn:nth-child(2) { left: 52px; }
     .folium-sidebar .action-btn:nth-child(3) { left: 104px; }
   }
+}
+
+
+/* =======================================================
+   MODAL DIALOG OVERSCROLL CONTAINMENT (Modern Web Guidance)
+   ======================================================= */
+dialog:modal {
+  overscroll-behavior: contain;
+}
+dialog::backdrop {
+  overflow: hidden;
+  overscroll-behavior: contain;
 }

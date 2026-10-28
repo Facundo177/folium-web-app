@@ -7,13 +7,19 @@
  * 1. Proxy para endpoints de API (/api/v1/...) hacia Django REST en AWS.
  * 2. Proxy para archivos multimedia (/media/books/covers/...) sirviéndolos en HTTPS seguro
  *    con caché y Content-Type adecuado, solucionando el bloqueo de Mixed Content para imágenes.
+ * 3. Streaming directo de respuestas HTTP vía Readable.fromWeb() para minimizar TTFB y uso de RAM.
+ * 4. Sanitización defensiva contra Path Traversal ('..') y validación de prefijos por lista blanca.
  */
+
+import { Readable } from "node:stream";
 
 export const config = {
   api: {
     bodyParser: false, // Permite transmitir streams crudos (JSON, multipart/form-data)
   },
 };
+
+const ALLOWED_PREFIXES = new Set(["api", "media"]);
 
 const MIME_TYPES = {
   webp: "image/webp",
@@ -30,23 +36,32 @@ export default async function handler(req, res) {
   const BACKEND_HOST = process.env.BACKEND_HOST || "http://54.160.130.29";
 
   try {
+    const rawPrefix = String(req.query?.prefix || "api").toLowerCase();
+    const prefix = ALLOWED_PREFIXES.has(rawPrefix) ? rawPrefix : "api";
+
     const rawPath = req.query?.path || "";
-    const cleanPath = Array.isArray(rawPath) ? rawPath.join("/") : rawPath;
-    const prefix = req.query?.prefix || "api";
+    const cleanPath = Array.isArray(rawPath) ? rawPath.join("/") : String(rawPath);
+
+    // Sanitización contra path traversal y caracteres nulos
+    const sanitizedPath = cleanPath
+      .replace(/\\/g, "/")
+      .replace(/\.\./g, "")
+      .replace(/\0/g, "")
+      .replace(/^\/+/, "");
 
     // Si se accede directamente a /api/proxy sin path
-    if (!cleanPath && prefix === "api") {
+    if (!sanitizedPath && prefix === "api") {
       return res.status(200).json({ status: "ok", message: "Folium API & Media Proxy active" });
     }
 
-    let normalizedPath = cleanPath;
+    let normalizedPath = sanitizedPath;
     // Para endpoints de API (Django DRF), asegurar la barra final si no es un archivo con extensión
     if (prefix === "api") {
-      const lastSegment = cleanPath.split("/").pop();
+      const lastSegment = sanitizedPath.split("/").pop();
       const hasExtension = lastSegment && lastSegment.includes(".");
-      normalizedPath = cleanPath.endsWith("/") || hasExtension
-        ? cleanPath
-        : `${cleanPath}/`;
+      normalizedPath = sanitizedPath.endsWith("/") || hasExtension
+        ? sanitizedPath
+        : `${sanitizedPath}/`;
     }
 
     // Reconstruir query params (excluyendo parámetros de control 'path' y 'prefix')
@@ -65,7 +80,7 @@ export default async function handler(req, res) {
     const queryString = searchParams.toString();
 
     // Construir la URL completa hacia AWS EC2
-    const targetUrl = `${BACKEND_HOST.replace(/\/+$/, "")}/${prefix}/${normalizedPath.replace(/^\/+/, "")}${
+    const targetUrl = `${BACKEND_HOST.replace(/\/+$/, "")}/${prefix}/${normalizedPath}${
       queryString ? `?${queryString}` : ""
     }`;
 
@@ -107,23 +122,30 @@ export default async function handler(req, res) {
       }
     });
 
-    // Si es un archivo multimedia, asegurar Content-Type correcto y caché
+    // Si es un archivo multimedia, asegurar Content-Type correcto y caché CDN
     if (prefix === "media") {
       const ext = normalizedPath.split(".").pop()?.toLowerCase();
       if (MIME_TYPES[ext]) {
         res.setHeader("Content-Type", MIME_TYPES[ext]);
       }
-      res.setHeader("Cache-Control", "public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800");
+      res.setHeader(
+        "Cache-Control",
+        "public, max-age=604800, s-maxage=604800, stale-while-revalidate=2592000"
+      );
     }
 
-    const arrayBuffer = await backendResponse.arrayBuffer();
-    return res.send(Buffer.from(arrayBuffer));
+    // Transmisión directa por streaming sin almacenar en memoria RAM
+    if (backendResponse.body) {
+      return Readable.fromWeb(backendResponse.body).pipe(res);
+    }
+
+    return res.end();
   } catch (error) {
     console.error("Error en Vercel Proxy:", error);
     return res.status(502).json({
       error: "Bad Gateway",
       detail: "No se pudo establecer conexión con el backend en AWS.",
-      message: error.message,
+      ...(process.env.NODE_ENV !== "production" ? { message: error.message } : {}),
     });
   }
 }

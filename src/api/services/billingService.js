@@ -39,7 +39,7 @@ export const DEFAULT_LIBRARY_PLANS = [
         category: "Gestión de Archivo e Inventario",
         items: [
           "Hasta 5.000 títulos únicos y 15.000 ejemplares físicos trazables",
-          "Importador masivo de catálogos por Excel (.xlsx) y CSV con simulación previa",
+          "Importador masivo de catálogos por Excel (.xlsx), CSV, BibTeX (.bib) y MARC 21 / MARCXML (.mrc, .xml) con simulación previa",
           "Hasta 3 cuentas de Bibliotecario con panel de circulación y devoluciones",
           "Control de ubicaciones físicas por sala, pasillo y estantería",
         ],
