@@ -10,6 +10,7 @@ export const IMPORTER_LIMITS = {
   MAX_TOTAL_BYTES: 20 * 1024 * 1024, // 20 MB
   CHUNK_MAX_BYTES: Math.floor(3.5 * 1024 * 1024), // 3.5 MB por tanda
   PREVIEW_SLICE_BYTES: 256 * 1024, // 256 KB para detección rápida en preview
+  COVER_BATCH_SIZE: 15, // Micro-tandas de hasta 15 ISBNs para búsqueda de portadas sin timeout
 };
 
 const VALID_EXTENSIONS = [
@@ -507,6 +508,8 @@ export const importerService = {
     let importedBooks = 0;
     let importedItems = 0;
     let skippedRows = 0;
+    let coversAssigned = 0;
+    const pendingCoverIsbnsSet = new Set();
 
     for (let i = 0; i < chunks.length; i++) {
       onProgress?.({ current: i + 1, total: chunks.length });
@@ -527,7 +530,16 @@ export const importerService = {
       importedBooks += data.imported_books || 0;
       importedItems += data.imported_items || 0;
       skippedRows += data.skipped_rows || 0;
+      coversAssigned += data.covers_assigned || 0;
+
+      if (Array.isArray(data.pending_cover_isbns)) {
+        for (const isbn of data.pending_cover_isbns) {
+          if (isbn) pendingCoverIsbnsSet.add(String(isbn));
+        }
+      }
     }
+
+    const pendingCoverIsbns = Array.from(pendingCoverIsbnsSet);
 
     return {
       data: {
@@ -535,11 +547,89 @@ export const importerService = {
         imported_books: importedBooks,
         imported_items: importedItems,
         skipped_rows: skippedRows,
+        covers_assigned: coversAssigned,
+        pending_cover_isbns: pendingCoverIsbns,
         total_chunks: chunks.length,
         message: `Se importaron con éxito ${importedBooks} obras y ${importedItems} ejemplares físicos${
           chunks.length > 1 ? ` (procesados en ${chunks.length} tandas)` : ''
         }.`,
       },
+    };
+  },
+
+  /**
+   * Busca y asigna portadas para una micro-tanda de hasta 25 ISBNs.
+   * @param {string[]} isbns
+   */
+  fetchCoversBatch: async (isbns) => {
+    return api.post(
+      `${BASE}fetch-covers/`,
+      { isbns },
+      {
+        timeout: 60000,
+      }
+    );
+  },
+
+  /**
+   * Procesa una lista de ISBNs pendientes en micro-tandas de COVER_BATCH_SIZE (15)
+   * para evitar timeouts en Vercel y reportar progreso en tiempo real.
+   * @param {string[]} isbns
+   * @param {(progress: {processed: number, total: number, found: number, notFound: number}) => void} [onProgress]
+   * @param {() => boolean} [shouldStop]
+   */
+  fetchCoversInBatches: async (isbns = [], onProgress, shouldStop) => {
+    const cleanList = Array.from(new Set((isbns || []).filter(Boolean)));
+    const total = cleanList.length;
+    if (total === 0) {
+      return { processed: 0, total: 0, found: 0, notFound: 0, stopped: false };
+    }
+
+    const batchSize = IMPORTER_LIMITS.COVER_BATCH_SIZE;
+    let processed = 0;
+    let found = 0;
+    let notFound = 0;
+    let stopped = false;
+
+    for (let offset = 0; offset < total; offset += batchSize) {
+      if (shouldStop?.()) {
+        stopped = true;
+        break;
+      }
+
+      const batch = cleanList.slice(offset, offset + batchSize);
+      try {
+        const res = await api.post(
+          `${BASE}fetch-covers/`,
+          { isbns: batch },
+          { timeout: 60000 }
+        );
+        const d = res?.data || {};
+        const batchFound = d.found || 0;
+        const batchProcessed = d.processed || batch.length;
+        found += batchFound;
+        notFound += Math.max(0, batchProcessed - batchFound);
+        processed += batchProcessed;
+      } catch (err) {
+        console.warn('Error parcial buscando micro-tanda de portadas:', err);
+        processed += batch.length;
+        notFound += batch.length;
+      }
+
+      onProgress?.({
+        processed: Math.min(processed, total),
+        total,
+        found,
+        notFound,
+      });
+    }
+
+    return {
+      processed: Math.min(processed, total),
+      total,
+      found,
+      notFound,
+      stopped,
     };
   },
 };

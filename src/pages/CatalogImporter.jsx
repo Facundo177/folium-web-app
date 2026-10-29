@@ -16,6 +16,7 @@ import {
   BookCopy,
   Info,
   SlidersHorizontal,
+  Image as ImageIcon,
 } from "lucide-react";
 import GoBackButton from "../components/BasicUIComponents/GoBackButton";
 import { importerService, validateImporterFile } from "../api/services/importerService";
@@ -157,13 +158,23 @@ export default function CatalogImporter() {
   const [formatOptions, setFormatOptions] = useState({
     genre_separator: "auto",
     author_format: "auto",
+    fetch_covers_by_isbn: true,
   });
 
   // Paso 3: Simulación (Dry Run)
   const [simulationData, setSimulationData] = useState(null);
 
-  // Paso 4: Resultados finales
+  // Paso 4: Resultados finales y búsqueda de portadas por micro-tandas
   const [executionResult, setExecutionResult] = useState(null);
+  const [isFetchingCovers, setIsFetchingCovers] = useState(false);
+  const [coverProgress, setCoverProgress] = useState({
+    processed: 0,
+    total: 0,
+    found: 0,
+    notFound: 0,
+    stopped: false,
+  });
+  const stopCoverFetchRef = useRef(false);
 
   const fileInputRef = useRef(null);
 
@@ -290,11 +301,12 @@ export default function CatalogImporter() {
     }
   };
 
-  // Ejecutar Step 3 -> Step 4 (Ejecución real en BD, soportando múltiples tandas)
+  // Ejecutar Step 3 -> Step 4 (Ejecución real en BD + enriquecimiento de portadas por micro-tandas)
   const handleExecuteImport = async () => {
     setIsLoading(true);
     setChunkProgress({ current: 1, total: fileMeta.estimatedChunks || 1 });
     setErrorMessage("");
+    stopCoverFetchRef.current = false;
 
     try {
       const response = await importerService.execute(
@@ -303,19 +315,78 @@ export default function CatalogImporter() {
         formatOptions,
         (prog) => setChunkProgress(prog)
       );
-      setExecutionResult(response.data);
+      const resultData = response.data || {};
+      const initialLocalCovers = resultData.covers_assigned || 0;
+      const pendingIsbns = Array.isArray(resultData.pending_cover_isbns)
+        ? resultData.pending_cover_isbns
+        : [];
+
+      setExecutionResult({
+        ...resultData,
+        covers_assigned: initialLocalCovers,
+      });
       setCurrentStep(4);
+      setIsLoading(false);
+
+      if (formatOptions.fetch_covers_by_isbn && pendingIsbns.length > 0) {
+        setIsFetchingCovers(true);
+        setCoverProgress({
+          processed: 0,
+          total: pendingIsbns.length,
+          found: 0,
+          notFound: 0,
+          stopped: false,
+        });
+
+        const finalCoverStats = await importerService.fetchCoversInBatches(
+          pendingIsbns,
+          (cProg) => {
+            setCoverProgress({
+              ...cProg,
+              stopped: stopCoverFetchRef.current,
+            });
+            setExecutionResult((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    covers_assigned: initialLocalCovers + (cProg.found || 0),
+                  }
+                : prev
+            );
+          },
+          () => stopCoverFetchRef.current
+        );
+
+        setCoverProgress(finalCoverStats);
+        setExecutionResult((prev) =>
+          prev
+            ? {
+                ...prev,
+                covers_assigned: initialLocalCovers + (finalCoverStats.found || 0),
+              }
+            : prev
+        );
+        setIsFetchingCovers(false);
+      }
     } catch (err) {
       console.error("Error al ejecutar importación masiva:", err);
       const msg = err.response?.data?.detail || "Ocurrió un error al persistir los registros en la base de datos.";
       setErrorMessage(msg);
-    } finally {
       setIsLoading(false);
     }
   };
 
   // Reiniciar flujo
   const handleReset = () => {
+    stopCoverFetchRef.current = true;
+    setIsFetchingCovers(false);
+    setCoverProgress({
+      processed: 0,
+      total: 0,
+      found: 0,
+      notFound: 0,
+      stopped: false,
+    });
     setFile(null);
     setFileMeta({ isChunked: false, estimatedChunks: 1 });
     setChunkProgress({ current: 0, total: 1 });
@@ -327,6 +398,7 @@ export default function CatalogImporter() {
     setFormatOptions({
       genre_separator: "auto",
       author_format: "auto",
+      fetch_covers_by_isbn: true,
     });
     setSimulationData(null);
     setExecutionResult(null);
@@ -598,7 +670,13 @@ export default function CatalogImporter() {
                   {(formatOptions.genre_separator !== "auto" || formatOptions.author_format !== "auto") && (
                     <button
                       type="button"
-                      onClick={() => setFormatOptions({ genre_separator: "auto", author_format: "auto" })}
+                      onClick={() =>
+                        setFormatOptions((prev) => ({
+                          ...prev,
+                          genre_separator: "auto",
+                          author_format: "auto",
+                        }))
+                      }
                       className="text-[11px] font-semibold text-primary underline hover:opacity-80 cursor-pointer shrink-0"
                     >
                       Restaurar automático
@@ -645,6 +723,59 @@ export default function CatalogImporter() {
                 </div>
               </div>
             )}
+
+            {/* Selector de Portadas por ISBN (a elección del bibliotecario) */}
+            <div className="mb-6 p-4 rounded-xl bg-surface-container-low border border-outline-variant/60 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="flex items-start gap-3">
+                <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-0.5">
+                  <ImageIcon className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface flex items-center gap-2">
+                    Portadas de Libros al Importar
+                  </h3>
+                  <p className="text-xs text-on-surface-variant mt-0.5">
+                    {formatOptions.fetch_covers_by_isbn
+                      ? "Si el libro tiene ISBN, Folium buscará su portada en caché local, Open Library y Google Books sin bloquear la carga."
+                      : "Los libros importados quedarán sin imagen de portada (se mostrará la portada ornamental de archivo)."}
+                  </p>
+                  {formatOptions.fetch_covers_by_isbn && !mapping.isbn && (
+                    <p className="text-[11px] text-amber-600 dark:text-amber-400 font-semibold mt-1">
+                      Recuerda mapear la columna &quot;ISBN&quot; abajo para poder buscar portadas.
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFormatOptions((prev) => ({ ...prev, fetch_covers_by_isbn: true }))
+                  }
+                  className={`px-3.5 py-2 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
+                    formatOptions.fetch_covers_by_isbn
+                      ? "bg-primary text-on-primary border-primary shadow-sm"
+                      : "bg-surface-container text-on-surface-variant border-outline-variant hover:text-on-surface"
+                  }`}
+                >
+                  Buscar portadas por ISBN
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFormatOptions((prev) => ({ ...prev, fetch_covers_by_isbn: false }))
+                  }
+                  className={`px-3.5 py-2 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
+                    !formatOptions.fetch_covers_by_isbn
+                      ? "bg-primary text-on-primary border-primary shadow-sm"
+                      : "bg-surface-container text-on-surface-variant border-outline-variant hover:text-on-surface"
+                  }`}
+                >
+                  Dejar sin portada
+                </button>
+              </div>
+            </div>
 
             {/* Grilla de Campos de Folium vs Columnas del archivo */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -870,10 +1001,16 @@ export default function CatalogImporter() {
                       )}
                     </div>
 
-                    <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-on-surface-variant pt-1.5 border-t border-outline-variant/30">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-on-surface-variant pt-1.5 border-t border-outline-variant/30">
                       <span>ISBN: <strong className="text-on-surface">{item.isbn || "Sin ISBN"}</strong></span>
                       {item.editorial && <span>Editorial: <strong className="text-on-surface">{item.editorial}</strong></span>}
                       {item.year && <span>Año: <strong className="text-on-surface">{item.year}</strong></span>}
+                      {formatOptions.fetch_covers_by_isbn && item.isbn && (
+                        <span className="ml-auto inline-flex items-center gap-1 px-2 py-0.5 rounded bg-primary/10 text-primary text-[10px] font-semibold">
+                          <ImageIcon className="w-3 h-3" />
+                          {item.has_local_cover ? "Portada en caché local" : "Buscará portada por ISBN"}
+                        </span>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -935,7 +1072,7 @@ export default function CatalogImporter() {
           </p>
 
           {/* Tarjetas de Estadísticas Finales */}
-          <div className="grid grid-cols-3 gap-3 mb-8">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
             <div className="p-4 bg-surface-container-low rounded-xl border border-outline-variant/50">
               <BookCopy className="w-5 h-5 text-primary mx-auto mb-1" />
               <p className="text-2xl font-serif font-bold text-on-surface">{executionResult.imported_books}</p>
@@ -947,11 +1084,65 @@ export default function CatalogImporter() {
               <span className="text-[11px] uppercase tracking-wider text-on-surface-variant font-bold">Ejemplares Físicos</span>
             </div>
             <div className="p-4 bg-surface-container-low rounded-xl border border-outline-variant/50">
+              <ImageIcon className="w-5 h-5 text-primary mx-auto mb-1" />
+              <p className="text-2xl font-serif font-bold text-on-surface">
+                {executionResult.covers_assigned ?? 0}
+              </p>
+              <span className="text-[11px] uppercase tracking-wider text-on-surface-variant font-bold">
+                Portadas por ISBN
+              </span>
+            </div>
+            <div className="p-4 bg-surface-container-low rounded-xl border border-outline-variant/50">
               <AlertCircle className="w-5 h-5 text-on-surface-variant mx-auto mb-1" />
               <p className="text-2xl font-serif font-bold text-on-surface">{executionResult.skipped_rows}</p>
               <span className="text-[11px] uppercase tracking-wider text-on-surface-variant font-bold">Omitidos</span>
             </div>
           </div>
+
+          {/* Barra de progreso de enriquecimiento de portadas por ISBN en micro-tandas */}
+          {(isFetchingCovers || coverProgress.total > 0) && (
+            <div className="mb-8 p-4 rounded-xl bg-surface-container-low border border-primary/30 text-left animate-fade-in">
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <div className="flex items-center gap-2 text-xs font-bold text-on-surface">
+                  {isFetchingCovers ? (
+                    <RefreshCw className="w-4 h-4 text-primary animate-spin shrink-0" />
+                  ) : (
+                    <ImageIcon className="w-4 h-4 text-primary shrink-0" />
+                  )}
+                  <span>
+                    {isFetchingCovers
+                      ? `Buscando portadas externas por ISBN (${coverProgress.processed} de ${coverProgress.total})...`
+                      : coverProgress.stopped
+                      ? `Búsqueda de portadas detenida (${coverProgress.processed} de ${coverProgress.total} consultados)`
+                      : `Búsqueda de portadas por ISBN finalizada (${coverProgress.found} encontradas en la red)`}
+                  </span>
+                </div>
+                {isFetchingCovers && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      stopCoverFetchRef.current = true;
+                    }}
+                    className="text-[11px] font-bold text-primary underline hover:opacity-80 cursor-pointer shrink-0"
+                  >
+                    Omitir restantes
+                  </button>
+                )}
+              </div>
+              <div className="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-primary transition-all duration-300"
+                  style={{
+                    width: `${
+                      coverProgress.total > 0
+                        ? Math.min(100, Math.round((coverProgress.processed / coverProgress.total) * 100))
+                        : 100
+                    }%`,
+                  }}
+                />
+              </div>
+            </div>
+          )}
 
           {/* Botones de acción final */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
