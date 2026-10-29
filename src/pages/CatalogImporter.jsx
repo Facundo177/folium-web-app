@@ -18,7 +18,7 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import GoBackButton from "../components/BasicUIComponents/GoBackButton";
-import { importerService } from "../api/services/importerService";
+import { importerService, validateImporterFile } from "../api/services/importerService";
 
 const FOLIUM_FIELDS = [
   { id: "title", label: "Título de la Obra", required: true, description: "Nombre principal del libro" },
@@ -140,10 +140,12 @@ const SAMPLE_MRC_B64 = "MDA0MjFuYW0gYTIyMDAxMzMgdSA0NTAwMDAxMDAwOTAwMDAwMDA4MDA0
 export default function CatalogImporter() {
   const [currentStep, setCurrentStep] = useState(1);
   const [file, setFile] = useState(null);
+  const [fileMeta, setFileMeta] = useState({ isChunked: false, estimatedChunks: 1 });
   const [isDragging, setIsDragging] = useState(false);
 
-  // Estados de comunicación y respuesta
+  // Estados de comunicación, respuesta y progreso por tandas
   const [isLoading, setIsLoading] = useState(false);
+  const [chunkProgress, setChunkProgress] = useState({ current: 0, total: 1 });
   const [errorMessage, setErrorMessage] = useState("");
 
   // Paso 2: Vista previa, mapeo y opciones manuales de formato
@@ -199,20 +201,24 @@ export default function CatalogImporter() {
     URL.revokeObjectURL(url);
   };
 
-  // Manejo de archivo seleccionado
+  // Manejo de archivo seleccionado con validación de límites (4 MB para .xlsx, 20 MB en tandas para el resto)
   const handleFileSelect = (selectedFile) => {
     if (!selectedFile) return;
-    const validExtensions = [".xlsx", ".csv", ".tsv", ".txt", ".bib", ".mrc", ".marc", ".xml", ".marcxml"];
-    const hasValidExt = validExtensions.some((ext) =>
-      selectedFile.name.toLowerCase().endsWith(ext)
-    );
 
-    if (!hasValidExt) {
-      setErrorMessage("Por favor selecciona un archivo con formato válido (.xlsx, .csv, .tsv, .txt, .bib, .mrc, .marc o .xml).");
+    const validation = validateImporterFile(selectedFile);
+    if (!validation.valid) {
+      setFile(null);
+      setFileMeta({ isChunked: false, estimatedChunks: 1 });
+      setErrorMessage(validation.error);
+      if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
 
     setFile(selectedFile);
+    setFileMeta({
+      isChunked: validation.isChunked,
+      estimatedChunks: validation.estimatedChunks,
+    });
     setErrorMessage("");
   };
 
@@ -229,6 +235,9 @@ export default function CatalogImporter() {
       setSampleRows(data.sample_rows || []);
       setTotalRows(data.total_rows || 0);
       setMapping(data.suggested_mapping || {});
+      if (data.total_chunks && data.total_chunks > 1) {
+        setFileMeta({ isChunked: true, estimatedChunks: data.total_chunks });
+      }
       setCurrentStep(2);
     } catch (err) {
       console.error("Error al previsualizar archivo:", err);
@@ -252,7 +261,7 @@ export default function CatalogImporter() {
     });
   };
 
-  // Ejecutar Step 2 -> Step 3 (Simulación Dry Run)
+  // Ejecutar Step 2 -> Step 3 (Simulación Dry Run, soportando múltiples tandas)
   const handleRunSimulation = async () => {
     if (!mapping.title || !mapping.author) {
       setErrorMessage("Debes asignar obligatoriamente las columnas para 'Título' y 'Autor(es)'.");
@@ -260,10 +269,16 @@ export default function CatalogImporter() {
     }
 
     setIsLoading(true);
+    setChunkProgress({ current: 1, total: fileMeta.estimatedChunks || 1 });
     setErrorMessage("");
 
     try {
-      const response = await importerService.simulate(file, mapping, formatOptions);
+      const response = await importerService.simulate(
+        file,
+        mapping,
+        formatOptions,
+        (prog) => setChunkProgress(prog)
+      );
       setSimulationData(response.data);
       setCurrentStep(3);
     } catch (err) {
@@ -275,13 +290,19 @@ export default function CatalogImporter() {
     }
   };
 
-  // Ejecutar Step 3 -> Step 4 (Ejecución real en BD)
+  // Ejecutar Step 3 -> Step 4 (Ejecución real en BD, soportando múltiples tandas)
   const handleExecuteImport = async () => {
     setIsLoading(true);
+    setChunkProgress({ current: 1, total: fileMeta.estimatedChunks || 1 });
     setErrorMessage("");
 
     try {
-      const response = await importerService.execute(file, mapping, formatOptions);
+      const response = await importerService.execute(
+        file,
+        mapping,
+        formatOptions,
+        (prog) => setChunkProgress(prog)
+      );
       setExecutionResult(response.data);
       setCurrentStep(4);
     } catch (err) {
@@ -296,6 +317,8 @@ export default function CatalogImporter() {
   // Reiniciar flujo
   const handleReset = () => {
     setFile(null);
+    setFileMeta({ isChunked: false, estimatedChunks: 1 });
+    setChunkProgress({ current: 0, total: 1 });
     setFileHeaders([]);
     setSampleRows([]);
     setTotalRows(0);
@@ -423,14 +446,17 @@ export default function CatalogImporter() {
               o haz clic para explorar tus carpetas locales
             </p>
 
-            <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-on-surface-variant font-mono">
-              <span className="px-2 py-1 bg-surface-container rounded border border-outline-variant/60">.xlsx (Excel)</span>
-              <span className="px-2 py-1 bg-surface-container rounded border border-outline-variant/60">.csv (UTF-8 / Latin-1)</span>
-              <span className="px-2 py-1 bg-surface-container rounded border border-outline-variant/60">.bib (BibTeX)</span>
-              <span className="px-2 py-1 bg-surface-container rounded border border-outline-variant/60">.mrc / .marc (MARC 21)</span>
-              <span className="px-2 py-1 bg-surface-container rounded border border-outline-variant/60">.xml (MARCXML)</span>
-              <span className="px-2 py-1 bg-surface-container rounded border border-outline-variant/60">.tsv / .txt</span>
+            <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-on-surface-variant font-mono mb-3">
+              <span className="px-2 py-1 bg-surface-container rounded border border-outline-variant/60">.xlsx (Excel • máx. 4 MB)</span>
+              <span className="px-2 py-1 bg-surface-container rounded border border-outline-variant/60">.csv (hasta 20 MB)</span>
+              <span className="px-2 py-1 bg-surface-container rounded border border-outline-variant/60">.bib (BibTeX • hasta 20 MB)</span>
+              <span className="px-2 py-1 bg-surface-container rounded border border-outline-variant/60">.mrc / .marc (MARC 21 • hasta 20 MB)</span>
+              <span className="px-2 py-1 bg-surface-container rounded border border-outline-variant/60">.xml (MARCXML • hasta 20 MB)</span>
+              <span className="px-2 py-1 bg-surface-container rounded border border-outline-variant/60">.tsv / .txt (hasta 20 MB)</span>
             </div>
+            <p className="text-[11px] text-on-surface-variant/80">
+              Los archivos mayores a 3.5 MB (excepto .xlsx) se dividen y envían automáticamente en tandas menores a 4 MB.
+            </p>
           </div>
 
           {/* Tarjeta del archivo seleccionado */}
@@ -440,8 +466,18 @@ export default function CatalogImporter() {
                 <FileText className="w-7 h-7 text-primary shrink-0" />
                 <div className="truncate">
                   <p className="text-sm font-bold text-on-surface truncate">{file.name}</p>
-                  <p className="text-xs text-on-surface-variant">
-                    {(file.size / 1024).toFixed(1)} KB • Listo para procesar
+                  <p className="text-xs text-on-surface-variant flex flex-wrap items-center gap-2">
+                    <span>
+                      {file.size >= 1024 * 1024
+                        ? `${(file.size / (1024 * 1024)).toFixed(2)} MB`
+                        : `${(file.size / 1024).toFixed(1)} KB`}{" "}
+                      • Listo para procesar
+                    </span>
+                    {fileMeta.isChunked && (
+                      <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/25 text-[11px] font-semibold">
+                        Se enviará en {fileMeta.estimatedChunks} tandas (&lt; 4 MB c/u)
+                      </span>
+                    )}
                   </p>
                 </div>
               </div>
@@ -709,7 +745,9 @@ export default function CatalogImporter() {
               {isLoading ? (
                 <>
                   <RefreshCw className="w-4 h-4 animate-spin" />
-                  Simulando...
+                  {chunkProgress.total > 1
+                    ? `Simulando tanda ${chunkProgress.current} de ${chunkProgress.total}...`
+                    : "Simulando..."}
                 </>
               ) : (
                 <>
@@ -862,7 +900,9 @@ export default function CatalogImporter() {
               {isLoading ? (
                 <>
                   <RefreshCw className="w-4 h-4 animate-spin" />
-                  Importando registros a Folium...
+                  {chunkProgress.total > 1
+                    ? `Importando tanda ${chunkProgress.current} de ${chunkProgress.total}...`
+                    : "Importando registros a Folium..."}
                 </>
               ) : (
                 <>
@@ -888,7 +928,10 @@ export default function CatalogImporter() {
             ¡Importación Completada con Éxito!
           </h2>
           <p className="text-sm text-on-surface-variant mb-8">
-            Los datos han sido validados y persistidos de forma transaccional en la base de datos de Folium.
+            Los datos han sido validados y persistidos de forma transaccional en la base de datos de Folium
+            {executionResult.total_chunks > 1
+              ? ` (enviados en ${executionResult.total_chunks} tandas seguras menores a 4 MB)`
+              : ""}.
           </p>
 
           {/* Tarjetas de Estadísticas Finales */}
