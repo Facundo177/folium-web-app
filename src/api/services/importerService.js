@@ -30,11 +30,13 @@ export const importerService = {
    * Ejecuta un dry-run de validación sobre el archivo con el mapa de columnas seleccionado.
    * @param {File} file
    * @param {Record<string, string>} mapping
+   * @param {Record<string, string>} [options]
    */
-  simulate: (file, mapping) => {
+  simulate: (file, mapping, options = {}) => {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('mapping', JSON.stringify(mapping));
+    formData.append('options', JSON.stringify(options));
     return api.post(`${BASE}simulate/`, formData, {
       timeout: UPLOAD_TIMEOUT,
       headers: {
@@ -47,11 +49,13 @@ export const importerService = {
    * Ejecuta la importación masiva definitiva en base de datos.
    * @param {File} file
    * @param {Record<string, string>} mapping
+   * @param {Record<string, string>} [options]
    */
-  execute: (file, mapping) => {
+  execute: (file, mapping, options = {}) => {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('mapping', JSON.stringify(mapping));
+    formData.append('options', JSON.stringify(options));
     return api.post(`${BASE}execute/`, formData, {
       timeout: UPLOAD_TIMEOUT,
       headers: {

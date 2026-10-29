@@ -15,28 +15,29 @@ import {
   Library,
   BookCopy,
   Info,
+  SlidersHorizontal,
 } from "lucide-react";
 import GoBackButton from "../components/BasicUIComponents/GoBackButton";
 import { importerService } from "../api/services/importerService";
 
 const FOLIUM_FIELDS = [
   { id: "title", label: "Título de la Obra", required: true, description: "Nombre principal del libro" },
-  { id: "author", label: "Autor(es)", required: true, description: "Nombre y apellido del autor o autores" },
+  { id: "author", label: "Autor(es)", required: true, description: "Nombre y apellido (soporta múltiples autores y 'Apellido, Nombre')" },
   { id: "isbn", label: "ISBN", required: false, description: "ISBN-10 o ISBN-13 (opcional; si falta, la obra queda sin ISBN)" },
   { id: "editorial", label: "Editorial", required: false, description: "Casa publicadora o sello editorial" },
   { id: "year", label: "Año de Publicación", required: false, description: "Año numérico (ej. 1985)" },
-  { id: "genre", label: "Género / Materia", required: false, description: "Categoría literaria temática" },
+  { id: "genre", label: "Género / Materia", required: false, description: "Categoría(s) literaria(s); si vienen varias con coma, se separan automáticamente" },
   { id: "inventory_code", label: "Código de Ejemplar (Signatura)", required: false, description: "Identificador del ejemplar físico" },
   { id: "location", label: "Ubicación en Sala", required: false, description: "Estantería, pasillo o sala física" },
   { id: "description", label: "Sinopsis / Resumen", required: false, description: "Breve descripción de la obra" },
 ];
 
 const SAMPLE_CSV = `Título;Autor;ISBN;Editorial;Año;Género;Código Ejemplar;Ubicación;Descripción
-Cien años de soledad;Gabriel García Márquez;9780307474728;Sudamericana;1967;Realismo Mágico;INV-MACONDO-01;Pasillo A - Estante 3;Obra cumbre de la literatura hispanoamericana.
-Ficciones;Jorge Luis Borges;9789500419574;Sur;1944;Ficción Filosófica;INV-BORGES-01;Pasillo B - Estante 1;Colección de relatos memorables.
-Rayuela;Julio Cortázar;9788466331906;Sudamericana;1963;Novela Experimental;INV-CORTAZAR-01;Pasillo A - Estante 2;Contrarrelato lúdico en París y Buenos Aires.
-El túnel;Ernesto Sabato;9789500401494;Sur;1948;Novela Psicológica;INV-SABATO-01;Pasillo C - Estante 4;La confesión de Juan Pablo Castel.
-La invención de Morel;Adolfo Bioy Casares;9788420658421;Losada;1940;Ciencia Ficción;INV-BIOY-01;Pasillo B - Estante 2;Clásico de ciencia ficción y misterio.`;
+Cien años de soledad;Gabriel García Márquez;9780307474728;Sudamericana;1967;Realismo Mágico, Clásicos;INV-MACONDO-01;Pasillo A - Estante 3;Obra cumbre de la literatura hispanoamericana.
+Ficciones;Jorge Luis Borges;9789500419574;Sur;1944;Ficción Filosófica, Cuentos;INV-BORGES-01;Pasillo B - Estante 1;Colección de relatos memorables.
+Rayuela;Julio Cortázar;9788466331906;Sudamericana;1963;Novela Experimental, Literatura Argentina;INV-CORTAZAR-01;Pasillo A - Estante 2;Contrarrelato lúdico en París y Buenos Aires.
+El túnel;Ernesto Sabato;9789500401494;Sur;1948;Novela Psicológica, Drama;INV-SABATO-01;Pasillo C - Estante 4;La confesión de Juan Pablo Castel.
+La invención de Morel;Adolfo Bioy Casares;9788420658421;Losada;1940;Ciencia Ficción, Misterio;INV-BIOY-01;Pasillo B - Estante 2;Clásico de ciencia ficción y misterio.`;
 
 const SAMPLE_BIB = `@book{garciamarquez1967cien,
   title = {Cien años de soledad},
@@ -44,7 +45,7 @@ const SAMPLE_BIB = `@book{garciamarquez1967cien,
   isbn = {9780307474728},
   publisher = {Sudamericana},
   year = {1967},
-  keywords = {Realismo Mágico},
+  keywords = {Realismo Mágico, Clásicos},
   abstract = {Obra cumbre de la literatura hispanoamericana.}
 }
 
@@ -54,7 +55,7 @@ const SAMPLE_BIB = `@book{garciamarquez1967cien,
   isbn = {9789500419574},
   publisher = {Sur},
   year = {1944},
-  keywords = {Ficción Filosófica},
+  keywords = {Ficción Filosófica, Cuentos},
   abstract = {Colección de relatos memorables.}
 }
 
@@ -64,7 +65,7 @@ const SAMPLE_BIB = `@book{garciamarquez1967cien,
   isbn = {9788466331906},
   publisher = {Sudamericana},
   year = {1963},
-  keywords = {Novela Experimental},
+  keywords = {Novela Experimental, Literatura Argentina},
   abstract = {Contrarrelato lúdico en París y Buenos Aires.}
 }`;
 
@@ -145,11 +146,16 @@ export default function CatalogImporter() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  // Paso 2: Vista previa y mapeo
+  // Paso 2: Vista previa, mapeo y opciones manuales de formato
   const [fileHeaders, setFileHeaders] = useState([]);
   const [sampleRows, setSampleRows] = useState([]);
   const [totalRows, setTotalRows] = useState(0);
   const [mapping, setMapping] = useState({});
+  const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
+  const [formatOptions, setFormatOptions] = useState({
+    genre_separator: "auto",
+    author_format: "auto",
+  });
 
   // Paso 3: Simulación (Dry Run)
   const [simulationData, setSimulationData] = useState(null);
@@ -257,7 +263,7 @@ export default function CatalogImporter() {
     setErrorMessage("");
 
     try {
-      const response = await importerService.simulate(file, mapping);
+      const response = await importerService.simulate(file, mapping, formatOptions);
       setSimulationData(response.data);
       setCurrentStep(3);
     } catch (err) {
@@ -275,7 +281,7 @@ export default function CatalogImporter() {
     setErrorMessage("");
 
     try {
-      const response = await importerService.execute(file, mapping);
+      const response = await importerService.execute(file, mapping, formatOptions);
       setExecutionResult(response.data);
       setCurrentStep(4);
     } catch (err) {
@@ -294,6 +300,11 @@ export default function CatalogImporter() {
     setSampleRows([]);
     setTotalRows(0);
     setMapping({});
+    setShowAdvancedOptions(false);
+    setFormatOptions({
+      genre_separator: "auto",
+      author_format: "auto",
+    });
     setSimulationData(null);
     setExecutionResult(null);
     setErrorMessage("");
@@ -318,7 +329,7 @@ export default function CatalogImporter() {
         </h1>
         <p className="text-on-surface-variant text-sm md:text-base max-w-2xl">
           Carga colecciones enteras en lote mediante planillas Excel (.xlsx), archivos CSV, BibTeX (.bib) o registros MARC 21 / MARCXML (.mrc, .xml).
-          El asistente detecta los encabezados, previene duplicados y genera los ejemplares físicos automáticamente.
+          El asistente detecta los encabezados, separa múltiples géneros, previene duplicados y genera los ejemplares físicos automáticamente.
         </p>
       </div>
 
@@ -517,10 +528,87 @@ export default function CatalogImporter() {
                   Asocia cada columna de tu planilla con el campo correspondiente de Folium. Los campos con asterisco (*) son obligatorios.
                 </p>
               </div>
-              <div className="text-xs text-on-surface-variant bg-surface-container px-3 py-1.5 rounded-md border border-outline-variant/50">
-                Archivo: <span className="font-semibold text-on-surface">{file?.name}</span>
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="text-xs text-on-surface-variant bg-surface-container px-3 py-1.5 rounded-md border border-outline-variant/50">
+                  Archivo: <span className="font-semibold text-on-surface">{file?.name}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowAdvancedOptions((prev) => !prev)}
+                  className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md border transition-colors cursor-pointer ${
+                    showAdvancedOptions || formatOptions.genre_separator !== "auto" || formatOptions.author_format !== "auto"
+                      ? "bg-primary/10 text-primary border-primary/40"
+                      : "bg-surface-container text-on-surface-variant border-outline-variant/60 hover:border-primary/40 hover:text-on-surface"
+                  }`}
+                >
+                  <SlidersHorizontal className="w-3.5 h-3.5" />
+                  Configurar formato manualmente
+                </button>
               </div>
             </div>
+
+            {/* Panel desplegable de opciones manuales de formato */}
+            {showAdvancedOptions && (
+              <div className="mb-6 p-4 rounded-xl bg-surface-container-low border border-primary/30 animate-fade-in">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-primary">
+                      Opciones manuales de interpretación
+                    </h3>
+                    <p className="text-[11px] text-on-surface-variant">
+                      Por defecto Folium detecta y separa automáticamente múltiples géneros y autores. Puedes forzar un criterio específico aquí si tu archivo usa otra convención.
+                    </p>
+                  </div>
+                  {(formatOptions.genre_separator !== "auto" || formatOptions.author_format !== "auto") && (
+                    <button
+                      type="button"
+                      onClick={() => setFormatOptions({ genre_separator: "auto", author_format: "auto" })}
+                      className="text-[11px] font-semibold text-primary underline hover:opacity-80 cursor-pointer shrink-0"
+                    >
+                      Restaurar automático
+                    </button>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-on-surface mb-1">
+                      Separador para múltiples géneros
+                    </label>
+                    <select
+                      value={formatOptions.genre_separator}
+                      onChange={(e) =>
+                        setFormatOptions((prev) => ({ ...prev, genre_separator: e.target.value }))
+                      }
+                      className="w-full text-xs bg-surface-container border border-outline-variant rounded-md px-3 py-2 text-on-surface focus:outline-none focus:border-primary"
+                    >
+                      <option value="auto">Automático (coma, punto y coma o barra /)</option>
+                      <option value="comma">Separar solo por coma (,)</option>
+                      <option value="semicolon">Separar solo por punto y coma (;)</option>
+                      <option value="slash">Separar solo por barra (/)</option>
+                      <option value="none">No separar (guardar la cadena entera como un único género)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-on-surface mb-1">
+                      Formato en la columna de Autor(es)
+                    </label>
+                    <select
+                      value={formatOptions.author_format}
+                      onChange={(e) =>
+                        setFormatOptions((prev) => ({ ...prev, author_format: e.target.value }))
+                      }
+                      className="w-full text-xs bg-surface-container border border-outline-variant rounded-md px-3 py-2 text-on-surface focus:outline-none focus:border-primary"
+                    >
+                      <option value="auto">Automático (detecta &quot;Apellido, Nombre&quot; y listas de autores)</option>
+                      <option value="firstname_lastname">&quot;Nombre Apellido&quot; (varios autores separados por coma o &apos;;&apos;)</option>
+                      <option value="lastname_firstname">&quot;Apellido, Nombre&quot; (varios autores separados por &apos;;&apos;)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Grilla de Campos de Folium vs Columnas del archivo */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -650,7 +738,7 @@ export default function CatalogImporter() {
             <div className="bg-surface-container-lowest p-5 rounded-xl border border-emerald-500/30 shadow-sm">
               <span className="text-[11px] uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-bold">Nuevas Obras</span>
               <p className="text-3xl font-serif font-bold text-emerald-600 dark:text-emerald-400 mt-1">
-                {simulationData.new_books}
+                {simulationData.new_books ?? simulationData.new_books_count ?? 0}
               </p>
               <span className="text-xs text-on-surface-variant">Se crearán en el catálogo</span>
             </div>
@@ -658,7 +746,7 @@ export default function CatalogImporter() {
             <div className="bg-surface-container-lowest p-5 rounded-xl border border-blue-500/30 shadow-sm">
               <span className="text-[11px] uppercase tracking-wider text-blue-600 dark:text-blue-400 font-bold">Obras Existentes</span>
               <p className="text-3xl font-serif font-bold text-blue-600 dark:text-blue-400 mt-1">
-                {simulationData.existing_books}
+                {simulationData.existing_books ?? simulationData.existing_books_count ?? 0}
               </p>
               <span className="text-xs text-on-surface-variant">Se sumarán ejemplares físicos</span>
             </div>
@@ -666,7 +754,7 @@ export default function CatalogImporter() {
             <div className="bg-surface-container-lowest p-5 rounded-xl border border-amber-500/30 shadow-sm">
               <span className="text-[11px] uppercase tracking-wider text-amber-600 dark:text-amber-400 font-bold">Inconsistencias</span>
               <p className="text-3xl font-serif font-bold text-amber-600 dark:text-amber-400 mt-1">
-                {simulationData.rows_with_errors}
+                {simulationData.rows_with_errors ?? simulationData.errors_count ?? 0}
               </p>
               <span className="text-xs text-on-surface-variant">Filas que se omitirán</span>
             </div>
@@ -686,7 +774,7 @@ export default function CatalogImporter() {
                 {simulationData.error_details.map((errItem, idx) => (
                   <div key={idx} className="bg-surface-container-lowest px-3 py-1.5 rounded border border-outline-variant/40 flex items-center justify-between">
                     <span>Fila #{errItem.row}</span>
-                    <span className="text-on-surface-variant">{errItem.error}</span>
+                    <span className="text-on-surface-variant">{errItem.error || errItem.reason}</span>
                   </div>
                 ))}
               </div>
@@ -694,28 +782,58 @@ export default function CatalogImporter() {
           )}
 
           {/* Muestra de cómo quedará registrada una obra */}
-          {simulationData.sample_previews && simulationData.sample_previews.length > 0 && (
+          {(simulationData.sample_previews || simulationData.preview_items)?.length > 0 && (
             <div className="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/70 shadow-sm">
               <h3 className="text-sm font-bold text-on-surface mb-3 flex items-center gap-2">
                 <Library className="w-4 h-4 text-primary" />
-                Muestra de obras interpretadas por Folium ({simulationData.sample_previews.length})
+                Muestra de obras interpretadas por Folium ({(simulationData.sample_previews || simulationData.preview_items).length})
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {simulationData.sample_previews.map((item, idx) => (
-                  <div key={idx} className="p-3.5 bg-surface-container-low rounded-lg border border-outline-variant/50 text-xs">
-                    <div className="flex items-start justify-between gap-2 mb-1">
-                      <span className="font-bold text-on-surface text-sm line-clamp-1">{item.title}</span>
-                      <span className={`text-[10px] px-2 py-0.5 rounded font-bold shrink-0 ${
-                        item.status === "EXISTING" ? "bg-blue-500/10 text-blue-600" : "bg-emerald-500/10 text-emerald-600"
-                      }`}>
-                        {item.status === "EXISTING" ? "Existente" : "Nuevo"}
-                      </span>
+                {(simulationData.sample_previews || simulationData.preview_items).map((item, idx) => (
+                  <div key={idx} className="p-3.5 bg-surface-container-low rounded-lg border border-outline-variant/50 text-xs flex flex-col justify-between gap-2">
+                    <div>
+                      <div className="flex items-start justify-between gap-2 mb-1.5">
+                        <span className="font-bold text-on-surface text-sm line-clamp-1">{item.title}</span>
+                        <span className={`text-[10px] px-2 py-0.5 rounded font-bold shrink-0 ${
+                          item.status === "EXISTING" ? "bg-blue-500/10 text-blue-600" : "bg-emerald-500/10 text-emerald-600"
+                        }`}>
+                          {item.status === "EXISTING" ? "Existente (+copia)" : "Nuevo"}
+                        </span>
+                      </div>
+
+                      <div className="text-on-surface-variant mb-2 flex flex-wrap items-center gap-1">
+                        <span className="font-semibold">Autor(es):</span>
+                        {Array.isArray(item.authors_list) && item.authors_list.length > 0 ? (
+                          item.authors_list.map((authorName, aIdx) => (
+                            <span
+                              key={aIdx}
+                              className="px-2 py-0.5 rounded bg-surface-container border border-outline-variant/60 text-on-surface text-[11px]"
+                            >
+                              {authorName}
+                            </span>
+                          ))
+                        ) : (
+                          <span>{item.author || "—"}</span>
+                        )}
+                      </div>
+
+                      {Array.isArray(item.genres_list) && item.genres_list.length > 0 && (
+                        <div className="flex flex-wrap items-center gap-1 mb-2">
+                          <span className="font-semibold text-on-surface-variant">Géneros:</span>
+                          {item.genres_list.map((genreName, gIdx) => (
+                            <span
+                              key={gIdx}
+                              className="px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-[10px] font-semibold"
+                            >
+                              {genreName}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    <p className="text-on-surface-variant mb-1.5">
-                      <span className="font-semibold">Autor:</span> {item.author || "—"}
-                    </p>
-                    <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-on-surface-variant">
-                      <span>ISBN: <strong className="text-on-surface">{item.isbn || "Autogenerado"}</strong></span>
+
+                    <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-on-surface-variant pt-1.5 border-t border-outline-variant/30">
+                      <span>ISBN: <strong className="text-on-surface">{item.isbn || "Sin ISBN"}</strong></span>
                       {item.editorial && <span>Editorial: <strong className="text-on-surface">{item.editorial}</strong></span>}
                       {item.year && <span>Año: <strong className="text-on-surface">{item.year}</strong></span>}
                     </div>
@@ -733,7 +851,7 @@ export default function CatalogImporter() {
               className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-on-surface-variant hover:text-on-surface transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
-              Modificar Mapeo
+              Modificar Mapeo / Formato
             </button>
             <button
               type="button"
