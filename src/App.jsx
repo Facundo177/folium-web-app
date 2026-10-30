@@ -99,9 +99,9 @@ function App() {
               <Route path="librarian" element={<LibrarianLayout />}>
                 <Route index element={<Navigate to="inventory" replace />} />
                 <Route path="catalog" element={<BookCatalog />} />
+                <Route path="newBook" element={<LoadBook />} />
                 <Route path="inventory">
                   <Route index element={<Inventory />} />
-                  <Route path="newBook" element={<LoadBook />} />
                   <Route path="newItem" element={<AddAnItem />} />
                 </Route>
                 <Route path="importer" element={<CatalogImporter />} />
