@@ -211,7 +211,7 @@ graph TD
     BotLayout --> ProtectedStaff[ProtectedRoute: LIBRARIAN, ADMIN]
     ProtectedStaff --> StaffArea[LibrarianLayout con Herramientas de Gestión]
     StaffArea --> InventoryView["/librarian/inventory"]
-    StaffArea --> LoadBookView["/librarian/inventory/newBook"]
+    StaffArea --> LoadBookView["/librarian/newBook"]
     StaffArea --> AddItemView["/librarian/inventory/newItem"]
     StaffArea --> ImporterView["/librarian/importer (Importador Masivo)"]
     StaffArea --> LoansDashboardView["/librarian/loans (Circulación y Mora)"]
@@ -233,7 +233,7 @@ graph TD
 | `/user/reservations` | `UserReservations` | `BotLayout` > `UserLayout` | `USER`, `LIBRARIAN`, `ADMIN` | Reservas pendientes y confirmadas del lector con opción de cancelación. |
 | `/user/profile` | `Profile` | `BotLayout` > `UserLayout` | `USER`, `LIBRARIAN`, `ADMIN` | Datos de cuenta, estadísticas de lectura y edición de perfil. |
 | `/librarian/inventory` | `Inventory` | `BotLayout` > `LibrarianLayout` | `LIBRARIAN`, `ADMIN` | Tabla de ejemplares físicos, códigos de inventario y estado. |
-| `/librarian/inventory/newBook` | `LoadBook` | `BotLayout` > `LibrarianLayout` | `LIBRARIAN`, `ADMIN` | Formulario de alta con previsualización de portada y creación en línea de autores/géneros. |
+| `/librarian/newBook` | `LoadBook` | `BotLayout` > `LibrarianLayout` | `LIBRARIAN`, `ADMIN` | Formulario de alta con previsualización de portada y creación en línea de autores/géneros. |
 | `/librarian/inventory/newItem` | `AddAnItem` | `BotLayout` > `LibrarianLayout` | `LIBRARIAN`, `ADMIN` | Asignación de un nuevo ejemplar físico con ubicación en sala. |
 | `/librarian/importer` | `CatalogImporter` | `BotLayout` > `LibrarianLayout` | `LIBRARIAN`, `ADMIN` | Asistente en 4 pasos para importación de Excel, CSV, BibTeX y MARC 21 / MARCXML. |
 | `/librarian/loans` | `LoansDashboard` | `BotLayout` > `LibrarianLayout` | `LIBRARIAN`, `ADMIN` | Supervisión de préstamos activos, cálculo de mora y devolución de ejemplares en un clic. |
