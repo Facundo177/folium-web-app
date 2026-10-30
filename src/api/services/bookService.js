@@ -9,6 +9,7 @@ const BASE = '/book/';
 
 export const bookService = {
   getAll: (params) => api.get(BASE, { params }),
+  getOptions: (params) => api.get(`${BASE}options/`, { params }),
   getById: (id) => api.get(`${BASE}${id}/`),
   getRandom: (params) => api.get('/random/', { params }),
   getRecommendations: () => api.get('/recommendations/'),

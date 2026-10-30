@@ -18,16 +18,24 @@ export const Inventory = () => {
   });
   const {
     items,
+    count,
+    page,
+    totalPages,
+    status,
+    search,
     isLoading: loadingItems,
     error: errorItems,
     refetch: refetchItems,
+    setPage,
+    setStatus,
+    setSearch,
   } = useInventory();
-  const { books, isLoading: loadingBooks, error: errorBooks } = useBooks();
+  const { books } = useBooks();
 
   const booksById = useMemo(
     () =>
       Object.fromEntries(
-        books.map((b) => {
+        (books || []).map((b) => {
           const a = adaptBook(b);
           return [a.id, a];
         })
@@ -40,8 +48,12 @@ export const Inventory = () => {
     [items, booksById]
   );
 
-  if (loadingItems || loadingBooks) return <p className="p-gutter">Cargando inventario…</p>;
-  if (errorItems || errorBooks) return <p className="p-gutter">{errorItems || errorBooks}</p>;
+  if (loadingItems && items.length === 0) {
+    return <p className="p-gutter">Cargando inventario…</p>;
+  }
+  if (errorItems && items.length === 0) {
+    return <p className="p-gutter">{errorItems}</p>;
+  }
 
   return (
     <>
@@ -51,8 +63,21 @@ export const Inventory = () => {
         <div className="flex-1 p-margin-edge md:p-stack-lg max-w-[1280px] mx-auto w-full">
           {/* <PageHeader />
           <StatsRow /> */}
-          <DescriptionOfInventory items={rows} />
-          <InventoryTable rows={rows} books={books} onRefetch={refetchItems} />
+          <DescriptionOfInventory items={rows} totalCount={count} />
+          <InventoryTable
+            rows={rows}
+            books={books}
+            isLoading={loadingItems}
+            onRefetch={refetchItems}
+            currentPage={page}
+            totalPages={totalPages}
+            totalCount={count}
+            onPageChange={setPage}
+            statusFilter={status}
+            onStatusFilterChange={setStatus}
+            searchTerm={search}
+            onSearchChange={setSearch}
+          />
         </div>
       </main>
     </>

@@ -117,11 +117,14 @@ export const adaptBookDetail = (b) => {
 export const adaptItem = (item, booksById = {}) => {
   if (!item) return {};
   const rawBookId = typeof item.book === "object" && item.book !== null ? item.book.id : item.book;
-  const book = booksById[rawBookId] || (typeof item.book === "object" ? item.book : null);
+  const nestedBookAdapted =
+    typeof item.book === "object" && item.book !== null ? adaptBook(item.book) : null;
+  const book = booksById[rawBookId] || nestedBookAdapted || null;
 
-  const author = typeof book?.author === "object" && book.author !== null
-    ? (book.author.name || "—")
-    : (book?.author ?? "—");
+  const author =
+    typeof book?.author === "object" && book.author !== null
+      ? book.author.name || "—"
+      : book?.author || "—";
 
   return {
     id: item.id,
@@ -130,8 +133,8 @@ export const adaptItem = (item, booksById = {}) => {
     status: item.status,
     statusLabel: item.status_display || item.status || "—",
     location: item.location || "Sin asignar",
-    title: book?.title ?? "—",
-    author,
+    title: book?.title || "—",
+    author: author || "—",
     isbn: book?.isbn ? String(book.isbn) : "—",
     genres: Array.isArray(book?.genres)
       ? book.genres.map((g) => (typeof g === "object" && g !== null ? g.name : String(g || "")))

@@ -1,4 +1,4 @@
-import { useState, useMemo, useDeferredValue } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { ITEM_STATUS } from "../../api/constants";
 import { itemService } from "../../api/services/itemService";
 import {
@@ -9,14 +9,55 @@ import {
   X,
   CheckCircle2,
   MapPin,
+  RefreshCw,
 } from "lucide-react";
 import FeedbackModal from "../BasicUIComponents/FeedbackModal";
 import ItemEditModal from "./ItemEditModal";
 
-export const InventoryTable = ({ rows = [], books = [], onRefetch }) => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const deferredSearchTerm = useDeferredValue(searchTerm);
-  const [statusFilter, setStatusFilter] = useState("");
+const STATUS_OPTIONS = [
+  { value: "", label: "Todos los estados" },
+  { value: ITEM_STATUS.AVAILABLE, label: "Disponible" },
+  { value: ITEM_STATUS.LOANED, label: "Prestado" },
+  { value: ITEM_STATUS.RESERVED, label: "Reservado" },
+  { value: ITEM_STATUS.DAMAGED, label: "Dañado / Mantenimiento" },
+  { value: ITEM_STATUS.LOST, label: "Extraviado" },
+];
+
+export const InventoryTable = ({
+  rows = [],
+  books = [],
+  isLoading = false,
+  onRefetch,
+  currentPage = 1,
+  totalPages = 1,
+  totalCount = 0,
+  onPageChange,
+  statusFilter = "",
+  onStatusFilterChange,
+  searchTerm: externalSearch = "",
+  onSearchChange,
+}) => {
+  const [searchInput, setSearchInput] = useState(externalSearch);
+  const isFirstMount = useRef(true);
+
+  // Sincronizar input si externalSearch cambia externamente
+  useEffect(() => {
+    setSearchInput(externalSearch);
+  }, [externalSearch]);
+
+  // Debounce de 400ms al escribir: evita saturación y previene reseteo accidental de página en mount
+  useEffect(() => {
+    if (isFirstMount.current) {
+      isFirstMount.current = false;
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      onSearchChange?.(searchInput.trim());
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [searchInput, onSearchChange]);
 
   // Estados para edición de ejemplar (Item)
   const [editingItem, setEditingItem] = useState(null);
@@ -35,17 +76,21 @@ export const InventoryTable = ({ rows = [], books = [], onRefetch }) => {
   );
 
   const filtered = useMemo(() => {
-    const term = deferredSearchTerm.toLowerCase();
+    const term = searchInput.trim().toLowerCase();
     return rows.filter((r) => {
       const matchText =
+        !term ||
         r.title.toLowerCase().includes(term) ||
         r.author.toLowerCase().includes(term) ||
         r.isbn.includes(term) ||
         r.code.toLowerCase().includes(term);
-      const matchStatus = statusFilter ? r.statusLabel === statusFilter : true;
+      const matchStatus = statusFilter
+        ? r.status === statusFilter ||
+          r.statusLabel?.toLowerCase() === statusFilter.toLowerCase()
+        : true;
       return matchText && matchStatus;
     });
-  }, [rows, deferredSearchTerm, statusFilter]);
+  }, [rows, searchInput, statusFilter]);
 
   // Función para asignar los estilos del badge según el estado
   const getStatusBadgeStyle = (status) => {
@@ -137,7 +182,11 @@ export const InventoryTable = ({ rows = [], books = [], onRefetch }) => {
   };
 
   return (
-    <div className="w-full bg-surface-container-lowest border border-outline-variant rounded-DEFAULT shadow-sm font-sans">
+    <div
+      className={`w-full bg-surface-container-lowest border border-outline-variant rounded-DEFAULT shadow-sm font-sans transition-opacity duration-200 ${
+        isLoading ? "opacity-75" : "opacity-100"
+      }`}
+    >
       {/* Banner de confirmación */}
       {successMessage && (
         <div className="m-gutter mb-0 p-3 bg-emerald-50 border border-emerald-300 text-emerald-900 rounded-sm flex items-center justify-between text-sm">
@@ -166,12 +215,21 @@ export const InventoryTable = ({ rows = [], books = [], onRefetch }) => {
           <Search className="w-[18px] h-[18px] text-on-surface-variant shrink-0" />
           <input
             id="inventory-search-input"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                onSearchChange?.(searchInput.trim());
+              }
+            }}
             type="search"
             placeholder="Título, autor, ISBN o código"
             className="bg-transparent border-none outline-none text-body-md w-full text-on-surface placeholder:text-on-surface-variant"
           />
+          {isLoading && (
+            <RefreshCw className="w-4 h-4 text-primary animate-spin shrink-0 ml-1" />
+          )}
         </div>
 
         {/* Action Buttons */}
@@ -183,14 +241,12 @@ export const InventoryTable = ({ rows = [], books = [], onRefetch }) => {
             <select
               id="inventory-status-filter"
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+              onChange={(e) => onStatusFilterChange?.(e.target.value)}
               className="border border-outline-variant rounded-DEFAULT pl-6 pr-10 py-2 text-label-caps text-on-surface hover:bg-surface-container appearance-none bg-transparent outline-none focus:border-primary cursor-pointer transition-colors justify-center w-full"
             >
-              <option value="">Todos los estados</option>
-
-              {statuses.map((status) => (
-                <option key={status} value={status}>
-                  {status}
+              {STATUS_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
                 </option>
               ))}
             </select>
@@ -437,33 +493,66 @@ export const InventoryTable = ({ rows = [], books = [], onRefetch }) => {
       {/* Pagination Footer */}
       <div className="flex flex-col md:flex-row justify-between items-center p-gutter gap-stack-md text-body-md text-on-surface-variant bg-surface-container-lowest rounded-b-DEFAULT">
         <span>
-          Mostrando {filtered.length} de {rows.length} ejemplares
+          Mostrando {filtered.length} de {totalCount || rows.length} ejemplares
+          {totalPages > 1 && ` (Página ${currentPage} de ${totalPages})`}
         </span>
 
-        <div className="flex items-center gap-1">
-          <button
-            className="border border-outline-variant px-3 py-1 bg-surface-container-lowest text-on-surface-variant hover:bg-surface disabled:opacity-50"
-            disabled
-          >
-            Anterior
-          </button>
+        {totalPages > 1 && (
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => onPageChange?.(currentPage - 1)}
+              disabled={currentPage <= 1}
+              className="border border-outline-variant px-3 py-1 bg-surface-container-lowest text-on-surface-variant hover:bg-surface disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-sm rounded-xs cursor-pointer"
+            >
+              Anterior
+            </button>
 
-          <button className="border border-primary px-3 py-1 bg-primary text-on-primary font-medium">
-            1
-          </button>
-          <button className="border border-outline-variant px-3 py-1 bg-surface-container-lowest text-on-surface hover:bg-surface">
-            2
-          </button>
-          <button className="border border-outline-variant px-3 py-1 bg-surface-container-lowest text-on-surface hover:bg-surface">
-            3
-          </button>
+            {Array.from({ length: totalPages }, (_, idx) => idx + 1)
+              .filter((p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+              .reduce((acc, p, idx, arr) => {
+                if (idx > 0 && p - arr[idx - 1] > 1) {
+                  acc.push('ellipsis-' + p);
+                }
+                acc.push(p);
+                return acc;
+              }, [])
+              .map((item) => {
+                if (typeof item === 'string' && item.startsWith('ellipsis')) {
+                  return (
+                    <span key={item} className="px-2 text-on-surface-variant select-none">
+                      ...
+                    </span>
+                  );
+                }
+                const isCurrent = item === currentPage;
+                return (
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() => onPageChange?.(item)}
+                    aria-current={isCurrent ? "page" : undefined}
+                    className={`border px-3 py-1 text-sm rounded-xs transition-colors cursor-pointer ${
+                      isCurrent
+                        ? "border-primary bg-primary text-on-primary font-medium"
+                        : "border-outline-variant bg-surface-container-lowest text-on-surface hover:bg-surface"
+                    }`}
+                  >
+                    {item}
+                  </button>
+                );
+              })}
 
-          <span className="px-2 text-on-surface-variant">...</span>
-
-          <button className="border border-outline-variant px-3 py-1 bg-surface-container-lowest text-on-surface hover:bg-surface">
-            Siguiente
-          </button>
-        </div>
+            <button
+              type="button"
+              onClick={() => onPageChange?.(currentPage + 1)}
+              disabled={currentPage >= totalPages}
+              className="border border-outline-variant px-3 py-1 bg-surface-container-lowest text-on-surface hover:bg-surface disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-sm rounded-xs cursor-pointer"
+            >
+              Siguiente
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Modal accesible de edición de ejemplar */}

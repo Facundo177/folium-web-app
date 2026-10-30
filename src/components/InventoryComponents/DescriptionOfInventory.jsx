@@ -1,10 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import {ITEM_STATUS} from "../../api/constants";
 
-export default function DescriptionOfInventory({ items = [] }) {
+export default function DescriptionOfInventory({ items = [], totalCount }) {
   const navigate = useNavigate();
 
-  const total = items.length;
+  const total = typeof totalCount === "number" && totalCount > 0 ? totalCount : items.length;
    const available = items.filter((i) => i.status === ITEM_STATUS.AVAILABLE).length;
    const loaned = items.filter((i) => i.status === ITEM_STATUS.LOANED).length;
 

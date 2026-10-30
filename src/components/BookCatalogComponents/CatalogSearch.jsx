@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import FilterSidebar from "../CatalogSearchComponents/FilterSidebar";
 import CatalogBookCard from "../CatalogSearchComponents/CatalogBookCard";
 import { adaptBook } from "../../api/adapters";
@@ -33,6 +33,23 @@ export default function CatalogSearch({
     return (Array.isArray(apiGenres) ? apiGenres : []).map((genre) => genre.name).sort();
   }, [apiGenres]);
 
+  // Estado local del buscador con debounce: evita disparar una petición
+  // a la API en cada tecla. Se consulta solo cuando el usuario deja de escribir (~400ms).
+  const [searchQuery, setSearchQuery] = useState(filters?.search || "");
+
+  // Mantener el estado local sincronizado cuando el filtro cambia desde fuera (p. ej. botón "Limpiar")
+  useEffect(() => {
+    setSearchQuery(filters?.search || "");
+  }, [filters?.search]);
+
+  // Debounce de 400ms al escribir: solo se pide a la API tras detenerse de teclear
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setFilters({ search: searchQuery });
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchQuery, setFilters]);
+
   const handlePageChange = (newPage) => {
     setPage(newPage);
     document.getElementById("catalog-grid-header")?.scrollIntoView({ behavior: "smooth" });
@@ -58,8 +75,8 @@ export default function CatalogSearch({
             type="text"
             className="bg-transparent flex-1 outline-none font-serif italic text-on-surface placeholder:text-outline"
             placeholder="Buscar por título o autor..."
-            value={filters?.search || ""}
-            onChange={(e) => setFilters({ search: e.target.value })}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
           {filters?.search && (
             <button
