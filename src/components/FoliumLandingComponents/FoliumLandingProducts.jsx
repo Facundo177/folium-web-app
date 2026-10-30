@@ -1,7 +1,7 @@
 export default function FoliumLandingProducts({handleUserButtonClick, handleLibrarianButtonClick}) {
 
   return (
-    <section className="bg-background py-stack-lg px-margin-edge font-sans">
+    <section id="tarjetas-lector-bibliotecario" className="bg-background py-stack-lg px-margin-edge font-sans scroll-mt-4">
       {/* Encabezado de la Sección */}
       <div className="max-w-4xl mx-auto text-center mb-stack-lg">
         <span className="text-label-caps text-on-surface-variant tracking-[0.2em] uppercase">
@@ -18,7 +18,7 @@ export default function FoliumLandingProducts({handleUserButtonClick, handleLibr
       </div>
 
       {/* Grid de Tarjetas */}
-      <div className="max-w-(--spacing-container-max) mx-auto grid grid-cols-1 md:grid-cols-2 gap-stack-md">
+      <div id="tarjetas-grid" className="max-w-(--spacing-container-max) mx-auto grid grid-cols-1 md:grid-cols-2 gap-stack-md">
         {/* Tarjeta 1: Lectores */}
         <div className="bg-surface-container-lowest border border-outline-variant p-stack-md md:p-stack-lg flex flex-col shadow-sm">
           <div className="flex justify-between items-center mb-stack-sm">
@@ -60,9 +60,9 @@ export default function FoliumLandingProducts({handleUserButtonClick, handleLibr
           </ul>
 
           <button 
-          className="w-full border border-on-surface text-on-surface text-label-caps uppercase tracking-wider py-4 px-6 flex justify-between items-center hover:bg-tertiary-container/5 transition-colors bg-surface-variant"
+          className="w-full border border-on-surface text-on-surface text-label-caps uppercase tracking-wider py-4 px-6 flex justify-between items-center hover:bg-tertiary-container/5 transition-colors bg-surface-variant cursor-pointer"
           onClick={handleUserButtonClick}>
-            Explorar el catálogo
+            Explorar el catálogo abierto
             <ArrowRightIcon />
           </button>
         </div>
@@ -108,9 +108,9 @@ export default function FoliumLandingProducts({handleUserButtonClick, handleLibr
           </ul>
 
           <button 
-          className="w-full bg-tertiary-container border border-on-tertiary-container text-on-tertiary-container text-label-caps uppercase tracking-wider py-4 px-6 flex justify-between items-center hover:opacity-90 transition-opacity"
+          className="w-full bg-tertiary-container border border-on-tertiary-container text-on-tertiary-container text-label-caps uppercase tracking-wider py-4 px-6 flex justify-between items-center hover:opacity-90 transition-opacity cursor-pointer"
           onClick={handleLibrarianButtonClick}>
-            Gestionar mi biblioteca
+            Ver propuestas para bibliotecas
             <ArrowRightIcon />
           </button>
         </div>

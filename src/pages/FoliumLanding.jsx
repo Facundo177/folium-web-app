@@ -29,7 +29,7 @@ export default function FoliumLanding() {
   });
 
   const handleUserButtonClick = () => navigate("/catalog");
-  const handleLibrarianButtonClick = () => navigate("/librarian");
+  const handleLibrarianButtonClick = () => navigate("/pricing");
 
   useEffect(() => {
     const root = document.documentElement;
