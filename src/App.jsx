@@ -31,6 +31,7 @@ const AddAnItem = lazy(() => import("./pages/AddAnItem"));
 const CatalogImporter = lazy(() => import("./pages/CatalogImporter"));
 const LibraryPricingPage = lazy(() => import("./pages/LibraryPricingPage"));
 const LoansDashboard = lazy(() => import("./pages/LoansDashboard"));
+const LoanCounter = lazy(() => import("./pages/LoanCounter"));
 const ReservationDashboard = lazy(() => import("./pages/ReservationDashboard"));
 const Error404 = lazy(() => import("./pages/Error404"));
 const Test = lazy(() => import("./pages/Test"));
@@ -104,7 +105,11 @@ function App() {
                   <Route path="newItem" element={<AddAnItem />} />
                 </Route>
                 <Route path="importer" element={<CatalogImporter />} />
-                <Route path="loans" element={<LoansDashboard />} />
+                <Route path="loans">
+                  <Route index element={<LoansDashboard />} />
+                  <Route path="counter" element={<LoanCounter />} />
+                </Route>
+                <Route path="counter" element={<Navigate to="/librarian/loans/counter" replace />} />
                 <Route path="reservations" element={<ReservationDashboard />} />
               </Route>
             </Route>

@@ -63,10 +63,14 @@ export default function ReservationDashboard() {
 
     setIsProcessing(true);
     try {
-      const { data: items } = await itemService.getAll({
+      const { data } = await itemService.getAll({
         book: reservation.book,
       });
-      const bookItems = items.filter((item) => item.book == reservation.book);
+      const itemsList = Array.isArray(data) ? data : data?.results || [];
+      const bookItems = itemsList.filter((item) => {
+        const itemBookId = item.book?.id !== undefined ? item.book.id : item.book;
+        return String(itemBookId) === String(reservation.book);
+      });
       const reservedItem = bookItems.find((item) => item.status === "RESERVED");
       const availableItem = bookItems.find((item) => item.status === "AVAILABLE");
       const targetItem = reservedItem || availableItem;
@@ -103,11 +107,11 @@ export default function ReservationDashboard() {
         prev.map((res) =>
           res.id === reservation.id
             ? {
-                ...res,
-                status: updatedReservation?.status || "COMPLETED",
-                status_display:
-                  updatedReservation?.status_display || "Completado",
-              }
+              ...res,
+              status: updatedReservation?.status || "COMPLETED",
+              status_display:
+                updatedReservation?.status_display || "Completado",
+            }
             : res
         )
       );
@@ -132,12 +136,19 @@ export default function ReservationDashboard() {
           title: "Error al aceptar reserva",
           message: `No se pudo procesar la aceptación de la reserva:\n${errorMessages}`,
         });
+      } else if (err.response) {
+        setFeedbackModal({
+          isOpen: true,
+          type: "error",
+          title: "Error del servidor",
+          message: `El servidor respondió con código ${err.response.status}.`,
+        });
       } else {
         setFeedbackModal({
           isOpen: true,
           type: "error",
-          title: "Error de conexión",
-          message: "No se pudo procesar la aceptación. Verifica la conexión con el servidor.",
+          title: "Error al procesar",
+          message: err.message || "No se pudo procesar la aceptación. Verifica la conexión con el servidor.",
         });
       }
     } finally {
@@ -233,9 +244,8 @@ export default function ReservationDashboard() {
             return (
               <div
                 key={reservation.id}
-                className={`p-4 flex flex-col gap-3 transition-colors ${
-                  !isPending ? "opacity-60 bg-surface-container-low" : "bg-surface-container-lowest"
-                }`}
+                className={`p-4 flex flex-col gap-3 transition-colors ${!isPending ? "opacity-60 bg-surface-container-low" : "bg-surface-container-lowest"
+                  }`}
               >
                 {/* Header de la tarjeta */}
                 <div className="flex items-center justify-between gap-2">
@@ -280,11 +290,10 @@ export default function ReservationDashboard() {
                     type="button"
                     onClick={() => setReservationToAccept(reservation)}
                     disabled={!isPending}
-                    className={`w-full py-2 text-xs font-bold uppercase tracking-widest rounded-sm transition-colors shadow-xs ${
-                      !isPending
+                    className={`w-full py-2 text-xs font-bold uppercase tracking-widest rounded-sm transition-colors shadow-xs ${!isPending
                         ? "bg-surface-variant text-on-surface-variant cursor-not-allowed"
                         : "bg-primary text-on-primary hover:opacity-90 cursor-pointer"
-                    }`}
+                      }`}
                   >
                     {isPending ? "Aceptar y Prestar" : reservation.status_display || "Procesada"}
                   </button>
@@ -331,9 +340,8 @@ export default function ReservationDashboard() {
                 return (
                   <tr
                     key={reservation.id}
-                    className={`border-b border-outline-variant/30 hover:bg-surface-container/50 transition-colors ${
-                      !isPending ? "opacity-60" : ""
-                    }`}
+                    className={`border-b border-outline-variant/30 hover:bg-surface-container/50 transition-colors ${!isPending ? "opacity-60" : ""
+                      }`}
                   >
                     <td className="p-4 text-body-md text-on-surface font-mono text-xs">
                       #{reservation.id}
@@ -371,11 +379,10 @@ export default function ReservationDashboard() {
                         type="button"
                         onClick={() => setReservationToAccept(reservation)}
                         disabled={!isPending}
-                        className={`px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-sm transition-colors shadow-xs ${
-                          !isPending
+                        className={`px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-sm transition-colors shadow-xs ${!isPending
                             ? "bg-surface-variant text-on-surface-variant cursor-not-allowed"
                             : "bg-primary text-on-primary hover:opacity-90 cursor-pointer"
-                        }`}
+                          }`}
                       >
                         {isPending
                           ? "Aceptar"
@@ -397,10 +404,9 @@ export default function ReservationDashboard() {
         title="Confirmar aceptación de reserva"
         message={
           reservationToAccept
-            ? `¿Estás seguro de que deseas aceptar la reserva de "${
-                reservationToAccept.book_detail?.title ||
-                `Libro #${reservationToAccept.book}`
-              }" y generar el préstamo correspondiente?`
+            ? `¿Estás seguro de que deseas aceptar la reserva de "${reservationToAccept.book_detail?.title ||
+            `Libro #${reservationToAccept.book}`
+            }" y generar el préstamo correspondiente?`
             : ""
         }
         confirmText="Sí, aceptar y prestar"
