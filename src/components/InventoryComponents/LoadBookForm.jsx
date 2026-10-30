@@ -6,6 +6,7 @@ import GoBackButton from "../BasicUIComponents/GoBackButton";
 import FeedbackModal from "../BasicUIComponents/FeedbackModal";
 import { useNavigate } from "react-router-dom";
 import { useGenres } from "../../hooks/useGenres";
+import { useEditorials } from "../../hooks/useEditorials";
 import { Trash2, X, Plus, BookPlus } from "lucide-react";
 
 export default function LoadBookForm() {
@@ -14,12 +15,18 @@ export default function LoadBookForm() {
   // Géneros desde el hook
   const { genres: availableGenres, isLoading: isLoadingGenres, refetch: refetchGenres } = useGenres();
 
+    // Editoriales existentes (por ahora salen de los libros; ver useEditorials)
+  const {
+    editorials: availableEditorials,
+    setEditorials: setAvailableEditorials,
+    refetch: refetchEditorials,
+  } = useEditorials();
+
   // --- ESTADOS DEL LIBRO ---
   const [formData, setFormData] = useState({
     title: "",
     isbn: "",
     publication_year: "",
-    editorial: "",
     cover_image: null,
     description: "",
     genres: [],
@@ -37,6 +44,11 @@ export default function LoadBookForm() {
   // --- ESTADOS DE GÉNEROS NUEVOS ---
   const [newGenreName, setNewGenreName] = useState("");
   const [isCreatingGenre, setIsCreatingGenre] = useState(false);
+
+    // --- ESTADOS DE EDITORIAL ---
+  // Elegida: { id, name } si ya existe; { id: null, name } si es nueva (el back la crea al guardar el libro).
+  const [selectedEditorial, setSelectedEditorial] = useState(null);
+  const [newEditorialName, setNewEditorialName] = useState("");
 
   // --- MODAL DE FEEDBACK ACCESIBLE ---
   const [feedbackModal, setFeedbackModal] = useState({
@@ -168,6 +180,57 @@ export default function LoadBookForm() {
     }
   };
 
+    // --- LÓGICA DE EDITORIALES ---
+  // Elegir existente: reemplaza la editorial actual (un libro tiene una sola).
+  const handleSelectExistingEditorial = (e) => {
+    const editorial = availableEditorials.find((ed) => ed.name === e.target.value);
+    if (editorial) setSelectedEditorial(editorial);
+    e.target.value = "";
+  };
+
+  const handleRemoveEditorial = () => setSelectedEditorial(null);
+
+  // Registrar nueva: queda elegida, y se crea en la base al guardar el libro (se envía el nombre).
+  const handleCreateNewEditorial = (e) => {
+    e.preventDefault();
+    const cleanName = newEditorialName.trim().replace(/\s+/g, " ");
+
+    if (!cleanName) {
+      setFeedbackModal({
+        isOpen: true,
+        type: "warning",
+        title: "Editorial requerida",
+        message: "Escribe el nombre de la nueva editorial.",
+      });
+      return;
+    }
+    // El nombre de la editorial admite hasta 150 caracteres.
+    if (cleanName.length > 150) {
+      setFeedbackModal({
+        isOpen: true,
+        type: "warning",
+        title: "Nombre demasiado largo",
+        message: "El nombre de la editorial admite hasta 150 caracteres.",
+      });
+      return;
+    }
+
+    // Si ya existe (sin importar mayúsculas), se elige la existente en vez de duplicarla.
+    const existing = availableEditorials.find(
+      (ed) => ed.name.toLowerCase() === cleanName.toLowerCase()
+    );
+    if (existing) {
+      setSelectedEditorial(existing);
+      setNewEditorialName("");
+      return;
+    }
+
+    const newEditorial = { id: null, name: cleanName };
+    setAvailableEditorials((prev) => [...prev, newEditorial]);
+    setSelectedEditorial(newEditorial);
+    setNewEditorialName("");
+  };
+
   // --- ENVÍO FINAL DEL LIBRO ---
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -192,6 +255,16 @@ export default function LoadBookForm() {
       return;
     }
 
+        if (!selectedEditorial) {
+      setFeedbackModal({
+        isOpen: true,
+        type: "warning",
+        title: "Editorial requerida",
+        message: "Selecciona o registra una editorial para clasificar la obra.",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -200,7 +273,8 @@ export default function LoadBookForm() {
       if (formData.isbn && formData.isbn.trim()) {
         submitData.append("isbn", formData.isbn.trim());
       }
-      submitData.append("editorial", formData.editorial.trim());
+      // Existente: se envía su id (clave foránea). Nueva: se envía el nombre y el back la crea.
+      submitData.append("editorial", selectedEditorial.id ?? selectedEditorial.name);
       submitData.append("publication_year", Number(formData.publication_year));
       submitData.append("description", formData.description.trim());
 
@@ -229,12 +303,13 @@ export default function LoadBookForm() {
         title: "",
         isbn: "",
         publication_year: "",
-        editorial: "",
         cover_image: null,
         description: "",
         genres: [],
       });
       setSelectedAuthors([]);
+      setSelectedEditorial(null);
+      refetchEditorials(); // si se creó una editorial, se vuelve a leer la lista
       setImagePreview(null);
 
       setFeedbackModal({
@@ -315,41 +390,24 @@ export default function LoadBookForm() {
           </div>
         </div>
 
-        {/* === FILA 2: Editorial y Año === */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <div className="flex flex-col gap-2">
-            <label htmlFor="load-book-editorial" className="text-label-caps text-on-surface font-bold">
-              EDITORIAL *
-            </label>
-            <input
-              id="load-book-editorial"
-              type="text"
-              name="editorial"
-              value={formData.editorial}
-              onChange={handleChange}
-              required
-              placeholder="Ej. Editorial Sur"
-              className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-md text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors"
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <label htmlFor="load-book-year" className="text-label-caps text-on-surface font-bold">
-              AÑO DE PUBLICACIÓN *
-            </label>
-            <input
-              id="load-book-year"
-              type="number"
-              inputMode="numeric"
-              name="publication_year"
-              min={868}
-              max={new Date().getFullYear()}
-              value={formData.publication_year}
-              onChange={handleChange}
-              required
-              placeholder="Ej. 1944"
-              className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-md text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors font-mono"
-            />
-          </div>
+        {/* === FILA 2: Año === */}
+        <div className="flex flex-col gap-2">
+          <label htmlFor="load-book-year" className="text-label-caps text-on-surface font-bold">
+            AÑO DE PUBLICACIÓN *
+          </label>
+          <input
+            id="load-book-year"
+            type="number"
+            inputMode="numeric"
+            name="publication_year"
+            min={868}
+            max={new Date().getFullYear()}
+            value={formData.publication_year}
+            onChange={handleChange}
+            required
+            placeholder="Ej. 1944"
+            className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-md text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors font-mono"
+          />
         </div>
 
         {/* === FILA 3: Portada === */}
@@ -406,6 +464,75 @@ export default function LoadBookForm() {
             placeholder="Reseña o sinopsis de la obra..."
             className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-md text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors resize-y"
           />
+        </div>
+
+                {/* === SECCIÓN DE EDITORIAL === */}
+        <div className="p-5 border border-outline-variant rounded-md bg-surface-container-lowest shadow-xs flex flex-col gap-4">
+          <h2 className="text-label-caps text-on-surface font-bold">EDITORIAL *</h2>
+
+          {selectedEditorial && (
+            <div className="flex flex-wrap gap-2 p-3 bg-surface-container rounded-sm">
+              <div className="flex items-center gap-2 bg-secondary-container text-on-secondary-container px-3 py-1.5 rounded-full text-xs font-medium shadow-xs">
+                <span>
+                  {selectedEditorial.name}
+                  {selectedEditorial.id === null && " (nueva)"}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleRemoveEditorial}
+                  aria-label={`Quitar editorial ${selectedEditorial.name}`}
+                  className="hover:text-error transition-colors flex items-center font-bold cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="flex flex-col gap-2">
+              <label htmlFor="load-book-editorial-select" className="text-xs text-on-surface-variant font-bold">
+                Elegir editorial existente
+              </label>
+              <select
+                id="load-book-editorial-select"
+                onChange={handleSelectExistingEditorial}
+                defaultValue=""
+                className="w-full px-3 py-2.5 bg-surface-container border border-outline-variant rounded-sm text-sm text-on-surface cursor-pointer focus:border-primary focus:outline-none transition-colors"
+              >
+                <option value="" disabled>Buscar en el archivo...</option>
+                {availableEditorials.map((ed) => (
+                  <option key={ed.name} value={ed.name}>
+                    {ed.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex flex-col gap-2 border-t md:border-t-0 md:border-l border-outline-variant/50 pt-4 md:pt-0 pl-0 md:pl-6">
+              <label htmlFor="load-book-new-editorial" className="text-xs text-on-surface-variant font-bold">
+                Registrar nueva editorial
+              </label>
+              <div className="flex flex-col gap-2">
+                <input
+                  id="load-book-new-editorial"
+                  type="text"
+                  placeholder="Ej. Editorial Sur"
+                  value={newEditorialName}
+                  onChange={(e) => setNewEditorialName(e.target.value)}
+                  className="w-full px-3 py-2 bg-surface-container border border-outline-variant rounded-sm text-sm text-on-surface focus:border-primary transition-colors"
+                />
+                <button
+                  type="button"
+                  onClick={handleCreateNewEditorial}
+                  className="bg-primary text-on-primary text-xs font-bold uppercase tracking-widest py-2 rounded-sm hover:opacity-90 transition-colors mt-1 shadow-xs cursor-pointer inline-flex items-center justify-center gap-1"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  Añadir Editorial
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* === SECCIÓN DE AUTORES === */}
