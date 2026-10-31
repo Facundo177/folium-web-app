@@ -115,6 +115,7 @@ export default function Sidebar() {
         onConfirm={() => {
           setShowLogoutModal(false);
           logout();
+          navigate('/login');
         }}
         onClose={() => setShowLogoutModal(false)}
       />
