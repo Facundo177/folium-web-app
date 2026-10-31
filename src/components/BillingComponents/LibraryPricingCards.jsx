@@ -37,7 +37,7 @@ export default function LibraryPricingCards({
         {/* Encabezado y Controles de Facturación */}
         <div className="text-center max-w-3xl mx-auto mb-10">
           <span className="text-label-caps text-primary tracking-[0.2em] uppercase block mb-3">
-            Suscripciones Institucionales • MercadoPago
+            Suscripciones 
           </span>
           <h2 className="font-serif text-3xl sm:text-5xl text-on-surface font-medium leading-tight mb-4">
             Planes pensados para cada escala de biblioteca
