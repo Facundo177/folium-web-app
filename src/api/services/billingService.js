@@ -12,7 +12,7 @@ export const DEFAULT_LIBRARY_PLANS = [
     superscript: "1",
     badge_text: "",
     is_featured: false,
-    subtitle_prefix: "Obtén ",
+    subtitle_prefix: "",
     subtitle_highlight: "capacidad ampliada",
     subtitle_suffix:
       " y herramientas de catalogación ágil para modernizar tu biblioteca comunitaria, popular o escolar.",
@@ -47,7 +47,7 @@ export const DEFAULT_LIBRARY_PLANS = [
       {
         category: "Comunidad y Experiencia Lectora",
         items: [
-          "Acceso a nuestro Asistente Curador Folium rápido para socios",
+          "Acceso a nuestro Asistente Tomito rápido para socios",
           "Obtén límites de reservas simultáneas 2 veces mayores² y alertas de vencimiento",
           "Reportes mensuales de préstamos activos, rotación y estado de conservación",
         ],
