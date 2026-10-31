@@ -45,6 +45,7 @@ export default function AuthSidebar({ handleLandingButtonClick, onDemoAccountSel
       </div>
 
       {/* Footer / Cuentas de Prueba */}
+      {import.meta.env.DEV && 
       <div className="mt-12 pt-8 border-t border-on-primary-container/20">
         <h3 className="text-label-caps text-on-primary-container/70 mb-4">
           CUENTAS DE PRUEBA
@@ -53,10 +54,10 @@ export default function AuthSidebar({ handleLandingButtonClick, onDemoAccountSel
         <div className="flex flex-col gap-3">
           {demoAccounts.map((account) => (
             <button
-              key={account.username}
-              type="button"
-              onClick={() => onDemoAccountSelect(account)}
-              className="w-full text-left bg-on-primary-container/5 p-4 rounded-lg border border-on-primary-container/10 cursor-pointer hover:bg-on-primary-container/10 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tertiary"
+            key={account.username}
+            type="button"
+            onClick={() => onDemoAccountSelect(account)}
+            className="w-full text-left bg-on-primary-container/5 p-4 rounded-lg border border-on-primary-container/10 cursor-pointer hover:bg-on-primary-container/10 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tertiary"
             >
               <p className="text-body-md text-on-primary-container font-medium">
                 {account.name}{" "}
@@ -71,6 +72,7 @@ export default function AuthSidebar({ handleLandingButtonClick, onDemoAccountSel
           ))}
         </div>
       </div>
+        }
     </div>
   );
 }
