@@ -112,6 +112,8 @@ const EditorialSection = memo(function EditorialSection({
             <option value="" disabled>
               {isLoadingEditorials
                 ? "Cargando editoriales..."
+                : availableEditorials.length === 0
+                ? "No hay editoriales registradas (crea una a la derecha)"
                 : "Buscar en el archivo..."}
             </option>
             {editorialOptions}
@@ -707,6 +709,21 @@ export default function LoadBookForm() {
         return true;
       } catch (error) {
         console.error("Error al crear editorial:", error);
+        // Fallback: si el backend no tiene POST /api/v1/editorial/ desplegado aún (404),
+        // registrarla localmente para que el formulario no se bloquee
+        if (error.response?.status === 404) {
+          console.warn(
+            "Endpoint POST /editorial/ no disponible (404). Registrando editorial localmente."
+          );
+          const fallbackEditorial = { id: cleanName, name: cleanName };
+          setAvailableEditorials((prev) =>
+            [...prev, fallbackEditorial].sort((a, b) =>
+              String(a.name || "").localeCompare(String(b.name || ""), "es")
+            )
+          );
+          setSelectedEditorial(fallbackEditorial);
+          return true;
+        }
         setFeedbackModal({
           isOpen: true,
           type: "error",
