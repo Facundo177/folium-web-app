@@ -5,8 +5,9 @@ import GoBackButton from "../components/BasicUIComponents/GoBackButton";
 import { useDocumentMetadata } from "../hooks/useDocumentMetadata";
 import { itemService } from "../api/services/itemService";
 import { ITEM_STATUS } from "../api/constants";
+import { Link } from "react-router-dom";
 import ReturnLoanModal from "../components/LoanComponents/ReturnLoanModal";
-import { BookOpen, User, Calendar, Clock } from "lucide-react";
+import { BookOpen, User, Calendar, Clock, BookOpenCheck } from "lucide-react";
 
 export default function LoansDashboard() {
   useDocumentMetadata({
@@ -163,13 +164,23 @@ export default function LoansDashboard() {
       </div>
 
       {/* Cabecera */}
-      <div className="mb-8">
-        <h1 className="text-headline-md font-serif text-on-surface mb-2">
-          Control de Préstamos Activos
-        </h1>
-        <p className="text-body-md text-on-surface-variant">
-          Supervisa el estado de los ejemplares prestados, verifica vencimientos y gestiona devoluciones físicas.
-        </p>
+      <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-headline-md font-serif text-on-surface mb-2">
+            Control de Préstamos Activos
+          </h1>
+          <p className="text-body-md text-on-surface-variant">
+            Supervisa el estado de los ejemplares prestados, verifica vencimientos y gestiona devoluciones físicas.
+          </p>
+        </div>
+        <Link
+          to="/librarian/loans/counter"
+          id="btn-goto-counter"
+          className="inline-flex items-center gap-2 self-start sm:self-auto px-5 py-2.5 bg-primary text-on-primary font-bold text-xs uppercase tracking-wider rounded-lg shadow-sm hover:opacity-90 transition-all cursor-pointer shrink-0"
+        >
+          <BookOpenCheck className="w-4 h-4" />
+          <span>Mostrador de Préstamos</span>
+        </Link>
       </div>
 
       {/* Vista Móvil (Tarjetas apiladas para < md) */}

@@ -42,14 +42,17 @@ export default function ItemForm() {
     onConfirm: null,
   });
 
-  // Cargar el catálogo de libros
+  // Cargar el catálogo inicial de opciones de libros (ultraliviano)
   useEffect(() => {
     let isMounted = true;
-    bookService
-      .getAll()
+    const fetchInitial = bookService.getOptions
+      ? bookService.getOptions()
+      : bookService.getAll();
+
+    fetchInitial
       .then((res) => {
         if (!isMounted) return;
-        const booksData = res.data?.results || res.data || [];
+        const booksData = Array.isArray(res.data) ? res.data : res.data?.results || [];
         setBooks(booksData);
       })
       .catch((err) => {
@@ -69,10 +72,47 @@ export default function ItemForm() {
     };
   }, []);
 
+  // Búsqueda dinámica remota con debounce (400ms) al escribir en el buscador
+  useEffect(() => {
+    const term = searchTerm.trim();
+    if (!term || term.includes("(#") || term.length < 2) return;
+
+    const timer = setTimeout(() => {
+      let isMounted = true;
+      const fetchPromise = bookService.getOptions
+        ? bookService.getOptions({ search: term })
+        : bookService.getAll({ search: term });
+
+      fetchPromise
+        .then((res) => {
+          if (!isMounted) return;
+          const newResults = Array.isArray(res.data)
+            ? res.data
+            : res.data?.results || [];
+          if (newResults.length > 0) {
+            setBooks((prev) => {
+              const map = new Map((prev || []).map((b) => [b.id, b]));
+              newResults.forEach((b) => map.set(b.id, b));
+              return Array.from(map.values());
+            });
+          }
+        })
+        .catch((err) => {
+          console.debug("Búsqueda remota de libros:", err);
+        });
+
+      return () => {
+        isMounted = false;
+      };
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
   // Filtrado optimizado en segundo plano mediante deferredSearchTerm
   const filteredBooks = useMemo(() => {
     const term = deferredSearchTerm.trim().toLowerCase();
-    if (!term) return books.slice(0, 15);
+    if (!term || term.includes("(#")) return books.slice(0, 15);
     return books
       .filter(
         (book) =>

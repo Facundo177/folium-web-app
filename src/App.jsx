@@ -2,12 +2,14 @@ import { lazy, Suspense } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import "./App.css";
 
-// Layouts principales (mantenidos estáticos para transiciones inmediatas)
+// Layouts principales
 import UserLayout from "./components/Layouts/UserLayout";
-import LibrarianLayout from "./components/Layouts/LibrarianLayout";
-import AuthLayout from "./components/Layouts/AuthLayout";
 import BotLayout from "./components/Layouts/BotLayout";
 import ProtectedRoute from "./auth/ProtectedRoute";
+
+// Layouts específicos cargados bajo demanda
+const LibrarianLayout = lazy(() => import("./components/Layouts/LibrarianLayout"));
+const AuthLayout = lazy(() => import("./components/Layouts/AuthLayout"));
 
 // Páginas con carga perezosa (Code-Splitting con React.lazy)
 const FoliumLanding = lazy(() => import("./pages/FoliumLanding"));
@@ -31,6 +33,7 @@ const AddAnItem = lazy(() => import("./pages/AddAnItem"));
 const CatalogImporter = lazy(() => import("./pages/CatalogImporter"));
 const LibraryPricingPage = lazy(() => import("./pages/LibraryPricingPage"));
 const LoansDashboard = lazy(() => import("./pages/LoansDashboard"));
+const LoanCounter = lazy(() => import("./pages/LoanCounter"));
 const ReservationDashboard = lazy(() => import("./pages/ReservationDashboard"));
 const Error404 = lazy(() => import("./pages/Error404"));
 const Test = lazy(() => import("./pages/Test"));
@@ -97,15 +100,16 @@ function App() {
             >
               <Route path="librarian" element={<LibrarianLayout />}>
                 <Route index element={<Navigate to="inventory" replace />} />
-                <Route path="catalog" element={<BookCatalog />} />
-                <Route path="inventory">
-                  <Route index element={<Inventory />} />
-                  <Route path="newBook" element={<LoadBook />} />
-                  <Route path="newItem" element={<AddAnItem />} />
-                </Route>
+                <Route path="inventory" element={<Inventory />} />
+                <Route path="newBook" element={<LoadBook />} />
                 <Route path="importer" element={<CatalogImporter />} />
+                <Route path="addItem" element={<AddAnItem />} />
+                <Route path="counter" element={<LoanCounter />} />
                 <Route path="loans" element={<LoansDashboard />} />
-                <Route path="reservations" element={<ReservationDashboard />} />
+                <Route
+                  path="reservations"
+                  element={<ReservationDashboard />}
+                />
               </Route>
             </Route>
 

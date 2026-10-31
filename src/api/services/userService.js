@@ -8,7 +8,10 @@ export const userService = {
   getProfile: () => api.get('/me/'),
   updateProfile: (data) => api.patch('/me/', data), 
 
-  // (Opcional) Endpoints estándar si el ADMIN necesita gestionar otros usuarios
+  // Endpoints de gestión de usuarios (Bibliotecarios / Admin)
   getAll: (params) => api.get('/user/', { params }),
   getById: (id) => api.get(`/user/${id}/`),
+  getByDni: (dni) => api.get(`/user/by-dni/${dni}/`),
+  createReader: (data) => api.post('/user/', data),
+  search: (params) => api.get('/user/', { params }),
 };

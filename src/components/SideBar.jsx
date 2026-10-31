@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { 
-  Library, 
-  BookMarked, 
-  LayoutDashboard, 
+import {
+  Library,
+  BookMarked,
+  LayoutDashboard,
   UserCircle,
   LogOut,
-  Menu, 
+  Menu,
   X,
   Heart,
   BookUp2Icon,
@@ -13,7 +13,8 @@ import {
   LogIn,
   UserPlus,
   BookLock,
-  FileSpreadsheet
+  FileSpreadsheet,
+  BookOpenCheck
 } from 'lucide-react';
 
 import { ThemeToggle } from '../theme/ThemeToggle';
@@ -28,11 +29,11 @@ export default function Sidebar() {
 
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   // Obtenemos hooks de autenticación
   const { profile } = useUserProfile();
   const { user, logout } = useAuth();
-  
+
   // Verificamos de forma segura si el usuario existe antes de leer el rol
   const roleLibrarian = user?.role === "LIBRARIAN";
 
@@ -47,25 +48,26 @@ export default function Sidebar() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isMobileOpen]);
-  
+
   // Determinamos qué menú mostrar según si hay sesión y qué rol tiene
   let navItems;
-  
+
   if (roleLibrarian) {
     navItems = [
+      { id: 'counter', label: 'Préstamos en Mostrador', icon: BookOpenCheck, navigateTo: '/librarian/loans/counter' },
       { id: 'catalog', label: 'Catálogo General', icon: Library, navigateTo: '/catalog' },
       { id: 'inventory', label: 'Inventario', icon: LayoutDashboard, navigateTo: '/librarian/inventory' },
-      { id: 'newBook', label: 'Añadir Nuevo Libro', icon: BookUp2Icon, navigateTo: '/librarian/inventory/newBook'},
-      { id: 'importer', label: 'Importar Catálogo', icon: FileSpreadsheet, navigateTo: '/librarian/importer'},
-      { id: 'reservations', label: 'Reservas', icon: BookLock, navigateTo: '/librarian/reservations'},
-      { id: 'loans', label: 'Préstamos', icon: UserRoundArrowLeft, navigateTo: '/librarian/loans'},
+      { id: 'newBook', label: 'Añadir Nuevo Libro', icon: BookUp2Icon, navigateTo: '/librarian/newBook' },
+      { id: 'importer', label: 'Importar Catálogo', icon: FileSpreadsheet, navigateTo: '/librarian/importer' },
+      { id: 'reservations', label: 'Reservas', icon: BookLock, navigateTo: '/librarian/reservations' },
+      { id: 'loans', label: 'Préstamos', icon: UserRoundArrowLeft, navigateTo: '/librarian/loans' },
     ];
   } else if (user) {
     // Si hay un usuario (Lector normal)
     navItems = [
       { id: 'catalog', label: 'Catálogo General', icon: Library, navigateTo: '/catalog' },
       { id: 'favourites', label: 'Favoritos', icon: Heart, navigateTo: '/user/favourites' },
-      { id: 'reservations', label: 'Reservas', icon: BookLock, navigateTo: '/user/reservations'},
+      { id: 'reservations', label: 'Reservas', icon: BookLock, navigateTo: '/user/reservations' },
       { id: 'loans', label: 'Préstamos Activos', icon: BookMarked, navigateTo: '/user/loans' },
     ];
   } else {
@@ -113,12 +115,13 @@ export default function Sidebar() {
         onConfirm={() => {
           setShowLogoutModal(false);
           logout();
+          navigate('/login');
         }}
         onClose={() => setShowLogoutModal(false)}
       />
 
       {/* BOTÓN HAMBURGUESA (Visible solo en móvil) */}
-      <button 
+      <button
         type="button"
         onClick={() => setIsMobileOpen(true)}
         aria-label="Abrir menú de navegación"
@@ -131,7 +134,7 @@ export default function Sidebar() {
 
       {/* OVERLAY FONDO OSCURO (Visible solo en móvil al abrir) */}
       {isMobileOpen && (
-        <div 
+        <div
           aria-hidden="true"
           className="lg:hidden fixed inset-0 bg-black/65 z-50 transition-opacity"
           onClick={() => setIsMobileOpen(false)}
@@ -139,7 +142,7 @@ export default function Sidebar() {
       )}
 
       {/* SIDEBAR PRINCIPAL */}
-      <aside 
+      <aside
         id="folium-sidebar-navigation"
         aria-label="Navegación principal"
         className={`
@@ -149,10 +152,10 @@ export default function Sidebar() {
           transform 
           ${isMobileOpen ? 'translate-x-0 transition-transform duration-300 ease-out will-change-transform' : '-translate-x-full'}
         `}
-      >    
+      >
         {/* Cabecera Móvil con Botón Cerrar */}
         <div className="lg:hidden flex justify-end mb-2">
-          <button 
+          <button
             type="button"
             onClick={() => setIsMobileOpen(false)}
             aria-label="Cerrar menú de navegación"
@@ -172,7 +175,7 @@ export default function Sidebar() {
           <div className="w-11 h-11 flex-shrink-0 bg-primary-container rounded-full flex items-center justify-center border border-outline-variant/30">
             <UserCircle className="w-6 h-6 text-on-primary-container" />
           </div>
-          
+
           <div className="hide-on-collapse flex flex-col justify-center whitespace-nowrap">
             {user ? (
               <>
@@ -199,10 +202,9 @@ export default function Sidebar() {
               to={item.navigateTo}
               onClick={() => setIsMobileOpen(false)}
               className={({ isActive }) =>
-                `relative flex items-center gap-4 h-12 w-full rounded-xl transition-colors cursor-pointer no-underline ${
-                  (isActive || activeTab === item.id)
-                    ? 'text-primary font-bold' 
-                    : 'text-on-surface-variant hover:text-on-surface'
+                `relative flex items-center gap-4 h-12 w-full rounded-xl transition-colors cursor-pointer no-underline ${(isActive || activeTab === item.id)
+                  ? 'text-primary font-bold'
+                  : 'text-on-surface-variant hover:text-on-surface'
                 }`
               }
             >
@@ -211,7 +213,7 @@ export default function Sidebar() {
                   {(isActive || activeTab === item.id) && (
                     <div className="absolute inset-0 bg-primary/10 rounded-xl" />
                   )}
-                  
+
                   <item.icon className="w-[22px] h-[22px] flex-shrink-0 ml-[11px] relative z-10" />
                   <p className="hide-on-collapse font-sans text-sm font-medium m-0 whitespace-nowrap relative z-10">
                     {item.label}
@@ -228,17 +230,17 @@ export default function Sidebar() {
         {/* Acciones y Tema */}
         <div className="actions-container mt-auto flex flex-row shrink-0 w-full">
           {user ? (
-            <button 
+            <button
               type="button"
               title="Cerrar Sesión"
               aria-label="Cerrar sesión"
               className="action-btn w-11 h-11 bg-surface-variant rounded-xl flex items-center justify-center text-on-surface hover:bg-error hover:text-on-error transition-colors shadow-sm border border-outline-variant/30 shrink-0 cursor-pointer"
-              onClick={() => setShowLogoutModal(true)} 
+              onClick={() => setShowLogoutModal(true)}
             >
               <LogOut className="w-6 h-6" />
             </button>
           ) : (
-            <button 
+            <button
               type="button"
               title="Iniciar Sesión"
               aria-label="Iniciar sesión"
@@ -251,7 +253,7 @@ export default function Sidebar() {
               <LogIn className="w-5 h-5" />
             </button>
           )}
-          
+
           <ThemeToggle />
         </div>
       </aside>

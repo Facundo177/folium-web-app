@@ -33,6 +33,7 @@ export default function FeedbackModal({
   onClose,
   onConfirm,
   isLoading = false,
+  children,
 }) {
   const dialogRef = useRef(null);
   const pressedOutsideRef = useRef(false);
@@ -150,6 +151,9 @@ export default function FeedbackModal({
           <p className="text-body-md text-on-surface-variant whitespace-pre-line leading-relaxed mb-6">
             {message}
           </p>
+
+                    {/* Contenido opcional (por ejemplo, opciones a elegir) debajo del mensaje */}
+          {children && <div className="mb-6">{children}</div>}
 
           {/* Botones */}
           <div className="flex justify-end gap-3 pt-2 border-t border-outline-variant/50">

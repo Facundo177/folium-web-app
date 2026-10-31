@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useId } from "react";
+import { useState, useEffect, useRef, useId, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { X, ChevronDown } from "lucide-react";
 import { ITEM_STATUS } from "../../api/constants";
@@ -56,6 +56,17 @@ export default function ItemEditModal({
       });
     }
   }, [item]);
+
+  // Si el libro del ejemplar no está en los primeros 20 (por paginación), se asegura su presencia como opción
+  const bookOptions = useMemo(() => {
+    const list = Array.isArray(books) ? books : [];
+    if (!item || !item.bookId) return list;
+    const exists = list.some((b) => String(b.id) === String(item.bookId));
+    if (!exists && item.title && item.title !== "—") {
+      return [{ id: item.bookId, title: item.title, isbn: item.isbn }, ...list];
+    }
+    return list;
+  }, [books, item]);
 
   const handleCancel = (e) => {
     e.preventDefault();
@@ -146,7 +157,7 @@ export default function ItemEditModal({
                 <option value="" disabled>
                   Seleccione una obra...
                 </option>
-                {books.map((b) => (
+                {bookOptions.map((b) => (
                   <option key={b.id} value={b.id}>
                     #{b.id} — {b.title}
                   </option>
