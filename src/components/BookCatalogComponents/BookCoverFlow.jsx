@@ -167,13 +167,9 @@ export default function BookCoverFlow({
   const handleCardQuickView = useCallback(
     (book) => (e) => {
       e.stopPropagation();
-      if (!user || !user.id) {
-        onRequireAuth?.("consultar la ficha detallada y reseñas de este ejemplar");
-        return;
-      }
       navigate(`/book/${book.id}`);
     },
-    [user, navigate, onRequireAuth]
+    [navigate]
   );
 
   const handleCardRequestLoan = useCallback(

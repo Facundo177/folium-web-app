@@ -1,5 +1,5 @@
 import { useState, useEffect, memo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../auth/AuthProvider";
 import { reservationService } from "../../api/services/reservationService";
 import { favoriteService } from "../../api/services/favoriteService";
@@ -74,12 +74,7 @@ function CatalogBookCard({
     }
   };
 
-  const handleQuickView = (e) => {
-    e.stopPropagation();
-    if (!user || !user.id) {
-      promptGuestRegistration("consultar la ficha detallada, historia y reseñas de este ejemplar");
-      return;
-    }
+  const handleQuickView = () => {
     navigate(`/book/${book.id}`);
   };
 
@@ -176,7 +171,13 @@ function CatalogBookCard({
           className="font-serif text-lg text-on-surface font-medium leading-snug line-clamp-2 mb-1 group-hover:text-primary transition-colors"
           title={book.title}
         >
-          {book.title}
+          <Link
+            to={`/book/${book.id}`}
+            onClick={(e) => e.stopPropagation()}
+            className="hover:text-primary transition-colors no-underline text-inherit"
+          >
+            {book.title}
+          </Link>
         </h3>
 
         <p className="font-serif italic text-sm text-on-surface-variant line-clamp-1 mb-2">
