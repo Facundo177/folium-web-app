@@ -5,7 +5,7 @@ import { itemService } from "../api/services/itemService";
 import FeedbackModal from "../components/BasicUIComponents/FeedbackModal";
 import GoBackButton from "../components/BasicUIComponents/GoBackButton";
 import { useDocumentMetadata } from "../hooks/useDocumentMetadata";
-import { BookOpen, User, Calendar, Clock, CheckCircle } from "lucide-react";
+import { BookOpen, User, Calendar } from "lucide-react";
 
 export default function ReservationDashboard() {
   useDocumentMetadata({
@@ -19,7 +19,9 @@ export default function ReservationDashboard() {
 
   // Estados para modales
   const [reservationToAccept, setReservationToAccept] = useState(null);
+  const [reservationToCancel, setReservationToCancel] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
   const [feedbackModal, setFeedbackModal] = useState({
     isOpen: false,
     type: "info",
@@ -156,6 +158,58 @@ export default function ReservationDashboard() {
     }
   };
 
+  const confirmCancelReservation = async () => {
+    if (!reservationToCancel) return;
+    const reservation = reservationToCancel;
+    const bookTitle =
+      reservation.book_detail?.title || `Libro #${reservation.book}`;
+
+    setIsCancelling(true);
+    try {
+      const { data: updatedReservation } = await reservationService.patch(
+        reservation.id,
+        { status: "CANCELLED" }
+      );
+
+      setReservations((prev) =>
+        prev.map((res) =>
+          res.id === reservation.id
+            ? {
+                ...res,
+                status: updatedReservation?.status || "CANCELLED",
+                status_display:
+                  updatedReservation?.status_display || "Cancelado",
+              }
+            : res
+        )
+      );
+      setReservationToCancel(null);
+      setFeedbackModal({
+        isOpen: true,
+        type: "success",
+        title: "Reserva cancelada",
+        message: `Se canceló la reserva de "${bookTitle}".`,
+      });
+    } catch (err) {
+      console.error("Error al cancelar la reserva:", err);
+      const errorMessages = err.response?.data
+        ? Object.values(err.response.data).flat().join("\n")
+        : err.response
+          ? `El servidor respondió con código ${err.response.status}.`
+          : err.message || "Verifica la conexión con el servidor.";
+
+      setReservationToCancel(null);
+      setFeedbackModal({
+        isOpen: true,
+        type: "error",
+        title: "Error al cancelar reserva",
+        message: `No se pudo cancelar la reserva:\n${errorMessages}`,
+      });
+    } finally {
+      setIsCancelling(false);
+    }
+  };
+
   const getStatusInfo = (status, expiresAt) => {
     if (status === "COMPLETED") {
       return { text: "Completado", colorClass: "text-secondary font-bold" };
@@ -285,18 +339,33 @@ export default function ReservationDashboard() {
                 </div>
 
                 {/* Botón Acción Móvil */}
-                <div className="pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setReservationToAccept(reservation)}
-                    disabled={!isPending}
-                    className={`w-full py-2 text-xs font-bold uppercase tracking-widest rounded-sm transition-colors shadow-xs ${!isPending
-                        ? "bg-surface-variant text-on-surface-variant cursor-not-allowed"
-                        : "bg-primary text-on-primary hover:opacity-90 cursor-pointer"
-                      }`}
-                  >
-                    {isPending ? "Aceptar y Prestar" : reservation.status_display || "Procesada"}
-                  </button>
+                <div className="pt-2 flex gap-2">
+                  {isPending ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => setReservationToAccept(reservation)}
+                        disabled={isProcessing || isCancelling}
+                        className="flex-1 py-2 text-xs font-bold uppercase tracking-widest rounded-sm transition-colors shadow-xs bg-primary text-on-primary hover:opacity-90 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Aceptar y Prestar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setReservationToCancel(reservation)}
+                        disabled={isProcessing || isCancelling}
+                        className="flex-1 py-2 text-xs font-bold uppercase tracking-widest rounded-sm transition-colors border border-error text-error hover:bg-error/10 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Cancelar
+                      </button>
+                    </>
+                  ) : (
+                    <span className="w-full py-2 text-center text-xs font-bold uppercase tracking-widest rounded-sm bg-surface-variant text-on-surface-variant">
+                      {reservation.status === "CANCELLED"
+                        ? "CANCELADO"
+                        : reservation.status_display || "Procesada"}
+                    </span>
+                  )}
                 </div>
               </div>
             );
@@ -375,19 +444,32 @@ export default function ReservationDashboard() {
                     </td>
 
                     <td className="p-4 text-center">
-                      <button
-                        type="button"
-                        onClick={() => setReservationToAccept(reservation)}
-                        disabled={!isPending}
-                        className={`px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-sm transition-colors shadow-xs ${!isPending
-                            ? "bg-surface-variant text-on-surface-variant cursor-not-allowed"
-                            : "bg-primary text-on-primary hover:opacity-90 cursor-pointer"
-                          }`}
-                      >
-                        {isPending
-                          ? "Aceptar"
-                          : reservation.status_display || "Aceptada"}
-                      </button>
+                      {isPending ? (
+                        <div className="flex justify-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setReservationToAccept(reservation)}
+                            disabled={isProcessing || isCancelling}
+                            className="px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-sm transition-colors shadow-xs bg-primary text-on-primary hover:opacity-90 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            Aceptar
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setReservationToCancel(reservation)}
+                            disabled={isProcessing || isCancelling}
+                            className="px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-sm transition-colors border border-error text-error hover:bg-error/10 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            Cancelar
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="inline-block px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-sm bg-surface-variant text-on-surface-variant">
+                          {reservation.status === "CANCELLED"
+                            ? "CANCELADO"
+                            : reservation.status_display || "Aceptada"}
+                        </span>
+                      )}
                     </td>
                   </tr>
                 );
@@ -414,6 +496,23 @@ export default function ReservationDashboard() {
         isLoading={isProcessing}
         onClose={() => setReservationToAccept(null)}
         onConfirm={confirmAcceptReservation}
+      />
+
+      {/* Modal de confirmación para cancelar reserva */}
+      <FeedbackModal
+        isOpen={Boolean(reservationToCancel)}
+        type="warning"
+        title="Cancelar reserva"
+        message={
+          reservationToCancel
+            ? `¿Estás seguro de que deseas cancelar la reserva de "${reservationToCancel.book_detail?.title || `Libro #${reservationToCancel.book}`}" para ${reservationToCancel.user_detail?.full_name || reservationToCancel.user_detail?.username || `el lector #${reservationToCancel.user}`}?`
+            : ""
+        }
+        confirmText="Sí, cancelar reserva"
+        cancelText="Conservar reserva"
+        isLoading={isCancelling}
+        onClose={() => setReservationToCancel(null)}
+        onConfirm={confirmCancelReservation}
       />
 
       {/* Modal de notificación / error */}
