@@ -5,8 +5,9 @@
  *
  * Funcionalidades:
  * 1. Proxy para endpoints de API (/api/v1/...) hacia Django REST en AWS.
- * 2. Proxy para archivos multimedia (/media/books/covers/...) sirviéndolos en HTTPS seguro
- *    con caché y Content-Type adecuado, solucionando el bloqueo de Mixed Content para imágenes.
+ * 2. Proxy con Edge CDN Caching para archivos multimedia (/media/books/covers/...) sirviéndolos
+ *    en HTTPS seguro con caché inmutable en la red de borde de Vercel (s-maxage=31536000),
+ *    solucionando el bloqueo de Mixed Content y evitando ejecuciones repetidas de la función.
  * 3. Streaming directo y asíncrono vía Readable.fromWeb() y pipeline() para minimizar TTFB y uso de RAM.
  * 4. Sanitización defensiva contra Path Traversal ('..') y validación de prefijos por lista blanca.
  * 5. Exclusión de cabeceras hop-by-hop y content-length para evitar Content-Length mismatch en respuestas comprimidas.
@@ -33,6 +34,9 @@ const MIME_TYPES = {
   avif: "image/avif",
   ico: "image/x-icon",
 };
+
+const MEDIA_CDN_CACHE_CONTROL =
+  "public, max-age=31536000, s-maxage=31536000, stale-while-revalidate=2592000, immutable";
 
 export default async function handler(req, res) {
   const BACKEND_HOST = process.env.BACKEND_HOST || "http://54.160.130.29";
@@ -61,16 +65,15 @@ export default async function handler(req, res) {
     if (prefix === "api") {
       const lastSegment = sanitizedPath.split("/").pop();
       const hasExtension = lastSegment && lastSegment.includes(".");
-      normalizedPath = sanitizedPath.endsWith("/") || hasExtension
-        ? sanitizedPath
-        : `${sanitizedPath}/`;
+      normalizedPath =
+        sanitizedPath.endsWith("/") || hasExtension ? sanitizedPath : `${sanitizedPath}/`;
     }
 
-    // Reconstruir query params (excluyendo parámetros de control 'path' y 'prefix')
+    // Reconstruir query params (excluyendo parámetros de control 'path' y 'prefix' y 'v' de cache-busting para media)
     const searchParams = new URLSearchParams();
     if (req.query) {
       for (const [key, val] of Object.entries(req.query)) {
-        if (key !== "path" && key !== "prefix") {
+        if (key !== "path" && key !== "prefix" && !(prefix === "media" && key === "v")) {
           if (Array.isArray(val)) {
             val.forEach((v) => searchParams.append(key, v));
           } else if (val !== undefined && val !== null) {
@@ -132,16 +135,22 @@ export default async function handler(req, res) {
       }
     });
 
-    // Si es un archivo multimedia, asegurar Content-Type correcto y caché CDN
-    if (prefix === "media") {
-      const ext = normalizedPath.split(".").pop()?.toLowerCase();
-      if (MIME_TYPES[ext]) {
-        res.setHeader("Content-Type", MIME_TYPES[ext]);
+    // Si es un archivo multimedia, asegurar Content-Type correcto y caché Edge CDN inmutable
+    if (prefix === "media" && backendResponse.status >= 200 && backendResponse.status < 400) {
+      const upstreamType = (backendResponse.headers.get("content-type") || "").toLowerCase();
+      if (!upstreamType.startsWith("image/")) {
+        const ext = normalizedPath.split(".").pop()?.toLowerCase();
+        if (MIME_TYPES[ext]) {
+          res.setHeader("Content-Type", MIME_TYPES[ext]);
+        }
       }
-      res.setHeader(
-        "Cache-Control",
-        "public, max-age=604800, s-maxage=604800, stale-while-revalidate=2592000"
-      );
+      res.setHeader("Cache-Control", MEDIA_CDN_CACHE_CONTROL);
+      res.setHeader("CDN-Cache-Control", MEDIA_CDN_CACHE_CONTROL);
+      res.setHeader("Vercel-CDN-Cache-Control", MEDIA_CDN_CACHE_CONTROL);
+    }
+
+    if (backendResponse.status === 304 || req.method.toUpperCase() === "HEAD") {
+      return res.end();
     }
 
     // Transmisión asíncrona segura por streaming garantizando el vaciado y cierre completo
