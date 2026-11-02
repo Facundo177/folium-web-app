@@ -1,7 +1,6 @@
 import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import {
-  FileSpreadsheet,
   AlertTriangle,
   AlertCircle,
   ArrowRight,
@@ -10,13 +9,9 @@ import {
   Download,
   Check,
   RefreshCw,
-  Library,
-  BookCopy,
   SlidersHorizontal,
   Image as ImageIcon,
   FileCheck,
-  Layers,
-  Sparkles,
   Database,
   Archive,
 } from "lucide-react";
@@ -439,7 +434,7 @@ export default function CatalogImporter() {
           </p>
         </div>
 
-        {/* Fases de Ingesta (Stepper Sobrio Editorial) */}
+        {/* Fases de Ingesta (Stepper Sobrio Editorial con Verde Semántico de Éxito) */}
         <div className="mt-8 pt-6 border-t border-outline-variant/40">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {steps.map((s, idx) => {
@@ -450,17 +445,21 @@ export default function CatalogImporter() {
                 <div key={s.num} className="relative">
                   <div
                     className={`h-0.5 w-full mb-3 transition-colors ${
-                      isActive ? "bg-primary" : isPast ? "bg-tertiary" : "bg-outline-variant/40"
+                      isActive
+                        ? "bg-primary"
+                        : isPast
+                        ? "bg-emerald-600 dark:bg-emerald-400"
+                        : "bg-outline-variant/40"
                     }`}
                   />
                   <div className="flex items-baseline gap-2">
                     <span
-                      className={`font-mono text-xs font-semibold ${
+                      className={`font-mono text-xs ${
                         isActive
-                          ? "text-primary"
+                          ? "text-primary font-bold"
                           : isPast
-                          ? "text-tertiary"
-                          : "text-on-surface-variant/50"
+                          ? "text-emerald-700 dark:text-emerald-400 font-bold"
+                          : "text-on-surface-variant/40"
                       }`}
                     >
                       {isPast ? "✓" : s.num}
@@ -470,7 +469,7 @@ export default function CatalogImporter() {
                         isActive
                           ? "font-bold text-on-surface"
                           : isPast
-                          ? "font-medium text-on-surface-variant"
+                          ? "font-semibold text-emerald-800 dark:text-emerald-300"
                           : "text-on-surface-variant/60"
                       }`}
                     >
@@ -539,7 +538,7 @@ export default function CatalogImporter() {
                   onChange={(e) => handleFileSelect(e.target.files[0])}
                 />
 
-                <div className="max-w-md mx-auto space-y-3">
+                <div className="max-w-md mx-auto space-y-4">
                   <div className="font-serif italic text-2xl text-on-surface">
                     Depositar catálogo para cotejo
                   </div>
@@ -547,16 +546,23 @@ export default function CatalogImporter() {
                     Haga clic para explorar los archivos locales o arrastre la planilla de inventario a este espacio.
                   </p>
 
-                  <div className="pt-4 border-t border-outline-variant/40 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[11px] font-mono text-on-surface-variant/80">
-                    <span>MARC 21 (.mrc)</span>
-                    <span>•</span>
-                    <span>MARCXML (.xml)</span>
-                    <span>•</span>
-                    <span>BibTeX (.bib)</span>
-                    <span>•</span>
-                    <span>Excel (.xlsx)</span>
-                    <span>•</span>
-                    <span>CSV / TSV (.csv, .tsv)</span>
+                  {/* Sellos de Formatos Admitidos con Mayor Contraste y Tipografía Monospaced */}
+                  <div className="pt-4 border-t border-outline-variant/40 flex flex-wrap items-center justify-center gap-2 text-xs font-mono">
+                    <span className="px-2.5 py-1 bg-surface-container-low border border-outline-variant text-on-surface rounded-sm">
+                      <strong className="text-primary font-bold">MARC 21</strong> (.mrc)
+                    </span>
+                    <span className="px-2.5 py-1 bg-surface-container-low border border-outline-variant text-on-surface rounded-sm">
+                      <strong className="text-primary font-bold">MARCXML</strong> (.xml)
+                    </span>
+                    <span className="px-2.5 py-1 bg-surface-container-low border border-outline-variant text-on-surface rounded-sm">
+                      <strong className="text-primary font-bold">BibTeX</strong> (.bib)
+                    </span>
+                    <span className="px-2.5 py-1 bg-surface-container-low border border-outline-variant text-on-surface rounded-sm">
+                      <strong className="text-primary font-bold">Excel</strong> (.xlsx • máx 4 MB)
+                    </span>
+                    <span className="px-2.5 py-1 bg-surface-container-low border border-outline-variant text-on-surface rounded-sm">
+                      <strong className="text-primary font-bold">CSV / TSV</strong> (.csv, .tsv)
+                    </span>
                   </div>
                 </div>
               </div>
@@ -579,7 +585,7 @@ export default function CatalogImporter() {
                             [Transmisión fraccionada: {fileMeta.estimatedChunks} tandas]
                           </span>
                         )}
-                        <span>— Listo para inspección</span>
+                        <span className="text-emerald-700 dark:text-emerald-400 font-semibold">— Documento listo para cotejo</span>
                       </div>
                     </div>
                   </div>
@@ -588,7 +594,7 @@ export default function CatalogImporter() {
                     type="button"
                     onClick={handlePreviewUpload}
                     disabled={isLoading}
-                    className="self-end md:self-auto flex items-center gap-2 bg-primary text-on-primary px-6 py-2.5 rounded-sm font-bold text-xs uppercase tracking-wider hover:opacity-95 disabled:opacity-50 transition-opacity cursor-pointer"
+                    className="self-end md:self-auto flex items-center gap-2 bg-primary text-on-primary px-6 py-2.5 rounded-sm font-bold text-xs uppercase tracking-wider hover:opacity-95 disabled:opacity-50 transition-opacity cursor-pointer shadow-xs"
                   >
                     {isLoading ? (
                       <>
@@ -607,7 +613,7 @@ export default function CatalogImporter() {
             </div>
           </div>
 
-          {/* Muestrarios y Plantillas de Referencia */}
+          {/* Muestrarios y Plantillas de Referencia con Distintivos Técnicos */}
           <div className="p-6 bg-surface-container-low border border-outline-variant/60 rounded-sm">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
               <div>
@@ -623,34 +629,46 @@ export default function CatalogImporter() {
                 <button
                   type="button"
                   onClick={() => handleDownloadSample("csv")}
-                  className="px-3 py-1.5 bg-surface-container-lowest border border-outline-variant/80 text-on-surface text-xs font-mono hover:border-primary transition-colors flex items-center gap-1.5 cursor-pointer rounded-sm"
+                  className="px-3.5 py-2 bg-surface-container-lowest border border-outline-variant text-on-surface text-xs font-mono hover:border-primary transition-colors flex items-center gap-2 cursor-pointer rounded-sm shadow-xs"
                 >
-                  <Download className="w-3 h-3 text-primary" />
+                  <span className="px-1.5 py-0.5 bg-surface-container text-on-surface text-[10px] font-bold border border-outline-variant/60 rounded-xs">
+                    CSV
+                  </span>
                   <span>Plantilla .csv</span>
+                  <Download className="w-3 h-3 text-primary ml-1" />
                 </button>
                 <button
                   type="button"
                   onClick={() => handleDownloadSample("bib")}
-                  className="px-3 py-1.5 bg-surface-container-lowest border border-outline-variant/80 text-on-surface text-xs font-mono hover:border-primary transition-colors flex items-center gap-1.5 cursor-pointer rounded-sm"
+                  className="px-3.5 py-2 bg-surface-container-lowest border border-outline-variant text-on-surface text-xs font-mono hover:border-primary transition-colors flex items-center gap-2 cursor-pointer rounded-sm shadow-xs"
                 >
-                  <Download className="w-3 h-3 text-primary" />
+                  <span className="px-1.5 py-0.5 bg-surface-container text-on-surface text-[10px] font-bold border border-outline-variant/60 rounded-xs">
+                    BIB
+                  </span>
                   <span>Muestra .bib</span>
+                  <Download className="w-3 h-3 text-primary ml-1" />
                 </button>
                 <button
                   type="button"
                   onClick={() => handleDownloadSample("mrc")}
-                  className="px-3 py-1.5 bg-surface-container-lowest border border-outline-variant/80 text-on-surface text-xs font-mono hover:border-primary transition-colors flex items-center gap-1.5 cursor-pointer rounded-sm"
+                  className="px-3.5 py-2 bg-surface-container-lowest border border-outline-variant text-on-surface text-xs font-mono hover:border-primary transition-colors flex items-center gap-2 cursor-pointer rounded-sm shadow-xs"
                 >
-                  <Download className="w-3 h-3 text-primary" />
-                  <span>Muestra .mrc (MARC 21)</span>
+                  <span className="px-1.5 py-0.5 bg-surface-container text-on-surface text-[10px] font-bold border border-outline-variant/60 rounded-xs">
+                    MRC
+                  </span>
+                  <span>MARC 21 (.mrc)</span>
+                  <Download className="w-3 h-3 text-primary ml-1" />
                 </button>
                 <button
                   type="button"
                   onClick={() => handleDownloadSample("marcxml")}
-                  className="px-3 py-1.5 bg-surface-container-lowest border border-outline-variant/80 text-on-surface text-xs font-mono hover:border-primary transition-colors flex items-center gap-1.5 cursor-pointer rounded-sm"
+                  className="px-3.5 py-2 bg-surface-container-lowest border border-outline-variant text-on-surface text-xs font-mono hover:border-primary transition-colors flex items-center gap-2 cursor-pointer rounded-sm shadow-xs"
                 >
-                  <Download className="w-3 h-3 text-primary" />
-                  <span>Muestra MARCXML</span>
+                  <span className="px-1.5 py-0.5 bg-surface-container text-on-surface text-[10px] font-bold border border-outline-variant/60 rounded-xs">
+                    XML
+                  </span>
+                  <span>MARCXML (.xml)</span>
+                  <Download className="w-3 h-3 text-primary ml-1" />
                 </button>
               </div>
             </div>
@@ -798,7 +816,7 @@ export default function CatalogImporter() {
               </div>
             </div>
 
-            {/* Mesa de Mapeo Tabular (Ledger) */}
+            {/* Mesa de Mapeo Tabular (Ledger) con Validación Visual en Verde */}
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
                 <thead className="bg-surface-container-low text-on-surface-variant border-b border-outline-variant font-mono text-[11px] uppercase tracking-wider">
@@ -816,15 +834,19 @@ export default function CatalogImporter() {
                     return (
                       <tr key={field.id} className="hover:bg-surface-container-low/40 transition-colors">
                         <td className="py-3.5 px-6 align-top">
-                          <div className="flex items-center gap-1.5">
+                          <div className="flex items-center gap-2">
                             <span className="font-serif text-sm font-medium text-on-surface">
                               {field.label}
                             </span>
-                            {field.required && (
-                              <span className="text-[10px] font-mono uppercase tracking-wider text-primary font-bold">
+                            {selectedCol ? (
+                              <span className="text-[10px] font-mono uppercase tracking-wider text-emerald-700 dark:text-emerald-400 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded-xs border border-emerald-500/20">
+                                ✓ Asignado
+                              </span>
+                            ) : field.required ? (
+                              <span className="text-[10px] font-mono uppercase tracking-wider text-amber-700 dark:text-amber-400 font-bold bg-amber-500/10 px-1.5 py-0.5 rounded-xs border border-amber-500/20">
                                 [Requerido]
                               </span>
-                            )}
+                            ) : null}
                           </div>
                           <p className="text-[11px] text-on-surface-variant mt-0.5 leading-snug">
                             {field.description}
@@ -837,9 +859,9 @@ export default function CatalogImporter() {
                             onChange={(e) => handleMappingChange(field.id, e.target.value)}
                             className={`w-full text-xs font-mono border rounded-sm px-3 py-2 text-on-surface bg-surface-container-lowest focus:outline-none focus:border-primary ${
                               selectedCol
-                                ? "border-outline-variant font-semibold"
+                                ? "border-emerald-600/50 dark:border-emerald-500/50 font-semibold"
                                 : field.required
-                                ? "border-error/60 bg-error/[0.02]"
+                                ? "border-amber-500/60 bg-amber-500/[0.02]"
                                 : "border-outline-variant/60"
                             }`}
                           >
@@ -854,7 +876,7 @@ export default function CatalogImporter() {
 
                         <td className="py-3.5 px-6 align-top font-mono text-xs">
                           {sampleValue ? (
-                            <span className="text-on-surface bg-surface-container-low px-2 py-1 rounded-sm border border-outline-variant/40 inline-block max-w-xs truncate">
+                            <span className="text-on-surface bg-surface-container-low px-2.5 py-1 rounded-sm border-l-2 border-emerald-600 dark:border-emerald-400 border-t border-r border-b border-outline-variant/40 inline-block max-w-xs truncate shadow-2xs">
                               {sampleValue}
                             </span>
                           ) : selectedCol ? (
@@ -928,7 +950,7 @@ export default function CatalogImporter() {
               type="button"
               onClick={handleRunSimulation}
               disabled={isLoading || !mapping.title || !mapping.author}
-              className="flex items-center gap-2 bg-primary text-on-primary px-7 py-2.5 rounded-sm font-bold text-xs uppercase tracking-wider hover:opacity-95 disabled:opacity-40 transition-opacity cursor-pointer"
+              className="flex items-center gap-2 bg-primary text-on-primary px-7 py-2.5 rounded-sm font-bold text-xs uppercase tracking-wider hover:opacity-95 disabled:opacity-40 transition-opacity cursor-pointer shadow-xs"
             >
               {isLoading ? (
                 <>
@@ -955,11 +977,11 @@ export default function CatalogImporter() {
       ========================================================= */}
       {currentStep === 3 && simulationData && (
         <div className="space-y-8">
-          {/* Balance Tipográfico de Ingesta */}
+          {/* Balance Tipográfico de Ingesta con Colores Semánticos Claros */}
           <div className="bg-surface-container-lowest border border-outline-variant/80 rounded-sm">
             <div className="px-6 py-4 border-b border-outline-variant/60 flex items-center justify-between bg-surface-container-low/40">
               <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-on-surface-variant">
-                <FileCheck className="w-4 h-4 text-primary" />
+                <FileCheck className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
                 <span>Auditoría de Ingesta // Balance Técnico</span>
               </div>
               <span className="text-[11px] font-mono text-on-surface-variant">
@@ -978,18 +1000,22 @@ export default function CatalogImporter() {
                 <span className="text-xs text-on-surface-variant mt-1 block">Filas leídas en archivo</span>
               </div>
 
+              {/* Obras Nuevas en Verde de Éxito / Incorporación */}
               <div className="p-6">
-                <span className="text-[11px] font-mono uppercase tracking-widest text-on-surface-variant">
+                <span className="text-[11px] font-mono uppercase tracking-widest text-emerald-800 dark:text-emerald-400 font-semibold">
                   Obras Nuevas (Alta)
                 </span>
-                <p className="font-serif text-3xl text-primary mt-2 font-normal">
+                <p className="font-serif text-3xl text-emerald-700 dark:text-emerald-400 mt-2 font-normal">
                   {simulationData.new_books ?? simulationData.new_books_count ?? 0}
                 </p>
-                <span className="text-xs text-on-surface-variant mt-1 block">Títulos no existentes en catálogo</span>
+                <span className="text-xs text-emerald-800/80 dark:text-emerald-400/80 mt-1 block">
+                  Títulos para incorporar al fondo
+                </span>
               </div>
 
+              {/* Obras Existentes en Tono Neutro Pizarra */}
               <div className="p-6">
-                <span className="text-[11px] font-mono uppercase tracking-widest text-on-surface-variant">
+                <span className="text-[11px] font-mono uppercase tracking-widest text-on-surface-variant font-medium">
                   Obras Existentes
                 </span>
                 <p className="font-serif text-3xl text-on-surface mt-2 font-normal">
@@ -998,23 +1024,26 @@ export default function CatalogImporter() {
                 <span className="text-xs text-on-surface-variant mt-1 block">Se sumarán ejemplares físicos</span>
               </div>
 
+              {/* Inconsistencias en Ámbar Cálido de Advertencia */}
               <div className="p-6">
-                <span className="text-[11px] font-mono uppercase tracking-widest text-on-surface-variant">
+                <span className="text-[11px] font-mono uppercase tracking-widest text-amber-800 dark:text-amber-400 font-semibold">
                   Registros Omitidos
                 </span>
-                <p className="font-serif text-3xl text-tertiary mt-2 font-normal">
+                <p className="font-serif text-3xl text-amber-700 dark:text-amber-400 mt-2 font-normal">
                   {simulationData.rows_with_errors ?? simulationData.errors_count ?? 0}
                 </p>
-                <span className="text-xs text-on-surface-variant mt-1 block">Filas incompletas (sin título/autor)</span>
+                <span className="text-xs text-amber-800/80 dark:text-amber-400/80 mt-1 block">
+                  Filas sin título o autor
+                </span>
               </div>
             </div>
           </div>
 
-          {/* Detalle de Inconsistencias */}
+          {/* Detalle de Inconsistencias en Ámbar */}
           {simulationData.error_details && simulationData.error_details.length > 0 && (
-            <div className="bg-surface-container-low border border-tertiary/40 rounded-sm p-6">
-              <div className="flex items-center gap-2 mb-2 font-mono text-xs uppercase tracking-wider text-tertiary font-bold">
-                <AlertTriangle className="w-4 h-4" />
+            <div className="bg-surface-container-low border border-amber-500/40 rounded-sm p-6">
+              <div className="flex items-center gap-2 mb-2 font-mono text-xs uppercase tracking-wider text-amber-800 dark:text-amber-400 font-bold">
+                <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                 <span>Observaciones de Consistencia ({simulationData.error_details.length} filas)</span>
               </div>
               <p className="text-xs text-on-surface-variant mb-4">
@@ -1060,10 +1089,10 @@ export default function CatalogImporter() {
                           {item.title}
                         </h4>
                         <span
-                          className={`text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 border rounded-sm shrink-0 ${
+                          className={`text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 border rounded-xs shrink-0 ${
                             item.status === "EXISTING"
                               ? "border-outline-variant text-on-surface-variant bg-surface-container"
-                              : "border-primary/40 text-primary bg-primary/[0.04]"
+                              : "border-emerald-600/40 text-emerald-800 dark:text-emerald-300 bg-emerald-500/10 font-bold"
                           }`}
                         >
                           {item.status === "EXISTING" ? "Ejemplar Extra" : "Nueva Obra"}
@@ -1088,7 +1117,7 @@ export default function CatalogImporter() {
                           {item.genres_list.map((genreName, gIdx) => (
                             <span
                               key={gIdx}
-                              className="px-2 py-0.5 text-[10px] font-mono bg-surface-container border border-outline-variant/60 text-on-surface rounded-sm"
+                              className="px-2 py-0.5 text-[10px] font-mono bg-surface-container border border-outline-variant/60 text-on-surface rounded-xs"
                             >
                               {genreName}
                             </span>
@@ -1136,7 +1165,7 @@ export default function CatalogImporter() {
                 </>
               ) : (
                 <>
-                  <Check className="w-3.5 h-3.5" />
+                  <Check className="w-3.5 h-3.5 text-emerald-300" />
                   <span>Incorporar al Catálogo ({simulationData.valid_rows} obras válidas)</span>
                 </>
               )}
@@ -1152,8 +1181,8 @@ export default function CatalogImporter() {
         <div className="bg-surface-container-lowest border border-outline-variant/80 rounded-sm p-8 md:p-12 max-w-3xl mx-auto">
           {/* Cabecera del Acta */}
           <div className="text-center pb-8 border-b border-outline-variant/60">
-            <div className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-primary mb-3">
-              <Archive className="w-4 h-4" />
+            <div className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-emerald-700 dark:text-emerald-400 mb-3">
+              <Check className="w-4 h-4" />
               <span>Acta de Incorporación Definitiva</span>
             </div>
             <h2 className="font-serif text-3xl md:text-4xl font-normal text-on-surface tracking-tight mb-2">
@@ -1167,19 +1196,19 @@ export default function CatalogImporter() {
             </p>
           </div>
 
-          {/* Cuadrante de Balance Final */}
+          {/* Cuadrante de Balance Final con Colores Semánticos */}
           <div className="grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-outline-variant/60 my-8 py-2 border-y border-outline-variant/60">
             <div className="p-4 text-center">
-              <p className="font-serif text-3xl text-on-surface font-normal">
+              <p className="font-serif text-3xl text-emerald-700 dark:text-emerald-400 font-normal">
                 {executionResult.imported_books}
               </p>
-              <span className="text-[11px] font-mono uppercase tracking-wider text-on-surface-variant mt-1 block">
+              <span className="text-[11px] font-mono uppercase tracking-wider text-emerald-800 dark:text-emerald-400 mt-1 block font-semibold">
                 Nuevas Obras
               </span>
             </div>
 
             <div className="p-4 text-center">
-              <p className="font-serif text-3xl text-primary font-normal">
+              <p className="font-serif text-3xl text-on-surface font-normal">
                 {executionResult.imported_items}
               </p>
               <span className="text-[11px] font-mono uppercase tracking-wider text-on-surface-variant mt-1 block">
@@ -1197,10 +1226,10 @@ export default function CatalogImporter() {
             </div>
 
             <div className="p-4 text-center">
-              <p className="font-serif text-3xl text-tertiary font-normal">
+              <p className="font-serif text-3xl text-amber-700 dark:text-amber-400 font-normal">
                 {executionResult.skipped_rows}
               </p>
-              <span className="text-[11px] font-mono uppercase tracking-wider text-on-surface-variant mt-1 block">
+              <span className="text-[11px] font-mono uppercase tracking-wider text-amber-800 dark:text-amber-400 mt-1 block font-semibold">
                 Omitidos / Incompletos
               </span>
             </div>
@@ -1234,7 +1263,7 @@ export default function CatalogImporter() {
               </div>
               <div className="w-full h-1 bg-surface-container-highest rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-primary transition-all duration-300"
+                  className="h-full bg-emerald-600 dark:bg-emerald-400 transition-all duration-300"
                   style={{
                     width: `${
                       coverProgress.total > 0
