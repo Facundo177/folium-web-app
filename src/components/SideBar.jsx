@@ -54,10 +54,10 @@ export default function Sidebar() {
 
   if (roleLibrarian) {
     navItems = [
-      { id: 'counter', label: 'Préstamos en Mostrador', icon: BookOpenCheck, navigateTo: '/librarian/loans/counter' },
+      { id: 'counter', label: 'Préstamos en Mostrador', icon: BookOpenCheck, navigateTo: '/librarian/counter' },
       { id: 'catalog', label: 'Catálogo General', icon: Library, navigateTo: '/catalog' },
       { id: 'inventory', label: 'Inventario', icon: LayoutDashboard, navigateTo: '/librarian/inventory' },
-      { id: 'newBook', label: 'Añadir Nuevo Libro', icon: BookUp2Icon, navigateTo: '/librarian/inventory/newBook' },
+      { id: 'newBook', label: 'Añadir Nuevo Libro', icon: BookUp2Icon, navigateTo: '/librarian/newBook' },
       { id: 'importer', label: 'Importar Catálogo', icon: FileSpreadsheet, navigateTo: '/librarian/importer' },
       { id: 'reservations', label: 'Reservas', icon: BookLock, navigateTo: '/librarian/reservations' },
       { id: 'loans', label: 'Préstamos', icon: UserRoundArrowLeft, navigateTo: '/librarian/loans' },
@@ -115,6 +115,7 @@ export default function Sidebar() {
         onConfirm={() => {
           setShowLogoutModal(false);
           logout();
+          navigate('/login');
         }}
         onClose={() => setShowLogoutModal(false)}
       />

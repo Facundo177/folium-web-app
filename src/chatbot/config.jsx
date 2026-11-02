@@ -98,7 +98,7 @@ const config = {
         <NavWidget
           {...props}
           payload={{
-            route: "/librarian/inventory/newBook",
+            route: "/librarian/newBook",
             text: "Cargar Nuevo Libro",
           }}
         />
