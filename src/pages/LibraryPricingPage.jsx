@@ -55,7 +55,10 @@ export default function LibraryPricingPage() {
     let isMounted = true;
     billingService.getPlans().then((data) => {
       if (isMounted && data?.plans?.length) {
-        setPlans(data.plans);
+        const hasValidTiers = data.plans.some((p) => p.code === "BASIC" || p.code === "PREMIUM");
+        if (hasValidTiers) {
+          setPlans(data.plans);
+        }
       }
     });
     return () => {

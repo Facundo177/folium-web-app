@@ -198,6 +198,16 @@ export const billingService = {
   getPlans: async () => {
     try {
       const response = await api.get(`${BASE}plans/`);
+      const plans = response.data?.plans;
+      // Si el backend remoto aún responde con la versión legada anterior (ej: PLUS),
+      // preservamos el catálogo oficial actualizado (BASIC, PRO, PREMIUM)
+      const hasUpdatedCatalog = plans?.some((p) => p.code === "BASIC" || p.code === "PREMIUM");
+      if (!hasUpdatedCatalog) {
+        return {
+          ...response.data,
+          plans: DEFAULT_LIBRARY_PLANS,
+        };
+      }
       return response.data;
     } catch {
       return {
