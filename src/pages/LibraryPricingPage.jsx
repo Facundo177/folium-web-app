@@ -26,7 +26,7 @@ const FAQ_ITEMS = [
   },
   {
     q: "¿Podemos migrar un inventario existente desde Excel o Koha / Aguapey?",
-    a: "Sí. Tanto Folium Acervo Plus como Folium Patrimonio Pro incluyen acceso completo a nuestro Importador Masivo inteligente, que detecta columnas automáticamente y simula la carga antes de impactar en la base de datos.",
+    a: "Sí. Los planes Folium Gestión, Folium Integral y Folium Nexus AI incluyen acceso a nuestro Importador Masivo inteligente, que detecta columnas automáticamente y simula la carga antes de impactar en la base de datos.",
   },
   {
     q: "¿Emiten comprobantes para instituciones públicas, ONG o universidades?",

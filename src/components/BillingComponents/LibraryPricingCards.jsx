@@ -33,7 +33,7 @@ export default function LibraryPricingCards({
       id="planes-bibliotecas"
       className="w-full py-12 px-4 sm:px-8 font-sans text-on-background transition-colors"
     >
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         {/* Encabezado y Controles de Facturación */}
         <div className="text-center max-w-3xl mx-auto mb-10">
           <span className="text-label-caps text-primary tracking-[0.2em] uppercase block mb-3">
@@ -78,7 +78,7 @@ export default function LibraryPricingCards({
                     : "bg-primary/15 text-primary"
                 }`}
               >
-                -20% OFF
+                -17% OFF
               </span>
             </button>
 
@@ -112,7 +112,7 @@ export default function LibraryPricingCards({
         </div>
 
         {/* Grilla Principal de Tarjetas (Inspirada en el layout limpio de referencia) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 items-stretch">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 items-stretch">
           {activePlans.map((plan) => {
             const isPro = Boolean(plan.is_featured || plan.code === "PRO");
             const displayArsPrice =
@@ -122,7 +122,7 @@ export default function LibraryPricingCards({
 
             const displayUsdPrice =
               billingCycle === "ANNUAL"
-                ? (Number(plan.usd_reference || 10) * 0.8).toFixed(2)
+                ? plan.annual_usd_reference || (Number(plan.usd_reference || 10) * 0.833).toFixed(2)
                 : plan.usd_reference;
 
             return (
