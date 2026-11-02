@@ -388,3 +388,26 @@ dialog::backdrop {
   overflow: hidden;
   overscroll-behavior: contain;
 }
+
+
+/* =======================================================
+   BOOK COVER 3D SPINE PERSPECTIVE (FICHA DE OBRA)
+   ======================================================= */
+.book-spine-perspective-container {
+  perspective: 1200px;
+}
+
+.book-spine-perspective-card {
+  transform: rotateY(0deg) translateY(0px) scale(1);
+  transform-style: preserve-3d;
+  transform-origin: left center;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, filter;
+  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.22));
+}
+
+.book-spine-perspective-container:hover .book-spine-perspective-card,
+.book-spine-perspective-card:hover {
+  transform: rotateY(-9deg) translateY(-6px) scale(1.02);
+  filter: drop-shadow(-8px 22px 35px rgba(0, 0, 0, 0.38));
+}
