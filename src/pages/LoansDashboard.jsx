@@ -7,7 +7,7 @@ import { itemService } from "../api/services/itemService";
 import { ITEM_STATUS } from "../api/constants";
 import { Link } from "react-router-dom";
 import ReturnLoanModal from "../components/LoanComponents/ReturnLoanModal";
-import { BookOpen, User, Calendar, BookOpenCheck, ChevronLeft, ChevronRight } from "lucide-react";
+import { BookOpen, User, Calendar, BookOpenCheck, CalendarClock, TriangleAlert, ChevronLeft, ChevronRight } from "lucide-react";
 
 const PAGE_SIZE = 20;
 
@@ -19,6 +19,11 @@ export default function LoansDashboard() {
   });
   const [loans, setLoans] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
+  const [summary, setSummary] = useState({
+    due_today: 0,
+    due_total: 0,
+    overdue: 0,
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [isFetching, setIsFetching] = useState(false);
   const [error, setError] = useState(null);
@@ -63,6 +68,7 @@ export default function LoansDashboard() {
           const results = Array.isArray(data) ? data : data?.results || [];
           setLoans(results);
           setTotalCount(Array.isArray(data) ? data.length : data?.count || 0);
+          setSummary(data?.summary || { due_today: 0, due_total: 0, overdue: 0 });
         }
       } catch (err) {
         if (isMounted) setError("Error al cargar el registro de préstamos.");
@@ -231,61 +237,104 @@ export default function LoansDashboard() {
       </div>
 
       <section
-        aria-label="Filtros y ordenamiento de préstamos"
-        className="mb-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4"
+        aria-label="Resumen de préstamos"
+        className="mb-8 grid grid-cols-1 sm:grid-cols-4 gap-4"
       >
-        <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-on-surface-variant">
-          Usuario
-          <input
-            type="search"
-            value={filters.user}
-            onChange={(event) => updateFilter("user", event.target.value)}
-            placeholder="Nombre, apellido o ID"
-            className="w-full rounded-sm border border-outline-variant bg-surface-container-lowest px-3 py-2.5 text-sm font-normal normal-case tracking-normal text-on-surface outline-none focus:border-primary"
-          />
-        </label>
-        <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-on-surface-variant">
-          Ejemplar
-          <input
-            type="search"
-            value={filters.item}
-            onChange={(event) => updateFilter("item", event.target.value)}
-            placeholder="Título, código o ID"
-            className="w-full rounded-sm border border-outline-variant bg-surface-container-lowest px-3 py-2.5 text-sm font-normal normal-case tracking-normal text-on-surface outline-none focus:border-primary"
-          />
-        </label>
-        <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-on-surface-variant">
-          Estado
-          <select
-            value={filters.status}
-            onChange={(event) => updateFilter("status", event.target.value)}
-            className="w-full rounded-sm border border-outline-variant bg-surface-container-lowest px-3 py-2.5 text-sm font-normal normal-case tracking-normal text-on-surface outline-none focus:border-primary"
-          >
-            <option value="">Todos los estados</option>
-            <option value="active">Con tiempo restante</option>
-            <option value="overdue">Vencidos</option>
-            <option value="returned">Devueltos</option>
-          </select>
-        </label>
-        <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-on-surface-variant">
-          Ordenar por
-          <select
-            value={filters.ordering}
-            onChange={(event) => updateFilter("ordering", event.target.value)}
-            className="w-full rounded-sm border border-outline-variant bg-surface-container-lowest px-3 py-2.5 text-sm font-normal normal-case tracking-normal text-on-surface outline-none focus:border-primary"
-          >
-            <option value="item">Ejemplar (A–Z)</option>
-            <option value="id">ID (menor a mayor)</option>
-            <option value="-id">ID (mayor a menor)</option>
-            <option value="loaned_at">Fecha de retiro (más antigua)</option>
-            <option value="-loaned_at">Fecha de retiro (más reciente)</option>
-            <option value="remaining">Tiempo restante (menor a mayor)</option>
-            <option value="-remaining">Tiempo restante (mayor a menor)</option>
-          </select>
-        </label>
+        <article className="flex items-center gap-4 border border-outline-variant bg-surface-container-lowest p-5 shadow-xs">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <CalendarClock className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+              A devolver hoy
+            </p>
+            <p className="text-2xl font-bold text-on-surface">{summary.due_today}</p>
+          </div>
+        </article>
+        <article className="flex items-center gap-4 border border-outline-variant bg-surface-container-lowest p-5 shadow-xs">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-secondary/10 text-secondary">
+            <BookOpenCheck className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+              A devolver en total
+            </p>
+            <p className="text-2xl font-bold text-on-surface">{summary.due_total}</p>
+          </div>
+        </article>
+        <article className="flex items-center gap-4 border border-outline-variant bg-surface-container-lowest p-5 shadow-xs">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-error/10 text-error">
+            <TriangleAlert className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+              Vencidos
+            </p>
+            <p className="text-2xl font-bold text-on-surface">{summary.overdue}</p>
+          </div>
+        </article>
       </section>
 
-      <div className="mb-3 flex items-center justify-between gap-3 text-xs text-on-surface-variant">
+      <section
+        aria-label="Filtros y resultados de préstamos"
+        className="mb-8 w-full overflow-hidden rounded-md border border-outline-variant bg-surface-container-lowest shadow-xs"
+      >
+        <section
+          aria-label="Filtros y ordenamiento de préstamos"
+          className="grid grid-cols-1 gap-4 border-b border-outline-variant p-4 sm:grid-cols-2 xl:grid-cols-4"
+        >
+          <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+            Usuario
+            <input
+              type="search"
+              value={filters.user}
+              onChange={(event) => updateFilter("user", event.target.value)}
+              placeholder="Nombre, apellido o ID"
+              className="w-full rounded-sm border border-outline-variant bg-surface-container-lowest px-3 py-2.5 text-sm font-normal normal-case tracking-normal text-on-surface outline-none focus:border-primary"
+            />
+          </label>
+          <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+            Ejemplar
+            <input
+              type="search"
+              value={filters.item}
+              onChange={(event) => updateFilter("item", event.target.value)}
+              placeholder="Título, código o ID"
+              className="w-full rounded-sm border border-outline-variant bg-surface-container-lowest px-3 py-2.5 text-sm font-normal normal-case tracking-normal text-on-surface outline-none focus:border-primary"
+            />
+          </label>
+          <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+            Estado
+            <select
+              value={filters.status}
+              onChange={(event) => updateFilter("status", event.target.value)}
+              className="w-full rounded-sm border border-outline-variant bg-surface-container-lowest px-3 py-2.5 text-sm font-normal normal-case tracking-normal text-on-surface outline-none focus:border-primary"
+            >
+              <option value="">Todos los estados</option>
+              <option value="active">Con tiempo restante</option>
+              <option value="overdue">Vencidos</option>
+              <option value="returned">Devueltos</option>
+            </select>
+          </label>
+          <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+            Ordenar por
+            <select
+              value={filters.ordering}
+              onChange={(event) => updateFilter("ordering", event.target.value)}
+              className="w-full rounded-sm border border-outline-variant bg-surface-container-lowest px-3 py-2.5 text-sm font-normal normal-case tracking-normal text-on-surface outline-none focus:border-primary"
+            >
+              <option value="item">Ejemplar (A–Z)</option>
+              <option value="id">ID (menor a mayor)</option>
+              <option value="-id">ID (mayor a menor)</option>
+              <option value="loaned_at">Fecha de retiro (más antigua)</option>
+              <option value="-loaned_at">Fecha de retiro (más reciente)</option>
+              <option value="remaining">Tiempo restante (menor a mayor)</option>
+              <option value="-remaining">Tiempo restante (mayor a menor)</option>
+            </select>
+          </label>
+        </section>
+
+      <div className="flex items-center justify-between gap-3 bg-surface-container-low px-4 py-3 text-xs text-on-surface-variant">
         <span>
           {totalCount} préstamo{totalCount === 1 ? "" : "s"}
         </span>
@@ -297,7 +346,7 @@ export default function LoansDashboard() {
       </div>
 
       {/* Vista Móvil (Tarjetas apiladas para < md) */}
-      <div className="block md:hidden divide-y divide-outline-variant/60 bg-surface-container-lowest border border-outline-variant rounded-md shadow-xs mb-8">
+      <div className="block divide-y divide-outline-variant/60 md:hidden">
         {loans.length === 0 ? (
           <div className="p-8 text-center text-on-surface-variant italic text-sm">
             No hay préstamos que coincidan con los filtros.
@@ -310,7 +359,7 @@ export default function LoansDashboard() {
             return (
               <div
                 key={loan.id}
-                className={`p-4 flex flex-col gap-3 transition-colors ${
+                className={`p-4 flex flex-col gap-3 border border-outline-variant rounded-none transition-colors ${
                   isReturned ? "opacity-60 bg-surface-container-low" : "bg-surface-container-lowest"
                 }`}
               >
@@ -375,7 +424,7 @@ export default function LoansDashboard() {
         tabIndex={0}
         role="region"
         aria-label="Registro de préstamos activos"
-        className="hidden md:block w-full bg-surface-container-lowest border border-outline-variant rounded-md shadow-xs overflow-x-auto focus:outline-none focus:ring-1 focus:ring-primary/40"
+        className="hidden w-full overflow-x-auto focus:outline-none focus:ring-1 focus:ring-primary/40 md:block"
       >
         <table className="w-full text-left border-collapse min-w-[800px]">
           <thead className="sticky top-0 z-1 bg-surface-container border-b border-outline-variant">
@@ -455,7 +504,7 @@ export default function LoansDashboard() {
       {totalPages > 1 && (
         <nav
           aria-label="Paginación de préstamos"
-          className="mt-8 flex items-center justify-center gap-2"
+          className="flex items-center justify-center gap-2 border-t border-outline-variant px-4 py-4"
         >
           <button
             type="button"
@@ -499,6 +548,7 @@ export default function LoansDashboard() {
           </button>
         </nav>
       )}
+      </section>
 
       {/* Ventana para cerrar el préstamo indicando el estado del libro */}
       <ReturnLoanModal
