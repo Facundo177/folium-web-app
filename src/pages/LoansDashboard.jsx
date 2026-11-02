@@ -7,7 +7,7 @@ import { itemService } from "../api/services/itemService";
 import { ITEM_STATUS } from "../api/constants";
 import { Link } from "react-router-dom";
 import ReturnLoanModal from "../components/LoanComponents/ReturnLoanModal";
-import { BookOpen, User, Calendar, BookOpenCheck, CalendarClock, TriangleAlert, ChevronLeft, ChevronRight } from "lucide-react";
+import { BookOpen, User, Calendar, BookOpenCheck, CalendarClock, TriangleAlert, ChevronLeft, ChevronRight, Search } from "lucide-react";
 
 const PAGE_SIZE = 20;
 
@@ -273,6 +273,22 @@ export default function LoansDashboard() {
             <p className="text-2xl font-bold text-on-surface">{summary.overdue}</p>
           </div>
         </article>
+        <article className="flex items-center gap-4 border border-outline-variant bg-surface-container-lowest p-5 shadow-xs">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <BookOpen className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+              Préstamos totales
+            </p>
+            <p className="text-2xl font-bold text-on-surface">{totalCount}</p>
+            {isFetching && (
+              <span role="status" className="text-xs text-primary italic">
+                Actualizando…
+              </span>
+            )}
+          </div>
+        </article>
       </section>
 
       <section
@@ -283,26 +299,38 @@ export default function LoansDashboard() {
           aria-label="Filtros y ordenamiento de préstamos"
           className="grid grid-cols-1 gap-4 border-b border-outline-variant p-4 sm:grid-cols-2 xl:grid-cols-4"
         >
-          <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-on-surface-variant">
-            Usuario
-            <input
-              type="search"
-              value={filters.user}
-              onChange={(event) => updateFilter("user", event.target.value)}
-              placeholder="Nombre, apellido o ID"
-              className="w-full rounded-sm border border-outline-variant bg-surface-container-lowest px-3 py-2.5 text-sm font-normal normal-case tracking-normal text-on-surface outline-none focus:border-primary"
-            />
-          </label>
-          <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-on-surface-variant">
-            Ejemplar
-            <input
-              type="search"
-              value={filters.item}
-              onChange={(event) => updateFilter("item", event.target.value)}
-              placeholder="Título, código o ID"
-              className="w-full rounded-sm border border-outline-variant bg-surface-container-lowest px-3 py-2.5 text-sm font-normal normal-case tracking-normal text-on-surface outline-none focus:border-primary"
-            />
-          </label>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="loans-user-filter" className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+              Usuario
+            </label>
+            <div className="flex items-center gap-base border-b border-outline w-full">
+              <Search className="w-[18px] h-[18px] text-on-surface-variant shrink-0" />
+              <input
+                id="loans-user-filter"
+                type="search"
+                value={filters.user}
+                onChange={(event) => updateFilter("user", event.target.value)}
+                placeholder="Nombre, apellido o ID"
+                className="bg-transparent border-none outline-none text-sm py-2.5 w-full text-on-surface placeholder:text-on-surface-variant"
+              />
+            </div>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="loans-item-filter" className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+              Ejemplar
+            </label>
+            <div className="flex items-center gap-base border-b border-outline w-full">
+              <Search className="w-[18px] h-[18px] text-on-surface-variant shrink-0" />
+              <input
+                id="loans-item-filter"
+                type="search"
+                value={filters.item}
+                onChange={(event) => updateFilter("item", event.target.value)}
+                placeholder="Título, código o ID"
+                className="bg-transparent border-none outline-none text-sm py-2.5 w-full text-on-surface placeholder:text-on-surface-variant"
+              />
+            </div>
+          </div>
           <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-on-surface-variant">
             Estado
             <select
@@ -333,17 +361,6 @@ export default function LoansDashboard() {
             </select>
           </label>
         </section>
-
-      <div className="flex items-center justify-between gap-3 bg-surface-container-low px-4 py-3 text-xs text-on-surface-variant">
-        <span>
-          {totalCount} préstamo{totalCount === 1 ? "" : "s"}
-        </span>
-        {isFetching && (
-          <span role="status" className="text-primary italic">
-            Actualizando…
-          </span>
-        )}
-      </div>
 
       {/* Vista Móvil (Tarjetas apiladas para < md) */}
       <div className="block divide-y divide-outline-variant/60 md:hidden">
