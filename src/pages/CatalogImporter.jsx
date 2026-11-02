@@ -1,9 +1,7 @@
 import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import {
-  UploadCloud,
   FileSpreadsheet,
-  CheckCircle2,
   AlertTriangle,
   AlertCircle,
   ArrowRight,
@@ -14,23 +12,27 @@ import {
   RefreshCw,
   Library,
   BookCopy,
-  Info,
   SlidersHorizontal,
   Image as ImageIcon,
+  FileCheck,
+  Layers,
+  Sparkles,
+  Database,
+  Archive,
 } from "lucide-react";
 import GoBackButton from "../components/BasicUIComponents/GoBackButton";
 import { importerService, validateImporterFile } from "../api/services/importerService";
 
 const FOLIUM_FIELDS = [
-  { id: "title", label: "Título de la Obra", required: true, description: "Nombre principal del libro" },
-  { id: "author", label: "Autor(es)", required: true, description: "Nombre y apellido (soporta múltiples autores y 'Apellido, Nombre')" },
-  { id: "isbn", label: "ISBN", required: false, description: "ISBN-10 o ISBN-13 (opcional; si falta, la obra queda sin ISBN)" },
+  { id: "title", label: "Título de la Obra", required: true, description: "Nombre principal de la obra bibliográfica" },
+  { id: "author", label: "Autor(es)", required: true, description: "Nombre(s) y apellido(s); admite múltiples autores y formato 'Apellido, Nombre'" },
+  { id: "isbn", label: "ISBN", required: false, description: "ISBN-10 o ISBN-13 normalizado para indexación y portadas" },
   { id: "editorial", label: "Editorial", required: false, description: "Casa publicadora o sello editorial" },
-  { id: "year", label: "Año de Publicación", required: false, description: "Año numérico (ej. 1985)" },
-  { id: "genre", label: "Género / Materia", required: false, description: "Categoría(s) literaria(s); si vienen varias con coma, se separan automáticamente" },
-  { id: "inventory_code", label: "Código de Ejemplar (Signatura)", required: false, description: "Identificador del ejemplar físico" },
-  { id: "location", label: "Ubicación en Sala", required: false, description: "Estantería, pasillo o sala física" },
-  { id: "description", label: "Sinopsis / Resumen", required: false, description: "Breve descripción de la obra" },
+  { id: "year", label: "Año de Publicación", required: false, description: "Año de edición o impresión (ej. 1967)" },
+  { id: "genre", label: "Materia / Género", required: false, description: "Descriptores temáticos o materias normalizadas" },
+  { id: "inventory_code", label: "Signatura Topográfica / Código", required: false, description: "Identificador unívoco del ejemplar físico" },
+  { id: "location", label: "Ubicación en Sala", required: false, description: "Estantería, sector o sala física de depósito" },
+  { id: "description", label: "Sinopsis / Resumen", required: false, description: "Nota de contenido o resumen catalográfico" },
 ];
 
 const SAMPLE_CSV = `Título;Autor;ISBN;Editorial;Año;Género;Código Ejemplar;Ubicación;Descripción
@@ -144,12 +146,12 @@ export default function CatalogImporter() {
   const [fileMeta, setFileMeta] = useState({ isChunked: false, estimatedChunks: 1 });
   const [isDragging, setIsDragging] = useState(false);
 
-  // Estados de comunicación, respuesta y progreso por tandas
+  // Estados de carga, comunicación y tandas
   const [isLoading, setIsLoading] = useState(false);
   const [chunkProgress, setChunkProgress] = useState({ current: 0, total: 1 });
   const [errorMessage, setErrorMessage] = useState("");
 
-  // Paso 2: Vista previa, mapeo y opciones manuales de formato
+  // Paso 2: Encabezados, filas de muestra, mapeo y opciones bibliográficas
   const [fileHeaders, setFileHeaders] = useState([]);
   const [sampleRows, setSampleRows] = useState([]);
   const [totalRows, setTotalRows] = useState(0);
@@ -164,7 +166,7 @@ export default function CatalogImporter() {
   // Paso 3: Simulación (Dry Run)
   const [simulationData, setSimulationData] = useState(null);
 
-  // Paso 4: Resultados finales y búsqueda de portadas por micro-tandas
+  // Paso 4: Resultados finales y enriquecimiento de portadas
   const [executionResult, setExecutionResult] = useState(null);
   const [isFetchingCovers, setIsFetchingCovers] = useState(false);
   const [coverProgress, setCoverProgress] = useState({
@@ -178,7 +180,7 @@ export default function CatalogImporter() {
 
   const fileInputRef = useRef(null);
 
-  // Descargar plantilla CSV, BibTeX o MARC de muestra
+  // Descarga de ejemplares de prueba
   const handleDownloadSample = (format = "csv") => {
     let blob;
     let filename;
@@ -212,7 +214,7 @@ export default function CatalogImporter() {
     URL.revokeObjectURL(url);
   };
 
-  // Manejo de archivo seleccionado con validación de límites (4 MB para .xlsx, 20 MB en tandas para el resto)
+  // Selección de archivo con validación
   const handleFileSelect = (selectedFile) => {
     if (!selectedFile) return;
 
@@ -233,7 +235,7 @@ export default function CatalogImporter() {
     setErrorMessage("");
   };
 
-  // Cargar archivo y procesar Step 1 -> Step 2
+  // Paso 1 -> Paso 2
   const handlePreviewUpload = async () => {
     if (!file) return;
     setIsLoading(true);
@@ -259,7 +261,7 @@ export default function CatalogImporter() {
     }
   };
 
-  // Asignar columna a un campo de Folium
+  // Asignar columna a campo
   const handleMappingChange = (fieldId, columnHeader) => {
     setMapping((prev) => {
       const updated = { ...prev };
@@ -272,7 +274,7 @@ export default function CatalogImporter() {
     });
   };
 
-  // Ejecutar Step 2 -> Step 3 (Simulación Dry Run, soportando múltiples tandas)
+  // Paso 2 -> Paso 3 (Simulación Dry Run)
   const handleRunSimulation = async () => {
     if (!mapping.title || !mapping.author) {
       setErrorMessage("Debes asignar obligatoriamente las columnas para 'Título' y 'Autor(es)'.");
@@ -301,7 +303,7 @@ export default function CatalogImporter() {
     }
   };
 
-  // Ejecutar Step 3 -> Step 4 (Ejecución real en BD + enriquecimiento de portadas por micro-tandas)
+  // Paso 3 -> Paso 4 (Ejecución real)
   const handleExecuteImport = async () => {
     setIsLoading(true);
     setChunkProgress({ current: 1, total: fileMeta.estimatedChunks || 1 });
@@ -407,266 +409,296 @@ export default function CatalogImporter() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  const steps = [
+    { num: "01", name: "Documento Fuente" },
+    { num: "02", name: "Cotejo de Columnas" },
+    { num: "03", name: "Auditoría de Ingesta" },
+    { num: "04", name: "Acta de Incorporación" },
+  ];
+
   return (
-    <div className="w-full max-w-5xl mx-auto px-4 py-8 animate-fade-in text-on-surface">
-      {/* Botón Volver y Cabecera */}
-      <div className="flex items-center justify-between mb-6">
-        <GoBackButton />
-        <span className="text-xs uppercase tracking-widest text-primary font-bold bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
-          Módulo de Archivo & Catálogo
-        </span>
+    <div className="w-full max-w-6xl mx-auto px-4 md:px-6 py-6 md:py-10 text-on-surface font-sans">
+      {/* =========================================================
+          ENCABEZADO EDITORIAL & REGISTRO DE ARCHIVO
+      ========================================================= */}
+      <div className="border-b border-outline-variant/60 pb-6 mb-8">
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+          <GoBackButton />
+          <div className="flex items-center gap-2 text-[11px] font-mono tracking-widest uppercase text-on-surface-variant">
+            <Archive className="w-3.5 h-3.5 text-primary" />
+            <span>Folio Cat-Ingesta // Registro Colectivo</span>
+          </div>
+        </div>
+
+        <div className="max-w-3xl">
+          <h1 className="text-3xl md:text-4xl font-serif font-normal text-on-surface tracking-tight mb-2">
+            Ingesta e Incorporación de Fondos Bibliográficos
+          </h1>
+          <p className="text-sm md:text-[15px] text-on-surface-variant leading-relaxed">
+            Mesa técnica de procesamiento masivo. Asimilación de registros catalográficos en formatos MARC 21, MARCXML, BibTeX, planillas Excel y esquemas tabulares delimitados con asignación automática de signaturas físicas.
+          </p>
+        </div>
+
+        {/* Fases de Ingesta (Stepper Sobrio Editorial) */}
+        <div className="mt-8 pt-6 border-t border-outline-variant/40">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {steps.map((s, idx) => {
+              const stepNumber = idx + 1;
+              const isActive = currentStep === stepNumber;
+              const isPast = currentStep > stepNumber;
+              return (
+                <div key={s.num} className="relative">
+                  <div
+                    className={`h-0.5 w-full mb-3 transition-colors ${
+                      isActive ? "bg-primary" : isPast ? "bg-tertiary" : "bg-outline-variant/40"
+                    }`}
+                  />
+                  <div className="flex items-baseline gap-2">
+                    <span
+                      className={`font-mono text-xs font-semibold ${
+                        isActive
+                          ? "text-primary"
+                          : isPast
+                          ? "text-tertiary"
+                          : "text-on-surface-variant/50"
+                      }`}
+                    >
+                      {isPast ? "✓" : s.num}
+                    </span>
+                    <span
+                      className={`text-xs uppercase tracking-wider ${
+                        isActive
+                          ? "font-bold text-on-surface"
+                          : isPast
+                          ? "font-medium text-on-surface-variant"
+                          : "text-on-surface-variant/60"
+                      }`}
+                    >
+                      {s.name}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
-      <div className="mb-8">
-        <h1 className="text-3xl md:text-4xl font-serif text-on-surface font-normal mb-2 flex items-center gap-3">
-          <FileSpreadsheet className="w-8 h-8 text-primary" />
-          Importador Masivo de Catálogos
-        </h1>
-        <p className="text-on-surface-variant text-sm md:text-base max-w-2xl">
-          Carga colecciones enteras en lote mediante planillas Excel (.xlsx), archivos CSV, BibTeX (.bib) o registros MARC 21 / MARCXML (.mrc, .xml).
-          El asistente detecta los encabezados, separa múltiples géneros, previene duplicados y genera los ejemplares físicos automáticamente.
-        </p>
-      </div>
-
-      {/* Indicador de Pasos (Stepper) */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-8 bg-surface-container-lowest p-2 rounded-xl border border-outline-variant/60 shadow-sm">
-        {[
-          { step: 1, label: "1. Subir Archivo" },
-          { step: 2, label: "2. Mapear Columnas" },
-          { step: 3, label: "3. Auditar Simulación" },
-          { step: 4, label: "4. Resultado Final" },
-        ].map((s) => {
-          const isActive = currentStep === s.step;
-          const isDone = currentStep > s.step;
-          return (
-            <div
-              key={s.step}
-              className={`flex items-center gap-2 p-2.5 rounded-lg text-xs md:text-sm font-medium transition-all ${
-                isActive
-                  ? "bg-primary text-on-primary font-bold shadow-sm"
-                  : isDone
-                  ? "text-primary bg-primary/10"
-                  : "text-on-surface-variant opacity-60"
-              }`}
-            >
-              <div
-                className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                  isActive
-                    ? "bg-on-primary text-primary"
-                    : isDone
-                    ? "bg-primary text-on-primary"
-                    : "border border-outline-variant"
-                }`}
-              >
-                {isDone ? <Check className="w-3.5 h-3.5" /> : s.step}
-              </div>
-              <span className="truncate">{s.label}</span>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Banner de Mensaje de Error */}
+      {/* Notificación de Error */}
       {errorMessage && (
-        <div className="mb-6 p-4 rounded-lg bg-error-container text-on-error-container border border-error/30 flex items-start gap-3 animate-fade-in shadow-sm">
+        <div className="mb-8 p-4 rounded-sm bg-error-container/80 text-on-error-container border-l-4 border-error flex items-start gap-3">
           <AlertCircle className="w-5 h-5 text-error shrink-0 mt-0.5" />
-          <div className="flex-1 text-sm font-medium">{errorMessage}</div>
+          <div className="text-xs md:text-sm font-medium leading-relaxed">{errorMessage}</div>
         </div>
       )}
 
       {/* =========================================================
-          PASO 1: SELECCIÓN Y CARGA DE ARCHIVO
+          FASE 1: DEPÓSITO Y RECEPCIÓN DOCUMENTAL
       ========================================================= */}
       {currentStep === 1 && (
-        <div className="space-y-6 animate-fade-in">
-          <div
-            onDragOver={(e) => {
-              e.preventDefault();
-              setIsDragging(true);
-            }}
-            onDragLeave={() => setIsDragging(false)}
-            onDrop={(e) => {
-              e.preventDefault();
-              setIsDragging(false);
-              if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-                handleFileSelect(e.dataTransfer.files[0]);
-              }
-            }}
-            onClick={() => fileInputRef.current?.click()}
-            className={`border-2 border-dashed rounded-2xl p-10 md:p-14 text-center cursor-pointer transition-all duration-200 flex flex-col items-center justify-center ${
-              isDragging
-                ? "border-primary bg-primary/5 scale-[1.01]"
-                : "border-outline-variant/80 hover:border-primary/60 bg-surface-container-lowest"
-            }`}
-          >
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".xlsx,.csv,.tsv,.txt,.bib,.mrc,.marc,.xml,.marcxml"
-              className="hidden"
-              onChange={(e) => handleFileSelect(e.target.files[0])}
-            />
-
-            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4 text-primary">
-              <UploadCloud className="w-8 h-8" />
+        <div className="space-y-8">
+          <div className="bg-surface-container-lowest border border-outline-variant/80 rounded-sm">
+            {/* Cabecera de la Ficha de Depósito */}
+            <div className="px-6 py-4 border-b border-outline-variant/60 flex flex-wrap items-center justify-between gap-3 bg-surface-container-low/50">
+              <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-on-surface-variant">
+                <FileCheck className="w-4 h-4 text-primary" />
+                <span>Hoja de Depósito // Admisión de Registros</span>
+              </div>
+              <span className="text-[11px] font-mono text-on-surface-variant">
+                Límite: 20 MB por lote (Excel máx. 4 MB)
+              </span>
             </div>
 
-            <h3 className="font-serif text-lg md:text-xl font-medium text-on-surface mb-1">
-              Arrastra y suelta tu planilla aquí
-            </h3>
-            <p className="text-sm text-on-surface-variant mb-4">
-              o haz clic para explorar tus carpetas locales
-            </p>
+            {/* Zona de Arrastre / Selección de Archivo */}
+            <div className="p-8 md:p-12">
+              <div
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setIsDragging(true);
+                }}
+                onDragLeave={() => setIsDragging(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setIsDragging(false);
+                  if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                    handleFileSelect(e.dataTransfer.files[0]);
+                  }
+                }}
+                onClick={() => fileInputRef.current?.click()}
+                className={`border border-dashed p-8 md:p-12 text-center cursor-pointer transition-colors ${
+                  isDragging
+                    ? "border-primary bg-primary/[0.04]"
+                    : "border-outline-variant hover:border-primary/70 bg-surface-container-lowest"
+                }`}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".xlsx,.csv,.tsv,.txt,.bib,.mrc,.marc,.xml,.marcxml"
+                  className="hidden"
+                  onChange={(e) => handleFileSelect(e.target.files[0])}
+                />
 
-            <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-on-surface-variant font-mono mb-3">
-              <span className="px-2 py-1 bg-surface-container rounded border border-outline-variant/60">.xlsx (Excel • máx. 4 MB)</span>
-              <span className="px-2 py-1 bg-surface-container rounded border border-outline-variant/60">.csv (hasta 20 MB)</span>
-              <span className="px-2 py-1 bg-surface-container rounded border border-outline-variant/60">.bib (BibTeX • hasta 20 MB)</span>
-              <span className="px-2 py-1 bg-surface-container rounded border border-outline-variant/60">.mrc / .marc (MARC 21 • hasta 20 MB)</span>
-              <span className="px-2 py-1 bg-surface-container rounded border border-outline-variant/60">.xml (MARCXML • hasta 20 MB)</span>
-              <span className="px-2 py-1 bg-surface-container rounded border border-outline-variant/60">.tsv / .txt (hasta 20 MB)</span>
-            </div>
-            <p className="text-[11px] text-on-surface-variant/80">
-              Los archivos mayores a 3.5 MB (excepto .xlsx) se dividen y envían automáticamente en tandas menores a 4 MB.
-            </p>
-          </div>
-
-          {/* Tarjeta del archivo seleccionado */}
-          {file && (
-            <div className="p-4 bg-surface-container-low border border-primary/30 rounded-xl flex items-center justify-between shadow-sm animate-fade-in">
-              <div className="flex items-center gap-3 truncate">
-                <FileText className="w-7 h-7 text-primary shrink-0" />
-                <div className="truncate">
-                  <p className="text-sm font-bold text-on-surface truncate">{file.name}</p>
-                  <p className="text-xs text-on-surface-variant flex flex-wrap items-center gap-2">
-                    <span>
-                      {file.size >= 1024 * 1024
-                        ? `${(file.size / (1024 * 1024)).toFixed(2)} MB`
-                        : `${(file.size / 1024).toFixed(1)} KB`}{" "}
-                      • Listo para procesar
-                    </span>
-                    {fileMeta.isChunked && (
-                      <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/25 text-[11px] font-semibold">
-                        Se enviará en {fileMeta.estimatedChunks} tandas (&lt; 4 MB c/u)
-                      </span>
-                    )}
+                <div className="max-w-md mx-auto space-y-3">
+                  <div className="font-serif italic text-2xl text-on-surface">
+                    Depositar catálogo para cotejo
+                  </div>
+                  <p className="text-xs text-on-surface-variant leading-relaxed">
+                    Haga clic para explorar los archivos locales o arrastre la planilla de inventario a este espacio.
                   </p>
+
+                  <div className="pt-4 border-t border-outline-variant/40 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[11px] font-mono text-on-surface-variant/80">
+                    <span>MARC 21 (.mrc)</span>
+                    <span>•</span>
+                    <span>MARCXML (.xml)</span>
+                    <span>•</span>
+                    <span>BibTeX (.bib)</span>
+                    <span>•</span>
+                    <span>Excel (.xlsx)</span>
+                    <span>•</span>
+                    <span>CSV / TSV (.csv, .tsv)</span>
+                  </div>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={handlePreviewUpload}
-                disabled={isLoading}
-                className="shrink-0 flex items-center gap-2 bg-primary text-on-primary px-5 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:opacity-90 disabled:opacity-50 transition-all shadow"
-              >
-                {isLoading ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 animate-spin" />
-                    Analizando...
-                  </>
-                ) : (
-                  <>
-                    Continuar al Mapeo
-                    <ArrowRight className="w-4 h-4" />
-                  </>
-                )}
-              </button>
-            </div>
-          )}
 
-          {/* Caja informativa y Descarga de Plantilla */}
-          <div className="p-5 bg-surface-container-low border border-outline-variant/60 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-start gap-3">
-              <Info className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-              <div className="text-xs text-on-surface-variant leading-relaxed">
-                <p className="font-bold text-on-surface mb-0.5">¿No sabes qué estructura usar?</p>
-                Puedes descargar nuestra planilla de ejemplo con 5 libros clásicos listos para probar la importación.
-              </div>
+              {/* Ficha del Archivo Cargado */}
+              {file && (
+                <div className="mt-6 p-4 bg-surface-container-low border border-outline-variant flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="flex items-start gap-3">
+                    <FileText className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                    <div>
+                      <div className="font-mono text-sm font-bold text-on-surface">{file.name}</div>
+                      <div className="text-xs text-on-surface-variant mt-0.5 flex flex-wrap items-center gap-2 font-mono">
+                        <span>
+                          {file.size >= 1024 * 1024
+                            ? `${(file.size / (1024 * 1024)).toFixed(2)} MB`
+                            : `${(file.size / 1024).toFixed(1)} KB`}
+                        </span>
+                        {fileMeta.isChunked && (
+                          <span className="text-primary font-semibold">
+                            [Transmisión fraccionada: {fileMeta.estimatedChunks} tandas]
+                          </span>
+                        )}
+                        <span>— Listo para inspección</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handlePreviewUpload}
+                    disabled={isLoading}
+                    className="self-end md:self-auto flex items-center gap-2 bg-primary text-on-primary px-6 py-2.5 rounded-sm font-bold text-xs uppercase tracking-wider hover:opacity-95 disabled:opacity-50 transition-opacity cursor-pointer"
+                  >
+                    {isLoading ? (
+                      <>
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        <span>Analizando...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Proceder al Cotejo</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
             </div>
-            <div className="flex flex-wrap items-center gap-2 shrink-0">
-              <button
-                type="button"
-                onClick={() => handleDownloadSample("csv")}
-                className="flex items-center justify-center gap-2 px-3 py-2 bg-surface-container-highest border border-outline-variant text-on-surface rounded-lg text-xs font-semibold hover:border-primary transition-colors cursor-pointer"
-              >
-                <Download className="w-3.5 h-3.5 text-primary" />
-                Plantilla CSV
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDownloadSample("bib")}
-                className="flex items-center justify-center gap-2 px-3 py-2 bg-surface-container-highest border border-outline-variant text-on-surface rounded-lg text-xs font-semibold hover:border-primary transition-colors cursor-pointer"
-              >
-                <Download className="w-3.5 h-3.5 text-primary" />
-                Ejemplo .bib
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDownloadSample("mrc")}
-                className="flex items-center justify-center gap-2 px-3 py-2 bg-surface-container-highest border border-outline-variant text-on-surface rounded-lg text-xs font-semibold hover:border-primary transition-colors cursor-pointer"
-              >
-                <Download className="w-3.5 h-3.5 text-primary" />
-                Ejemplo .mrc (MARC 21)
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDownloadSample("marcxml")}
-                className="flex items-center justify-center gap-2 px-3 py-2 bg-surface-container-highest border border-outline-variant text-on-surface rounded-lg text-xs font-semibold hover:border-primary transition-colors cursor-pointer"
-              >
-                <Download className="w-3.5 h-3.5 text-primary" />
-                Ejemplo MARCXML
-              </button>
+          </div>
+
+          {/* Muestrarios y Plantillas de Referencia */}
+          <div className="p-6 bg-surface-container-low border border-outline-variant/60 rounded-sm">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+              <div>
+                <h2 className="font-serif text-base font-normal text-on-surface mb-1">
+                  Muestrarios de Estructura Bibliográfica
+                </h2>
+                <p className="text-xs text-on-surface-variant max-w-xl">
+                  Archivos de muestra preparados con cinco obras canónicas hispanoamericanas para auditar la compatibilidad de campos y signaturas.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleDownloadSample("csv")}
+                  className="px-3 py-1.5 bg-surface-container-lowest border border-outline-variant/80 text-on-surface text-xs font-mono hover:border-primary transition-colors flex items-center gap-1.5 cursor-pointer rounded-sm"
+                >
+                  <Download className="w-3 h-3 text-primary" />
+                  <span>Plantilla .csv</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDownloadSample("bib")}
+                  className="px-3 py-1.5 bg-surface-container-lowest border border-outline-variant/80 text-on-surface text-xs font-mono hover:border-primary transition-colors flex items-center gap-1.5 cursor-pointer rounded-sm"
+                >
+                  <Download className="w-3 h-3 text-primary" />
+                  <span>Muestra .bib</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDownloadSample("mrc")}
+                  className="px-3 py-1.5 bg-surface-container-lowest border border-outline-variant/80 text-on-surface text-xs font-mono hover:border-primary transition-colors flex items-center gap-1.5 cursor-pointer rounded-sm"
+                >
+                  <Download className="w-3 h-3 text-primary" />
+                  <span>Muestra .mrc (MARC 21)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDownloadSample("marcxml")}
+                  className="px-3 py-1.5 bg-surface-container-lowest border border-outline-variant/80 text-on-surface text-xs font-mono hover:border-primary transition-colors flex items-center gap-1.5 cursor-pointer rounded-sm"
+                >
+                  <Download className="w-3 h-3 text-primary" />
+                  <span>Muestra MARCXML</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
 
       {/* =========================================================
-          PASO 2: VISUAL MAPPER DE COLUMNAS
+          FASE 2: MESA DE COTEJO Y ASIGNACIÓN BIBLIOGRÁFICA
       ========================================================= */}
       {currentStep === 2 && (
-        <div className="space-y-8 animate-fade-in">
-          <div className="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/70 shadow-sm">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-4 mb-6 border-b border-outline-variant/40">
+        <div className="space-y-8">
+          <div className="bg-surface-container-lowest border border-outline-variant/80 rounded-sm">
+            {/* Barra de Contexto del Cotejo */}
+            <div className="px-6 py-4 border-b border-outline-variant/60 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-surface-container-low/40">
               <div>
-                <h2 className="text-lg font-serif font-bold text-on-surface">
-                  Mapeo de Columnas ({totalRows} filas detectadas)
-                </h2>
-                <p className="text-xs text-on-surface-variant">
-                  Asocia cada columna de tu planilla con el campo correspondiente de Folium. Los campos con asterisco (*) son obligatorios.
-                </p>
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <div className="text-xs text-on-surface-variant bg-surface-container px-3 py-1.5 rounded-md border border-outline-variant/50">
-                  Archivo: <span className="font-semibold text-on-surface">{file?.name}</span>
+                <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-on-surface-variant">
+                  <Database className="w-4 h-4 text-primary" />
+                  <span>Cotejo de Columnas // {file?.name}</span>
                 </div>
+                <div className="font-serif text-xl text-on-surface mt-1">
+                  Correspondencia de Campos ({totalRows} filas detectadas)
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setShowAdvancedOptions((prev) => !prev)}
-                  className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md border transition-colors cursor-pointer ${
+                  className={`flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider px-3 py-1.5 border transition-colors cursor-pointer rounded-sm ${
                     showAdvancedOptions || formatOptions.genre_separator !== "auto" || formatOptions.author_format !== "auto"
-                      ? "bg-primary/10 text-primary border-primary/40"
-                      : "bg-surface-container text-on-surface-variant border-outline-variant/60 hover:border-primary/40 hover:text-on-surface"
+                      ? "border-primary text-primary bg-primary/[0.04]"
+                      : "border-outline-variant text-on-surface-variant hover:border-on-surface"
                   }`}
                 >
                   <SlidersHorizontal className="w-3.5 h-3.5" />
-                  Configurar formato manualmente
+                  <span>Criterios de Normalización</span>
                 </button>
               </div>
             </div>
 
-            {/* Panel desplegable de opciones manuales de formato */}
+            {/* Panel de Criterios de Normalización (Técnico y Sobrio) */}
             {showAdvancedOptions && (
-              <div className="mb-6 p-4 rounded-xl bg-surface-container-low border border-primary/30 animate-fade-in">
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-primary">
-                      Opciones manuales de interpretación
-                    </h3>
-                    <p className="text-[11px] text-on-surface-variant">
-                      Por defecto Folium detecta y separa automáticamente múltiples géneros y autores. Puedes forzar un criterio específico aquí si tu archivo usa otra convención.
-                    </p>
-                  </div>
+              <div className="p-6 bg-surface-container-low/70 border-b border-outline-variant/60">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-serif text-base text-on-surface">
+                    Reglas de interpretación bibliográfica
+                  </h3>
                   {(formatOptions.genre_separator !== "auto" || formatOptions.author_format !== "auto") && (
                     <button
                       type="button"
@@ -677,73 +709,62 @@ export default function CatalogImporter() {
                           author_format: "auto",
                         }))
                       }
-                      className="text-[11px] font-semibold text-primary underline hover:opacity-80 cursor-pointer shrink-0"
+                      className="text-xs font-mono text-primary underline hover:opacity-80 cursor-pointer"
                     >
-                      Restaurar automático
+                      Restablecer automáticos
                     </button>
                   )}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-xs font-bold text-on-surface mb-1">
-                      Separador para múltiples géneros
+                    <label className="block text-xs font-mono uppercase tracking-wider text-on-surface mb-1.5">
+                      Segmentación de Descriptores / Materias
                     </label>
                     <select
                       value={formatOptions.genre_separator}
                       onChange={(e) =>
                         setFormatOptions((prev) => ({ ...prev, genre_separator: e.target.value }))
                       }
-                      className="w-full text-xs bg-surface-container border border-outline-variant rounded-md px-3 py-2 text-on-surface focus:outline-none focus:border-primary"
+                      className="w-full text-xs font-mono bg-surface-container-lowest border border-outline-variant rounded-sm px-3 py-2 text-on-surface focus:outline-none focus:border-primary"
                     >
                       <option value="auto">Automático (coma, punto y coma o barra /)</option>
-                      <option value="comma">Separar solo por coma (,)</option>
-                      <option value="semicolon">Separar solo por punto y coma (;)</option>
-                      <option value="slash">Separar solo por barra (/)</option>
-                      <option value="none">No separar (guardar la cadena entera como un único género)</option>
+                      <option value="comma">Separar exclusivamente por coma (,)</option>
+                      <option value="semicolon">Separar exclusivamente por punto y coma (;)</option>
+                      <option value="slash">Separar exclusivamente por barra (/)</option>
+                      <option value="none">Preservar como término único sin segmentar</option>
                     </select>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-on-surface mb-1">
-                      Formato en la columna de Autor(es)
+                    <label className="block text-xs font-mono uppercase tracking-wider text-on-surface mb-1.5">
+                      Sintaxis de Autores
                     </label>
                     <select
                       value={formatOptions.author_format}
                       onChange={(e) =>
                         setFormatOptions((prev) => ({ ...prev, author_format: e.target.value }))
                       }
-                      className="w-full text-xs bg-surface-container border border-outline-variant rounded-md px-3 py-2 text-on-surface focus:outline-none focus:border-primary"
+                      className="w-full text-xs font-mono bg-surface-container-lowest border border-outline-variant rounded-sm px-3 py-2 text-on-surface focus:outline-none focus:border-primary"
                     >
-                      <option value="auto">Automático (detecta &quot;Apellido, Nombre&quot; y listas de autores)</option>
-                      <option value="firstname_lastname">&quot;Nombre Apellido&quot; (varios autores separados por coma o &apos;;&apos;)</option>
-                      <option value="lastname_firstname">&quot;Apellido, Nombre&quot; (varios autores separados por &apos;;&apos;)</option>
+                      <option value="auto">Automático (reconoce 'Apellido, Nombre' y nombres directos)</option>
+                      <option value="firstname_lastname">Nombre Apellido (autores separados por ';' o coma)</option>
+                      <option value="lastname_firstname">Apellido, Nombre (autores separados por ';')</option>
                     </select>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Selector de Portadas por ISBN (a elección del bibliotecario) */}
-            <div className="mb-6 p-4 rounded-xl bg-surface-container-low border border-outline-variant/60 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            {/* Política de Portadas ISBN */}
+            <div className="px-6 py-4 bg-surface-container-low/30 border-b border-outline-variant/60 flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-0.5">
-                  <ImageIcon className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface flex items-center gap-2">
-                    Portadas de Libros al Importar
-                  </h3>
-                  <p className="text-xs text-on-surface-variant mt-0.5">
-                    {formatOptions.fetch_covers_by_isbn
-                      ? "Si el libro tiene ISBN, Folium buscará su portada en caché local, Open Library y Google Books sin bloquear la carga."
-                      : "Los libros importados quedarán sin imagen de portada (se mostrará la portada ornamental de archivo)."}
-                  </p>
-                  {formatOptions.fetch_covers_by_isbn && !mapping.isbn && (
-                    <p className="text-[11px] text-amber-600 dark:text-amber-400 font-semibold mt-1">
-                      Recuerda mapear la columna &quot;ISBN&quot; abajo para poder buscar portadas.
-                    </p>
-                  )}
+                <ImageIcon className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                <div className="text-xs text-on-surface-variant leading-relaxed">
+                  <span className="font-semibold text-on-surface">Enriquecimiento visual por ISBN: </span>
+                  {formatOptions.fetch_covers_by_isbn
+                    ? "Al concluir la carga, Folium consultará las portadas en la red de repositorios sin demorar la importación."
+                    : "Las obras se registrarán con la portada ornamental clásica de archivo."}
                 </div>
               </div>
 
@@ -753,100 +774,136 @@ export default function CatalogImporter() {
                   onClick={() =>
                     setFormatOptions((prev) => ({ ...prev, fetch_covers_by_isbn: true }))
                   }
-                  className={`px-3.5 py-2 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
+                  className={`px-3 py-1 text-xs font-mono uppercase tracking-wider border rounded-sm transition-colors cursor-pointer ${
                     formatOptions.fetch_covers_by_isbn
-                      ? "bg-primary text-on-primary border-primary shadow-sm"
-                      : "bg-surface-container text-on-surface-variant border-outline-variant hover:text-on-surface"
+                      ? "border-primary bg-primary text-on-primary font-bold"
+                      : "border-outline-variant text-on-surface-variant hover:border-on-surface"
                   }`}
                 >
-                  Buscar portadas por ISBN
+                  Buscar por ISBN
                 </button>
                 <button
                   type="button"
                   onClick={() =>
                     setFormatOptions((prev) => ({ ...prev, fetch_covers_by_isbn: false }))
                   }
-                  className={`px-3.5 py-2 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
+                  className={`px-3 py-1 text-xs font-mono uppercase tracking-wider border rounded-sm transition-colors cursor-pointer ${
                     !formatOptions.fetch_covers_by_isbn
-                      ? "bg-primary text-on-primary border-primary shadow-sm"
-                      : "bg-surface-container text-on-surface-variant border-outline-variant hover:text-on-surface"
+                      ? "border-primary bg-primary text-on-primary font-bold"
+                      : "border-outline-variant text-on-surface-variant hover:border-on-surface"
                   }`}
                 >
-                  Dejar sin portada
+                  Omitir portadas
                 </button>
               </div>
             </div>
 
-            {/* Grilla de Campos de Folium vs Columnas del archivo */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {FOLIUM_FIELDS.map((field) => {
-                const selectedCol = mapping[field.id] || "";
-                const isAutoMatched = Boolean(selectedCol);
-                return (
-                  <div
-                    key={field.id}
-                    className={`p-3.5 rounded-lg border transition-colors ${
-                      isAutoMatched
-                        ? "border-primary/40 bg-primary/[0.02]"
-                        : field.required
-                        ? "border-error/40 bg-error/[0.02]"
-                        : "border-outline-variant/60 bg-surface-container-low"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-1.5">
-                      <label className="text-xs font-bold text-on-surface flex items-center gap-1.5">
-                        {field.label}
-                        {field.required && <span className="text-error font-black">*</span>}
-                      </label>
-                      {isAutoMatched && (
-                        <span className="text-[10px] uppercase font-bold text-primary bg-primary/10 px-2 py-0.5 rounded">
-                          Detectado
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-[11px] text-on-surface-variant mb-2">{field.description}</p>
-                    <select
-                      value={selectedCol}
-                      onChange={(e) => handleMappingChange(field.id, e.target.value)}
-                      className="w-full text-xs bg-surface-container border border-outline-variant rounded-md px-3 py-2 text-on-surface focus:outline-none focus:border-primary"
-                    >
-                      <option value="">— Ignorar / No mapear —</option>
-                      {fileHeaders.map((header) => (
-                        <option key={header} value={header}>
-                          Columna: &quot;{header}&quot;
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                );
-              })}
+            {/* Mesa de Mapeo Tabular (Ledger) */}
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead className="bg-surface-container-low text-on-surface-variant border-b border-outline-variant font-mono text-[11px] uppercase tracking-wider">
+                  <tr>
+                    <th className="py-3 px-6 w-1/3">Campo Canónico Folium</th>
+                    <th className="py-3 px-6 w-1/3">Columna en Archivo Fuente</th>
+                    <th className="py-3 px-6 w-1/3">Previsualización (Fila 1)</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-outline-variant/40">
+                  {FOLIUM_FIELDS.map((field) => {
+                    const selectedCol = mapping[field.id] || "";
+                    const sampleValue = selectedCol && sampleRows[0] ? sampleRows[0][selectedCol] : null;
+
+                    return (
+                      <tr key={field.id} className="hover:bg-surface-container-low/40 transition-colors">
+                        <td className="py-3.5 px-6 align-top">
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-serif text-sm font-medium text-on-surface">
+                              {field.label}
+                            </span>
+                            {field.required && (
+                              <span className="text-[10px] font-mono uppercase tracking-wider text-primary font-bold">
+                                [Requerido]
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[11px] text-on-surface-variant mt-0.5 leading-snug">
+                            {field.description}
+                          </p>
+                        </td>
+
+                        <td className="py-3.5 px-6 align-top">
+                          <select
+                            value={selectedCol}
+                            onChange={(e) => handleMappingChange(field.id, e.target.value)}
+                            className={`w-full text-xs font-mono border rounded-sm px-3 py-2 text-on-surface bg-surface-container-lowest focus:outline-none focus:border-primary ${
+                              selectedCol
+                                ? "border-outline-variant font-semibold"
+                                : field.required
+                                ? "border-error/60 bg-error/[0.02]"
+                                : "border-outline-variant/60"
+                            }`}
+                          >
+                            <option value="">— Sin asignar —</option>
+                            {fileHeaders.map((header) => (
+                              <option key={header} value={header}>
+                                {header}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+
+                        <td className="py-3.5 px-6 align-top font-mono text-xs">
+                          {sampleValue ? (
+                            <span className="text-on-surface bg-surface-container-low px-2 py-1 rounded-sm border border-outline-variant/40 inline-block max-w-xs truncate">
+                              {sampleValue}
+                            </span>
+                          ) : selectedCol ? (
+                            <span className="text-on-surface-variant/40 italic">Registro vacío en fila 1</span>
+                          ) : (
+                            <span className="text-on-surface-variant/30">—</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           </div>
 
-          {/* Tabla de Muestra de las Primeras 5 Filas */}
+          {/* Muestra Documental (Primeras 5 Filas) */}
           {sampleRows.length > 0 && (
-            <div className="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/70 shadow-sm">
-              <h3 className="text-sm font-bold text-on-surface mb-3 flex items-center gap-2">
-                <FileText className="w-4 h-4 text-primary" />
-                Muestra de datos (primeras 5 filas)
-              </h3>
-              <div className="overflow-x-auto max-h-60 border border-outline-variant/50 rounded-lg">
+            <div className="bg-surface-container-lowest border border-outline-variant/80 rounded-sm p-6">
+              <div className="flex items-center justify-between mb-3 border-b border-outline-variant/40 pb-2">
+                <span className="font-serif text-sm text-on-surface">
+                  Muestra de registro en crudo (5 primeras filas)
+                </span>
+                <span className="text-[11px] font-mono text-on-surface-variant">
+                  {fileHeaders.length} columnas detectadas
+                </span>
+              </div>
+
+              <div className="overflow-x-auto max-h-56 border border-outline-variant/60 rounded-sm">
                 <table className="w-full text-left text-xs border-collapse">
-                  <thead className="bg-surface-container sticky top-0 text-on-surface-variant uppercase font-mono text-[10px] tracking-wider border-b border-outline-variant">
+                  <thead className="bg-surface-container-low sticky top-0 text-on-surface-variant font-mono text-[10px] uppercase tracking-wider border-b border-outline-variant">
                     <tr>
+                      <th className="p-2 border-r border-outline-variant/40 w-12 text-center">#</th>
                       {fileHeaders.map((h) => (
-                        <th key={h} className="p-2.5 whitespace-nowrap">
+                        <th key={h} className="p-2 whitespace-nowrap border-r border-outline-variant/40">
                           {h}
                         </th>
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-outline-variant/40">
+                  <tbody className="divide-y divide-outline-variant/30 font-mono text-[11px]">
                     {sampleRows.map((row, idx) => (
-                      <tr key={idx} className="hover:bg-surface-container-low transition-colors">
+                      <tr key={idx} className="hover:bg-surface-container-low/30">
+                        <td className="p-2 text-center text-on-surface-variant/60 border-r border-outline-variant/40">
+                          {idx + 1}
+                        </td>
                         {fileHeaders.map((h) => (
-                          <td key={h} className="p-2.5 whitespace-nowrap text-on-surface max-w-[200px] truncate">
-                            {row[h] || <span className="opacity-30 italic">vacío</span>}
+                          <td key={h} className="p-2 whitespace-nowrap text-on-surface max-w-[220px] truncate border-r border-outline-variant/30">
+                            {row[h] || <span className="text-on-surface-variant/30 italic">∅</span>}
                           </td>
                         ))}
                       </tr>
@@ -857,33 +914,35 @@ export default function CatalogImporter() {
             </div>
           )}
 
-          {/* Acciones de Navegación Step 2 */}
+          {/* Navegación Fase 2 */}
           <div className="flex items-center justify-between pt-2">
             <button
               type="button"
               onClick={() => setCurrentStep(1)}
-              className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-on-surface-variant hover:text-on-surface transition-colors"
+              className="flex items-center gap-2 px-4 py-2 text-xs font-mono uppercase tracking-wider text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer"
             >
-              <ArrowLeft className="w-4 h-4" />
-              Cambiar Archivo
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Volver a Documento</span>
             </button>
             <button
               type="button"
               onClick={handleRunSimulation}
               disabled={isLoading || !mapping.title || !mapping.author}
-              className="flex items-center gap-2 bg-primary text-on-primary px-6 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:opacity-90 disabled:opacity-40 transition-all shadow"
+              className="flex items-center gap-2 bg-primary text-on-primary px-7 py-2.5 rounded-sm font-bold text-xs uppercase tracking-wider hover:opacity-95 disabled:opacity-40 transition-opacity cursor-pointer"
             >
               {isLoading ? (
                 <>
-                  <RefreshCw className="w-4 h-4 animate-spin" />
-                  {chunkProgress.total > 1
-                    ? `Simulando tanda ${chunkProgress.current} de ${chunkProgress.total}...`
-                    : "Simulando..."}
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  <span>
+                    {chunkProgress.total > 1
+                      ? `Auditando tanda ${chunkProgress.current} de ${chunkProgress.total}...`
+                      : "Ejecutando Simulación..."}
+                  </span>
                 </>
               ) : (
                 <>
-                  Simular y Validar
-                  <ArrowRight className="w-4 h-4" />
+                  <span>Simular y Auditar Lote</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </>
               )}
             </button>
@@ -892,57 +951,79 @@ export default function CatalogImporter() {
       )}
 
       {/* =========================================================
-          PASO 3: SIMULACIÓN & AUDITORÍA DRY-RUN
+          FASE 3: AUDITORÍA Y SIMULACIÓN PREVIA (BALANCE DE INGESTA)
       ========================================================= */}
       {currentStep === 3 && simulationData && (
-        <div className="space-y-8 animate-fade-in">
-          {/* Métricas del Dry-Run */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-surface-container-lowest p-5 rounded-xl border border-outline-variant/70 shadow-sm">
-              <span className="text-[11px] uppercase tracking-wider text-on-surface-variant font-bold">Total Filas</span>
-              <p className="text-3xl font-serif font-bold text-on-surface mt-1">{simulationData.total_rows}</p>
-              <span className="text-xs text-on-surface-variant">Detectadas en la planilla</span>
+        <div className="space-y-8">
+          {/* Balance Tipográfico de Ingesta */}
+          <div className="bg-surface-container-lowest border border-outline-variant/80 rounded-sm">
+            <div className="px-6 py-4 border-b border-outline-variant/60 flex items-center justify-between bg-surface-container-low/40">
+              <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-on-surface-variant">
+                <FileCheck className="w-4 h-4 text-primary" />
+                <span>Auditoría de Ingesta // Balance Técnico</span>
+              </div>
+              <span className="text-[11px] font-mono text-on-surface-variant">
+                Modo: Simulación (Dry Run sin alteración de base de datos)
+              </span>
             </div>
 
-            <div className="bg-surface-container-lowest p-5 rounded-xl border border-emerald-500/30 shadow-sm">
-              <span className="text-[11px] uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-bold">Nuevas Obras</span>
-              <p className="text-3xl font-serif font-bold text-emerald-600 dark:text-emerald-400 mt-1">
-                {simulationData.new_books ?? simulationData.new_books_count ?? 0}
-              </p>
-              <span className="text-xs text-on-surface-variant">Se crearán en el catálogo</span>
-            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-outline-variant/60">
+              <div className="p-6">
+                <span className="text-[11px] font-mono uppercase tracking-widest text-on-surface-variant">
+                  Registros en Planilla
+                </span>
+                <p className="font-serif text-3xl text-on-surface mt-2 font-normal">
+                  {simulationData.total_rows}
+                </p>
+                <span className="text-xs text-on-surface-variant mt-1 block">Filas leídas en archivo</span>
+              </div>
 
-            <div className="bg-surface-container-lowest p-5 rounded-xl border border-blue-500/30 shadow-sm">
-              <span className="text-[11px] uppercase tracking-wider text-blue-600 dark:text-blue-400 font-bold">Obras Existentes</span>
-              <p className="text-3xl font-serif font-bold text-blue-600 dark:text-blue-400 mt-1">
-                {simulationData.existing_books ?? simulationData.existing_books_count ?? 0}
-              </p>
-              <span className="text-xs text-on-surface-variant">Se sumarán ejemplares físicos</span>
-            </div>
+              <div className="p-6">
+                <span className="text-[11px] font-mono uppercase tracking-widest text-on-surface-variant">
+                  Obras Nuevas (Alta)
+                </span>
+                <p className="font-serif text-3xl text-primary mt-2 font-normal">
+                  {simulationData.new_books ?? simulationData.new_books_count ?? 0}
+                </p>
+                <span className="text-xs text-on-surface-variant mt-1 block">Títulos no existentes en catálogo</span>
+              </div>
 
-            <div className="bg-surface-container-lowest p-5 rounded-xl border border-amber-500/30 shadow-sm">
-              <span className="text-[11px] uppercase tracking-wider text-amber-600 dark:text-amber-400 font-bold">Inconsistencias</span>
-              <p className="text-3xl font-serif font-bold text-amber-600 dark:text-amber-400 mt-1">
-                {simulationData.rows_with_errors ?? simulationData.errors_count ?? 0}
-              </p>
-              <span className="text-xs text-on-surface-variant">Filas que se omitirán</span>
+              <div className="p-6">
+                <span className="text-[11px] font-mono uppercase tracking-widest text-on-surface-variant">
+                  Obras Existentes
+                </span>
+                <p className="font-serif text-3xl text-on-surface mt-2 font-normal">
+                  {simulationData.existing_books ?? simulationData.existing_books_count ?? 0}
+                </p>
+                <span className="text-xs text-on-surface-variant mt-1 block">Se sumarán ejemplares físicos</span>
+              </div>
+
+              <div className="p-6">
+                <span className="text-[11px] font-mono uppercase tracking-widest text-on-surface-variant">
+                  Registros Omitidos
+                </span>
+                <p className="font-serif text-3xl text-tertiary mt-2 font-normal">
+                  {simulationData.rows_with_errors ?? simulationData.errors_count ?? 0}
+                </p>
+                <span className="text-xs text-on-surface-variant mt-1 block">Filas incompletas (sin título/autor)</span>
+              </div>
             </div>
           </div>
 
-          {/* Advertencias o Errores de Filas */}
+          {/* Detalle de Inconsistencias */}
           {simulationData.error_details && simulationData.error_details.length > 0 && (
-            <div className="bg-amber-500/5 border border-amber-500/30 rounded-xl p-5">
-              <div className="flex items-center gap-2 mb-3 text-amber-600 dark:text-amber-400 font-bold text-sm">
-                <AlertTriangle className="w-5 h-5 shrink-0" />
-                Filas con datos incompletos ({simulationData.error_details.length})
+            <div className="bg-surface-container-low border border-tertiary/40 rounded-sm p-6">
+              <div className="flex items-center gap-2 mb-2 font-mono text-xs uppercase tracking-wider text-tertiary font-bold">
+                <AlertTriangle className="w-4 h-4" />
+                <span>Observaciones de Consistencia ({simulationData.error_details.length} filas)</span>
               </div>
-              <p className="text-xs text-on-surface-variant mb-3">
-                Estas filas no contienen título o autor y serán ignoradas de forma segura durante la importación:
+              <p className="text-xs text-on-surface-variant mb-4">
+                Las siguientes filas no satisfacen los requisitos mínimos de catalogación y serán omitidas de forma segura:
               </p>
-              <div className="max-h-40 overflow-y-auto space-y-1.5 text-xs font-mono">
+              <div className="max-h-48 overflow-y-auto space-y-2 font-mono text-xs">
                 {simulationData.error_details.map((errItem, idx) => (
-                  <div key={idx} className="bg-surface-container-lowest px-3 py-1.5 rounded border border-outline-variant/40 flex items-center justify-between">
-                    <span>Fila #{errItem.row}</span>
+                  <div key={idx} className="bg-surface-container-lowest px-3 py-2 border border-outline-variant/60 flex items-center justify-between">
+                    <span className="font-bold text-on-surface">Fila #{errItem.row}</span>
                     <span className="text-on-surface-variant">{errItem.error || errItem.reason}</span>
                   </div>
                 ))}
@@ -950,49 +1031,64 @@ export default function CatalogImporter() {
             </div>
           )}
 
-          {/* Muestra de cómo quedará registrada una obra */}
+          {/* Muestra Interpretada: Fichas Bibliográficas de Muestra */}
           {(simulationData.sample_previews || simulationData.preview_items)?.length > 0 && (
-            <div className="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/70 shadow-sm">
-              <h3 className="text-sm font-bold text-on-surface mb-3 flex items-center gap-2">
-                <Library className="w-4 h-4 text-primary" />
-                Muestra de obras interpretadas por Folium ({(simulationData.sample_previews || simulationData.preview_items).length})
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="bg-surface-container-lowest border border-outline-variant/80 rounded-sm p-6">
+              <div className="flex items-center justify-between mb-4 border-b border-outline-variant/40 pb-3">
+                <div>
+                  <h3 className="font-serif text-base text-on-surface">
+                    Muestra de Fichas Bibliográficas Interpretadas
+                  </h3>
+                  <p className="text-xs text-on-surface-variant">
+                    Representación visual normalizada según el motor catalográfico de Folium.
+                  </p>
+                </div>
+                <span className="font-mono text-xs text-on-surface-variant">
+                  {(simulationData.sample_previews || simulationData.preview_items).length} registros expuestos
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {(simulationData.sample_previews || simulationData.preview_items).map((item, idx) => (
-                  <div key={idx} className="p-3.5 bg-surface-container-low rounded-lg border border-outline-variant/50 text-xs flex flex-col justify-between gap-2">
+                  <div
+                    key={idx}
+                    className="p-5 bg-surface-container-low/40 border border-outline-variant/70 rounded-sm flex flex-col justify-between gap-3"
+                  >
                     <div>
-                      <div className="flex items-start justify-between gap-2 mb-1.5">
-                        <span className="font-bold text-on-surface text-sm line-clamp-1">{item.title}</span>
-                        <span className={`text-[10px] px-2 py-0.5 rounded font-bold shrink-0 ${
-                          item.status === "EXISTING" ? "bg-blue-500/10 text-blue-600" : "bg-emerald-500/10 text-emerald-600"
-                        }`}>
-                          {item.status === "EXISTING" ? "Existente (+copia)" : "Nuevo"}
+                      <div className="flex items-start justify-between gap-3 mb-2">
+                        <h4 className="font-serif text-base text-on-surface font-medium leading-snug">
+                          {item.title}
+                        </h4>
+                        <span
+                          className={`text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 border rounded-sm shrink-0 ${
+                            item.status === "EXISTING"
+                              ? "border-outline-variant text-on-surface-variant bg-surface-container"
+                              : "border-primary/40 text-primary bg-primary/[0.04]"
+                          }`}
+                        >
+                          {item.status === "EXISTING" ? "Ejemplar Extra" : "Nueva Obra"}
                         </span>
                       </div>
 
-                      <div className="text-on-surface-variant mb-2 flex flex-wrap items-center gap-1">
-                        <span className="font-semibold">Autor(es):</span>
+                      <div className="text-xs text-on-surface-variant mb-2">
+                        <span className="font-mono text-[11px] uppercase tracking-wider text-on-surface-variant/80 mr-1.5">
+                          Autor(es):
+                        </span>
                         {Array.isArray(item.authors_list) && item.authors_list.length > 0 ? (
-                          item.authors_list.map((authorName, aIdx) => (
-                            <span
-                              key={aIdx}
-                              className="px-2 py-0.5 rounded bg-surface-container border border-outline-variant/60 text-on-surface text-[11px]"
-                            >
-                              {authorName}
-                            </span>
-                          ))
+                          <span className="font-serif italic text-on-surface">
+                            {item.authors_list.join("; ")}
+                          </span>
                         ) : (
-                          <span>{item.author || "—"}</span>
+                          <span className="font-serif italic text-on-surface">{item.author || "—"}</span>
                         )}
                       </div>
 
                       {Array.isArray(item.genres_list) && item.genres_list.length > 0 && (
-                        <div className="flex flex-wrap items-center gap-1 mb-2">
-                          <span className="font-semibold text-on-surface-variant">Géneros:</span>
+                        <div className="flex flex-wrap items-center gap-1.5 mt-2">
                           {item.genres_list.map((genreName, gIdx) => (
                             <span
                               key={gIdx}
-                              className="px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-[10px] font-semibold"
+                              className="px-2 py-0.5 text-[10px] font-mono bg-surface-container border border-outline-variant/60 text-on-surface rounded-sm"
                             >
                               {genreName}
                             </span>
@@ -1001,16 +1097,10 @@ export default function CatalogImporter() {
                       )}
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-on-surface-variant pt-1.5 border-t border-outline-variant/30">
+                    <div className="pt-3 border-t border-outline-variant/40 flex flex-wrap items-center justify-between text-[11px] font-mono text-on-surface-variant">
                       <span>ISBN: <strong className="text-on-surface">{item.isbn || "Sin ISBN"}</strong></span>
-                      {item.editorial && <span>Editorial: <strong className="text-on-surface">{item.editorial}</strong></span>}
+                      {item.editorial && <span>Ed: <strong className="text-on-surface">{item.editorial}</strong></span>}
                       {item.year && <span>Año: <strong className="text-on-surface">{item.year}</strong></span>}
-                      {formatOptions.fetch_covers_by_isbn && item.isbn && (
-                        <span className="ml-auto inline-flex items-center gap-1 px-2 py-0.5 rounded bg-primary/10 text-primary text-[10px] font-semibold">
-                          <ImageIcon className="w-3 h-3" />
-                          {item.has_local_cover ? "Portada en caché local" : "Buscará portada por ISBN"}
-                        </span>
-                      )}
                     </div>
                   </div>
                 ))}
@@ -1018,33 +1108,36 @@ export default function CatalogImporter() {
             </div>
           )}
 
-          {/* Acciones de Navegación Step 3 */}
+          {/* Navegación Fase 3 */}
           <div className="flex items-center justify-between pt-2">
             <button
               type="button"
               onClick={() => setCurrentStep(2)}
-              className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-on-surface-variant hover:text-on-surface transition-colors"
+              className="flex items-center gap-2 px-4 py-2 text-xs font-mono uppercase tracking-wider text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer"
             >
-              <ArrowLeft className="w-4 h-4" />
-              Modificar Mapeo / Formato
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Ajustar Mapeo</span>
             </button>
+
             <button
               type="button"
               onClick={handleExecuteImport}
               disabled={isLoading || simulationData.valid_rows === 0}
-              className="flex items-center gap-2 bg-primary text-on-primary px-7 py-3 rounded-lg font-bold text-xs uppercase tracking-wider hover:opacity-90 disabled:opacity-40 transition-all shadow-md"
+              className="flex items-center gap-2 bg-primary text-on-primary px-8 py-3 rounded-sm font-bold text-xs uppercase tracking-wider hover:opacity-95 disabled:opacity-40 transition-opacity cursor-pointer shadow-sm"
             >
               {isLoading ? (
                 <>
-                  <RefreshCw className="w-4 h-4 animate-spin" />
-                  {chunkProgress.total > 1
-                    ? `Importando tanda ${chunkProgress.current} de ${chunkProgress.total}...`
-                    : "Importando registros a Folium..."}
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  <span>
+                    {chunkProgress.total > 1
+                      ? `Asentando tanda ${chunkProgress.current} de ${chunkProgress.total}...`
+                      : "Registrando en fondo bibliográfico..."}
+                  </span>
                 </>
               ) : (
                 <>
-                  <CheckCircle2 className="w-4 h-4" />
-                  Confirmar e Importar al Catálogo ({simulationData.valid_rows} registros)
+                  <Check className="w-3.5 h-3.5" />
+                  <span>Incorporar al Catálogo ({simulationData.valid_rows} obras válidas)</span>
                 </>
               )}
             </button>
@@ -1053,68 +1146,78 @@ export default function CatalogImporter() {
       )}
 
       {/* =========================================================
-          PASO 4: RESULTADO FINAL Y RESUMEN
+          FASE 4: ACTA DE INCORPORACIÓN Y CIERRE DE LOTE
       ========================================================= */}
       {currentStep === 4 && executionResult && (
-        <div className="bg-surface-container-lowest p-8 md:p-12 rounded-2xl border border-outline-variant/70 shadow-lg text-center max-w-2xl mx-auto animate-fade-in">
-          <div className="w-16 h-16 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 mx-auto flex items-center justify-center mb-5">
-            <CheckCircle2 className="w-10 h-10" />
+        <div className="bg-surface-container-lowest border border-outline-variant/80 rounded-sm p-8 md:p-12 max-w-3xl mx-auto">
+          {/* Cabecera del Acta */}
+          <div className="text-center pb-8 border-b border-outline-variant/60">
+            <div className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-primary mb-3">
+              <Archive className="w-4 h-4" />
+              <span>Acta de Incorporación Definitiva</span>
+            </div>
+            <h2 className="font-serif text-3xl md:text-4xl font-normal text-on-surface tracking-tight mb-2">
+              Lote Asimilado con Éxito
+            </h2>
+            <p className="text-sm text-on-surface-variant max-w-lg mx-auto leading-relaxed">
+              Los registros han sido asentados de manera transaccional en el fondo general de Folium
+              {executionResult.total_chunks > 1
+                ? ` en ${executionResult.total_chunks} tandas auditadas`
+                : ""}.
+            </p>
           </div>
 
-          <h2 className="text-2xl md:text-3xl font-serif font-bold text-on-surface mb-2">
-            ¡Importación Completada con Éxito!
-          </h2>
-          <p className="text-sm text-on-surface-variant mb-8">
-            Los datos han sido validados y persistidos de forma transaccional en la base de datos de Folium
-            {executionResult.total_chunks > 1
-              ? ` (enviados en ${executionResult.total_chunks} tandas seguras menores a 4 MB)`
-              : ""}.
-          </p>
-
-          {/* Tarjetas de Estadísticas Finales */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-            <div className="p-4 bg-surface-container-low rounded-xl border border-outline-variant/50">
-              <BookCopy className="w-5 h-5 text-primary mx-auto mb-1" />
-              <p className="text-2xl font-serif font-bold text-on-surface">{executionResult.imported_books}</p>
-              <span className="text-[11px] uppercase tracking-wider text-on-surface-variant font-bold">Obras Nuevas</span>
-            </div>
-            <div className="p-4 bg-surface-container-low rounded-xl border border-outline-variant/50">
-              <Library className="w-5 h-5 text-emerald-600 mx-auto mb-1" />
-              <p className="text-2xl font-serif font-bold text-on-surface">{executionResult.imported_items}</p>
-              <span className="text-[11px] uppercase tracking-wider text-on-surface-variant font-bold">Ejemplares Físicos</span>
-            </div>
-            <div className="p-4 bg-surface-container-low rounded-xl border border-outline-variant/50">
-              <ImageIcon className="w-5 h-5 text-primary mx-auto mb-1" />
-              <p className="text-2xl font-serif font-bold text-on-surface">
-                {executionResult.covers_assigned ?? 0}
+          {/* Cuadrante de Balance Final */}
+          <div className="grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-outline-variant/60 my-8 py-2 border-y border-outline-variant/60">
+            <div className="p-4 text-center">
+              <p className="font-serif text-3xl text-on-surface font-normal">
+                {executionResult.imported_books}
               </p>
-              <span className="text-[11px] uppercase tracking-wider text-on-surface-variant font-bold">
-                Portadas por ISBN
+              <span className="text-[11px] font-mono uppercase tracking-wider text-on-surface-variant mt-1 block">
+                Nuevas Obras
               </span>
             </div>
-            <div className="p-4 bg-surface-container-low rounded-xl border border-outline-variant/50">
-              <AlertCircle className="w-5 h-5 text-on-surface-variant mx-auto mb-1" />
-              <p className="text-2xl font-serif font-bold text-on-surface">{executionResult.skipped_rows}</p>
-              <span className="text-[11px] uppercase tracking-wider text-on-surface-variant font-bold">Omitidos</span>
+
+            <div className="p-4 text-center">
+              <p className="font-serif text-3xl text-primary font-normal">
+                {executionResult.imported_items}
+              </p>
+              <span className="text-[11px] font-mono uppercase tracking-wider text-on-surface-variant mt-1 block">
+                Ejemplares Físicos
+              </span>
+            </div>
+
+            <div className="p-4 text-center">
+              <p className="font-serif text-3xl text-on-surface font-normal">
+                {executionResult.covers_assigned ?? 0}
+              </p>
+              <span className="text-[11px] font-mono uppercase tracking-wider text-on-surface-variant mt-1 block">
+                Portadas Asignadas
+              </span>
+            </div>
+
+            <div className="p-4 text-center">
+              <p className="font-serif text-3xl text-tertiary font-normal">
+                {executionResult.skipped_rows}
+              </p>
+              <span className="text-[11px] font-mono uppercase tracking-wider text-on-surface-variant mt-1 block">
+                Omitidos / Incompletos
+              </span>
             </div>
           </div>
 
-          {/* Barra de progreso de enriquecimiento de portadas por ISBN en micro-tandas */}
+          {/* Estado de Enriquecimiento de Portadas */}
           {(isFetchingCovers || coverProgress.total > 0) && (
-            <div className="mb-8 p-4 rounded-xl bg-surface-container-low border border-primary/30 text-left animate-fade-in">
-              <div className="flex items-center justify-between gap-2 mb-2">
-                <div className="flex items-center gap-2 text-xs font-bold text-on-surface">
-                  {isFetchingCovers ? (
-                    <RefreshCw className="w-4 h-4 text-primary animate-spin shrink-0" />
-                  ) : (
-                    <ImageIcon className="w-4 h-4 text-primary shrink-0" />
-                  )}
+            <div className="mb-8 p-4 bg-surface-container-low border border-outline-variant/60 rounded-sm">
+              <div className="flex items-center justify-between gap-4 mb-2">
+                <div className="flex items-center gap-2 text-xs font-mono text-on-surface">
+                  {isFetchingCovers && <RefreshCw className="w-3.5 h-3.5 text-primary animate-spin" />}
                   <span>
                     {isFetchingCovers
-                      ? `Buscando portadas externas por ISBN (${coverProgress.processed} de ${coverProgress.total})...`
+                      ? `Consultando portadas por ISBN (${coverProgress.processed} de ${coverProgress.total})...`
                       : coverProgress.stopped
-                      ? `Búsqueda de portadas detenida (${coverProgress.processed} de ${coverProgress.total} consultados)`
-                      : `Búsqueda de portadas por ISBN finalizada (${coverProgress.found} encontradas en la red)`}
+                      ? `Búsqueda interrumpida (${coverProgress.processed} consultados)`
+                      : `Enriquecimiento concluido (${coverProgress.found} portadas recuperadas)`}
                   </span>
                 </div>
                 {isFetchingCovers && (
@@ -1123,13 +1226,13 @@ export default function CatalogImporter() {
                     onClick={() => {
                       stopCoverFetchRef.current = true;
                     }}
-                    className="text-[11px] font-bold text-primary underline hover:opacity-80 cursor-pointer shrink-0"
+                    className="text-[11px] font-mono uppercase tracking-wider text-primary underline hover:opacity-80 cursor-pointer"
                   >
-                    Omitir restantes
+                    Detener búsqueda
                   </button>
                 )}
               </div>
-              <div className="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
+              <div className="w-full h-1 bg-surface-container-highest rounded-full overflow-hidden">
                 <div
                   className="h-full bg-primary transition-all duration-300"
                   style={{
@@ -1144,20 +1247,20 @@ export default function CatalogImporter() {
             </div>
           )}
 
-          {/* Botones de acción final */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+          {/* Acciones Finales de Gestión */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
             <Link
               to="/librarian/inventory"
-              className="w-full sm:w-auto bg-primary text-on-primary px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-all shadow"
+              className="w-full sm:w-auto text-center bg-primary text-on-primary px-8 py-3 rounded-sm font-bold text-xs uppercase tracking-wider hover:opacity-95 transition-opacity cursor-pointer shadow-sm"
             >
-              Ir al Inventario de Ejemplares
+              Consultar Inventario de Ejemplares
             </Link>
             <button
               type="button"
               onClick={handleReset}
-              className="w-full sm:w-auto bg-surface-container border border-outline-variant text-on-surface px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider hover:border-primary transition-colors"
+              className="w-full sm:w-auto text-center bg-surface-container-low border border-outline-variant text-on-surface px-8 py-3 rounded-sm font-bold text-xs uppercase tracking-wider hover:border-on-surface transition-colors cursor-pointer"
             >
-              Importar Otro Lote
+              Procesar Otro Lote
             </button>
           </div>
         </div>
