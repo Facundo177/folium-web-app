@@ -5,7 +5,15 @@ import { itemService } from "../api/services/itemService";
 import FeedbackModal from "../components/BasicUIComponents/FeedbackModal";
 import GoBackButton from "../components/BasicUIComponents/GoBackButton";
 import { useDocumentMetadata } from "../hooks/useDocumentMetadata";
-import { BookOpen, User, Calendar, Clock, CheckCircle } from "lucide-react";
+import {
+  BookOpen,
+  User,
+  Calendar,
+  CalendarClock,
+  BookOpenCheck,
+  CircleX,
+  Search,
+} from "lucide-react";
 
 export default function ReservationDashboard() {
   useDocumentMetadata({
@@ -14,12 +22,27 @@ export default function ReservationDashboard() {
     noIndex: true,
   });
   const [reservations, setReservations] = useState([]);
+  const [summary, setSummary] = useState({
+    pending: 0,
+    completed: 0,
+    cancelled: 0,
+  });
   const [isLoading, setIsLoading] = useState(true);
+  const [isFetching, setIsFetching] = useState(false);
   const [error, setError] = useState(null);
+  const [filters, setFilters] = useState({
+    user: "",
+    book: "",
+    status: "",
+    ordering: "-created_at",
+  });
+  const [refreshKey, setRefreshKey] = useState(0);
 
   // Estados para modales
   const [reservationToAccept, setReservationToAccept] = useState(null);
+  const [reservationToCancel, setReservationToCancel] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
   const [feedbackModal, setFeedbackModal] = useState({
     isOpen: false,
     type: "info",
@@ -36,24 +59,39 @@ export default function ReservationDashboard() {
 
   useEffect(() => {
     let isMounted = true;
-    const fetchReservations = async () => {
-      setIsLoading(true);
+    const timer = setTimeout(async () => {
+      setIsFetching(true);
+      setError(null);
       try {
-        const { data } = await reservationService.getAll();
-        if (isMounted) setReservations(data);
+        const params = { ordering: filters.ordering };
+        if (filters.user.trim()) params.user = filters.user.trim();
+        if (filters.book.trim()) params.book = filters.book.trim();
+        if (filters.status) params.status = filters.status;
+
+        const [{ data }, { data: summaryData }] = await Promise.all([
+          reservationService.getAll(params),
+          reservationService.getSummary(),
+        ]);
+        if (isMounted) {
+          setReservations(data);
+          setSummary(summaryData);
+        }
       } catch (err) {
         if (isMounted) setError("Error al cargar el registro de reservas.");
         console.error(err);
       } finally {
-        if (isMounted) setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+          setIsFetching(false);
+        }
       }
-    };
+    }, 250);
 
-    fetchReservations();
     return () => {
       isMounted = false;
+      clearTimeout(timer);
     };
-  }, []);
+  }, [filters, refreshKey]);
 
   const confirmAcceptReservation = async () => {
     if (!reservationToAccept) return;
@@ -115,6 +153,7 @@ export default function ReservationDashboard() {
             : res
         )
       );
+      setRefreshKey((prev) => prev + 1);
 
       setReservationToAccept(null);
       setFeedbackModal({
@@ -156,6 +195,59 @@ export default function ReservationDashboard() {
     }
   };
 
+  const confirmCancelReservation = async () => {
+    if (!reservationToCancel) return;
+    const reservation = reservationToCancel;
+    const bookTitle =
+      reservation.book_detail?.title || `Libro #${reservation.book}`;
+
+    setIsCancelling(true);
+    try {
+      const { data: updatedReservation } = await reservationService.patch(
+        reservation.id,
+        { status: "CANCELLED" }
+      );
+
+      setReservations((prev) =>
+        prev.map((res) =>
+          res.id === reservation.id
+            ? {
+                ...res,
+                status: updatedReservation?.status || "CANCELLED",
+                status_display:
+                  updatedReservation?.status_display || "Cancelado",
+              }
+            : res
+        )
+      );
+      setRefreshKey((prev) => prev + 1);
+      setReservationToCancel(null);
+      setFeedbackModal({
+        isOpen: true,
+        type: "success",
+        title: "Reserva cancelada",
+        message: `Se canceló la reserva de "${bookTitle}".`,
+      });
+    } catch (err) {
+      console.error("Error al cancelar la reserva:", err);
+      const errorMessages = err.response?.data
+        ? Object.values(err.response.data).flat().join("\n")
+        : err.response
+          ? `El servidor respondió con código ${err.response.status}.`
+          : err.message || "Verifica la conexión con el servidor.";
+
+      setReservationToCancel(null);
+      setFeedbackModal({
+        isOpen: true,
+        type: "error",
+        title: "Error al cancelar reserva",
+        message: `No se pudo cancelar la reserva:\n${errorMessages}`,
+      });
+    } finally {
+      setIsCancelling(false);
+    }
+  };
+
   const getStatusInfo = (status, expiresAt) => {
     if (status === "COMPLETED") {
       return { text: "Completado", colorClass: "text-secondary font-bold" };
@@ -166,12 +258,15 @@ export default function ReservationDashboard() {
         colorClass: "text-on-surface-variant font-bold",
       };
     }
-    if (status === "EXPIRED") {
+    const now = new Date();
+    const expDate = new Date(expiresAt);
+    if (
+      status === "EXPIRED" ||
+      (status === "PENDING" && expDate <= now)
+    ) {
       return { text: "Expirado", colorClass: "text-error font-bold" };
     }
 
-    const now = new Date();
-    const expDate = new Date(expiresAt);
     const diffTime = expDate - now;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
@@ -191,6 +286,14 @@ export default function ReservationDashboard() {
       text: `Pendiente (${diffDays} días rest.)`,
       colorClass: "text-on-surface",
     };
+  };
+
+  const isPendingReservation = (reservation) =>
+    reservation.status === "PENDING" &&
+    new Date(reservation.expires_at) > new Date();
+
+  const updateFilter = (key, value) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
   if (isLoading) {
@@ -230,16 +333,142 @@ export default function ReservationDashboard() {
         </p>
       </div>
 
+      <section
+        aria-label="Resumen de reservas"
+        className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"
+      >
+        <article className="flex items-center gap-4 rounded-md border border-outline-variant bg-surface-container-lowest p-5 shadow-xs">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <CalendarClock className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+              Pendientes
+            </p>
+            <p className="text-2xl font-bold text-on-surface">{summary.pending}</p>
+          </div>
+        </article>
+        <article className="flex items-center gap-4 rounded-md border border-outline-variant bg-surface-container-lowest p-5 shadow-xs">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-secondary/10 text-secondary">
+            <BookOpenCheck className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+              Completadas
+            </p>
+            <p className="text-2xl font-bold text-on-surface">{summary.completed}</p>
+          </div>
+        </article>
+        <article className="flex items-center gap-4 rounded-md border border-outline-variant bg-surface-container-lowest p-5 shadow-xs">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-error/10 text-error">
+            <CircleX className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+              Canceladas
+            </p>
+            <p className="text-2xl font-bold text-on-surface">{summary.cancelled}</p>
+          </div>
+        </article>
+        <article className="flex items-center gap-4 rounded-md border border-outline-variant bg-surface-container-lowest p-5 shadow-xs">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <BookOpen className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+              Reservas totales
+            </p>
+            <p className="text-2xl font-bold text-on-surface">{reservations.length}</p>
+          </div>
+        </article>
+      </section>
+
+      <section
+        aria-label="Filtros y resultados de reservas"
+        className="mb-8 w-full overflow-hidden rounded-md border border-outline-variant bg-surface-container-lowest shadow-xs"
+      >
+        <div
+          aria-label="Filtros y ordenamiento de reservas"
+          className="grid grid-cols-1 gap-4 border-b border-outline-variant p-4 sm:grid-cols-2 xl:grid-cols-4"
+        >
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="reservations-user-filter" className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+              Lector
+            </label>
+            <div className="flex items-center gap-base border-b border-outline w-full">
+              <Search className="w-[18px] h-[18px] text-on-surface-variant shrink-0" />
+              <input
+                id="reservations-user-filter"
+                type="search"
+                value={filters.user}
+                onChange={(event) => updateFilter("user", event.target.value)}
+                placeholder="Nombre, apellido o ID"
+                className="bg-transparent border-none outline-none text-sm py-2.5 w-full text-on-surface placeholder:text-on-surface-variant"
+              />
+            </div>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="reservations-book-filter" className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+              Libro
+            </label>
+            <div className="flex items-center gap-base border-b border-outline w-full">
+              <Search className="w-[18px] h-[18px] text-on-surface-variant shrink-0" />
+              <input
+                id="reservations-book-filter"
+                type="search"
+                value={filters.book}
+                onChange={(event) => updateFilter("book", event.target.value)}
+                placeholder="Título, ISBN o ID"
+                className="bg-transparent border-none outline-none text-sm py-2.5 w-full text-on-surface placeholder:text-on-surface-variant"
+              />
+            </div>
+          </div>
+          <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+            Estado
+            <select
+              value={filters.status}
+              onChange={(event) => updateFilter("status", event.target.value)}
+              className="w-full rounded-sm border border-outline-variant bg-surface-container-lowest px-3 py-2.5 text-sm font-normal normal-case tracking-normal text-on-surface outline-none focus:border-primary"
+            >
+              <option value="">Todos los estados</option>
+              <option value="pending">Pendientes</option>
+              <option value="expired">Expiradas</option>
+              <option value="completed">Completadas</option>
+              <option value="cancelled">Canceladas</option>
+            </select>
+          </label>
+          <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+            Ordenar por
+            <select
+              value={filters.ordering}
+              onChange={(event) => updateFilter("ordering", event.target.value)}
+              className="w-full rounded-sm border border-outline-variant bg-surface-container-lowest px-3 py-2.5 text-sm font-normal normal-case tracking-normal text-on-surface outline-none focus:border-primary"
+            >
+              <option value="-created_at">Fecha (más reciente)</option>
+              <option value="created_at">Fecha (más antigua)</option>
+              <option value="title">Libro (A–Z)</option>
+            </select>
+          </label>
+        </div>
+
       {/* Vista Móvil (Tarjetas apiladas para < md) */}
-      <div className="block md:hidden divide-y divide-outline-variant/60 bg-surface-container-lowest border border-outline-variant rounded-md shadow-xs mb-8">
-        {reservations.length === 0 ? (
+      <div className="block divide-y divide-outline-variant/60 md:hidden">
+        {isFetching ? (
+          <div
+            role="status"
+            className="flex min-h-32 items-center justify-center gap-3 p-8 text-base font-semibold text-primary"
+          >
+            <span className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            Actualizando…
+          </div>
+        ) : reservations.length === 0 ? (
           <div className="p-8 text-center text-on-surface-variant italic text-sm">
-            No hay reservas registradas en el archivo.
+            No hay reservas que coincidan con los filtros.
           </div>
         ) : (
           reservations.map((reservation) => {
             const status = getStatusInfo(reservation.status, reservation.expires_at);
-            const isPending = reservation.status === "PENDING";
+            const isPending = isPendingReservation(reservation);
 
             return (
               <div
@@ -285,18 +514,31 @@ export default function ReservationDashboard() {
                 </div>
 
                 {/* Botón Acción Móvil */}
-                <div className="pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setReservationToAccept(reservation)}
-                    disabled={!isPending}
-                    className={`w-full py-2 text-xs font-bold uppercase tracking-widest rounded-sm transition-colors shadow-xs ${!isPending
-                        ? "bg-surface-variant text-on-surface-variant cursor-not-allowed"
-                        : "bg-primary text-on-primary hover:opacity-90 cursor-pointer"
-                      }`}
-                  >
-                    {isPending ? "Aceptar y Prestar" : reservation.status_display || "Procesada"}
-                  </button>
+                <div className="pt-2 flex gap-2">
+                  {isPending ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => setReservationToAccept(reservation)}
+                        disabled={isProcessing || isCancelling}
+                        className="flex-1 py-2 text-xs font-bold uppercase tracking-widest rounded-sm transition-colors shadow-xs bg-primary text-on-primary hover:opacity-90 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Aceptar y Prestar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setReservationToCancel(reservation)}
+                        disabled={isProcessing || isCancelling}
+                        className="flex-1 py-2 text-xs font-bold uppercase tracking-widest rounded-sm transition-colors border border-error text-error hover:bg-error/10 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Cancelar
+                      </button>
+                    </>
+                  ) : (
+                    <span className="w-full py-2 text-center text-xs font-bold uppercase tracking-widest rounded-sm bg-surface-variant text-on-surface-variant">
+                      {status.text}
+                    </span>
+                  )}
                 </div>
               </div>
             );
@@ -308,8 +550,8 @@ export default function ReservationDashboard() {
       <div
         tabIndex={0}
         role="region"
-        aria-label="Registro de reservas de ejemplares"
-        className="hidden md:block w-full bg-surface-container-lowest border border-outline-variant rounded-md shadow-xs overflow-x-auto focus:outline-none focus:ring-1 focus:ring-primary/40"
+        aria-label="Registro de reservas"
+        className="hidden w-full overflow-x-auto focus:outline-none focus:ring-1 focus:ring-primary/40 md:block"
       >
         <table className="w-full text-left border-collapse min-w-[800px]">
           <thead className="sticky top-0 z-1 bg-surface-container border-b border-outline-variant">
@@ -323,10 +565,22 @@ export default function ReservationDashboard() {
             </tr>
           </thead>
           <tbody>
-            {reservations.length === 0 ? (
+            {isFetching ? (
+              <tr>
+                <td colSpan="6" className="p-8 text-center">
+                  <span
+                    role="status"
+                    className="inline-flex items-center gap-3 text-base font-semibold text-primary"
+                  >
+                    <span className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                    Actualizando…
+                  </span>
+                </td>
+              </tr>
+            ) : reservations.length === 0 ? (
               <tr>
                 <td colSpan="6" className="p-8 text-center text-on-surface-variant italic">
-                  No hay reservas registradas en el archivo.
+                  No hay reservas que coincidan con los filtros.
                 </td>
               </tr>
             ) : (
@@ -335,7 +589,7 @@ export default function ReservationDashboard() {
                   reservation.status,
                   reservation.expires_at
                 );
-                const isPending = reservation.status === "PENDING";
+                const isPending = isPendingReservation(reservation);
 
                 return (
                   <tr
@@ -375,19 +629,32 @@ export default function ReservationDashboard() {
                     </td>
 
                     <td className="p-4 text-center">
-                      <button
-                        type="button"
-                        onClick={() => setReservationToAccept(reservation)}
-                        disabled={!isPending}
-                        className={`px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-sm transition-colors shadow-xs ${!isPending
-                            ? "bg-surface-variant text-on-surface-variant cursor-not-allowed"
-                            : "bg-primary text-on-primary hover:opacity-90 cursor-pointer"
-                          }`}
-                      >
-                        {isPending
-                          ? "Aceptar"
-                          : reservation.status_display || "Aceptada"}
-                      </button>
+                      {isPending ? (
+                        <div className="flex justify-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setReservationToAccept(reservation)}
+                            disabled={isProcessing || isCancelling}
+                            className="px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-sm transition-colors shadow-xs bg-primary text-on-primary hover:opacity-90 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            Aceptar
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setReservationToCancel(reservation)}
+                            disabled={isProcessing || isCancelling}
+                            className="px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-sm transition-colors border border-error text-error hover:bg-error/10 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            Cancelar
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="inline-block px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-sm bg-surface-variant text-on-surface-variant">
+                          {reservation.status === "CANCELLED"
+                            ? "CANCELADO"
+                            : reservation.status_display || "Aceptada"}
+                        </span>
+                      )}
                     </td>
                   </tr>
                 );
@@ -396,6 +663,7 @@ export default function ReservationDashboard() {
           </tbody>
         </table>
       </div>
+      </section>
 
       {/* Modal de confirmación para aceptar reserva */}
       <FeedbackModal
@@ -414,6 +682,23 @@ export default function ReservationDashboard() {
         isLoading={isProcessing}
         onClose={() => setReservationToAccept(null)}
         onConfirm={confirmAcceptReservation}
+      />
+
+      {/* Modal de confirmación para cancelar reserva */}
+      <FeedbackModal
+        isOpen={Boolean(reservationToCancel)}
+        type="warning"
+        title="Cancelar reserva"
+        message={
+          reservationToCancel
+            ? `¿Estás seguro de que deseas cancelar la reserva de "${reservationToCancel.book_detail?.title || `Libro #${reservationToCancel.book}`}" para ${reservationToCancel.user_detail?.full_name || reservationToCancel.user_detail?.username || `el lector #${reservationToCancel.user}`}?`
+            : ""
+        }
+        confirmText="Sí, cancelar reserva"
+        cancelText="Conservar reserva"
+        isLoading={isCancelling}
+        onClose={() => setReservationToCancel(null)}
+        onConfirm={confirmCancelReservation}
       />
 
       {/* Modal de notificación / error */}

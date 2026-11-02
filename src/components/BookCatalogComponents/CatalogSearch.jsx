@@ -2,12 +2,33 @@ import { useMemo, useState, useEffect } from "react";
 import FilterSidebar from "../CatalogSearchComponents/FilterSidebar";
 import CatalogBookCard from "../CatalogSearchComponents/CatalogBookCard";
 import { adaptBook } from "../../api/adapters";
-import { Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { useGenres } from "../../hooks/useGenres";
+
+function CatalogSkeletonGrid() {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 animate-pulse">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div
+          key={`skel-${i}`}
+          className="bg-surface-container border border-outline-variant/40 rounded-md p-5 flex flex-col justify-between h-[420px] shadow-xs"
+        >
+          <div className="w-24 h-4 bg-outline-variant/30 rounded-full mb-4" />
+          <div className="w-full aspect-[2/3] max-h-56 bg-surface-container-low/70 rounded-sm mb-4" />
+          <div className="space-y-2 mt-auto">
+            <div className="w-3/4 h-4 bg-outline-variant/30 rounded" />
+            <div className="w-1/2 h-3 bg-outline-variant/20 rounded" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function CatalogSearch({
   books,
   isLoading,
+  isFetching = false,
   error,
   favoritesMap = {},
   userReservationsMap = {},
@@ -33,20 +54,18 @@ export default function CatalogSearch({
     return (Array.isArray(apiGenres) ? apiGenres : []).map((genre) => genre.name).sort();
   }, [apiGenres]);
 
-  // Estado local del buscador con debounce: evita disparar una petición
-  // a la API en cada tecla. Se consulta solo cuando el usuario deja de escribir (~400ms).
+  // Estado local del buscador con debounce
   const [searchQuery, setSearchQuery] = useState(filters?.search || "");
 
-  // Mantener el estado local sincronizado cuando el filtro cambia desde fuera (p. ej. botón "Limpiar")
   useEffect(() => {
     setSearchQuery(filters?.search || "");
   }, [filters?.search]);
 
-  // Debounce de 400ms al escribir: solo se pide a la API tras detenerse de teclear
+  // Debounce de 350ms al teclear
   useEffect(() => {
     const timer = setTimeout(() => {
       setFilters({ search: searchQuery });
-    }, 400);
+    }, 350);
     return () => clearTimeout(timer);
   }, [searchQuery, setFilters]);
 
@@ -55,25 +74,17 @@ export default function CatalogSearch({
     document.getElementById("catalog-grid-header")?.scrollIntoView({ behavior: "smooth" });
   };
 
-  if (isLoading)
-    return (
-      <p className="pt-24 px-6 text-on-background font-sans">
-        Cargando catálogo…
-      </p>
-    );
-  if (error) return <p className="pt-24 px-6 text-error font-sans">{error}</p>;
-
   return (
     <div className="min-h-screen bg-background text-on-background font-sans pt-12 sm:pt-20 px-4 sm:px-6 md:px-12 transition-colors duration-300">
       {/* Barra de Búsqueda Superior */}
       <div className="max-w-[1400px] mx-auto mb-8 sm:mb-10">
         <div className="flex items-center bg-surface-container-lowest border border-outline/50 rounded-md px-4 py-3 shadow-sm focus-within:border-primary transition-colors">
           <span className="text-outline mr-3">
-            <Search />
+            {isFetching ? <Loader2 className="w-5 h-5 animate-spin text-primary" /> : <Search className="w-5 h-5" />}
           </span>
           <input
             type="text"
-            className="bg-transparent flex-1 outline-none font-serif italic text-on-surface placeholder:text-outline"
+            className="bg-transparent flex-1 outline-none font-serif italic text-on-surface placeholder:text-outline text-base"
             placeholder="Buscar por título o autor..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -111,12 +122,19 @@ export default function CatalogSearch({
             id="catalog-grid-header"
             className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 mb-6 pb-3 border-b border-outline-variant/50 scroll-mt-24"
           >
-            <span className="text-xs text-primary uppercase tracking-widest font-bold">
-              {totalCount} Volúmenes Disponibles{" "}
-              <span className="text-outline font-normal ml-2">
-                • Filtros Activos: {filters?.genre || "Todos los géneros"}
+            <div className="inline-flex items-center gap-2">
+              <span className="text-xs text-primary uppercase tracking-widest font-bold">
+                {totalCount} Volúmenes Disponibles{" "}
+                <span className="text-outline font-normal ml-2">
+                  • Filtros Activos: {filters?.genre || "Todos los géneros"}
+                </span>
               </span>
-            </span>
+              {isFetching && (
+                <span className="text-xs text-primary italic flex items-center gap-1">
+                  <Loader2 className="w-3 h-3 animate-spin" /> Actualizando…
+                </span>
+              )}
+            </div>
             {totalPages > 1 && (
               <span className="text-xs text-on-surface-variant font-medium">
                 Página {filters?.page} de {totalPages}
@@ -124,9 +142,25 @@ export default function CatalogSearch({
             )}
           </div>
 
-          {/* Grilla de Libros */}
-          {adaptedBooks.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+          {/* Grilla de Libros con Skeleton State o Error State */}
+          {error && adaptedBooks.length === 0 ? (
+            <div className="w-full py-16 flex flex-col items-center justify-center text-center p-6 bg-error/5 border border-error/20 rounded-md">
+              <p className="text-error font-medium text-sm mb-3">{error}</p>
+              <button
+                onClick={() => setFilters({})}
+                className="text-xs uppercase tracking-widest font-bold text-primary underline cursor-pointer"
+              >
+                Restablecer filtros
+              </button>
+            </div>
+          ) : isLoading && adaptedBooks.length === 0 ? (
+            <CatalogSkeletonGrid />
+          ) : adaptedBooks.length > 0 ? (
+            <div
+              className={`grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 transition-opacity duration-200 ${
+                isFetching ? "opacity-60 pointer-events-none" : "opacity-100"
+              }`}
+            >
               {adaptedBooks.map((book) => (
                 <CatalogBookCard
                   key={book.id}
@@ -163,7 +197,6 @@ export default function CatalogSearch({
 
               {/* Botones de página numerados */}
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => {
-                // Mostrar solo páginas cercanas a la actual para no sobrecargar la UI
                 const isNearCurrent =
                   pageNum === 1 ||
                   pageNum === totalPages ||

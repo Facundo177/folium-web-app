@@ -14,7 +14,17 @@ import { useDocumentMetadata } from "../hooks/useDocumentMetadata";
 
 export default function BookCatalog() {
   const navigate = useNavigate();
-  const { books, isLoading, error, filters, setFilters, setPage, totalCount, totalPages } = useBooks();
+  const {
+    books,
+    isLoading,
+    isFetching,
+    error,
+    filters,
+    setFilters,
+    setPage,
+    totalCount,
+    totalPages,
+  } = useBooks();
   const { recommendations } = useRecommendations();
   const { user, isGuest } = useAuth();
 
@@ -249,6 +259,7 @@ export default function BookCatalog() {
       <CatalogSearch
         books={Array.isArray(books) ? books : []}
         isLoading={isLoading}
+        isFetching={isFetching}
         error={error}
         favoritesMap={favoritesMap}
         userReservationsMap={userReservationsMap}

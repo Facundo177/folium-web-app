@@ -7,7 +7,9 @@ import { itemService } from "../api/services/itemService";
 import { ITEM_STATUS } from "../api/constants";
 import { Link } from "react-router-dom";
 import ReturnLoanModal from "../components/LoanComponents/ReturnLoanModal";
-import { BookOpen, User, Calendar, Clock, BookOpenCheck } from "lucide-react";
+import { BookOpen, User, Calendar, BookOpenCheck, CalendarClock, TriangleAlert, ChevronLeft, ChevronRight, Search } from "lucide-react";
+
+const PAGE_SIZE = 20;
 
 export default function LoansDashboard() {
   useDocumentMetadata({
@@ -16,8 +18,23 @@ export default function LoansDashboard() {
     noIndex: true,
   });
   const [loans, setLoans] = useState([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [summary, setSummary] = useState({
+    due_today: 0,
+    due_total: 0,
+    overdue: 0,
+  });
   const [isLoading, setIsLoading] = useState(true);
+  const [isFetching, setIsFetching] = useState(false);
   const [error, setError] = useState(null);
+  const [filters, setFilters] = useState({
+    user: "",
+    item: "",
+    status: "",
+    ordering: "-loaned_at",
+  });
+  const [page, setPage] = useState(1);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   // Estados para modales
   const [loanToInterrupt, setLoanToInterrupt] = useState(null);
@@ -33,24 +50,42 @@ export default function LoansDashboard() {
 
   useEffect(() => {
     let isMounted = true;
-    const fetchLoans = async () => {
-      setIsLoading(true);
+    const timer = setTimeout(async () => {
+      setIsFetching(true);
+      setError(null);
       try {
-        const { data } = await loanService.getAll();
-        if (isMounted) setLoans(data);
+        const params = {
+          page,
+          page_size: PAGE_SIZE,
+          ordering: filters.ordering,
+        };
+        if (filters.user.trim()) params.user = filters.user.trim();
+        if (filters.item.trim()) params.item = filters.item.trim();
+        if (filters.status) params.status = filters.status;
+
+        const { data } = await loanService.getAll(params);
+        if (isMounted) {
+          const results = Array.isArray(data) ? data : data?.results || [];
+          setLoans(results);
+          setTotalCount(Array.isArray(data) ? data.length : data?.count || 0);
+          setSummary(data?.summary || { due_today: 0, due_total: 0, overdue: 0 });
+        }
       } catch (err) {
         if (isMounted) setError("Error al cargar el registro de préstamos.");
         console.error(err);
       } finally {
-        if (isMounted) setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+          setIsFetching(false);
+        }
       }
-    };
+    }, 300);
 
-    fetchLoans();
     return () => {
       isMounted = false;
+      clearTimeout(timer);
     };
-  }, []);
+  }, [filters, page, refreshKey]);
 
   const openInterruptModal = (loan) => {
     setReturnCondition(ITEM_STATUS.AVAILABLE);
@@ -82,12 +117,16 @@ export default function LoansDashboard() {
 
       markLoanAsReturned(loanToInterrupt.id, currentTime);
       setLoanToInterrupt(null);
+      setPage(1);
+      setRefreshKey((prev) => prev + 1);
     } catch (err) {
       console.error("Error al finalizar el préstamo:", err);
 
       if (loanClosed) {
         markLoanAsReturned(loanToInterrupt.id, currentTime);
         setLoanToInterrupt(null);
+        setPage(1);
+        setRefreshKey((prev) => prev + 1);
         setAlertModal({
           isOpen: true,
           type: "error",
@@ -136,6 +175,20 @@ export default function LoansDashboard() {
     };
   };
 
+  const updateFilter = (key, value) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+    setPage(1);
+  };
+
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+  const pageNumbers = [
+    ...new Set(
+      [1, totalPages, page - 2, page - 1, page, page + 1, page + 2].filter(
+        (pageNumber) => pageNumber >= 1 && pageNumber <= totalPages
+      )
+    ),
+  ].sort((a, b) => a - b);
+
   if (isLoading) {
     return (
       <div className="w-full min-h-[50vh] flex flex-col items-center justify-center gap-4 animate-fade-in font-sans">
@@ -167,10 +220,10 @@ export default function LoansDashboard() {
       <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-headline-md font-serif text-on-surface mb-2">
-            Control de Préstamos Activos
+            Control de Préstamos
           </h1>
           <p className="text-body-md text-on-surface-variant">
-            Supervisa el estado de los ejemplares prestados, verifica vencimientos y gestiona devoluciones físicas.
+            Filtra por lector, ejemplar o estado; ordena y gestiona las devoluciones físicas.
           </p>
         </div>
         <Link
@@ -183,11 +236,140 @@ export default function LoansDashboard() {
         </Link>
       </div>
 
+      <section
+        aria-label="Resumen de préstamos"
+        className="mb-8 grid grid-cols-1 sm:grid-cols-4 gap-4"
+      >
+        <article className="flex items-center gap-4 border border-outline-variant bg-surface-container-lowest p-5 shadow-xs">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <CalendarClock className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+              A devolver hoy
+            </p>
+            <p className="text-2xl font-bold text-on-surface">{summary.due_today}</p>
+          </div>
+        </article>
+        <article className="flex items-center gap-4 border border-outline-variant bg-surface-container-lowest p-5 shadow-xs">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-secondary/10 text-secondary">
+            <BookOpenCheck className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+              A devolver en total
+            </p>
+            <p className="text-2xl font-bold text-on-surface">{summary.due_total}</p>
+          </div>
+        </article>
+        <article className="flex items-center gap-4 border border-outline-variant bg-surface-container-lowest p-5 shadow-xs">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-error/10 text-error">
+            <TriangleAlert className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+              Vencidos
+            </p>
+            <p className="text-2xl font-bold text-on-surface">{summary.overdue}</p>
+          </div>
+        </article>
+        <article className="flex items-center gap-4 border border-outline-variant bg-surface-container-lowest p-5 shadow-xs">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <BookOpen className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+              Préstamos totales
+            </p>
+            <p className="text-2xl font-bold text-on-surface">{totalCount}</p>
+          </div>
+        </article>
+      </section>
+
+      <section
+        aria-label="Filtros y resultados de préstamos"
+        className="mb-8 w-full overflow-hidden rounded-md border border-outline-variant bg-surface-container-lowest shadow-xs"
+      >
+        <section
+          aria-label="Filtros y ordenamiento de préstamos"
+          className="grid grid-cols-1 gap-4 border-b border-outline-variant p-4 sm:grid-cols-2 xl:grid-cols-4"
+        >
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="loans-user-filter" className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+              Usuario
+            </label>
+            <div className="flex items-center gap-base border-b border-outline w-full">
+              <Search className="w-[18px] h-[18px] text-on-surface-variant shrink-0" />
+              <input
+                id="loans-user-filter"
+                type="search"
+                value={filters.user}
+                onChange={(event) => updateFilter("user", event.target.value)}
+                placeholder="Nombre, apellido o ID"
+                className="bg-transparent border-none outline-none text-sm py-2.5 w-full text-on-surface placeholder:text-on-surface-variant"
+              />
+            </div>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="loans-item-filter" className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+              Ejemplar
+            </label>
+            <div className="flex items-center gap-base border-b border-outline w-full">
+              <Search className="w-[18px] h-[18px] text-on-surface-variant shrink-0" />
+              <input
+                id="loans-item-filter"
+                type="search"
+                value={filters.item}
+                onChange={(event) => updateFilter("item", event.target.value)}
+                placeholder="Título, código o ID"
+                className="bg-transparent border-none outline-none text-sm py-2.5 w-full text-on-surface placeholder:text-on-surface-variant"
+              />
+            </div>
+          </div>
+          <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+            Estado
+            <select
+              value={filters.status}
+              onChange={(event) => updateFilter("status", event.target.value)}
+              className="w-full rounded-sm border border-outline-variant bg-surface-container-lowest px-3 py-2.5 text-sm font-normal normal-case tracking-normal text-on-surface outline-none focus:border-primary"
+            >
+              <option value="">Todos los estados</option>
+              <option value="active">Con tiempo restante</option>
+              <option value="overdue">Vencidos</option>
+              <option value="returned">Devueltos</option>
+            </select>
+          </label>
+          <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+            Ordenar por
+            <select
+              value={filters.ordering}
+              onChange={(event) => updateFilter("ordering", event.target.value)}
+              className="w-full rounded-sm border border-outline-variant bg-surface-container-lowest px-3 py-2.5 text-sm font-normal normal-case tracking-normal text-on-surface outline-none focus:border-primary"
+            >
+              <option value="item">Ejemplar (A–Z)</option>
+              <option value="id">ID (menor a mayor)</option>
+              <option value="-id">ID (mayor a menor)</option>
+              <option value="loaned_at">Fecha de retiro (más antigua)</option>
+              <option value="-loaned_at">Fecha de retiro (más reciente)</option>
+              <option value="remaining">Tiempo restante (menor a mayor)</option>
+              <option value="-remaining">Tiempo restante (mayor a menor)</option>
+            </select>
+          </label>
+        </section>
+
       {/* Vista Móvil (Tarjetas apiladas para < md) */}
-      <div className="block md:hidden divide-y divide-outline-variant/60 bg-surface-container-lowest border border-outline-variant rounded-md shadow-xs mb-8">
-        {loans.length === 0 ? (
+      <div className="block divide-y divide-outline-variant/60 md:hidden">
+        {isFetching ? (
+          <div
+            role="status"
+            className="flex min-h-32 items-center justify-center gap-3 p-8 text-base font-semibold text-primary"
+          >
+            <span className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            Actualizando…
+          </div>
+        ) : loans.length === 0 ? (
           <div className="p-8 text-center text-on-surface-variant italic text-sm">
-            No hay préstamos registrados en el archivo.
+            No hay préstamos que coincidan con los filtros.
           </div>
         ) : (
           loans.map((loan) => {
@@ -197,7 +379,7 @@ export default function LoansDashboard() {
             return (
               <div
                 key={loan.id}
-                className={`p-4 flex flex-col gap-3 transition-colors ${
+                className={`p-4 flex flex-col gap-3 border border-outline-variant rounded-none transition-colors ${
                   isReturned ? "opacity-60 bg-surface-container-low" : "bg-surface-container-lowest"
                 }`}
               >
@@ -262,7 +444,7 @@ export default function LoansDashboard() {
         tabIndex={0}
         role="region"
         aria-label="Registro de préstamos activos"
-        className="hidden md:block w-full bg-surface-container-lowest border border-outline-variant rounded-md shadow-xs overflow-x-auto focus:outline-none focus:ring-1 focus:ring-primary/40"
+        className="hidden w-full overflow-x-auto focus:outline-none focus:ring-1 focus:ring-primary/40 md:block"
       >
         <table className="w-full text-left border-collapse min-w-[800px]">
           <thead className="sticky top-0 z-1 bg-surface-container border-b border-outline-variant">
@@ -276,10 +458,22 @@ export default function LoansDashboard() {
             </tr>
           </thead>
           <tbody>
-            {loans.length === 0 ? (
+            {isFetching ? (
+              <tr>
+                <td colSpan="6" className="p-8 text-center">
+                  <span
+                    role="status"
+                    className="inline-flex items-center gap-3 text-base font-semibold text-primary"
+                  >
+                    <span className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                    Actualizando…
+                  </span>
+                </td>
+              </tr>
+            ) : loans.length === 0 ? (
               <tr>
                 <td colSpan="6" className="p-8 text-center text-on-surface-variant italic">
-                  No hay préstamos registrados en el archivo.
+                  No hay préstamos que coincidan con los filtros.
                 </td>
               </tr>
             ) : (
@@ -338,6 +532,55 @@ export default function LoansDashboard() {
           </tbody>
         </table>
       </div>
+
+      {totalPages > 1 && (
+        <nav
+          aria-label="Paginación de préstamos"
+          className="flex items-center justify-center gap-2 border-t border-outline-variant px-4 py-4"
+        >
+          <button
+            type="button"
+            onClick={() => setPage((current) => Math.max(1, current - 1))}
+            disabled={page <= 1 || isFetching}
+            className="p-2 rounded-sm border border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+            aria-label="Página anterior"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          {pageNumbers.map((pageNumber, index) => (
+            <span key={pageNumber} className="inline-flex items-center gap-2">
+              {index > 0 && pageNumber - pageNumbers[index - 1] > 1 && (
+                <span className="text-outline text-xs px-1" aria-hidden="true">
+                  …
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={() => setPage(pageNumber)}
+                disabled={isFetching}
+                aria-current={page === pageNumber ? "page" : undefined}
+                className={`w-8 h-8 rounded-sm text-xs font-bold uppercase tracking-widest transition-colors cursor-pointer disabled:opacity-50 ${
+                  page === pageNumber
+                    ? "bg-primary text-on-primary"
+                    : "border border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary"
+                }`}
+              >
+                {pageNumber}
+              </button>
+            </span>
+          ))}
+          <button
+            type="button"
+            onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
+            disabled={page >= totalPages || isFetching}
+            className="p-2 rounded-sm border border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+            aria-label="Página siguiente"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </nav>
+      )}
+      </section>
 
       {/* Ventana para cerrar el préstamo indicando el estado del libro */}
       <ReturnLoanModal

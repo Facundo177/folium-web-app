@@ -577,7 +577,7 @@ export function LiveLoansStatusWidget(props) {
     const fetchLoans = async () => {
       setIsLoading(true);
       try {
-        const { data } = await loanService.getAll();
+        const data = await loanService.getAllRecords();
         if (mounted) setLoans(data);
       } catch (err) {
         console.error("Error al consultar préstamos desde el bot:", err);
