@@ -45,7 +45,8 @@ export default function AuthSidebar({ handleLandingButtonClick, onDemoAccountSel
       </div>
 
       {/* Footer / Cuentas de Prueba */}
-      {import.meta.env.DEV && 
+      {/* {import.meta.env.DEV && 
+      } */}
       <div className="mt-12 pt-8 border-t border-on-primary-container/20">
         <h3 className="text-label-caps text-on-primary-container/70 mb-4">
           CUENTAS DE PRUEBA
@@ -72,7 +73,6 @@ export default function AuthSidebar({ handleLandingButtonClick, onDemoAccountSel
           ))}
         </div>
       </div>
-        }
     </div>
   );
 }
