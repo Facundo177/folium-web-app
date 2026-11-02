@@ -22,6 +22,11 @@ const RegisterForm = lazy(
   () => import("./components/Login&RegisterComponents/RegisterForm"),
 );
 
+// Páginas informativas (enlaces del footer)
+const Nosotros = lazy(() => import("./pages/Nosotros"));
+const Ayuda = lazy(() => import("./pages/Ayuda"));
+const FAQ = lazy(() => import("./pages/FAQ"));
+
 // Páginas de usuario y administración
 const Profile = lazy(() => import("./pages/Profile"));
 const Favourites = lazy(() => import("./pages/Favourites"));
@@ -60,6 +65,11 @@ function App() {
           <Route element={<BotLayout />}>
             {/* Página pública de planes y suscripciones para bibliotecas (MercadoPago) */}
             <Route path="pricing" element={<LibraryPricingPage />} />
+
+            {/* Páginas informativas del footer */}
+            <Route path="nosotros" element={<Nosotros />} />
+            <Route path="ayuda" element={<Ayuda />} />
+            <Route path="preguntas-frecuentes" element={<FAQ />} />
 
             {/* Catálogo público accesible para invitados */}
             <Route path="catalog" element={<UserLayout />}>

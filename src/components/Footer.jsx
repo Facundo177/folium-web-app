@@ -13,9 +13,16 @@ export default function Footer() {
               <h3 className="font-serif text-lg">Folium · Archivo y Librería</h3>
             </div>
             <ul className="flex flex-col gap-2.5 text-sm text-on-surface-variant">
-              <li><Link to="/" className="hover:text-primary transition-colors">Nosotros</Link></li>
-              <li><Link to="/user/catalog" className="hover:text-primary transition-colors">Catálogo</Link></li>
-              <li><Link to="/" className="hover:text-primary transition-colors">Sedes y Bibliotecas</Link></li>
+              <li>
+                <Link to="/nosotros" className="hover:text-primary transition-colors">
+                  Nosotros
+                </Link>
+              </li>
+              <li>
+                <Link to="/catalog" className="hover:text-primary transition-colors">
+                  Catálogo
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -23,15 +30,27 @@ export default function Footer() {
           <div>
             <h3 className="font-serif text-lg text-on-surface mb-5">Ayuda</h3>
             <ul className="flex flex-col gap-2.5 text-sm text-on-surface-variant">
-              <li><Link to="/" className="hover:text-primary transition-colors">Cómo reservar</Link></li>
-              <li><Link to="/" className="hover:text-primary transition-colors">Préstamo y devolución</Link></li>
-              <li><Link to="/" className="hover:text-primary transition-colors">Preguntas frecuentes</Link></li>
+              <li>
+                <Link to="/ayuda" className="hover:text-primary transition-colors">
+                  Cómo reservar
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/preguntas-frecuentes"
+                  className="hover:text-primary transition-colors"
+                >
+                  Preguntas frecuentes
+                </Link>
+              </li>
             </ul>
           </div>
 
           {/* Contacto */}
           <div>
-            <h3 className="font-serif text-lg text-on-surface mb-5">Atención al Lector</h3>
+            <h3 className="font-serif text-lg text-on-surface mb-5">
+              Atención al Lector
+            </h3>
             <ul className="flex flex-col gap-3 text-sm text-on-surface-variant">
               <li className="flex items-start gap-3">
                 <Phone className="w-4 h-4 mt-0.5 shrink-0" />
@@ -53,7 +72,9 @@ export default function Footer() {
 
           {/* Newsletter */}
           <div>
-            <h3 className="font-serif text-lg text-on-surface mb-5">Gaceta Bibliográfica</h3>
+            <h3 className="font-serif text-lg text-on-surface mb-5">
+              Gaceta Bibliográfica
+            </h3>
             <p className="text-sm text-on-surface-variant mb-4">
               Suscribite para recibir novedades y avisos de nuevas adquisiciones.
             </p>
