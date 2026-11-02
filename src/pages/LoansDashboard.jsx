@@ -282,11 +282,6 @@ export default function LoansDashboard() {
               Préstamos totales
             </p>
             <p className="text-2xl font-bold text-on-surface">{totalCount}</p>
-            {isFetching && (
-              <span role="status" className="text-xs text-primary italic">
-                Actualizando…
-              </span>
-            )}
           </div>
         </article>
       </section>
@@ -364,7 +359,15 @@ export default function LoansDashboard() {
 
       {/* Vista Móvil (Tarjetas apiladas para < md) */}
       <div className="block divide-y divide-outline-variant/60 md:hidden">
-        {loans.length === 0 ? (
+        {isFetching ? (
+          <div
+            role="status"
+            className="flex min-h-32 items-center justify-center gap-3 p-8 text-base font-semibold text-primary"
+          >
+            <span className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            Actualizando…
+          </div>
+        ) : loans.length === 0 ? (
           <div className="p-8 text-center text-on-surface-variant italic text-sm">
             No hay préstamos que coincidan con los filtros.
           </div>
@@ -455,7 +458,19 @@ export default function LoansDashboard() {
             </tr>
           </thead>
           <tbody>
-            {loans.length === 0 ? (
+            {isFetching ? (
+              <tr>
+                <td colSpan="6" className="p-8 text-center">
+                  <span
+                    role="status"
+                    className="inline-flex items-center gap-3 text-base font-semibold text-primary"
+                  >
+                    <span className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                    Actualizando…
+                  </span>
+                </td>
+              </tr>
+            ) : loans.length === 0 ? (
               <tr>
                 <td colSpan="6" className="p-8 text-center text-on-surface-variant italic">
                   No hay préstamos que coincidan con los filtros.
