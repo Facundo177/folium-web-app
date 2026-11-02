@@ -248,7 +248,7 @@ function CatalogBookCard({
 
           const isGuestUser = !user || !user.id;
           const isReservable = hasAvailableCopies && !isReservedByUser;
-          const canClick = !isGuestUser && (isReservable || isReservedByUser);
+          const canClick = isGuestUser ? hasAvailableCopies : (isReservable || isReservedByUser);
 
           return (
             <button
@@ -261,7 +261,9 @@ function CatalogBookCard({
               }`}
             >
               {isGuestUser
-                ? "Iniciá sesión para reservar"
+                ? hasAvailableCopies
+                  ? "Iniciá sesión para reservar"
+                  : "Sin ejemplares"
                 : isReservedByUser
                 ? "Cancelar reserva"
                 : hasAvailableCopies
