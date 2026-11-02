@@ -14,6 +14,7 @@ import {
   FileCheck,
   Database,
   Archive,
+  Upload,
 } from "lucide-react";
 import GoBackButton from "../components/BasicUIComponents/GoBackButton";
 import { importerService, validateImporterFile } from "../api/services/importerService";
@@ -538,12 +539,15 @@ export default function CatalogImporter() {
                   onChange={(e) => handleFileSelect(e.target.files[0])}
                 />
 
-                <div className="max-w-md mx-auto space-y-4">
-                  <div className="font-serif italic text-2xl text-on-surface">
-                    Depositar catálogo para cotejo
+                <div className="max-w-md mx-auto space-y-3">
+                  <div className="w-10 h-10 mx-auto rounded-sm border border-outline-variant/70 bg-surface-container-low flex items-center justify-center text-primary mb-2">
+                    <Upload className="w-5 h-5" />
+                  </div>
+                  <div className="font-sans font-semibold text-lg md:text-xl text-on-surface tracking-tight">
+                    Seleccionar o arrastrar archivo de catálogo
                   </div>
                   <p className="text-xs text-on-surface-variant leading-relaxed">
-                    Haga clic para explorar los archivos locales o arrastre la planilla de inventario a este espacio.
+                    Haz clic para explorar las carpetas locales o suelta la planilla de inventario en este espacio.
                   </p>
 
                   {/* Sellos de Formatos Admitidos con Mayor Contraste y Tipografía Monospaced */}
