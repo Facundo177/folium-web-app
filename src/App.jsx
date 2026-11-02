@@ -66,20 +66,21 @@ function App() {
             {/* Página pública de planes y suscripciones para bibliotecas (MercadoPago) */}
             <Route path="pricing" element={<LibraryPricingPage />} />
 
-            {/* Páginas informativas del footer */}
-            <Route path="nosotros" element={<Nosotros />} />
-            <Route path="ayuda" element={<Ayuda />} />
-            <Route path="preguntas-frecuentes" element={<FAQ />} />
+            {/* Shell público con Sidebar y navegación responsiva */}
+            <Route element={<UserLayout />}>
+              {/* Catálogo público accesible para invitados */}
+              <Route path="catalog" element={<BookCatalog />} />
 
-            {/* Catálogo público accesible para invitados */}
-            <Route path="catalog" element={<UserLayout />}>
-              <Route index element={<BookCatalog />} />
-            </Route>
+              {/* Ficha de libro pública */}
+              <Route path="book">
+                <Route index element={<Navigate to="/catalog" replace />} />
+                <Route path=":id" element={<BookDetail />} />
+              </Route>
 
-            {/* Ficha de libro pública (con vista limitada para no registrados) */}
-            <Route path="book" element={<UserLayout />}>
-              <Route index element={<Navigate to="/catalog" replace />} />
-              <Route path=":id" element={<BookDetail />} />
+              {/* Páginas informativas del footer */}
+              <Route path="nosotros" element={<Nosotros />} />
+              <Route path="ayuda" element={<Ayuda />} />
+              <Route path="preguntas-frecuentes" element={<FAQ />} />
             </Route>
 
             <Route element={<AuthLayout />}>
