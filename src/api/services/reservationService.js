@@ -4,6 +4,7 @@ const BASE = '/reservations/';
 
 export const reservationService = {
   getAll:  (params)   => api.get(BASE, { params }),
+  getSummary: ()     => api.get(`${BASE}summary/`),
   getById: (id)       => api.get(`${BASE}${id}/`),
   create:  (data)     => api.post(BASE, data),
   update:  (id, data) => api.put(`${BASE}${id}/`, data),
