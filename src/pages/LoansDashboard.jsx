@@ -7,7 +7,9 @@ import { itemService } from "../api/services/itemService";
 import { ITEM_STATUS } from "../api/constants";
 import { Link } from "react-router-dom";
 import ReturnLoanModal from "../components/LoanComponents/ReturnLoanModal";
-import { BookOpen, User, Calendar, Clock, BookOpenCheck } from "lucide-react";
+import { BookOpen, User, Calendar, BookOpenCheck, ChevronLeft, ChevronRight } from "lucide-react";
+
+const PAGE_SIZE = 20;
 
 export default function LoansDashboard() {
   useDocumentMetadata({
@@ -16,8 +18,18 @@ export default function LoansDashboard() {
     noIndex: true,
   });
   const [loans, setLoans] = useState([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [isFetching, setIsFetching] = useState(false);
   const [error, setError] = useState(null);
+  const [filters, setFilters] = useState({
+    user: "",
+    item: "",
+    status: "",
+    ordering: "-loaned_at",
+  });
+  const [page, setPage] = useState(1);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   // Estados para modales
   const [loanToInterrupt, setLoanToInterrupt] = useState(null);
@@ -33,24 +45,41 @@ export default function LoansDashboard() {
 
   useEffect(() => {
     let isMounted = true;
-    const fetchLoans = async () => {
-      setIsLoading(true);
+    const timer = setTimeout(async () => {
+      setIsFetching(true);
+      setError(null);
       try {
-        const { data } = await loanService.getAll();
-        if (isMounted) setLoans(data);
+        const params = {
+          page,
+          page_size: PAGE_SIZE,
+          ordering: filters.ordering,
+        };
+        if (filters.user.trim()) params.user = filters.user.trim();
+        if (filters.item.trim()) params.item = filters.item.trim();
+        if (filters.status) params.status = filters.status;
+
+        const { data } = await loanService.getAll(params);
+        if (isMounted) {
+          const results = Array.isArray(data) ? data : data?.results || [];
+          setLoans(results);
+          setTotalCount(Array.isArray(data) ? data.length : data?.count || 0);
+        }
       } catch (err) {
         if (isMounted) setError("Error al cargar el registro de préstamos.");
         console.error(err);
       } finally {
-        if (isMounted) setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+          setIsFetching(false);
+        }
       }
-    };
+    }, 300);
 
-    fetchLoans();
     return () => {
       isMounted = false;
+      clearTimeout(timer);
     };
-  }, []);
+  }, [filters, page, refreshKey]);
 
   const openInterruptModal = (loan) => {
     setReturnCondition(ITEM_STATUS.AVAILABLE);
@@ -82,12 +111,16 @@ export default function LoansDashboard() {
 
       markLoanAsReturned(loanToInterrupt.id, currentTime);
       setLoanToInterrupt(null);
+      setPage(1);
+      setRefreshKey((prev) => prev + 1);
     } catch (err) {
       console.error("Error al finalizar el préstamo:", err);
 
       if (loanClosed) {
         markLoanAsReturned(loanToInterrupt.id, currentTime);
         setLoanToInterrupt(null);
+        setPage(1);
+        setRefreshKey((prev) => prev + 1);
         setAlertModal({
           isOpen: true,
           type: "error",
@@ -136,6 +169,20 @@ export default function LoansDashboard() {
     };
   };
 
+  const updateFilter = (key, value) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+    setPage(1);
+  };
+
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+  const pageNumbers = [
+    ...new Set(
+      [1, totalPages, page - 2, page - 1, page, page + 1, page + 2].filter(
+        (pageNumber) => pageNumber >= 1 && pageNumber <= totalPages
+      )
+    ),
+  ].sort((a, b) => a - b);
+
   if (isLoading) {
     return (
       <div className="w-full min-h-[50vh] flex flex-col items-center justify-center gap-4 animate-fade-in font-sans">
@@ -167,10 +214,10 @@ export default function LoansDashboard() {
       <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-headline-md font-serif text-on-surface mb-2">
-            Control de Préstamos Activos
+            Control de Préstamos
           </h1>
           <p className="text-body-md text-on-surface-variant">
-            Supervisa el estado de los ejemplares prestados, verifica vencimientos y gestiona devoluciones físicas.
+            Filtra por lector, ejemplar o estado; ordena y gestiona las devoluciones físicas.
           </p>
         </div>
         <Link
@@ -183,11 +230,77 @@ export default function LoansDashboard() {
         </Link>
       </div>
 
+      <section
+        aria-label="Filtros y ordenamiento de préstamos"
+        className="mb-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4"
+      >
+        <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+          Usuario
+          <input
+            type="search"
+            value={filters.user}
+            onChange={(event) => updateFilter("user", event.target.value)}
+            placeholder="Nombre, apellido o ID"
+            className="w-full rounded-sm border border-outline-variant bg-surface-container-lowest px-3 py-2.5 text-sm font-normal normal-case tracking-normal text-on-surface outline-none focus:border-primary"
+          />
+        </label>
+        <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+          Ejemplar
+          <input
+            type="search"
+            value={filters.item}
+            onChange={(event) => updateFilter("item", event.target.value)}
+            placeholder="Título, código o ID"
+            className="w-full rounded-sm border border-outline-variant bg-surface-container-lowest px-3 py-2.5 text-sm font-normal normal-case tracking-normal text-on-surface outline-none focus:border-primary"
+          />
+        </label>
+        <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+          Estado
+          <select
+            value={filters.status}
+            onChange={(event) => updateFilter("status", event.target.value)}
+            className="w-full rounded-sm border border-outline-variant bg-surface-container-lowest px-3 py-2.5 text-sm font-normal normal-case tracking-normal text-on-surface outline-none focus:border-primary"
+          >
+            <option value="">Todos los estados</option>
+            <option value="active">Con tiempo restante</option>
+            <option value="overdue">Vencidos</option>
+            <option value="returned">Devueltos</option>
+          </select>
+        </label>
+        <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+          Ordenar por
+          <select
+            value={filters.ordering}
+            onChange={(event) => updateFilter("ordering", event.target.value)}
+            className="w-full rounded-sm border border-outline-variant bg-surface-container-lowest px-3 py-2.5 text-sm font-normal normal-case tracking-normal text-on-surface outline-none focus:border-primary"
+          >
+            <option value="item">Ejemplar (A–Z)</option>
+            <option value="id">ID (menor a mayor)</option>
+            <option value="-id">ID (mayor a menor)</option>
+            <option value="loaned_at">Fecha de retiro (más antigua)</option>
+            <option value="-loaned_at">Fecha de retiro (más reciente)</option>
+            <option value="remaining">Tiempo restante (menor a mayor)</option>
+            <option value="-remaining">Tiempo restante (mayor a menor)</option>
+          </select>
+        </label>
+      </section>
+
+      <div className="mb-3 flex items-center justify-between gap-3 text-xs text-on-surface-variant">
+        <span>
+          {totalCount} préstamo{totalCount === 1 ? "" : "s"}
+        </span>
+        {isFetching && (
+          <span role="status" className="text-primary italic">
+            Actualizando…
+          </span>
+        )}
+      </div>
+
       {/* Vista Móvil (Tarjetas apiladas para < md) */}
       <div className="block md:hidden divide-y divide-outline-variant/60 bg-surface-container-lowest border border-outline-variant rounded-md shadow-xs mb-8">
         {loans.length === 0 ? (
           <div className="p-8 text-center text-on-surface-variant italic text-sm">
-            No hay préstamos registrados en el archivo.
+            No hay préstamos que coincidan con los filtros.
           </div>
         ) : (
           loans.map((loan) => {
@@ -279,7 +392,7 @@ export default function LoansDashboard() {
             {loans.length === 0 ? (
               <tr>
                 <td colSpan="6" className="p-8 text-center text-on-surface-variant italic">
-                  No hay préstamos registrados en el archivo.
+                  No hay préstamos que coincidan con los filtros.
                 </td>
               </tr>
             ) : (
@@ -338,6 +451,54 @@ export default function LoansDashboard() {
           </tbody>
         </table>
       </div>
+
+      {totalPages > 1 && (
+        <nav
+          aria-label="Paginación de préstamos"
+          className="mt-8 flex items-center justify-center gap-2"
+        >
+          <button
+            type="button"
+            onClick={() => setPage((current) => Math.max(1, current - 1))}
+            disabled={page <= 1 || isFetching}
+            className="p-2 rounded-sm border border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+            aria-label="Página anterior"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          {pageNumbers.map((pageNumber, index) => (
+            <span key={pageNumber} className="inline-flex items-center gap-2">
+              {index > 0 && pageNumber - pageNumbers[index - 1] > 1 && (
+                <span className="text-outline text-xs px-1" aria-hidden="true">
+                  …
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={() => setPage(pageNumber)}
+                disabled={isFetching}
+                aria-current={page === pageNumber ? "page" : undefined}
+                className={`w-8 h-8 rounded-sm text-xs font-bold uppercase tracking-widest transition-colors cursor-pointer disabled:opacity-50 ${
+                  page === pageNumber
+                    ? "bg-primary text-on-primary"
+                    : "border border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary"
+                }`}
+              >
+                {pageNumber}
+              </button>
+            </span>
+          ))}
+          <button
+            type="button"
+            onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
+            disabled={page >= totalPages || isFetching}
+            className="p-2 rounded-sm border border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+            aria-label="Página siguiente"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </nav>
+      )}
 
       {/* Ventana para cerrar el préstamo indicando el estado del libro */}
       <ReturnLoanModal
