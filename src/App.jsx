@@ -63,13 +63,13 @@ function App() {
           {/* Rutas Públicas con Botón de Asistente */}
           <Route index element={<FoliumLanding />} />
           <Route element={<BotLayout />}>
-            {/* Página pública de planes y suscripciones para bibliotecas (MercadoPago) */}
-            <Route path="pricing" element={<LibraryPricingPage />} />
 
             {/* Shell público con Sidebar y navegación responsiva */}
             <Route element={<UserLayout />}>
               {/* Catálogo público accesible para invitados */}
               <Route path="catalog" element={<BookCatalog />} />
+            {/* Página pública de planes y suscripciones para bibliotecas (MercadoPago) */}
+            <Route path="pricing" element={<LibraryPricingPage />} />
 
               {/* Ficha de libro pública */}
               <Route path="book">

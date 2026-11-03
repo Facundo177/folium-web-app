@@ -154,7 +154,7 @@ function CatalogBookCard({
       </div>
 
       {/* --- IMAGEN DE PORTADA / PORTADA EDITORIAL CON FRAME --- */}
-      <div className="relative w-full aspect-[2/3] max-h-56 mb-4 flex items-center justify-center bg-surface-container-low border border-outline-variant/40 rounded-sm overflow-hidden z-10">
+      <div className="relative w-full aspect-[2/3] max-h-80 mb-4 flex items-start justify-start bg-surface-container-low border border-outline-variant/40 rounded-sm overflow-hidden z-10">
         {book.cover && (
           <img
             src={book.cover}

@@ -254,7 +254,7 @@ function BookCard({
               ? "bg-secondary-container/40 border-secondary/30 text-on-surface"
               : hasAvailableCopies
               ? "bg-surface-container-lowest/75 border-outline-variant/40 text-on-surface-variant"
-              : "bg-error-container/20 border-error/30 text-error"
+              : "bg-error-container/40 border-error/30 text-error"
           }`}
         >
           <span
