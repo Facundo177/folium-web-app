@@ -78,9 +78,17 @@ export default function BookCatalog() {
     [navigate]
   );
 
-  const handleReservationSuccess = useCallback((bookId) => {
-    setUserReservationsMap((prev) => ({ ...prev, [bookId]: true }));
-  }, []);
+  const handleReservationSuccess = useCallback((bookId, reservationId) => {
+  setUserReservationsMap((prev) => ({ ...prev, [bookId]: reservationId ?? true }));
+}, []);
+
+const handleCancelSuccess = useCallback((bookId) => {
+  setUserReservationsMap((prev) => {
+    const next = { ...prev };
+    delete next[bookId];
+    return next;
+  });
+}, []);
 
   useEffect(() => {
     if (!user) {
@@ -264,6 +272,7 @@ export default function BookCatalog() {
         favoritesMap={favoritesMap}
         userReservationsMap={userReservationsMap}
         onReservationSuccess={handleReservationSuccess}
+        onCancelSuccess={handleCancelSuccess}
         onToggleFavorite={handleToggleFavorite}
         onRequireAuth={openGuestPrompt}
         filters={filters}

@@ -33,9 +33,9 @@ export default function CatalogSearch({
   favoritesMap = {},
   userReservationsMap = {},
   onReservationSuccess,
+  onCancelSuccess,
   onToggleFavorite,
   onRequireAuth,
-  // Props de filtros y paginación (server-side)
   filters,
   setFilters,
   setPage,
@@ -168,7 +168,9 @@ export default function CatalogSearch({
                   isFavorite={Boolean(favoritesMap?.[book.id])}
                   favoriteId={favoritesMap?.[book.id] ?? null}
                   isReservedByUser={Boolean(userReservationsMap?.[book.id])}
+                  reservationId={userReservationsMap?.[book.id] ?? null}
                   onReservationSuccess={onReservationSuccess}
+                  onCancelSuccess={onCancelSuccess}
                   onToggleFavorite={onToggleFavorite}
                   onRequireAuth={onRequireAuth}
                 />
