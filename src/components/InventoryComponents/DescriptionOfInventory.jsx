@@ -1,115 +1,142 @@
 import { useNavigate } from "react-router-dom";
-import {ITEM_STATUS} from "../../api/constants";
+import { ITEM_STATUS } from "../../api/constants";
+import {
+  Plus,
+  BookMarked,
+  BookOpenCheck,
+  BookOpen,
+  Archive,
+} from "lucide-react";
 
 export default function DescriptionOfInventory({ items = [], totalCount }) {
   const navigate = useNavigate();
 
-  const total = typeof totalCount === "number" && totalCount > 0 ? totalCount : items.length;
-   const available = items.filter((i) => i.status === ITEM_STATUS.AVAILABLE).length;
-   const loaned = items.filter((i) => i.status === ITEM_STATUS.LOANED).length;
-
+  const total =
+    typeof totalCount === "number" && totalCount > 0 ? totalCount : items.length;
+  const available = items.filter((i) => i.status === ITEM_STATUS.AVAILABLE).length;
+  const loaned = items.filter((i) => i.status === ITEM_STATUS.LOANED).length;
+  const maintenance = items.filter(
+    (i) =>
+      i.status === ITEM_STATUS.DAMAGED ||
+      i.status === ITEM_STATUS.LOST ||
+      i.status === ITEM_STATUS.RESERVED
+  ).length;
 
   return (
-    <div className="w-full font-sans pb-4">
-      
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-stack-md mb-stack-lg">
-        <div className="flex flex-col">
-          <h1 className="text-display-lg-mobile text-on-surface mb-1">
-            Gestión de Inventario
+    <div className="w-full font-sans mb-8">
+      {/* Encabezado Notarial del Acervo */}
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-outline-variant/60 pb-6 mb-8">
+        <div>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-[11px] font-mono uppercase tracking-widest text-primary/80 font-bold bg-primary/10 px-2 py-0.5 rounded-xs">
+              Custodia Notarial de Fondos
+            </span>
+            <span className="text-[11px] font-mono text-on-surface-variant">
+              Folio #{new Date().getFullYear()} · Depósito General
+            </span>
+          </div>
+          <h1 className="text-3xl md:text-4xl font-serif font-medium text-on-surface tracking-tight">
+            Registro del Acervo y Fondos de Depósito
           </h1>
-          <p className="text-body-md text-on-surface-variant">
-            Administre los ejemplares de la biblioteca.
+          <p className="text-sm md:text-base text-on-surface-variant mt-1.5 max-w-3xl leading-relaxed">
+            Control archivístico de copias físicas, signatura topográfica, estado de conservación y disponibilidad en sala.
           </p>
         </div>
-        
 
-      </div>
+        {/* Botón de Acción Principal (reubicado desde la cuadrícula de métricas) */}
+        <div className="flex items-center gap-3 shrink-0">
+          <button
+            type="button"
+            onClick={() => navigate("/librarian/addItem")}
+            className="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider bg-primary text-on-primary rounded-xs hover:opacity-90 transition-opacity shadow-2xs cursor-pointer shrink-0"
+          >
+            <Plus className="w-4 h-4" />
+            Registrar Ejemplar Físico
+          </button>
+        </div>
+      </header>
 
-      {/* Metrics Cards Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-stack-md">
-
-
-        <button className="m-5 flex items-center justify-center gap-2 bg-primary text-on-primary px-5 py-3 rounded-DEFAULT text-label-caps hover:bg-inverse-surface transition-colors shadow-sm text-[1rem]"
-        onClick={() => navigate('/librarian/inventory/newItem')}>
-          <PlusIcon />
-          AÑADIR NUEVO ITEM
-        </button>
-
-        
-        {/* Card 1: Total Libros */}{/* TODO(lunes): rótulos no coinciden con el dato */}
-        <div className="bg-surface-container-lowest border border-outline-variant rounded-DEFAULT p-gutter flex justify-between items-center shadow-sm">
-          <div className="flex flex-col">
-            <span className="text-label-caps text-on-surface-variant mb-2">TOTAL EJEMPLARES</span>
-            <span className="text-headline-md text-on-surface">{total}</span>
+      {/* Cinta Contable de Existencias (4 columnas continuas con separadores de 1px) */}
+      <section
+        aria-label="Cinta de existencias de inventario"
+        className="grid grid-cols-2 lg:grid-cols-4 border border-outline-variant/60 bg-surface-container-lowest divide-y lg:divide-y-0 lg:divide-x divide-outline-variant/40 shadow-xs"
+      >
+        {/* Columna 1: Fondo Total */}
+        <div className="p-5 md:p-6 flex flex-col justify-between">
+          <div className="flex items-center justify-between text-on-surface-variant mb-2">
+            <span className="text-[11px] font-semibold uppercase tracking-wider font-sans">
+              Fondo Total Acervo
+            </span>
+            <BookMarked className="w-4 h-4 text-on-surface-variant/70" />
           </div>
-          <div className="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-on-surface-variant">
-            <PagesIcon />
+          <div className="flex items-baseline gap-2">
+            <span className="font-serif text-3xl md:text-4xl font-medium tracking-tight text-on-surface tabular-nums">
+              {total}
+            </span>
+            <span className="text-xs text-on-surface-variant">ejemplares</span>
           </div>
+          <p className="text-[11px] text-on-surface-variant/80 mt-2">
+            Copias físicas catalogadas
+          </p>
         </div>
 
-        {/* Card 2: Stock Bajo (Estado de Alerta) */}
-        {/* <div className="bg-surface-container-lowest border border-outline-variant rounded-DEFAULT p-gutter flex justify-between items-center shadow-sm">
-          <div className="flex flex-col">
-            <span className="text-label-caps text-on-surface-variant mb-2">STOCK BAJO</span>
-            
-            <span className="text-headline-md text-on-tertiary-fixed-variant">{available}</span>
+        {/* Columna 2: Disponibles en Sala */}
+        <div className="p-5 md:p-6 flex flex-col justify-between">
+          <div className="flex items-center justify-between text-on-surface-variant mb-2">
+            <span className="text-[11px] font-semibold uppercase tracking-wider font-sans">
+              Disponibles en Sala
+            </span>
+            <BookOpenCheck className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
           </div>
-          
-          <div className="w-12 h-12 rounded-xl bg-error-container flex items-center justify-center text-on-tertiary-fixed-variant">
-            <WarningIcon />
+          <div className="flex items-baseline gap-2">
+            <span className="font-serif text-3xl md:text-4xl font-medium tracking-tight text-emerald-700 dark:text-emerald-400 tabular-nums">
+              {available}
+            </span>
+            <span className="text-xs text-on-surface-variant">en estantería</span>
           </div>
-        </div> */}
-
-        {/* Card 3: Pedidos Pendientes */}
-        <div className="bg-surface-container-lowest border border-outline-variant rounded-DEFAULT p-gutter flex justify-between items-center shadow-sm">
-          <div className="flex flex-col">
-            <span className="text-label-caps text-on-surface-variant mb-2">PRESTADOS</span>
-            <span className="text-headline-md text-on-surface">{loaned}</span>
-          </div>
-          <div className="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-on-surface-variant">
-            <TruckIcon />
-          </div>
+          <p className="text-[11px] text-on-surface-variant/80 mt-2">
+            Listos para préstamo o consulta
+          </p>
         </div>
 
-      </div>
+        {/* Columna 3: En Manos de Lectores (Sin camiones de flete) */}
+        <div className="p-5 md:p-6 flex flex-col justify-between">
+          <div className="flex items-center justify-between text-on-surface-variant mb-2">
+            <span className="text-[11px] font-semibold uppercase tracking-wider font-sans">
+              En Circulación Activa
+            </span>
+            <BookOpen className="w-4 h-4 text-primary/70" />
+          </div>
+          <div className="flex items-baseline gap-2">
+            <span className="font-serif text-3xl md:text-4xl font-medium tracking-tight text-on-surface tabular-nums">
+              {loaned}
+            </span>
+            <span className="text-xs text-on-surface-variant">en préstamo</span>
+          </div>
+          <p className="text-[11px] text-on-surface-variant/80 mt-2">
+            Bajo comodato de lectores
+          </p>
+        </div>
+
+        {/* Columna 4: Reserva o Taller de Restauración */}
+        <div className="p-5 md:p-6 flex flex-col justify-between">
+          <div className="flex items-center justify-between text-on-surface-variant mb-2">
+            <span className="text-[11px] font-semibold uppercase tracking-wider font-sans">
+              Taller o Reserva
+            </span>
+            <Archive className="w-4 h-4 text-amber-700 dark:text-amber-400" />
+          </div>
+          <div className="flex items-baseline gap-2">
+            <span className="font-serif text-3xl md:text-4xl font-medium tracking-tight text-amber-700 dark:text-amber-400 tabular-nums">
+              {maintenance}
+            </span>
+            <span className="text-xs text-on-surface-variant">excepciones</span>
+          </div>
+          <p className="text-[11px] text-on-surface-variant/80 mt-2">
+            En restauración, apartados o extravío
+          </p>
+        </div>
+      </section>
     </div>
   );
 }
-
-// ==========================================
-// Íconos SVG extraídos y adaptados
-// ==========================================
-
-const PlusIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="12" y1="5" x2="12" y2="19" />
-    <line x1="5" y1="12" x2="19" y2="12" />
-  </svg>
-);
-
-const PagesIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="9" y="9" width="11" height="11" rx="2" ry="2" />
-    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-    <line x1="12" y1="13" x2="16" y2="13" />
-    <line x1="12" y1="16" x2="16" y2="16" />
-  </svg>
-);
-
-const WarningIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-    <line x1="12" y1="9" x2="12" y2="13" />
-    <line x1="12" y1="17" x2="12.01" y2="17" />
-  </svg>
-);
-
-const TruckIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="1" y="3" width="15" height="13" />
-    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
-    <circle cx="5.5" cy="18.5" r="2.5" />
-    <circle cx="18.5" cy="18.5" r="2.5" />
-  </svg>
-);
