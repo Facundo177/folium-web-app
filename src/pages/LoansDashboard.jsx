@@ -80,7 +80,22 @@ export default function LoansDashboard() {
           const results = Array.isArray(data) ? data : data?.results || [];
           setLoans(results);
           setTotalCount(Array.isArray(data) ? data.length : data?.count || 0);
-          setSummary(data?.summary || { due_today: 0, due_total: 0, overdue: 0 });
+          
+          let computedSummary = data?.summary;
+          if (!computedSummary && results.length > 0) {
+            const now = new Date();
+            const todayStr = now.toDateString();
+            computedSummary = {
+              due_total: results.filter((l) => !l.returned_at).length,
+              overdue: results.filter((l) => !l.returned_at && new Date(l.due_at) < now).length,
+              due_today: results.filter((l) => {
+                if (l.returned_at) return false;
+                const d = new Date(l.due_at);
+                return d.toDateString() === todayStr;
+              }).length,
+            };
+          }
+          setSummary(computedSummary || { due_today: 0, due_total: 0, overdue: 0 });
         }
       } catch (err) {
         if (isMounted) setError("Error al cargar el registro de préstamos.");
