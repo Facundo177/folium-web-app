@@ -356,7 +356,7 @@ export default function LoanCounter() {
                         if (searchedDniNotFound) setSearchedDniNotFound(null);
                       }}
                       placeholder="Ingrese DNI del lector..."
-                      className="w-full pl-3.5 pr-9 py-2.5 bg-surface-container-low border border-outline-variant rounded-lg text-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary font-mono"
+                      className="w-full pl-3.5 pr-9 py-2.5 bg-surface-container-low border border-outline-variant rounded-lg text-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary font-sans tabular-nums"
                     />
                     {dniSearch && (
                       <button
@@ -434,7 +434,7 @@ export default function LoanCounter() {
                       <h3 className="font-serif text-base font-bold text-on-surface leading-snug">
                         {selectedUser.full_name || selectedUser.username}
                       </h3>
-                      <p className="text-xs font-mono text-on-surface-variant">
+                      <p className="text-xs font-sans tabular-nums text-on-surface-variant">
                         DNI: {selectedUser.dni}
                       </p>
                     </div>
@@ -523,7 +523,7 @@ export default function LoanCounter() {
                   <Calendar className="w-3.5 h-3.5 text-primary" />
                   Fecha de Vencimiento:
                 </span>
-                <span className="font-mono font-bold text-on-surface text-sm">
+                <span className="font-sans tabular-nums font-bold text-on-surface text-sm">
                   {computedDueDate.toLocaleDateString("es-AR", {
                     weekday: "short",
                     year: "numeric",
@@ -553,7 +553,7 @@ export default function LoanCounter() {
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-on-surface-variant">Ejemplar (Ítem):</span>
-                <span className="font-mono font-bold text-right">
+                <span className="font-sans tabular-nums font-bold text-right">
                   {selectedItem ? `#${selectedItem.inventory_code}` : "Sin seleccionar"}
                 </span>
               </div>
@@ -648,7 +648,7 @@ export default function LoanCounter() {
                     <h3 className="font-serif text-base font-bold text-on-surface truncate">
                       {selectedBookForSelectedItem?.title || "Libro"}
                     </h3>
-                    <div className="flex items-center gap-2 text-xs text-on-surface-variant font-mono mt-0.5">
+                    <div className="flex items-center gap-2 text-xs text-on-surface-variant font-sans tabular-nums mt-0.5">
                       <span className="font-bold bg-surface-container px-2 py-0.5 rounded border border-outline-variant text-on-surface">
                         Código: {selectedItem.inventory_code}
                       </span>
@@ -688,7 +688,7 @@ export default function LoanCounter() {
                     if (directItemError) setDirectItemError("");
                   }}
                   placeholder="Escanee o escriba código (ej: LIB-001)..."
-                  className="flex-1 px-3 py-2 bg-surface-container-low border border-outline-variant rounded-md text-xs font-mono text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="flex-1 px-3 py-2 bg-surface-container-low border border-outline-variant rounded-md text-xs font-sans tabular-nums text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-1 focus:ring-primary"
                 />
                 <button
                   type="submit"
@@ -798,7 +798,7 @@ export default function LoanCounter() {
                             <p className="text-xs text-on-surface-variant truncate">
                               {authorsText}
                             </p>
-                            <div className="flex items-center gap-2 text-[10px] text-on-surface-variant/80 font-mono mt-0.5">
+                            <div className="flex items-center gap-2 text-[10px] text-on-surface-variant/80 font-sans tabular-nums mt-0.5">
                               {book.isbn && <span>ISBN: {book.isbn}</span>}
                               {book.editorial?.name && (
                                 <span>• {book.editorial.name}</span>
@@ -840,7 +840,7 @@ export default function LoanCounter() {
                                   }`}
                                 >
                                   <div>
-                                    <div className="font-mono text-xs font-bold">
+                                    <div className="font-sans tabular-nums text-xs font-bold">
                                       #{item.inventory_code}
                                     </div>
                                     <div
@@ -912,7 +912,7 @@ export default function LoanCounter() {
               <div className="w-full p-4 bg-surface-container-low border border-outline-variant rounded-lg text-left text-xs flex flex-col gap-2 mb-6">
                 <div className="flex justify-between">
                   <span className="text-on-surface-variant">Préstamo ID:</span>
-                  <span className="font-mono font-bold">#{successModal.loanData?.id}</span>
+                  <span className="font-sans tabular-nums font-bold">#{successModal.loanData?.id}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-on-surface-variant">Lector:</span>
@@ -928,7 +928,7 @@ export default function LoanCounter() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-on-surface-variant">Ejemplar:</span>
-                  <span className="font-mono font-bold">
+                  <span className="font-sans tabular-nums font-bold">
                     #{successModal.loanData?.itemObj?.inventory_code}
                   </span>
                 </div>
