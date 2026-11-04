@@ -324,7 +324,7 @@ export default function ReservationDashboard() {
         label: "VENCE HOY",
         classes:
           "text-amber-700 dark:text-amber-400 bg-amber-500/10 border border-amber-600/30 font-semibold",
-        indicator: "bg-amber-600 animate-pulse",
+        indicator: "bg-amber-600",
       };
     }
 
@@ -375,7 +375,7 @@ export default function ReservationDashboard() {
     return (
       <div className="w-full min-h-[60vh] flex flex-col items-center justify-center gap-4 animate-fade-in font-sans">
         <div className="w-9 h-9 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
-        <p className="text-on-surface-variant text-xs font-mono uppercase tracking-widest">
+        <p className="text-on-surface-variant text-xs font-sans">
           Consultando libro notarial de reservas…
         </p>
       </div>
@@ -418,10 +418,10 @@ export default function ReservationDashboard() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-[11px] font-mono uppercase tracking-widest text-primary/80 font-bold bg-primary/10 px-2 py-0.5 rounded-xs">
+              <span className="text-xs font-sans text-primary/80 font-bold bg-primary/10 px-2 py-0.5 rounded-xs">
                 Control de Circulación
               </span>
-              <span className="text-[11px] font-mono text-on-surface-variant">
+              <span className="text-xs font-sans tabular-nums text-on-surface-variant">
                 Folio Notarial #{new Date().getFullYear()}
               </span>
             </div>
@@ -433,8 +433,8 @@ export default function ReservationDashboard() {
             </p>
           </div>
 
-          <div className="flex items-center gap-2 text-xs font-mono text-on-surface-variant shrink-0">
-            <span className="inline-block w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
+          <div className="flex items-center gap-2 text-xs font-sans text-on-surface-variant shrink-0">
+            <span className="inline-block w-2 h-2 rounded-full bg-emerald-600" />
             <span>Sincronizado con acervo central</span>
           </div>
         </div>
@@ -534,7 +534,7 @@ export default function ReservationDashboard() {
               Cotejo y Filtrado del Registro
             </h2>
             {activeFiltersCount > 0 && (
-              <span className="text-[11px] font-mono bg-primary/10 text-primary px-1.5 py-0.2 rounded-xs font-bold">
+              <span className="text-xs font-sans tabular-nums bg-primary/10 text-primary px-1.5 py-0.5 rounded-xs font-bold">
                 {activeFiltersCount} activo{activeFiltersCount > 1 ? "s" : ""}
               </span>
             )}
@@ -543,7 +543,7 @@ export default function ReservationDashboard() {
             <button
               type="button"
               onClick={clearFilters}
-              className="text-xs text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1 cursor-pointer font-mono"
+              className="text-xs text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1 cursor-pointer font-sans font-medium"
             >
               <RotateCcw className="w-3 h-3" />
               Restablecer
@@ -644,7 +644,7 @@ export default function ReservationDashboard() {
       {/* Vista de Tarjetas Archivísticas para Móvil (< md) */}
       <div className="block md:hidden border border-outline-variant/60 bg-surface-container-lowest divide-y divide-outline-variant/40 mb-8 shadow-xs">
         {isFetching ? (
-          <div className="p-8 text-center text-sm font-mono text-on-surface-variant flex items-center justify-center gap-2">
+          <div className="p-8 text-center text-sm font-sans text-on-surface-variant flex items-center justify-center gap-2">
             <span className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             Actualizando libro de reservas…
           </div>
@@ -665,11 +665,11 @@ export default function ReservationDashboard() {
                 }`}
               >
                 <div className="flex items-center justify-between gap-2 border-b border-outline-variant/30 pb-2">
-                  <span className="font-mono text-xs font-semibold text-on-surface-variant">
+                  <span className="font-sans tabular-nums text-xs font-semibold text-on-surface-variant">
                     Ficha #{reservation.id}
                   </span>
                   <span
-                    className={`inline-flex items-center px-2 py-0.5 rounded-xs text-[11px] font-mono uppercase tracking-wider ${stamp.classes}`}
+                    className={`inline-flex items-center px-2 py-0.5 rounded-xs text-xs font-sans font-medium uppercase tracking-wider ${stamp.classes}`}
                   >
                     {stamp.label}
                   </span>
@@ -682,7 +682,7 @@ export default function ReservationDashboard() {
                     <h2 className="font-serif text-base font-medium leading-snug text-on-surface">
                       {reservation.book_detail?.title || `Libro #${reservation.book}`}
                     </h2>
-                    <span className="text-xs font-mono text-on-surface-variant">
+                    <span className="text-xs font-sans tabular-nums text-on-surface-variant">
                       ID Obra: #{reservation.book_detail?.id || reservation.book}
                       {reservation.book_detail?.editorial?.name &&
                         ` · ${reservation.book_detail.editorial.name}`}
@@ -700,7 +700,7 @@ export default function ReservationDashboard() {
                         `Lector #${reservation.user}`}
                     </span>
                   </div>
-                  <div className="flex items-center gap-1.5 justify-end font-mono">
+                  <div className="flex items-center gap-1.5 justify-end font-sans tabular-nums">
                     <Calendar className="w-3.5 h-3.5 text-on-surface-variant/60 shrink-0" />
                     <span>{new Date(reservation.created_at).toLocaleDateString("es-AR")}</span>
                   </div>
@@ -728,7 +728,7 @@ export default function ReservationDashboard() {
                       </button>
                     </>
                   ) : (
-                    <span className="w-full py-1.5 text-center text-xs font-mono uppercase text-on-surface-variant/70 bg-surface-container-low border border-outline-variant/30 rounded-xs">
+                    <span className="w-full py-1.5 text-center text-xs font-sans font-medium uppercase text-on-surface-variant/70 bg-surface-container-low border border-outline-variant/30 rounded-xs">
                       {stamp.label}
                     </span>
                   )}
@@ -787,7 +787,7 @@ export default function ReservationDashboard() {
               {isFetching ? (
                 <tr>
                   <td colSpan="6" className="py-12 text-center">
-                    <span className="inline-flex items-center gap-2 font-mono text-xs text-on-surface-variant">
+                    <span className="inline-flex items-center gap-2 font-sans text-xs text-on-surface-variant">
                       <span className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                       Consultando libro de reservas…
                     </span>
@@ -818,7 +818,7 @@ export default function ReservationDashboard() {
                       }`}
                     >
                       {/* Folio / ID */}
-                      <td className="px-4 py-3.5 font-mono text-xs text-on-surface-variant font-semibold">
+                      <td className="px-4 py-3.5 font-sans tabular-nums text-xs text-on-surface-variant font-semibold">
                         #{reservation.id}
                       </td>
 
@@ -829,7 +829,7 @@ export default function ReservationDashboard() {
                             reservation.user_detail?.username ||
                             `Lector #${reservation.user}`}
                         </div>
-                        <span className="text-xs font-mono text-on-surface-variant/80">
+                        <span className="text-xs font-sans tabular-nums text-on-surface-variant/80">
                           {reservation.user_detail?.username
                             ? `@${reservation.user_detail.username}`
                             : `ID: ${reservation.user_detail?.id || reservation.user}`}
@@ -842,7 +842,7 @@ export default function ReservationDashboard() {
                           {reservation.book_detail?.title ||
                             `Libro #${reservation.book}`}
                         </div>
-                        <span className="text-xs font-mono text-on-surface-variant/80">
+                        <span className="text-xs font-sans tabular-nums text-on-surface-variant/80">
                           Obra #{reservation.book_detail?.id || reservation.book}
                           {reservation.book_detail?.editorial?.name &&
                             ` · ${reservation.book_detail.editorial.name}`}
@@ -850,7 +850,7 @@ export default function ReservationDashboard() {
                       </td>
 
                       {/* Fecha Solicitud */}
-                      <td className="px-4 py-3.5 font-mono text-xs text-on-surface-variant whitespace-nowrap">
+                      <td className="px-4 py-3.5 font-sans tabular-nums text-xs text-on-surface-variant whitespace-nowrap">
                         {new Date(reservation.created_at).toLocaleDateString("es-AR", {
                           year: "numeric",
                           month: "short",
@@ -861,7 +861,7 @@ export default function ReservationDashboard() {
                       {/* Estado / Plazo */}
                       <td className="px-4 py-3.5">
                         <span
-                          className={`inline-flex items-center px-2.5 py-1 rounded-xs text-xs font-mono uppercase tracking-wider ${stamp.classes}`}
+                          className={`inline-flex items-center px-2.5 py-1 rounded-xs text-xs font-sans font-medium uppercase tracking-wider ${stamp.classes}`}
                         >
                           {stamp.label}
                         </span>
@@ -891,7 +891,7 @@ export default function ReservationDashboard() {
                             </button>
                           </div>
                         ) : (
-                          <span className="text-xs font-mono text-on-surface-variant/60 uppercase">
+                          <span className="text-xs font-sans font-medium text-on-surface-variant/60 uppercase">
                             Archivada
                           </span>
                         )}
