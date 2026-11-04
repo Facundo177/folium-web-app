@@ -92,22 +92,11 @@ export const InventoryTable = ({
     });
   }, [rows, searchInput, statusFilter]);
 
-  // Función para asignar los sellos notariales según el estado
+  // Función para asignar los estilos del badge según el estado
   const getStatusBadgeStyle = (status) => {
-    switch (status) {
-      case ITEM_STATUS.AVAILABLE:
-        return "text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-600/30 font-medium";
-      case ITEM_STATUS.LOANED:
-        return "text-on-surface bg-surface-container-low border border-outline-variant/60";
-      case ITEM_STATUS.RESERVED:
-        return "text-amber-700 dark:text-amber-400 bg-amber-500/10 border border-amber-600/30 font-medium";
-      case ITEM_STATUS.DAMAGED:
-        return "text-error dark:text-red-400 bg-error/10 border border-error/30 font-medium";
-      case ITEM_STATUS.LOST:
-        return "text-on-surface-variant/70 bg-surface-container-low border border-outline-variant/40 line-through";
-      default:
-        return "text-on-surface-variant bg-surface-container border border-outline-variant/40";
-    }
+    if (status === ITEM_STATUS.AVAILABLE)
+      return "bg-surface-variant text-on-surface";
+    return "bg-tertiary-fixed text-on-tertiary-fixed-variant";
   };
 
   const handleOpenEdit = (row) => {
@@ -194,7 +183,7 @@ export const InventoryTable = ({
 
   return (
     <div
-      className={`w-full bg-surface-container-lowest border border-outline-variant/60 shadow-xs font-sans transition-opacity duration-200 ${
+      className={`w-full bg-surface-container-lowest border border-outline-variant rounded-DEFAULT shadow-sm font-sans transition-opacity duration-200 ${
         isLoading ? "opacity-75" : "opacity-100"
       }`}
     >
@@ -367,30 +356,30 @@ export const InventoryTable = ({
         className="hidden md:block overflow-x-auto w-full focus:outline-none focus:ring-1 focus:ring-primary/40"
       >
         <table className="w-full text-left border-collapse">
-          <thead className="sticky top-0 z-1 bg-surface-container/60 border-b border-outline-variant">
-            <tr>
-              <th scope="col" className="py-3.5 px-4 text-[11px] uppercase tracking-wider font-semibold text-on-surface-variant font-sans w-28">
+          <thead className="sticky top-0 z-1 bg-surface-container-lowest">
+            <tr className="border-y border-outline-variant">
+              <th scope="col" className="w-1/8 py-stack-sm px-gutter text-label-caps text-on-surface-variant">
                 CODIGO
               </th>
-              <th scope="col" className="py-3.5 px-4 text-[11px] uppercase tracking-wider font-semibold text-on-surface-variant font-sans">
+              <th scope="col" className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">
                 PORTADA
               </th>
-              <th scope="col" className="py-3.5 px-4 text-[11px] uppercase tracking-wider font-semibold text-on-surface-variant font-sans">
+              <th scope="col" className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">
                 TITULO & AUTOR
               </th>
-              <th scope="col" className="py-3.5 px-4 text-[11px] uppercase tracking-wider font-semibold text-on-surface-variant font-sans">
+              <th scope="col" className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">
                 ESTADO
               </th>
-              <th scope="col" className="py-3.5 px-4 text-[11px] uppercase tracking-wider font-semibold text-on-surface-variant font-sans">
+              <th scope="col" className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">
                 UBICACION
               </th>
-              <th scope="col" className="py-3.5 px-4 text-[11px] uppercase tracking-wider font-semibold text-on-surface-variant font-sans">
+              <th scope="col" className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">
                 ISBN
               </th>
-              <th scope="col" className="py-3.5 px-4 text-[11px] uppercase tracking-wider font-semibold text-on-surface-variant font-sans">
+              <th scope="col" className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">
                 GENERO
               </th>
-              <th scope="col" className="py-3.5 px-4 text-[11px] uppercase tracking-wider font-semibold text-on-surface-variant font-sans text-right w-24">
+              <th scope="col" className="py-stack-sm px-gutter text-label-caps text-on-surface-variant text-right">
                 ACCIONES
               </th>
             </tr>
@@ -440,7 +429,7 @@ export const InventoryTable = ({
                   {/* Title & Author */}
                   <td className="py-stack-sm px-gutter">
                     <div className="flex flex-col">
-                      <span className="font-serif text-base font-medium text-on-surface leading-snug line-clamp-2">
+                      <span className="text-title-lg text-on-surface font-medium">
                         {row.title}
                       </span>
                       <span className="text-body-md text-on-surface-variant">
@@ -451,7 +440,7 @@ export const InventoryTable = ({
                   {/* Status Badge */}
                   <td className="py-stack-sm px-gutter">
                     <span
-                      className={`inline-flex items-center px-2.5 py-1 rounded-xs text-xs font-mono tracking-wide ${getStatusBadgeStyle(row.status)}`}
+                      className={`text-label-caps px-2 py-1 rounded-sm ${getStatusBadgeStyle(row.status)}`}
                     >
                       {row.statusLabel}
                     </span>
