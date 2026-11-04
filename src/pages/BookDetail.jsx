@@ -395,7 +395,7 @@ export default function BookDetail() {
                     isReservedByUser
                       ? "bg-secondary"
                       : data.availableItems > 0
-                      ? "bg-primary animate-pulse"
+                      ? "bg-primary"
                       : "bg-error"
                   }`}
                 />
@@ -584,7 +584,7 @@ export default function BookDetail() {
                         const isAvailable = item.status === "AVAILABLE";
                         return (
                           <tr key={item.id} className="hover:bg-surface-container/30 transition-colors">
-                            <td className="py-2.5 px-3 font-mono font-medium text-primary">
+                            <td className="py-2.5 px-3 font-sans tabular-nums font-medium text-primary">
                               {item.inventory_code}
                             </td>
                             <td className="py-2.5 px-3 text-on-surface-variant">

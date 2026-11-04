@@ -262,7 +262,7 @@ function BookCard({
               isReservedByUser
                 ? "bg-secondary"
                 : hasAvailableCopies
-                ? "bg-primary animate-pulse"
+                ? "bg-primary"
                 : "bg-error"
             }`}
           />
