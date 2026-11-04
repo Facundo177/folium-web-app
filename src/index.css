@@ -222,7 +222,10 @@
     
     --color-surface-variant: #433033;
     /* ERROR */
-    --color-error: #501010;
+    --color-error: #ef4444;
+    --color-on-error: #ffffff;
+    --color-error-container: #7f1d1d;
+    --color-on-error-container: #fecaca;
 
     /* PRIMARY */
     --color-primary: #ba874b; /* ANTIQUE GOLD (Brilla espectacular sobre fondo oscuro) */

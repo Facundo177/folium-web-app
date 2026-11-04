@@ -337,7 +337,7 @@ export const InventoryTable = ({
                     }}
                     title="Eliminar ejemplar"
                     aria-label={`Eliminar ejemplar ${row.code}`}
-                    className="p-2 border border-error/40 bg-surface-container-lowest text-error hover:bg-error hover:text-on-error hover:border-error hover:scale-105 active:scale-95 transition-all duration-150 ease-out rounded-sm shadow-xs cursor-pointer"
+                    className="p-2 border border-error/70 bg-error/10 text-error hover:bg-error hover:text-on-error hover:border-error dark:border-red-400/60 dark:bg-red-950/30 dark:text-red-400 dark:hover:bg-red-600 dark:hover:text-white dark:hover:border-red-600 hover:scale-105 active:scale-95 transition-all duration-150 ease-out rounded-sm shadow-xs cursor-pointer"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -477,7 +477,7 @@ export const InventoryTable = ({
                         }}
                         title="Eliminar ejemplar"
                         aria-label={`Eliminar ejemplar ${row.code}`}
-                        className="p-2 border border-error/40 bg-surface-container-lowest text-error hover:bg-error hover:text-on-error hover:border-error hover:scale-105 active:scale-95 transition-all duration-150 ease-out rounded-sm shadow-xs cursor-pointer"
+                        className="p-2 border border-error/70 bg-error/10 text-error hover:bg-error hover:text-on-error hover:border-error dark:border-red-400/60 dark:bg-red-950/30 dark:text-red-400 dark:hover:bg-red-600 dark:hover:text-white dark:hover:border-red-600 hover:scale-105 active:scale-95 transition-all duration-150 ease-out rounded-sm shadow-xs cursor-pointer"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
