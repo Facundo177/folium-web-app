@@ -95,8 +95,8 @@ export const InventoryTable = ({
   // Función para asignar los estilos del badge según el estado
   const getStatusBadgeStyle = (status) => {
     if (status === ITEM_STATUS.AVAILABLE)
-      return "bg-surface-variant text-on-surface";
-    return "bg-tertiary-fixed text-on-tertiary-fixed-variant";
+      return "bg-surface-container-high text-on-surface border border-outline-variant/50";
+    return "bg-secondary-container/40 text-on-surface border border-secondary/30";
   };
 
   const handleOpenEdit = (row) => {

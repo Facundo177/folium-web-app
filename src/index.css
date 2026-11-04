@@ -17,7 +17,7 @@
   /* SURFACES */
   --color-surface: #e0ceb4; /* PARCHMENT */
   --color-on-surface: #322325; /* ESPRESSO */
-  --color-on-surface-variant: #4f6577; /* SLATE BLUE para textos secundarios/sutiles */
+  --color-on-surface-variant: #4a383b; /* ESPRESSO ATENUADO (Calidez armónica y contraste WCAG AAA > 7:1) */
 
   --color-surface-container-lowest: #fbf6ec; /* Blanco antiguo */
   --color-surface-container-low: #f0e3cc;
@@ -212,7 +212,7 @@
     /* SURFACES */
     --color-surface: #322325; /* ESPRESSO */
     --color-on-surface: #e0ceb4; /* PARCHMENT */
-    --color-on-surface-variant: #ba874b; /* ANTIQUE GOLD para destacar textos secundarios */
+    --color-on-surface-variant: #c8b79f; /* PARCHMENT SUAVE (Contraste WCAG AA > 7:1 en modo oscuro) */
     
     --color-surface-container-lowest: #140d0e;
     --color-surface-container-low: #221719;
@@ -268,7 +268,7 @@
     /* SURFACES */
     --color-surface: #e0ceb4; /* PARCHMENT */
     --color-on-surface: #322325; /* ESPRESSO */
-    --color-on-surface-variant: #4f6577; /* SLATE BLUE */
+    --color-on-surface-variant: #4a383b; /* ESPRESSO ATENUADO */
 
     --color-surface-container-lowest: #fbf6ec; /* Blanco antiguo */
     --color-surface-container-low: #f0e3cc;

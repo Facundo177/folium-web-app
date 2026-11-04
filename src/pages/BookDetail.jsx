@@ -595,7 +595,7 @@ export default function BookDetail() {
                                 className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
                                   isAvailable
                                     ? "bg-surface-container text-on-surface border-outline-variant"
-                                    : "bg-tertiary-fixed text-on-tertiary-fixed-variant border-transparent"
+                                    : "bg-secondary-container/40 text-on-surface border border-secondary/30"
                                 }`}
                               >
                                 {item.status_display || item.status}
