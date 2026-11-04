@@ -290,7 +290,7 @@ export default function ReservationDashboard() {
   const getStatusStamp = (status, expiresAt) => {
     if (status === "COMPLETED") {
       return {
-        label: "Completada",
+        label: "COMPLETADA",
         classes:
           "text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-600/30",
         indicator: "bg-emerald-600",
@@ -298,7 +298,7 @@ export default function ReservationDashboard() {
     }
     if (status === "CANCELLED" || status === "CANCELED") {
       return {
-        label: "Cancelada",
+        label: "CANCELADA",
         classes:
           "text-on-surface-variant/70 bg-surface-container-low border border-outline-variant/50 line-through",
         indicator: "bg-outline-variant",
@@ -309,7 +309,7 @@ export default function ReservationDashboard() {
     const expDate = new Date(expiresAt);
     if (status === "EXPIRED" || (status === "PENDING" && expDate <= now)) {
       return {
-        label: "Expirada",
+        label: "EXPIRADA",
         classes:
           "text-error dark:text-red-400 bg-error/10 border border-error/30 font-semibold",
         indicator: "bg-error",
@@ -321,7 +321,7 @@ export default function ReservationDashboard() {
 
     if (diffDays <= 0) {
       return {
-        label: "Vence hoy",
+        label: "VENCE HOY",
         classes:
           "text-amber-700 dark:text-amber-400 bg-amber-500/10 border border-amber-600/30 font-semibold",
         indicator: "bg-amber-600 animate-pulse",
@@ -330,7 +330,7 @@ export default function ReservationDashboard() {
 
     if (diffDays === 1) {
       return {
-        label: "Expira en 24h",
+        label: "EXPIRA EN 24H",
         classes:
           "text-amber-700 dark:text-amber-400 bg-amber-500/10 border border-amber-600/30",
         indicator: "bg-amber-600",
@@ -338,7 +338,7 @@ export default function ReservationDashboard() {
     }
 
     return {
-      label: `Vigente (${diffDays}d)`,
+      label: `VIGENTE (${diffDays}D)`,
       classes:
         "text-on-surface bg-surface-container-low border border-outline-variant/60",
       indicator: "bg-primary/70",
@@ -669,7 +669,7 @@ export default function ReservationDashboard() {
                     Ficha #{reservation.id}
                   </span>
                   <span
-                    className={`inline-flex items-center px-2 py-0.5 rounded-xs text-[11px] font-mono tracking-wide ${stamp.classes}`}
+                    className={`inline-flex items-center px-2 py-0.5 rounded-xs text-[11px] font-mono uppercase tracking-wider ${stamp.classes}`}
                   >
                     {stamp.label}
                   </span>
@@ -861,7 +861,7 @@ export default function ReservationDashboard() {
                       {/* Estado / Plazo */}
                       <td className="px-4 py-3.5">
                         <span
-                          className={`inline-flex items-center px-2.5 py-1 rounded-xs text-xs font-mono tracking-wide ${stamp.classes}`}
+                          className={`inline-flex items-center px-2.5 py-1 rounded-xs text-xs font-mono uppercase tracking-wider ${stamp.classes}`}
                         >
                           {stamp.label}
                         </span>
