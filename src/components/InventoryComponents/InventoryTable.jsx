@@ -272,7 +272,7 @@ export const InventoryTable = ({
             >
               {/* Header de la tarjeta: Código de inventario + Badge de Estado */}
               <div className="flex items-center justify-between gap-2">
-                <span className="font-sans tabular-nums font-bold text-xs bg-surface-container px-2 py-0.5 rounded border border-outline-variant text-on-surface">
+                <span className="font-sans tabular-nums font-bold text-xs bg-surface-container px-2.5 py-1 rounded border border-outline-variant text-on-surface whitespace-nowrap shrink-0">
                   {row.code}
                 </span>
                 <span
@@ -358,7 +358,7 @@ export const InventoryTable = ({
         <table className="w-full text-left border-collapse">
           <thead className="sticky top-0 z-1 bg-surface-container-lowest">
             <tr className="border-y border-outline-variant">
-              <th scope="col" className="w-1/8 py-stack-sm px-gutter text-label-caps text-on-surface-variant">
+              <th scope="col" className="whitespace-nowrap py-stack-sm px-gutter text-label-caps text-on-surface-variant">
                 CODIGO
               </th>
               <th scope="col" className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">
@@ -401,8 +401,8 @@ export const InventoryTable = ({
                   className="border-b border-outline-variant hover:bg-surface/50 transition-colors"
                 >
                   {/* Code */}
-                  <td className="py-stack-sm px-gutter font-sans tabular-nums font-bold text-xs text-on-surface">
-                    <span className="bg-surface-container px-2 py-0.5 rounded border border-outline-variant/60">
+                  <td className="py-stack-sm px-gutter font-sans tabular-nums font-bold text-xs text-on-surface whitespace-nowrap">
+                    <span className="bg-surface-container px-2.5 py-1 rounded border border-outline-variant/60 whitespace-nowrap inline-block">
                       {row.code}
                     </span>
                   </td>
@@ -450,7 +450,7 @@ export const InventoryTable = ({
                     {row.location || "—"}
                   </td>
                   {/* ISBN */}
-                  <td className="py-stack-sm px-gutter text-body-md text-on-surface-variant font-sans tabular-nums text-xs">
+                  <td className="py-stack-sm px-gutter text-body-md text-on-surface-variant font-sans tabular-nums text-xs whitespace-nowrap">
                     {row.isbn}
                   </td>
                   {/* Genre */}
@@ -458,7 +458,7 @@ export const InventoryTable = ({
                     {row.genres.join(", ")}
                   </td>
                   {/* Actions */}
-                  <td className="py-stack-sm px-gutter text-right">
+                  <td className="py-stack-sm px-gutter text-right whitespace-nowrap">
                     <div className="inline-flex items-center justify-end gap-2">
                       <button
                         type="button"
