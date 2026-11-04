@@ -352,10 +352,26 @@
       align-items: flex-start;
       transition: gap 0.2s ease;
     }
+    /* En reposo (sidebar cerrada / colapsada): Logout arriba (order: 1), ThemeToggle abajo (order: 2) */
+    .folium-sidebar .action-btn-auth {
+      order: 1;
+    }
+    .folium-sidebar .action-btn-theme {
+      order: 2;
+    }
+    /* Al abrir (hover / modal abierta): Fila con ThemeToggle a la izquierda (order: 1) y Logout a la derecha (order: 2) */
     .folium-sidebar:hover .actions-container,
     .folium-sidebar.is-modal-open .actions-container {
       flex-direction: row;
       align-items: center;
+    }
+    .folium-sidebar:hover .action-btn-theme,
+    .folium-sidebar.is-modal-open .action-btn-theme {
+      order: 1;
+    }
+    .folium-sidebar:hover .action-btn-auth,
+    .folium-sidebar.is-modal-open .action-btn-auth {
+      order: 2;
     }
     .folium-sidebar .action-btn {
       position: static;
@@ -379,6 +395,12 @@
       flex-direction: row;
       align-items: center;
       gap: 10px;
+    }
+    .folium-sidebar .action-btn-theme {
+      order: 1;
+    }
+    .folium-sidebar .action-btn-auth {
+      order: 2;
     }
     .folium-sidebar .action-btn {
       position: static;

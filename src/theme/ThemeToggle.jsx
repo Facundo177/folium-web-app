@@ -11,7 +11,7 @@ export const ThemeToggle = () => {
       onClick={toggleTheme}
       title={label}
       aria-label={label}
-      className="action-btn w-11 h-11 bg-surface-variant rounded-xl flex items-center justify-center text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors shadow-sm border border-outline-variant/30 cursor-pointer"
+      className="action-btn action-btn-theme w-11 h-11 bg-surface-variant rounded-xl flex items-center justify-center text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors shadow-sm border border-outline-variant/30 cursor-pointer"
     >
       <SunToMoon isDarkMode={isDarkMode} />
     </button>

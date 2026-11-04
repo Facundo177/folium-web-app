@@ -234,7 +234,7 @@ export default function Sidebar() {
               type="button"
               title="Cerrar Sesión"
               aria-label="Cerrar sesión"
-              className="action-btn w-11 h-11 bg-surface-variant rounded-xl flex items-center justify-center text-on-surface hover:bg-error hover:text-on-error transition-colors shadow-sm border border-outline-variant/30 shrink-0 cursor-pointer"
+              className="action-btn action-btn-auth w-11 h-11 bg-surface-variant rounded-xl flex items-center justify-center text-on-surface hover:bg-error hover:text-on-error transition-colors shadow-sm border border-outline-variant/30 shrink-0 cursor-pointer"
               onClick={() => setShowLogoutModal(true)}
             >
               <LogOut className="w-6 h-6" />
@@ -244,7 +244,7 @@ export default function Sidebar() {
               type="button"
               title="Iniciar Sesión"
               aria-label="Iniciar sesión"
-              className="action-btn w-11 h-11 bg-primary text-on-primary rounded-xl flex items-center justify-center hover:opacity-90 transition-colors shadow-sm border border-outline-variant/30 shrink-0 cursor-pointer"
+              className="action-btn action-btn-auth w-11 h-11 bg-primary text-on-primary rounded-xl flex items-center justify-center hover:opacity-90 transition-colors shadow-sm border border-outline-variant/30 shrink-0 cursor-pointer"
               onClick={() => {
                 setIsMobileOpen(false);
                 navigate('/login');
