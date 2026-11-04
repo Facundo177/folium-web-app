@@ -913,7 +913,7 @@ export default function LoadBookForm() {
               value={formData.isbn}
               onChange={handleChange}
               placeholder="Ej. 9789500419574"
-              className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-md text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors font-mono"
+              className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-md text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors font-sans tabular-nums"
             />
           </div>
         </div>
@@ -937,7 +937,7 @@ export default function LoadBookForm() {
             onChange={handleChange}
             required
             placeholder="Ej. 1944"
-            className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-md text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors font-mono"
+            className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-md text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors font-sans tabular-nums"
           />
         </div>
 

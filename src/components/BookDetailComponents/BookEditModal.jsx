@@ -404,7 +404,7 @@ export default function BookEditModal({ isOpen, book, onClose, onSaved }) {
                     isbn: e.target.value.replace(/[^0-9]/g, ""),
                   })
                 }
-                className="w-full p-2.5 bg-surface-container-lowest border border-outline-variant rounded-sm text-sm text-on-surface focus:outline-none focus:border-primary font-mono"
+                className="w-full p-2.5 bg-surface-container-lowest border border-outline-variant rounded-sm text-sm text-on-surface focus:outline-none focus:border-primary font-sans tabular-nums"
               />
             </div>
             <div>
@@ -425,7 +425,7 @@ export default function BookEditModal({ isOpen, book, onClose, onSaved }) {
                     publication_year: e.target.value,
                   })
                 }
-                className="w-full p-2.5 bg-surface-container-lowest border border-outline-variant rounded-sm text-sm text-on-surface focus:outline-none focus:border-primary font-mono"
+                className="w-full p-2.5 bg-surface-container-lowest border border-outline-variant rounded-sm text-sm text-on-surface focus:outline-none focus:border-primary font-sans tabular-nums"
               />
             </div>
           </div>

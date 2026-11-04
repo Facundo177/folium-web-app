@@ -297,14 +297,14 @@ export default function ItemForm() {
                           onClick={() => handleSelectBook(book)}
                           className="px-4 py-3 cursor-pointer hover:bg-primary/20 hover:text-primary text-on-surface border-b border-outline-variant/30 last:border-0 transition-colors flex items-center gap-3"
                         >
-                          <span className="text-xs font-mono font-bold text-on-surface-variant">
+                          <span className="text-xs font-sans tabular-nums font-bold text-on-surface-variant">
                             #{book.id}
                           </span>
                           <span className="font-serif text-sm">
                             {book.title}
                           </span>
                           {book.isbn && (
-                            <span className="text-xs font-mono text-outline ml-auto">
+                            <span className="text-xs font-sans tabular-nums text-outline ml-auto">
                               {book.isbn}
                             </span>
                           )}
@@ -352,7 +352,7 @@ export default function ItemForm() {
                 required
                 aria-invalid={Boolean(errors.inventory_code)}
                 aria-describedby={errors.inventory_code ? "item-code-error" : undefined}
-                className="w-full px-4 py-3 bg-surface-container border border-outline-variant rounded-sm text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors placeholder:text-on-surface-variant/50 font-mono uppercase"
+                className="w-full px-4 py-3 bg-surface-container border border-outline-variant rounded-sm text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors placeholder:text-on-surface-variant/50 font-sans tabular-nums uppercase"
               />
               <FieldError id="item-code-error" messages={errors.inventory_code} />
             </div>

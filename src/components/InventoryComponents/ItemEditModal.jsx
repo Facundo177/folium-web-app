@@ -184,7 +184,7 @@ export default function ItemEditModal({
                   setEditForm({ ...editForm, inventory_code: e.target.value })
                 }
                 placeholder="Ej. INV-00134"
-                className="w-full p-2.5 bg-surface-container-lowest border border-outline-variant rounded-sm text-sm text-on-surface focus:outline-none focus:border-primary font-mono uppercase"
+                className="w-full p-2.5 bg-surface-container-lowest border border-outline-variant rounded-sm text-sm text-on-surface focus:outline-none focus:border-primary font-sans tabular-nums uppercase"
               />
             </div>
             <div>
