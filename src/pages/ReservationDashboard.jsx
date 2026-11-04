@@ -715,15 +715,15 @@ export default function ReservationDashboard() {
                         type="button"
                         onClick={() => setReservationToAccept(reservation)}
                         disabled={isProcessing || isCancelling}
-                        className="flex-1 py-2 text-xs font-semibold uppercase tracking-wider rounded-xs bg-primary text-on-primary hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50"
+                        className="flex-1 py-2 text-xs font-semibold uppercase tracking-wider rounded-xs bg-primary text-on-primary hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50 text-center"
                       >
-                        Aceptar y Prestar
+                        Prestar
                       </button>
                       <button
                         type="button"
                         onClick={() => setReservationToCancel(reservation)}
                         disabled={isProcessing || isCancelling}
-                        className="px-4 py-2 text-xs font-semibold uppercase tracking-wider rounded-xs border border-error/50 text-error hover:bg-error/5 transition-colors cursor-pointer disabled:opacity-50"
+                        className="flex-1 py-2 text-xs font-semibold uppercase tracking-wider rounded-xs border border-error/70 bg-error/10 text-error hover:bg-error hover:text-on-error hover:border-error dark:border-red-400/60 dark:bg-red-950/30 dark:text-red-400 dark:hover:bg-red-600 dark:hover:text-white dark:hover:border-red-600 transition-all duration-150 cursor-pointer disabled:opacity-50 text-center"
                       >
                         Cancelar
                       </button>
@@ -778,7 +778,7 @@ export default function ReservationDashboard() {
                 </th>
                 <th
                   scope="col"
-                  className="px-4 py-3.5 text-[11px] uppercase tracking-wider font-semibold text-on-surface-variant font-sans text-center w-52"
+                  className="px-4 py-3.5 text-[11px] uppercase tracking-wider font-semibold text-on-surface-variant font-sans text-center w-56"
                 >
                   Resolución Mostrador
                 </th>
@@ -879,16 +879,16 @@ export default function ReservationDashboard() {
                               type="button"
                               onClick={() => setReservationToAccept(reservation)}
                               disabled={isProcessing || isCancelling}
-                              className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider rounded-xs bg-primary text-on-primary hover:opacity-90 transition-opacity shadow-2xs cursor-pointer disabled:opacity-50"
+                              className="w-24 py-1.5 text-xs font-semibold uppercase tracking-wider rounded-xs bg-primary text-on-primary hover:opacity-90 transition-opacity shadow-2xs cursor-pointer disabled:opacity-50 text-center"
                               title="Asignar ejemplar y registrar préstamo"
                             >
-                              Aceptar y Prestar
+                              Prestar
                             </button>
                             <button
                               type="button"
                               onClick={() => setReservationToCancel(reservation)}
                               disabled={isProcessing || isCancelling}
-                              className="px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wider rounded-xs border border-error/50 text-error hover:bg-error/5 transition-colors cursor-pointer disabled:opacity-50"
+                              className="w-24 py-1.5 text-xs font-semibold uppercase tracking-wider rounded-xs border border-error/70 bg-error/10 text-error hover:bg-error hover:text-on-error hover:border-error dark:border-red-400/60 dark:bg-red-950/30 dark:text-red-400 dark:hover:bg-red-600 dark:hover:text-white dark:hover:border-red-600 transition-all duration-150 cursor-pointer disabled:opacity-50 text-center"
                               title="Cancelar solicitud"
                             >
                               Cancelar
