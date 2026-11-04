@@ -1,4 +1,4 @@
-export default function FoliumFullLogo({colorLogo = '#60000c'}) {
+export default function FoliumFullLogo({colorLogo = 'var(--color-primary)'}) {
 
   return (
 <svg
@@ -14,7 +14,7 @@ export default function FoliumFullLogo({colorLogo = '#60000c'}) {
         clipRule: 'evenodd',
         strokeLinejoin: 'round',
         strokeMiterlimit: 2,
-        filter: 'drop-shadow(0px 1px 1px #ffffff)'
+
       }}
     >
       <g transform="matrix(1,0,0,1,-253.770194,-121.583333)">
