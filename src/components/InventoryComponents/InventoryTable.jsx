@@ -325,7 +325,7 @@ export const InventoryTable = ({
                     onClick={() => handleOpenEdit(row)}
                     title="Editar ejemplar"
                     aria-label={`Editar ejemplar ${row.code}`}
-                    className="p-2 border border-outline-variant bg-surface-container-lowest text-on-surface hover:bg-primary hover:text-on-primary hover:border-primary rounded-sm transition-colors shadow-xs cursor-pointer active:scale-95"
+                    className="p-2 border border-outline-variant/60 bg-surface-container-lowest text-on-surface-variant hover:text-primary hover:bg-primary/10 hover:border-primary/50 hover:scale-105 active:scale-95 transition-all duration-150 rounded-sm shadow-xs cursor-pointer"
                   >
                     <Pencil className="w-4 h-4" />
                   </button>
@@ -337,7 +337,7 @@ export const InventoryTable = ({
                     }}
                     title="Eliminar ejemplar"
                     aria-label={`Eliminar ejemplar ${row.code}`}
-                    className="p-2 border border-error/40 bg-surface-container-lowest text-error hover:bg-error hover:text-on-error rounded-sm transition-colors shadow-xs cursor-pointer active:scale-95"
+                    className="p-2 border border-error/30 bg-surface-container-lowest text-error/80 hover:text-error hover:bg-error/10 hover:border-error/60 hover:scale-105 active:scale-95 transition-all duration-150 rounded-sm shadow-xs cursor-pointer"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -465,7 +465,7 @@ export const InventoryTable = ({
                         onClick={() => handleOpenEdit(row)}
                         title="Editar ejemplar"
                         aria-label={`Editar ejemplar ${row.code}`}
-                        className="p-2 border border-outline-variant bg-surface-container-lowest text-on-surface hover:bg-primary hover:text-on-primary hover:border-primary rounded-sm transition-colors shadow-xs cursor-pointer"
+                        className="p-2 border border-outline-variant/60 bg-surface-container-lowest text-on-surface-variant hover:text-primary hover:bg-primary/10 hover:border-primary/50 hover:scale-105 active:scale-95 transition-all duration-150 rounded-sm shadow-xs cursor-pointer"
                       >
                         <Pencil className="w-4 h-4" />
                       </button>
@@ -477,7 +477,7 @@ export const InventoryTable = ({
                         }}
                         title="Eliminar ejemplar"
                         aria-label={`Eliminar ejemplar ${row.code}`}
-                        className="p-2 border border-error/40 bg-surface-container-lowest text-error hover:bg-error hover:text-on-error rounded-sm transition-colors shadow-xs cursor-pointer"
+                        className="p-2 border border-error/30 bg-surface-container-lowest text-error/80 hover:text-error hover:bg-error/10 hover:border-error/60 hover:scale-105 active:scale-95 transition-all duration-150 rounded-sm shadow-xs cursor-pointer"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
