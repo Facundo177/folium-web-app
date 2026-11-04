@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BadgeCheck, Check, ShieldCheck, Building2 } from "lucide-react";
+import { BadgeCheck, Check, Sparkle, ShieldCheck, Building2 } from "lucide-react";
 import { DEFAULT_LIBRARY_PLANS } from "../../api/services/billingService";
 
 /**
@@ -49,11 +49,11 @@ export default function LibraryPricingCards({
           </p>
 
           {/* Barra de Selectores: Ciclo Mensual/Anual y Moneda */}
-          <div className="inline-flex flex-wrap items-center justify-center gap-3 bg-surface-container p-1.5 rounded-sm border border-outline-variant/60 shadow-xs">
+          <div className="inline-flex flex-wrap items-center justify-center gap-3 bg-surface-container p-1.5 rounded-full border border-outline-variant/60 shadow-xs">
             <button
               type="button"
               onClick={() => setBillingCycle("MONTHLY")}
-              className={`px-5 py-2 rounded-sm text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+              className={`px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
                 billingCycle === "MONTHLY"
                   ? "bg-primary text-on-primary shadow-xs"
                   : "text-on-surface-variant hover:text-on-surface"
@@ -64,7 +64,7 @@ export default function LibraryPricingCards({
             <button
               type="button"
               onClick={() => setBillingCycle("ANNUAL")}
-              className={`px-5 py-2 rounded-sm text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer ${
+              className={`px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer ${
                 billingCycle === "ANNUAL"
                   ? "bg-primary text-on-primary shadow-xs"
                   : "text-on-surface-variant hover:text-on-surface"
@@ -72,7 +72,7 @@ export default function LibraryPricingCards({
             >
               <span>Anual</span>
               <span
-                className={`px-2 py-0.5 rounded-xs text-[10px] font-extrabold ${
+                className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
                   billingCycle === "ANNUAL"
                     ? "bg-on-primary text-primary"
                     : "bg-primary/15 text-primary"
@@ -84,11 +84,11 @@ export default function LibraryPricingCards({
 
             <div className="h-5 w-px bg-outline-variant/60 mx-1 hidden sm:block" />
 
-            <div className="inline-flex items-center rounded-sm bg-surface-container-lowest border border-outline-variant/40 p-0.5 text-[11px] font-bold">
+            <div className="inline-flex items-center rounded-full bg-surface-container-lowest border border-outline-variant/40 p-0.5 text-[11px] font-bold">
               <button
                 type="button"
                 onClick={() => setCurrencyView("ARS")}
-                className={`px-3 py-1 rounded-xs transition-colors cursor-pointer ${
+                className={`px-3 py-1 rounded-full transition-colors cursor-pointer ${
                   currencyView === "ARS"
                     ? "bg-secondary text-on-secondary"
                     : "text-on-surface-variant hover:text-on-surface"
@@ -99,7 +99,7 @@ export default function LibraryPricingCards({
               <button
                 type="button"
                 onClick={() => setCurrencyView("USD")}
-                className={`px-3 py-1 rounded-xs transition-colors cursor-pointer ${
+                className={`px-3 py-1 rounded-full transition-colors cursor-pointer ${
                   currencyView === "USD"
                     ? "bg-secondary text-on-secondary"
                     : "text-on-surface-variant hover:text-on-surface"
@@ -128,7 +128,7 @@ export default function LibraryPricingCards({
             return (
               <article
                 key={plan.code}
-                className={`relative rounded-md bg-surface-container-lowest p-7 sm:p-9 flex flex-col justify-between transition-all duration-300 ${
+                className={`relative rounded-3xl bg-surface-container-lowest p-7 sm:p-9 flex flex-col justify-between transition-all duration-300 ${
                   isPro
                     ? "border-2 border-primary shadow-xl ring-1 ring-primary/15"
                     : "border border-outline-variant/80 shadow-md hover:border-outline"
@@ -171,7 +171,7 @@ export default function LibraryPricingCards({
                       </span>
                       {currencyView === "ARS" ? (
                         <>
-                          <span className="font-serif text-4xl sm:text-5xl font-bold text-primary tracking-tight leading-none tabular-nums">
+                          <span className="font-serif text-4xl sm:text-5xl font-bold text-primary tracking-tight leading-none">
                             {formatArsPrice(displayArsPrice)}
                           </span>
                           <span className="text-body-md font-medium text-on-surface-variant">
@@ -180,7 +180,7 @@ export default function LibraryPricingCards({
                         </>
                       ) : (
                         <>
-                          <span className="font-serif text-4xl sm:text-5xl font-bold text-primary tracking-tight leading-none tabular-nums">
+                          <span className="font-serif text-4xl sm:text-5xl font-bold text-primary tracking-tight leading-none">
                             {displayUsdPrice}
                           </span>
                           <span className="text-body-md font-medium text-on-surface-variant">
@@ -205,7 +205,7 @@ export default function LibraryPricingCards({
                   <button
                     type="button"
                     onClick={() => handlePlanClick(plan)}
-                    className={`w-full py-3 px-6 rounded-sm text-sm font-bold tracking-wide transition-all cursor-pointer shadow-sm mb-8 ${
+                    className={`w-full py-3.5 px-6 rounded-full text-sm font-bold tracking-wide transition-all cursor-pointer shadow-sm mb-8 ${
                       isPro
                         ? "bg-primary text-on-primary hover:opacity-95 shadow-md"
                         : "bg-primary/90 text-on-primary hover:bg-primary"
@@ -222,11 +222,15 @@ export default function LibraryPricingCards({
                     </p>
                   </div>
 
-                  {/* Grupos de Características */}
+                  {/* Grupos de Características con Estrella de 4 Puntas (✦) y Tildes (✓) */}
                   <div className="pt-5 flex flex-col gap-6">
                     {(plan.feature_groups || []).map((group, gIdx) => (
                       <div key={gIdx} className="flex flex-col gap-3">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2.5">
+                          <Sparkle
+                            className="w-4 h-4 text-on-surface shrink-0"
+                            fill="currentColor"
+                          />
                           <h4 className="text-body-md font-bold text-on-surface">
                             {group.category}
                           </h4>
@@ -262,9 +266,9 @@ export default function LibraryPricingCards({
         </div>
 
         {/* Franja de Modalidad Sin Cargo (Folium Comunidad) */}
-        <div className="mt-8 rounded-md bg-surface-container border border-outline-variant/60 p-6 sm:p-7 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="mt-8 rounded-2xl bg-surface-container border border-outline-variant/60 p-6 sm:p-7 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-start gap-4">
-            <div className="w-11 h-11 rounded-sm bg-surface-container-lowest border border-outline-variant/50 flex items-center justify-center text-primary shrink-0">
+            <div className="w-11 h-11 rounded-xl bg-surface-container-lowest border border-outline-variant/50 flex items-center justify-center text-primary shrink-0">
               <Building2 className="w-5 h-5" />
             </div>
             <div>
@@ -272,7 +276,7 @@ export default function LibraryPricingCards({
                 <h4 className="font-serif text-xl font-semibold text-on-surface">
                   Modalidad Sin Cargo — Folium Comunidad
                 </h4>
-                <span className="text-xs font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-xs bg-surface-container-lowest text-on-surface border border-outline-variant/50">
+                <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-surface-container-lowest text-on-surface border border-outline-variant/50">
                   Gratis para siempre
                 </span>
               </div>
