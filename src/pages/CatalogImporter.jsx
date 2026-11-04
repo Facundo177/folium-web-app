@@ -406,10 +406,10 @@ export default function CatalogImporter() {
   };
 
   const steps = [
-    { num: "01", name: "Documento Fuente" },
-    { num: "02", name: "Cotejo de Columnas" },
-    { num: "03", name: "Auditoría de Ingesta" },
-    { num: "04", name: "Acta de Incorporación" },
+    { num: "1", name: "Documento Fuente" },
+    { num: "2", name: "Cotejo de Columnas" },
+    { num: "3", name: "Auditoría de Ingesta" },
+    { num: "4", name: "Acta de Incorporación" },
   ];
 
   return (
@@ -420,9 +420,9 @@ export default function CatalogImporter() {
       <div className="border-b border-outline-variant/60 pb-6 mb-8">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
           <GoBackButton />
-          <div className="flex items-center gap-2 text-[11px] font-mono tracking-widest uppercase text-on-surface-variant">
+          <div className="flex items-center gap-2 text-xs font-sans text-on-surface-variant">
             <Archive className="w-3.5 h-3.5 text-primary" />
-            <span>Folio Cat-Ingesta // Registro Colectivo</span>
+            <span>Registro Colectivo de Ingesta</span>
           </div>
         </div>
 
@@ -455,7 +455,7 @@ export default function CatalogImporter() {
                   />
                   <div className="flex items-baseline gap-2">
                     <span
-                      className={`font-mono text-xs ${
+                      className={`font-sans tabular-nums text-xs ${
                         isActive
                           ? "text-primary font-bold"
                           : isPast
@@ -500,11 +500,11 @@ export default function CatalogImporter() {
           <div className="bg-surface-container-lowest border border-outline-variant/80 rounded-sm">
             {/* Cabecera de la Ficha de Depósito */}
             <div className="px-6 py-4 border-b border-outline-variant/60 flex flex-wrap items-center justify-between gap-3 bg-surface-container-low/50">
-              <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-on-surface-variant">
+              <div className="flex items-center gap-2 text-xs font-sans font-semibold text-on-surface-variant">
                 <FileCheck className="w-4 h-4 text-primary" />
-                <span>Hoja de Depósito // Admisión de Registros</span>
+                <span>Hoja de Admisión de Registros</span>
               </div>
-              <span className="text-[11px] font-mono text-on-surface-variant">
+              <span className="text-xs font-sans tabular-nums text-on-surface-variant">
                 Límite: 20 MB por lote (Excel máx. 4 MB)
               </span>
             </div>
@@ -551,7 +551,7 @@ export default function CatalogImporter() {
                   </p>
 
                   {/* Sellos de Formatos Admitidos con Mayor Contraste y Tipografía Monospaced */}
-                  <div className="pt-4 border-t border-outline-variant/40 flex flex-wrap items-center justify-center gap-2 text-xs font-mono">
+                  <div className="pt-4 border-t border-outline-variant/40 flex flex-wrap items-center justify-center gap-2 text-xs font-sans">
                     <span className="px-2.5 py-1 bg-surface-container-low border border-outline-variant text-on-surface rounded-sm">
                       <strong className="text-primary font-bold">MARC 21</strong> (.mrc)
                     </span>
@@ -577,8 +577,8 @@ export default function CatalogImporter() {
                   <div className="flex items-start gap-3">
                     <FileText className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                     <div>
-                      <div className="font-mono text-sm font-bold text-on-surface">{file.name}</div>
-                      <div className="text-xs text-on-surface-variant mt-0.5 flex flex-wrap items-center gap-2 font-mono">
+                      <div className="font-sans text-sm font-bold text-on-surface">{file.name}</div>
+                      <div className="text-xs text-on-surface-variant mt-0.5 flex flex-wrap items-center gap-2 font-sans tabular-nums">
                         <span>
                           {file.size >= 1024 * 1024
                             ? `${(file.size / (1024 * 1024)).toFixed(2)} MB`
@@ -633,7 +633,7 @@ export default function CatalogImporter() {
                 <button
                   type="button"
                   onClick={() => handleDownloadSample("csv")}
-                  className="px-3.5 py-2 bg-surface-container-lowest border border-outline-variant text-on-surface text-xs font-mono hover:border-primary transition-colors flex items-center gap-2 cursor-pointer rounded-sm shadow-xs"
+                  className="px-3.5 py-2 bg-surface-container-lowest border border-outline-variant text-on-surface text-xs font-sans hover:border-primary transition-colors flex items-center gap-2 cursor-pointer rounded-sm shadow-xs"
                 >
                   <span className="px-1.5 py-0.5 bg-surface-container text-on-surface text-[10px] font-bold border border-outline-variant/60 rounded-xs">
                     CSV
@@ -644,7 +644,7 @@ export default function CatalogImporter() {
                 <button
                   type="button"
                   onClick={() => handleDownloadSample("bib")}
-                  className="px-3.5 py-2 bg-surface-container-lowest border border-outline-variant text-on-surface text-xs font-mono hover:border-primary transition-colors flex items-center gap-2 cursor-pointer rounded-sm shadow-xs"
+                  className="px-3.5 py-2 bg-surface-container-lowest border border-outline-variant text-on-surface text-xs font-sans hover:border-primary transition-colors flex items-center gap-2 cursor-pointer rounded-sm shadow-xs"
                 >
                   <span className="px-1.5 py-0.5 bg-surface-container text-on-surface text-[10px] font-bold border border-outline-variant/60 rounded-xs">
                     BIB
@@ -655,7 +655,7 @@ export default function CatalogImporter() {
                 <button
                   type="button"
                   onClick={() => handleDownloadSample("mrc")}
-                  className="px-3.5 py-2 bg-surface-container-lowest border border-outline-variant text-on-surface text-xs font-mono hover:border-primary transition-colors flex items-center gap-2 cursor-pointer rounded-sm shadow-xs"
+                  className="px-3.5 py-2 bg-surface-container-lowest border border-outline-variant text-on-surface text-xs font-sans hover:border-primary transition-colors flex items-center gap-2 cursor-pointer rounded-sm shadow-xs"
                 >
                   <span className="px-1.5 py-0.5 bg-surface-container text-on-surface text-[10px] font-bold border border-outline-variant/60 rounded-xs">
                     MRC
@@ -666,7 +666,7 @@ export default function CatalogImporter() {
                 <button
                   type="button"
                   onClick={() => handleDownloadSample("marcxml")}
-                  className="px-3.5 py-2 bg-surface-container-lowest border border-outline-variant text-on-surface text-xs font-mono hover:border-primary transition-colors flex items-center gap-2 cursor-pointer rounded-sm shadow-xs"
+                  className="px-3.5 py-2 bg-surface-container-lowest border border-outline-variant text-on-surface text-xs font-sans hover:border-primary transition-colors flex items-center gap-2 cursor-pointer rounded-sm shadow-xs"
                 >
                   <span className="px-1.5 py-0.5 bg-surface-container text-on-surface text-[10px] font-bold border border-outline-variant/60 rounded-xs">
                     XML
@@ -689,9 +689,9 @@ export default function CatalogImporter() {
             {/* Barra de Contexto del Cotejo */}
             <div className="px-6 py-4 border-b border-outline-variant/60 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-surface-container-low/40">
               <div>
-                <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-on-surface-variant">
+                <div className="flex items-center gap-2 text-xs font-sans font-semibold text-on-surface-variant">
                   <Database className="w-4 h-4 text-primary" />
-                  <span>Cotejo de Columnas // {file?.name}</span>
+                  <span>Cotejo de Columnas · {file?.name}</span>
                 </div>
                 <div className="font-serif text-xl text-on-surface mt-1">
                   Correspondencia de Campos ({totalRows} filas detectadas)
@@ -702,7 +702,7 @@ export default function CatalogImporter() {
                 <button
                   type="button"
                   onClick={() => setShowAdvancedOptions((prev) => !prev)}
-                  className={`flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider px-3 py-1.5 border transition-colors cursor-pointer rounded-sm ${
+                  className={`flex items-center gap-1.5 text-xs font-sans font-medium px-3 py-1.5 border transition-colors cursor-pointer rounded-sm ${
                     showAdvancedOptions || formatOptions.genre_separator !== "auto" || formatOptions.author_format !== "auto"
                       ? "border-primary text-primary bg-primary/[0.04]"
                       : "border-outline-variant text-on-surface-variant hover:border-on-surface"
@@ -731,7 +731,7 @@ export default function CatalogImporter() {
                           author_format: "auto",
                         }))
                       }
-                      className="text-xs font-mono text-primary underline hover:opacity-80 cursor-pointer"
+                      className="text-xs font-sans text-primary underline hover:opacity-80 cursor-pointer"
                     >
                       Restablecer automáticos
                     </button>
@@ -740,7 +740,7 @@ export default function CatalogImporter() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-xs font-mono uppercase tracking-wider text-on-surface mb-1.5">
+                    <label className="block text-xs font-sans font-semibold text-on-surface mb-1.5">
                       Segmentación de Descriptores / Materias
                     </label>
                     <select
@@ -748,7 +748,7 @@ export default function CatalogImporter() {
                       onChange={(e) =>
                         setFormatOptions((prev) => ({ ...prev, genre_separator: e.target.value }))
                       }
-                      className="w-full text-xs font-mono bg-surface-container-lowest border border-outline-variant rounded-sm px-3 py-2 text-on-surface focus:outline-none focus:border-primary"
+                      className="w-full text-xs font-sans bg-surface-container-lowest border border-outline-variant rounded-sm px-3 py-2 text-on-surface focus:outline-none focus:border-primary"
                     >
                       <option value="auto">Automático (coma, punto y coma o barra /)</option>
                       <option value="comma">Separar exclusivamente por coma (,)</option>
@@ -759,7 +759,7 @@ export default function CatalogImporter() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-mono uppercase tracking-wider text-on-surface mb-1.5">
+                    <label className="block text-xs font-sans font-semibold text-on-surface mb-1.5">
                       Sintaxis de Autores
                     </label>
                     <select
@@ -767,7 +767,7 @@ export default function CatalogImporter() {
                       onChange={(e) =>
                         setFormatOptions((prev) => ({ ...prev, author_format: e.target.value }))
                       }
-                      className="w-full text-xs font-mono bg-surface-container-lowest border border-outline-variant rounded-sm px-3 py-2 text-on-surface focus:outline-none focus:border-primary"
+                      className="w-full text-xs font-sans bg-surface-container-lowest border border-outline-variant rounded-sm px-3 py-2 text-on-surface focus:outline-none focus:border-primary"
                     >
                       <option value="auto">Automático (reconoce 'Apellido, Nombre' y nombres directos)</option>
                       <option value="firstname_lastname">Nombre Apellido (autores separados por ';' o coma)</option>
@@ -796,7 +796,7 @@ export default function CatalogImporter() {
                   onClick={() =>
                     setFormatOptions((prev) => ({ ...prev, fetch_covers_by_isbn: true }))
                   }
-                  className={`px-3 py-1 text-xs font-mono uppercase tracking-wider border rounded-sm transition-colors cursor-pointer ${
+                  className={`px-3 py-1 text-xs font-sans font-medium border rounded-sm transition-colors cursor-pointer ${
                     formatOptions.fetch_covers_by_isbn
                       ? "border-primary bg-primary text-on-primary font-bold"
                       : "border-outline-variant text-on-surface-variant hover:border-on-surface"
@@ -809,7 +809,7 @@ export default function CatalogImporter() {
                   onClick={() =>
                     setFormatOptions((prev) => ({ ...prev, fetch_covers_by_isbn: false }))
                   }
-                  className={`px-3 py-1 text-xs font-mono uppercase tracking-wider border rounded-sm transition-colors cursor-pointer ${
+                  className={`px-3 py-1 text-xs font-sans font-medium border rounded-sm transition-colors cursor-pointer ${
                     !formatOptions.fetch_covers_by_isbn
                       ? "border-primary bg-primary text-on-primary font-bold"
                       : "border-outline-variant text-on-surface-variant hover:border-on-surface"
@@ -823,7 +823,7 @@ export default function CatalogImporter() {
             {/* Mesa de Mapeo Tabular (Ledger) con Validación Visual en Verde */}
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
-                <thead className="bg-surface-container-low text-on-surface-variant border-b border-outline-variant font-mono text-[11px] uppercase tracking-wider">
+                <thead className="bg-surface-container-low text-on-surface-variant border-b border-outline-variant font-sans text-xs font-semibold">
                   <tr>
                     <th className="py-3 px-6 w-1/3">Campo Canónico Folium</th>
                     <th className="py-3 px-6 w-1/3">Columna en Archivo Fuente</th>
@@ -843,11 +843,11 @@ export default function CatalogImporter() {
                               {field.label}
                             </span>
                             {selectedCol ? (
-                              <span className="text-[10px] font-mono uppercase tracking-wider text-emerald-700 dark:text-emerald-400 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded-xs border border-emerald-500/20">
+                              <span className="text-xs font-sans font-medium text-emerald-700 dark:text-emerald-400 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded-xs border border-emerald-500/20">
                                 ✓ Asignado
                               </span>
                             ) : field.required ? (
-                              <span className="text-[10px] font-mono uppercase tracking-wider text-amber-700 dark:text-amber-400 font-bold bg-amber-500/10 px-1.5 py-0.5 rounded-xs border border-amber-500/20">
+                              <span className="text-xs font-sans font-medium text-amber-700 dark:text-amber-400 font-bold bg-amber-500/10 px-1.5 py-0.5 rounded-xs border border-amber-500/20">
                                 [Requerido]
                               </span>
                             ) : null}
@@ -861,7 +861,7 @@ export default function CatalogImporter() {
                           <select
                             value={selectedCol}
                             onChange={(e) => handleMappingChange(field.id, e.target.value)}
-                            className={`w-full text-xs font-mono border rounded-sm px-3 py-2 text-on-surface bg-surface-container-lowest focus:outline-none focus:border-primary ${
+                            className={`w-full text-xs font-sans border rounded-sm px-3 py-2 text-on-surface bg-surface-container-lowest focus:outline-none focus:border-primary ${
                               selectedCol
                                 ? "border-emerald-600/50 dark:border-emerald-500/50 font-semibold"
                                 : field.required
@@ -878,7 +878,7 @@ export default function CatalogImporter() {
                           </select>
                         </td>
 
-                        <td className="py-3.5 px-6 align-top font-mono text-xs">
+                        <td className="py-3.5 px-6 align-top font-sans tabular-nums text-xs">
                           {sampleValue ? (
                             <span className="text-on-surface bg-surface-container-low px-2.5 py-1 rounded-sm border-l-2 border-emerald-600 dark:border-emerald-400 border-t border-r border-b border-outline-variant/40 inline-block max-w-xs truncate shadow-2xs">
                               {sampleValue}
@@ -904,14 +904,14 @@ export default function CatalogImporter() {
                 <span className="font-serif text-sm text-on-surface">
                   Muestra de registro en crudo (5 primeras filas)
                 </span>
-                <span className="text-[11px] font-mono text-on-surface-variant">
+                <span className="text-xs font-sans tabular-nums text-on-surface-variant">
                   {fileHeaders.length} columnas detectadas
                 </span>
               </div>
 
               <div className="overflow-x-auto max-h-56 border border-outline-variant/60 rounded-sm">
                 <table className="w-full text-left text-xs border-collapse">
-                  <thead className="bg-surface-container-low sticky top-0 text-on-surface-variant font-mono text-[10px] uppercase tracking-wider border-b border-outline-variant">
+                  <thead className="bg-surface-container-low sticky top-0 text-on-surface-variant font-sans text-xs font-semibold border-b border-outline-variant">
                     <tr>
                       <th className="p-2 border-r border-outline-variant/40 w-12 text-center">#</th>
                       {fileHeaders.map((h) => (
@@ -921,7 +921,7 @@ export default function CatalogImporter() {
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-outline-variant/30 font-mono text-[11px]">
+                  <tbody className="divide-y divide-outline-variant/30 font-sans tabular-nums text-xs">
                     {sampleRows.map((row, idx) => (
                       <tr key={idx} className="hover:bg-surface-container-low/30">
                         <td className="p-2 text-center text-on-surface-variant/60 border-r border-outline-variant/40">
@@ -945,7 +945,7 @@ export default function CatalogImporter() {
             <button
               type="button"
               onClick={() => setCurrentStep(1)}
-              className="flex items-center gap-2 px-4 py-2 text-xs font-mono uppercase tracking-wider text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2 text-xs font-sans font-medium text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Volver a Documento</span>
@@ -984,21 +984,21 @@ export default function CatalogImporter() {
           {/* Balance Tipográfico de Ingesta con Colores Semánticos Claros */}
           <div className="bg-surface-container-lowest border border-outline-variant/80 rounded-sm">
             <div className="px-6 py-4 border-b border-outline-variant/60 flex items-center justify-between bg-surface-container-low/40">
-              <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-on-surface-variant">
+              <div className="flex items-center gap-2 text-xs font-sans font-semibold text-on-surface-variant">
                 <FileCheck className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
-                <span>Auditoría de Ingesta // Balance Técnico</span>
+                <span>Auditoría de Ingesta · Balance Técnico</span>
               </div>
-              <span className="text-[11px] font-mono text-on-surface-variant">
+              <span className="text-xs font-sans tabular-nums text-on-surface-variant">
                 Modo: Simulación (Dry Run sin alteración de base de datos)
               </span>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-outline-variant/60">
               <div className="p-6">
-                <span className="text-[11px] font-mono uppercase tracking-widest text-on-surface-variant">
+                <span className="text-xs font-sans font-medium text-on-surface-variant">
                   Registros en Planilla
                 </span>
-                <p className="font-serif text-3xl text-on-surface mt-2 font-normal">
+                <p className="font-serif text-3xl tabular-nums text-on-surface mt-2 font-normal">
                   {simulationData.total_rows}
                 </p>
                 <span className="text-xs text-on-surface-variant mt-1 block">Filas leídas en archivo</span>
@@ -1006,10 +1006,10 @@ export default function CatalogImporter() {
 
               {/* Obras Nuevas en Verde de Éxito / Incorporación */}
               <div className="p-6">
-                <span className="text-[11px] font-mono uppercase tracking-widest text-emerald-800 dark:text-emerald-400 font-semibold">
+                <span className="text-xs font-sans font-semibold text-emerald-800 dark:text-emerald-400">
                   Obras Nuevas (Alta)
                 </span>
-                <p className="font-serif text-3xl text-emerald-700 dark:text-emerald-400 mt-2 font-normal">
+                <p className="font-serif text-3xl tabular-nums text-emerald-700 dark:text-emerald-400 mt-2 font-normal">
                   {simulationData.new_books ?? simulationData.new_books_count ?? 0}
                 </p>
                 <span className="text-xs text-emerald-800/80 dark:text-emerald-400/80 mt-1 block">
@@ -1019,10 +1019,10 @@ export default function CatalogImporter() {
 
               {/* Obras Existentes en Tono Neutro Pizarra */}
               <div className="p-6">
-                <span className="text-[11px] font-mono uppercase tracking-widest text-on-surface-variant font-medium">
+                <span className="text-xs font-sans font-medium text-on-surface-variant">
                   Obras Existentes
                 </span>
-                <p className="font-serif text-3xl text-on-surface mt-2 font-normal">
+                <p className="font-serif text-3xl tabular-nums text-on-surface mt-2 font-normal">
                   {simulationData.existing_books ?? simulationData.existing_books_count ?? 0}
                 </p>
                 <span className="text-xs text-on-surface-variant mt-1 block">Se sumarán ejemplares físicos</span>
@@ -1030,10 +1030,10 @@ export default function CatalogImporter() {
 
               {/* Inconsistencias en Ámbar Cálido de Advertencia */}
               <div className="p-6">
-                <span className="text-[11px] font-mono uppercase tracking-widest text-amber-800 dark:text-amber-400 font-semibold">
+                <span className="text-xs font-sans font-semibold text-amber-800 dark:text-amber-400">
                   Registros Omitidos
                 </span>
-                <p className="font-serif text-3xl text-amber-700 dark:text-amber-400 mt-2 font-normal">
+                <p className="font-serif text-3xl tabular-nums text-amber-700 dark:text-amber-400 mt-2 font-normal">
                   {simulationData.rows_with_errors ?? simulationData.errors_count ?? 0}
                 </p>
                 <span className="text-xs text-amber-800/80 dark:text-amber-400/80 mt-1 block">
@@ -1046,14 +1046,14 @@ export default function CatalogImporter() {
           {/* Detalle de Inconsistencias en Ámbar */}
           {simulationData.error_details && simulationData.error_details.length > 0 && (
             <div className="bg-surface-container-low border border-amber-500/40 rounded-sm p-6">
-              <div className="flex items-center gap-2 mb-2 font-mono text-xs uppercase tracking-wider text-amber-800 dark:text-amber-400 font-bold">
+              <div className="flex items-center gap-2 mb-2 font-sans text-xs font-semibold text-amber-800 dark:text-amber-400">
                 <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                 <span>Observaciones de Consistencia ({simulationData.error_details.length} filas)</span>
               </div>
               <p className="text-xs text-on-surface-variant mb-4">
                 Las siguientes filas no satisfacen los requisitos mínimos de catalogación y serán omitidas de forma segura:
               </p>
-              <div className="max-h-48 overflow-y-auto space-y-2 font-mono text-xs">
+              <div className="max-h-48 overflow-y-auto space-y-2 font-sans tabular-nums text-xs">
                 {simulationData.error_details.map((errItem, idx) => (
                   <div key={idx} className="bg-surface-container-lowest px-3 py-2 border border-outline-variant/60 flex items-center justify-between">
                     <span className="font-bold text-on-surface">Fila #{errItem.row}</span>
@@ -1076,7 +1076,7 @@ export default function CatalogImporter() {
                     Representación visual normalizada según el motor catalográfico de Folium.
                   </p>
                 </div>
-                <span className="font-mono text-xs text-on-surface-variant">
+                <span className="font-sans tabular-nums text-xs text-on-surface-variant">
                   {(simulationData.sample_previews || simulationData.preview_items).length} registros expuestos
                 </span>
               </div>
@@ -1093,7 +1093,7 @@ export default function CatalogImporter() {
                           {item.title}
                         </h4>
                         <span
-                          className={`text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 border rounded-xs shrink-0 ${
+                          className={`text-xs font-sans font-medium px-2 py-0.5 border rounded-xs shrink-0 ${
                             item.status === "EXISTING"
                               ? "border-outline-variant text-on-surface-variant bg-surface-container"
                               : "border-emerald-600/40 text-emerald-800 dark:text-emerald-300 bg-emerald-500/10 font-bold"
@@ -1104,7 +1104,7 @@ export default function CatalogImporter() {
                       </div>
 
                       <div className="text-xs text-on-surface-variant mb-2">
-                        <span className="font-mono text-[11px] uppercase tracking-wider text-on-surface-variant/80 mr-1.5">
+                        <span className="font-sans text-xs font-medium text-on-surface-variant/80 mr-1.5">
                           Autor(es):
                         </span>
                         {Array.isArray(item.authors_list) && item.authors_list.length > 0 ? (
@@ -1121,7 +1121,7 @@ export default function CatalogImporter() {
                           {item.genres_list.map((genreName, gIdx) => (
                             <span
                               key={gIdx}
-                              className="px-2 py-0.5 text-[10px] font-mono bg-surface-container border border-outline-variant/60 text-on-surface rounded-xs"
+                              className="px-2 py-0.5 text-xs font-sans bg-surface-container border border-outline-variant/60 text-on-surface rounded-xs"
                             >
                               {genreName}
                             </span>
@@ -1130,7 +1130,7 @@ export default function CatalogImporter() {
                       )}
                     </div>
 
-                    <div className="pt-3 border-t border-outline-variant/40 flex flex-wrap items-center justify-between text-[11px] font-mono text-on-surface-variant">
+                    <div className="pt-3 border-t border-outline-variant/40 flex flex-wrap items-center justify-between text-xs font-sans tabular-nums text-on-surface-variant">
                       <span>ISBN: <strong className="text-on-surface">{item.isbn || "Sin ISBN"}</strong></span>
                       {item.editorial && <span>Ed: <strong className="text-on-surface">{item.editorial}</strong></span>}
                       {item.year && <span>Año: <strong className="text-on-surface">{item.year}</strong></span>}
@@ -1146,7 +1146,7 @@ export default function CatalogImporter() {
             <button
               type="button"
               onClick={() => setCurrentStep(2)}
-              className="flex items-center gap-2 px-4 py-2 text-xs font-mono uppercase tracking-wider text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2 text-xs font-sans font-medium text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Ajustar Mapeo</span>
@@ -1185,7 +1185,7 @@ export default function CatalogImporter() {
         <div className="bg-surface-container-lowest border border-outline-variant/80 rounded-sm p-8 md:p-12 max-w-3xl mx-auto">
           {/* Cabecera del Acta */}
           <div className="text-center pb-8 border-b border-outline-variant/60">
-            <div className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-emerald-700 dark:text-emerald-400 mb-3">
+            <div className="inline-flex items-center gap-2 font-sans text-xs font-semibold text-emerald-700 dark:text-emerald-400 mb-3">
               <Check className="w-4 h-4" />
               <span>Acta de Incorporación Definitiva</span>
             </div>
@@ -1203,37 +1203,37 @@ export default function CatalogImporter() {
           {/* Cuadrante de Balance Final con Colores Semánticos */}
           <div className="grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-outline-variant/60 my-8 py-2 border-y border-outline-variant/60">
             <div className="p-4 text-center">
-              <p className="font-serif text-3xl text-emerald-700 dark:text-emerald-400 font-normal">
+              <p className="font-serif text-3xl tabular-nums text-emerald-700 dark:text-emerald-400 font-normal">
                 {executionResult.imported_books}
               </p>
-              <span className="text-[11px] font-mono uppercase tracking-wider text-emerald-800 dark:text-emerald-400 mt-1 block font-semibold">
+              <span className="text-xs font-sans font-semibold text-emerald-800 dark:text-emerald-400 mt-1 block">
                 Nuevas Obras
               </span>
             </div>
 
             <div className="p-4 text-center">
-              <p className="font-serif text-3xl text-on-surface font-normal">
+              <p className="font-serif text-3xl tabular-nums text-on-surface font-normal">
                 {executionResult.imported_items}
               </p>
-              <span className="text-[11px] font-mono uppercase tracking-wider text-on-surface-variant mt-1 block">
+              <span className="text-xs font-sans font-medium text-on-surface-variant mt-1 block">
                 Ejemplares Físicos
               </span>
             </div>
 
             <div className="p-4 text-center">
-              <p className="font-serif text-3xl text-on-surface font-normal">
+              <p className="font-serif text-3xl tabular-nums text-on-surface font-normal">
                 {executionResult.covers_assigned ?? 0}
               </p>
-              <span className="text-[11px] font-mono uppercase tracking-wider text-on-surface-variant mt-1 block">
+              <span className="text-xs font-sans font-medium text-on-surface-variant mt-1 block">
                 Portadas Asignadas
               </span>
             </div>
 
             <div className="p-4 text-center">
-              <p className="font-serif text-3xl text-amber-700 dark:text-amber-400 font-normal">
+              <p className="font-serif text-3xl tabular-nums text-amber-700 dark:text-amber-400 font-normal">
                 {executionResult.skipped_rows}
               </p>
-              <span className="text-[11px] font-mono uppercase tracking-wider text-amber-800 dark:text-amber-400 mt-1 block font-semibold">
+              <span className="text-xs font-sans font-semibold text-amber-800 dark:text-amber-400 mt-1 block">
                 Omitidos / Incompletos
               </span>
             </div>
@@ -1243,7 +1243,7 @@ export default function CatalogImporter() {
           {(isFetchingCovers || coverProgress.total > 0) && (
             <div className="mb-8 p-4 bg-surface-container-low border border-outline-variant/60 rounded-sm">
               <div className="flex items-center justify-between gap-4 mb-2">
-                <div className="flex items-center gap-2 text-xs font-mono text-on-surface">
+                <div className="flex items-center gap-2 text-xs font-sans tabular-nums text-on-surface">
                   {isFetchingCovers && <RefreshCw className="w-3.5 h-3.5 text-primary animate-spin" />}
                   <span>
                     {isFetchingCovers
@@ -1259,7 +1259,7 @@ export default function CatalogImporter() {
                     onClick={() => {
                       stopCoverFetchRef.current = true;
                     }}
-                    className="text-[11px] font-mono uppercase tracking-wider text-primary underline hover:opacity-80 cursor-pointer"
+                    className="text-xs font-sans text-primary underline hover:opacity-80 cursor-pointer"
                   >
                     Detener búsqueda
                   </button>
