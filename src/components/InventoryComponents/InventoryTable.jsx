@@ -272,7 +272,7 @@ export const InventoryTable = ({
             >
               {/* Header de la tarjeta: Código de inventario + Badge de Estado */}
               <div className="flex items-center justify-between gap-2">
-                <span className="font-mono font-bold text-xs bg-surface-container px-2 py-0.5 rounded border border-outline-variant text-on-surface tracking-wider">
+                <span className="font-sans tabular-nums font-bold text-xs bg-surface-container px-2 py-0.5 rounded border border-outline-variant text-on-surface">
                   {row.code}
                 </span>
                 <span
@@ -401,7 +401,7 @@ export const InventoryTable = ({
                   className="border-b border-outline-variant hover:bg-surface/50 transition-colors"
                 >
                   {/* Code */}
-                  <td className="py-stack-sm px-gutter font-mono font-bold text-xs text-on-surface">
+                  <td className="py-stack-sm px-gutter font-sans tabular-nums font-bold text-xs text-on-surface">
                     <span className="bg-surface-container px-2 py-0.5 rounded border border-outline-variant/60">
                       {row.code}
                     </span>
@@ -450,7 +450,7 @@ export const InventoryTable = ({
                     {row.location || "—"}
                   </td>
                   {/* ISBN */}
-                  <td className="py-stack-sm px-gutter text-body-md text-on-surface-variant font-mono text-xs">
+                  <td className="py-stack-sm px-gutter text-body-md text-on-surface-variant font-sans tabular-nums text-xs">
                     {row.isbn}
                   </td>
                   {/* Genre */}

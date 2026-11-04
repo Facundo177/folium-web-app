@@ -28,10 +28,10 @@ export default function DescriptionOfInventory({ items = [], totalCount }) {
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-outline-variant/60 pb-6 mb-8">
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-[11px] font-mono uppercase tracking-widest text-primary/80 font-bold bg-primary/10 px-2 py-0.5 rounded-xs">
+            <span className="text-xs font-sans text-primary/80 font-bold bg-primary/10 px-2 py-0.5 rounded-xs">
               Custodia Notarial de Fondos
             </span>
-            <span className="text-[11px] font-mono text-on-surface-variant">
+            <span className="text-xs font-sans tabular-nums text-on-surface-variant">
               Folio #{new Date().getFullYear()} · Depósito General
             </span>
           </div>

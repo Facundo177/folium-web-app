@@ -51,7 +51,7 @@ export const Inventory = () => {
     return (
       <div className="w-full min-h-[60vh] flex flex-col items-center justify-center gap-4 animate-fade-in font-sans">
         <div className="w-9 h-9 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
-        <p className="text-on-surface-variant text-xs font-mono uppercase tracking-widest">
+        <p className="text-on-surface-variant text-xs font-sans">
           Consultando fondos de depósito y acervo…
         </p>
       </div>
