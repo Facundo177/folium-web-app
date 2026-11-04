@@ -372,13 +372,13 @@ export default function MercadoPagoCheckoutModal({
                 </div>
                 <div className="flex justify-between">
                   <span className="text-on-surface-variant">Referencia Externa:</span>
-                  <span className="font-mono text-on-surface">
+                  <span className="font-sans tabular-nums text-on-surface">
                     {checkoutResult.external_reference}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-on-surface-variant">ID Preferencia / Sub:</span>
-                  <span className="font-mono text-primary font-semibold">
+                  <span className="font-sans tabular-nums text-primary font-semibold">
                     {checkoutResult.preference_id || checkoutResult.preapproval_id}
                   </span>
                 </div>
