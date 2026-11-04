@@ -669,9 +669,8 @@ export default function ReservationDashboard() {
                     Ficha #{reservation.id}
                   </span>
                   <span
-                    className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-xs text-[11px] font-mono tracking-wide ${stamp.classes}`}
+                    className={`inline-flex items-center px-2 py-0.5 rounded-xs text-[11px] font-mono tracking-wide ${stamp.classes}`}
                   >
-                    <span className={`w-1.5 h-1.5 rounded-full ${stamp.indicator}`} />
                     {stamp.label}
                   </span>
                 </div>
@@ -862,11 +861,8 @@ export default function ReservationDashboard() {
                       {/* Estado / Plazo */}
                       <td className="px-4 py-3.5">
                         <span
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xs text-xs font-mono tracking-wide ${stamp.classes}`}
+                          className={`inline-flex items-center px-2.5 py-1 rounded-xs text-xs font-mono tracking-wide ${stamp.classes}`}
                         >
-                          <span
-                            className={`w-1.5 h-1.5 rounded-full ${stamp.indicator}`}
-                          />
                           {stamp.label}
                         </span>
                       </td>
