@@ -125,7 +125,7 @@ export default function UserProfile() {
           <h2 className="text-title-lg text-on-surface font-bold mb-1">
             {profile.first_name} {profile.last_name}
           </h2>
-          <p className="text-body-md text-on-surface-variant mb-6 font-mono text-xs">
+          <p className="text-body-md text-on-surface-variant mb-6 font-sans tabular-nums text-xs">
             @{profile.username}
           </p>
 
@@ -169,7 +169,7 @@ export default function UserProfile() {
                 <p className="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">
                   Nombre de Usuario
                 </p>
-                <p className="text-body-lg text-on-surface font-medium font-mono text-sm">
+                <p className="text-body-lg text-on-surface font-medium font-sans tabular-nums text-sm">
                   {profile.username}
                 </p>
               </div>
@@ -237,7 +237,7 @@ export default function UserProfile() {
                     value={formData.username}
                     onChange={handleChange}
                     required
-                    className="px-4 py-2.5 bg-surface-container border border-outline-variant rounded-sm text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors font-mono text-sm"
+                    className="px-4 py-2.5 bg-surface-container border border-outline-variant rounded-sm text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors font-sans tabular-nums text-sm"
                   />
                 </div>
                 <div className="flex flex-col gap-2">
