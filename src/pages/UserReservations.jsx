@@ -341,7 +341,7 @@ export default function UserReservations() {
                       <span className="font-bold uppercase tracking-wider text-on-surface">
                         {statusInfo.subtext}
                       </span>
-                      <span className="text-on-surface-variant font-mono">
+                      <span className="text-on-surface-variant font-sans tabular-nums font-medium">
                         #{reservation.id}
                       </span>
                     </div>
@@ -350,7 +350,7 @@ export default function UserReservations() {
 
                 {/* Información del Libro y de la Reserva */}
                 <div className="flex flex-col flex-1">
-                  <h2 className="text-sm text-on-surface font-bold uppercase tracking-widest mb-1 line-clamp-1">
+                  <h2 className="font-serif text-base font-medium text-on-surface mb-1 line-clamp-1 leading-snug">
                     {bookData.title}
                   </h2>
                   <p className="text-xs text-on-surface-variant mb-3 font-serif italic line-clamp-1">
@@ -364,7 +364,7 @@ export default function UserReservations() {
                         <Calendar className="w-3.5 h-3.5 text-primary" />
                         Solicitado:
                       </span>
-                      <span className="font-medium text-on-surface font-mono">
+                      <span className="font-medium text-on-surface font-sans tabular-nums">
                         {new Date(reservation.created_at).toLocaleDateString("es-AR")}
                       </span>
                     </div>
@@ -373,7 +373,7 @@ export default function UserReservations() {
                         <Clock className="w-3.5 h-3.5 text-tertiary" />
                         Vencimiento:
                       </span>
-                      <span className="font-medium text-on-surface font-mono">
+                      <span className="font-medium text-on-surface font-sans tabular-nums">
                         {new Date(reservation.expires_at).toLocaleDateString("es-AR")}
                       </span>
                     </div>
@@ -385,7 +385,7 @@ export default function UserReservations() {
                       <button
                         type="button"
                         onClick={(e) => handleRequestCancel(e, reservation)}
-                        className="text-xs text-error hover:opacity-80 transition-opacity font-bold uppercase tracking-widest flex items-center gap-1 cursor-pointer py-1"
+                        className="text-xs text-error hover:opacity-80 transition-opacity font-bold uppercase tracking-wider flex items-center gap-1 cursor-pointer py-1"
                       >
                         <XCircle className="w-4 h-4" />
                         Cancelar Reserva
