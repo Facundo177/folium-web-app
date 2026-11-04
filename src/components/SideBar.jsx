@@ -228,7 +228,7 @@ export default function Sidebar() {
         <hr className="border-0 h-px bg-outline-variant/40 my-2" />
 
         {/* Acciones y Tema */}
-        <div className="actions-container mt-auto flex flex-row shrink-0 w-full">
+        <div className="actions-container mt-auto shrink-0 w-full">
           {user ? (
             <button
               type="button"
