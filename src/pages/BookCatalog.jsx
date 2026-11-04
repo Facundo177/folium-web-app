@@ -14,7 +14,17 @@ import { useDocumentMetadata } from "../hooks/useDocumentMetadata";
 
 export default function BookCatalog() {
   const navigate = useNavigate();
-  const { books, isLoading, error, filters, setFilters, setPage, totalCount, totalPages } = useBooks();
+  const {
+    books,
+    isLoading,
+    isFetching,
+    error,
+    filters,
+    setFilters,
+    setPage,
+    totalCount,
+    totalPages,
+  } = useBooks();
   const { recommendations } = useRecommendations();
   const { user, isGuest } = useAuth();
 
@@ -68,9 +78,17 @@ export default function BookCatalog() {
     [navigate]
   );
 
-  const handleReservationSuccess = useCallback((bookId) => {
-    setUserReservationsMap((prev) => ({ ...prev, [bookId]: true }));
-  }, []);
+  const handleReservationSuccess = useCallback((bookId, reservationId) => {
+  setUserReservationsMap((prev) => ({ ...prev, [bookId]: reservationId ?? true }));
+}, []);
+
+const handleCancelSuccess = useCallback((bookId) => {
+  setUserReservationsMap((prev) => {
+    const next = { ...prev };
+    delete next[bookId];
+    return next;
+  });
+}, []);
 
   useEffect(() => {
     if (!user) {
@@ -249,10 +267,12 @@ export default function BookCatalog() {
       <CatalogSearch
         books={Array.isArray(books) ? books : []}
         isLoading={isLoading}
+        isFetching={isFetching}
         error={error}
         favoritesMap={favoritesMap}
         userReservationsMap={userReservationsMap}
         onReservationSuccess={handleReservationSuccess}
+        onCancelSuccess={handleCancelSuccess}
         onToggleFavorite={handleToggleFavorite}
         onRequireAuth={openGuestPrompt}
         filters={filters}

@@ -32,7 +32,7 @@ export default function UserLoans() {
     const fetchLoans = async () => {
       setIsLoading(true);
       try {
-        const { data } = await loanService.getAll();
+        const data = await loanService.getAllRecords();
         if (isMounted) setLoans(data);
       } catch (err) {
         if (isMounted) setError("Error al cargar tus préstamos.");

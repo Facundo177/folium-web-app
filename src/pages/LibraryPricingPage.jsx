@@ -7,6 +7,7 @@ import {
   HelpCircle,
   ArrowLeft,
   ShieldCheck,
+  ChevronDown,
 } from "lucide-react";
 import LibraryPricingCards from "../components/BillingComponents/LibraryPricingCards";
 import MercadoPagoCheckoutModal from "../components/BillingComponents/MercadoPagoCheckoutModal";
@@ -25,7 +26,7 @@ const FAQ_ITEMS = [
   },
   {
     q: "¿Podemos migrar un inventario existente desde Excel o Koha / Aguapey?",
-    a: "Sí. Tanto Folium Acervo Plus como Folium Patrimonio Pro incluyen acceso completo a nuestro Importador Masivo inteligente, que detecta columnas automáticamente y simula la carga antes de impactar en la base de datos.",
+    a: "Sí. Los planes Folium Gestión, Folium Integral y Folium Nexus AI incluyen acceso a nuestro Importador Masivo inteligente, que detecta columnas automáticamente y simula la carga antes de impactar en la base de datos.",
   },
   {
     q: "¿Emiten comprobantes para instituciones públicas, ONG o universidades?",
@@ -47,18 +48,29 @@ export default function LibraryPricingPage() {
   const [selectedCycle, setSelectedCycle] = useState("MONTHLY");
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [paymentBanner, setPaymentBanner] = useState(null);
+  const [isFaqOpen, setIsFaqOpen] = useState(false);
 
   // Cargar catálogo de planes desde el backend (con fallback local)
   useEffect(() => {
     let isMounted = true;
     billingService.getPlans().then((data) => {
       if (isMounted && data?.plans?.length) {
-        setPlans(data.plans);
+        const hasValidTiers = data.plans.some((p) => p.code === "BASIC" || p.code === "PREMIUM");
+        if (hasValidTiers) {
+          setPlans(data.plans);
+        }
       }
     });
     return () => {
       isMounted = false;
     };
+  }, []);
+
+  // Si se accede con el hash #faq, desplegar la sección automáticamente
+  useEffect(() => {
+    if (window.location.hash === "#faq") {
+      setIsFaqOpen(true);
+    }
   }, []);
 
   // Detectar retorno desde las back_urls de MercadoPago (?payment_status=approved...)
@@ -215,32 +227,53 @@ export default function LibraryPricingPage() {
         />
 
         {/* Sección de Preguntas Frecuentes Institucionales */}
-        <section className="max-w-4xl mx-auto px-4 sm:px-8 py-12 border-t border-outline-variant/40">
-          <div className="text-center mb-8">
-            <span className="text-label-caps text-primary uppercase tracking-widest">
-              Transparencia & Soporte
-            </span>
-            <h3 className="font-serif text-2xl sm:text-3xl text-on-surface mt-2">
-              Preguntas frecuentes sobre suscripciones
-            </h3>
+        <section
+          id="faq"
+          className="max-w-4xl mx-auto px-4 sm:px-8 py-10 border-t border-outline-variant/40"
+        >
+          <div className={`text-center ${isFaqOpen ? "mb-8" : "mb-2"}`}>
+           
+            <div className="flex justify-center">
+              <button
+                type="button"
+                onClick={() => setIsFaqOpen((prev) => !prev)}
+                className="mt-2 inline-flex items-center justify-center gap-2.5 font-serif text-2xl sm:text-3xl text-on-surface hover:text-primary transition-colors cursor-pointer group"
+                aria-expanded={isFaqOpen}
+                title={
+                  isFaqOpen
+                    ? "Ocultar preguntas frecuentes"
+                    : "Desplegar preguntas frecuentes"
+                }
+              >
+                <span>Preguntas Frecuentes</span>
+                <ChevronDown
+                  className={`w-6 h-6 sm:w-7 sm:h-7 text-primary transition-transform duration-300 ${
+                    isFaqOpen ? "rotate-180" : "group-hover:translate-y-0.5"
+                  }`}
+                  aria-hidden="true"
+                />
+              </button>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {FAQ_ITEMS.map((item, idx) => (
-              <div
-                key={idx}
-                className="bg-surface-container-lowest border border-outline-variant/60 rounded-2xl p-6 shadow-2xs"
-              >
-                <h4 className="font-serif text-lg font-semibold text-on-surface flex items-start gap-2.5 mb-2">
-                  <HelpCircle className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                  <span>{item.q}</span>
-                </h4>
-                <p className="text-body-md text-on-surface-variant leading-relaxed">
-                  {item.a}
-                </p>
-              </div>
-            ))}
-          </div>
+          {isFaqOpen && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 animate-fade-in">
+              {FAQ_ITEMS.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="bg-surface-container-lowest border border-outline-variant/60 rounded-2xl p-6 shadow-2xs"
+                >
+                  <h4 className="font-serif text-lg font-semibold text-on-surface flex items-start gap-2.5 mb-2">
+                    <HelpCircle className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                    <span>{item.q}</span>
+                  </h4>
+                  <p className="text-body-md text-on-surface-variant leading-relaxed">
+                    {item.a}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
       </main>
 

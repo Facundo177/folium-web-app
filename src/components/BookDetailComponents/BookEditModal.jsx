@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useId } from "react";
 import { createPortal } from "react-dom";
-import { X, ChevronDown, Plus } from "lucide-react";
+import { X, Plus } from "lucide-react";
 import { authorService } from "../../api/services/authorService";
 import { genreService } from "../../api/services/genreService";
 import { bookService } from "../../api/services/bookService";
@@ -259,12 +259,18 @@ export default function BookEditModal({ isOpen, book, onClose, onSaved }) {
       return;
     }
 
+    const cleanIsbn = formDataValues.isbn ? formDataValues.isbn.trim().replace(/[^0-9]/g, "") : "";
+    if (cleanIsbn && cleanIsbn.length !== 10 && cleanIsbn.length !== 13) {
+      setSaveError("El ISBN debe tener exactamente 10 o 13 dígitos numéricos (o dejarse vacío).");
+      return;
+    }
+
     setIsSaving(true);
     try {
       const formData = new FormData();
       formData.append("title", formDataValues.title.trim());
       formData.append("editorial", formDataValues.editorial.trim());
-      formData.append("isbn", formDataValues.isbn.trim());
+      formData.append("isbn", cleanIsbn);
       formData.append("publication_year", parseInt(formDataValues.publication_year, 10));
       formData.append("description", formDataValues.description);
 
@@ -383,13 +389,13 @@ export default function BookEditModal({ isOpen, book, onClose, onSaved }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label htmlFor="edit-book-isbn" className="block text-label-caps text-on-surface-variant mb-1.5">
-                ISBN (10 o 13 dígitos) *
+                ISBN (10 o 13 dígitos) <span className="text-on-surface-variant/70 font-normal text-xs normal-case">(opcional)</span>
               </label>
               <input
                 id="edit-book-isbn"
                 type="text"
                 inputMode="numeric"
-                required
+                placeholder="Ej. 9789500419574 (opcional)"
                 maxLength={13}
                 value={formDataValues.isbn}
                 onChange={(e) =>

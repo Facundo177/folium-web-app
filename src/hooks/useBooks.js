@@ -1,31 +1,18 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { bookService } from '../api/services/bookService';
 
+// Caché en memoria para páginas y combinaciones de filtros del catálogo
+const catalogCache = new Map(); // cacheKey -> { books, totalCount, timestamp }
+const CACHE_TTL = 3 * 60 * 1000; // 3 minutos de retención
+
+const buildKey = (f) =>
+  `${f.search || ''}|${f.genre || ''}|${f.year || ''}|${f.page || 1}|${f.page_size || 20}`;
+
 /**
- * Hook para gestionar el catálogo de libros con filtros y paginación server-side.
+ * Hook para gestionar el catálogo de libros con filtros, paginación server-side
+ * y soporte de caché en memoria Stale-While-Revalidate (SWR).
  *
- * El backend acepta los siguientes query params en GET /api/v1/book/:
- *   - search    → busca en título y nombre de autor (string)
- *   - genre     → filtra por nombre de género, parcial, sin importar mayúsculas (string)
- *   - year      → filtra por año exacto de publicación (número)
- *   - page      → número de página (número, default 1)
- *   - page_size → libros por página, máx. 50 (número, default 20)
- *
- * Retorna:
- *   {
- *     books,       // Array de libros de la página actual
- *     totalCount,  // Total de libros que coinciden con los filtros en toda la DB
- *     totalPages,  // Total de páginas calculado
- *     isLoading,   // true mientras se carga
- *     error,       // mensaje de error o null
- *     filters,     // estado actual de los filtros
- *     setFilters,  // función para actualizar los filtros (resetea a página 1)
- *     setPage,     // función para cambiar solo la página (mantiene los filtros)
- *     refetch,     // función para volver a pedir con los filtros actuales
- *   }
- *
- * Uso:
- *   const { books, totalPages, filters, setFilters, setPage } = useBooks();
+ * Elimina las recargas innecesarias al navegar entre el catálogo y el detalle de un libro.
  */
 export function useBooks(initialFilters = {}) {
   const [filters, setFiltersState] = useState({
@@ -37,23 +24,46 @@ export function useBooks(initialFilters = {}) {
     ...initialFilters,
   });
 
-  const [books, setBooks] = useState([]);
-  const [totalCount, setTotalCount] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+  const currentKey = buildKey(filters);
+  const cached = catalogCache.get(currentKey);
+  const isCacheValid = Boolean(cached && Date.now() - cached.timestamp < CACHE_TTL);
+
+  const [books, setBooks] = useState(isCacheValid ? cached.books : []);
+  const [totalCount, setTotalCount] = useState(isCacheValid ? cached.totalCount : 0);
+  const [isLoading, setIsLoading] = useState(!isCacheValid);
+  const [isFetching, setIsFetching] = useState(false);
   const [error, setError] = useState(null);
 
-  // Ref para evitar actualizar estado si el componente ya se desmontó
   const isMountedRef = useRef(true);
   useEffect(() => {
     isMountedRef.current = true;
     return () => { isMountedRef.current = false; };
   }, []);
 
-  const fetchBooks = useCallback(async (currentFilters) => {
-    setIsLoading(true);
+  const fetchBooks = useCallback(async (currentFilters, force = false) => {
+    const key = buildKey(currentFilters);
+    const existingCache = catalogCache.get(key);
+    const hasValidCache = !force && existingCache && Date.now() - existingCache.timestamp < CACHE_TTL;
+
+    if (hasValidCache) {
+      setBooks(existingCache.books);
+      setTotalCount(existingCache.totalCount);
+      setIsLoading(false);
+      return;
+    }
+
+    if (existingCache) {
+      // Stale-While-Revalidate: servir inmediatamente datos en caché y actualizar de fondo
+      setBooks(existingCache.books);
+      setTotalCount(existingCache.totalCount);
+      setIsLoading(false);
+      setIsFetching(true);
+    } else {
+      setIsLoading(true);
+    }
+
     setError(null);
 
-    // Construir solo los params que tienen valor (evita enviar params vacíos al backend)
     const params = {};
     if (currentFilters.search)    params.search    = currentFilters.search;
     if (currentFilters.genre)     params.genre     = currentFilters.genre;
@@ -66,57 +76,56 @@ export function useBooks(initialFilters = {}) {
 
       if (!isMountedRef.current) return;
 
-      // Soporta respuesta paginada { count, results } y lista directa []
-      if (Array.isArray(data)) {
-        setBooks(data);
-        setTotalCount(data.length);
-      } else {
-        setBooks(data?.results || []);
-        setTotalCount(data?.count ?? 0);
-      }
+      const newBooks = Array.isArray(data) ? data : data?.results || [];
+      const newTotal = Array.isArray(data) ? data.length : data?.count ?? 0;
+
+      catalogCache.set(key, {
+        books: newBooks,
+        totalCount: newTotal,
+        timestamp: Date.now(),
+      });
+
+      setBooks(newBooks);
+      setTotalCount(newTotal);
     } catch (err) {
       if (!isMountedRef.current) return;
       setError(err.response?.data?.detail || 'Error al cargar los libros.');
     } finally {
-      if (isMountedRef.current) setIsLoading(false);
+      if (isMountedRef.current) {
+        setIsLoading(false);
+        setIsFetching(false);
+      }
     }
   }, []);
 
-  // Se ejecuta cada vez que cambian los filtros
   useEffect(() => {
     fetchBooks(filters);
   }, [filters, fetchBooks]);
 
-  /**
-   * Actualiza uno o más filtros y resetea la página a 1.
-   * Ejemplo: setFilters({ genre: 'Terror' })
-   */
   const setFilters = useCallback((newFilters) => {
     setFiltersState(prev => ({
       ...prev,
       ...newFilters,
-      page: 1, // siempre resetear a página 1 al cambiar cualquier filtro
+      page: 1,
     }));
   }, []);
 
-  /**
-   * Cambia solo la página, manteniendo todos los filtros activos.
-   */
   const setPage = useCallback((newPage) => {
     setFiltersState(prev => ({ ...prev, page: newPage }));
   }, []);
 
-  const totalPages = Math.ceil(totalCount / filters.page_size);
+  const totalPages = Math.ceil(totalCount / filters.page_size) || 1;
 
   return {
     books,
     totalCount,
     totalPages,
     isLoading,
+    isFetching,
     error,
     filters,
     setFilters,
     setPage,
-    refetch: () => fetchBooks(filters),
+    refetch: () => fetchBooks(filters, true),
   };
 }

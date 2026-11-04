@@ -6,6 +6,7 @@ import FoliumLandingHero from "../components/FoliumLandingComponents/FoliumLandi
 import FoliumLandingNavbar from "../components/FoliumLandingComponents/FoliumLandingNavbar";
 import FoliumLandingProducts from "../components/FoliumLandingComponents/FoliumLandingProducts";
 import { useDocumentMetadata } from "../hooks/useDocumentMetadata";
+import Footer from "../components/Footer";
 
 export default function FoliumLanding() {
   const navigate = useNavigate();
@@ -67,6 +68,7 @@ export default function FoliumLanding() {
         handleUserButtonClick={handleUserButtonClick}
         handleLibrarianButtonClick={handleLibrarianButtonClick}
       />
+      <Footer />
     </div>
   );
 }

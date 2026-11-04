@@ -20,13 +20,39 @@ const apiLogout = authService.logout || (() => {
 
 /**
  * Lee el token JWT guardado en localStorage y extrae el objeto usuario.
- * Devuelve null si no hay token o si está malformado.
+ * Valida la vigencia de los tokens (access y refresh) para evitar estados zombi con 401.
+ * Devuelve null si no hay token o si ambos tokens están vencidos o malformados.
  */
 const getUserFromStorage = () => {
   const token = localStorage.getItem('accessToken');
   if (!token) return null;
   try {
     const decoded = jwtDecode(token);
+    const now = Date.now();
+    const isAccessExpired = decoded.exp && decoded.exp * 1000 < now;
+
+    if (isAccessExpired) {
+      const refreshToken = localStorage.getItem('refreshToken');
+      if (refreshToken) {
+        try {
+          const decodedRefresh = jwtDecode(refreshToken);
+          if (decodedRefresh.exp && decodedRefresh.exp * 1000 < now) {
+            // Ambos tokens vencieron: limpiar sesión caducada
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            return null;
+          }
+        } catch {
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+          return null;
+        }
+      } else {
+        localStorage.removeItem('accessToken');
+        return null;
+      }
+    }
+
     return {
       id: decoded.user_id,
       username: decoded.username || `Usuario-${decoded.user_id}`,

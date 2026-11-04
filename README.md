@@ -3,74 +3,79 @@
 ![React](https://img.shields.io/badge/React-19.2%2B-61DAFB?style=for-the-badge&logo=react&logoColor=black)
 ![Vite](https://img.shields.io/badge/Vite-8.x-646CFF?style=for-the-badge&logo=vite&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
+![Vercel Edge CDN](https://img.shields.io/badge/CDN-Vercel%20Edge-000000?style=for-the-badge&logo=vercel&logoColor=white)
 ![Framer Motion](https://img.shields.io/badge/Framer_Motion-13%2B-0055FF?style=for-the-badge&logo=framer&logoColor=white)
 ![React Router](https://img.shields.io/badge/React_Router-v7-CA4245?style=for-the-badge&logo=reactrouter&logoColor=white)
-![Axios](https://img.shields.io/badge/Axios-1.x-5A29E4?style=for-the-badge&logo=axios&logoColor=white)
-![Vercel](https://img.shields.io/badge/Deploy-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
+![Bundle Size](https://img.shields.io/badge/Bundle-250%20kB%20(-71%25)-success?style=for-the-badge&logo=rollup.js&logoColor=white)
 
 ---
 
 ## 1. Visión General del Proyecto
 
-**Folium Web App** es la interfaz de usuario de la plataforma Folium, concebida para brindar una experiencia inmersiva, elegante y eficiente tanto a lectores como a equipos de bibliotecarios e investigadores.
+**Folium Web App** es la interfaz de usuario de la plataforma Folium, concebida para brindar una experiencia inmersiva, elegante y de máximo rendimiento tanto a lectores como a equipos de bibliotecarios e investigadores.
 
 La aplicación combina la calidez y el rigor de una biblioteca histórica con la velocidad de una **Single Page Application (SPA)** de última generación construida sobre **React 19** y **Vite 8**. Su estética se fundamenta en la corriente de diseño **"Dark Academia" y de archivo curatorial**, empleando tipografía clásica renacentista, encuadernación visual en pergamino y oro antiguo, contrastes profundos y animaciones fluidas basadas en físicas tridimensionales.
 
 ### Capacidades Principales
 - **Exploración Tridimensional del Catálogo**: Carrusel circular CoverFlow en 3D con soporte de gestos táctiles (*swipe*) en dispositivos móviles y cuadrícula de obras con filtrado multicriterio instantáneo.
+- **Entrega Ultrarrápida por Edge CDN**: Servido de portadas optimizadas en WebP con almacenamiento en caché inmutable en los nodos de borde de Vercel y resolución transparente de *Mixed Content*.
+- **Navegación Instantánea con SWR**: Caché en memoria Stale-While-Revalidate en hooks de datos (`useBooks`, `useBook`, `useGenres`, `useRecommendations`), eliminando parpadeos y transiciones destructivas de UI.
 - **Asistente de Importación Masiva**: Asistente en 4 pasos para la carga de colecciones completas mediante planillas **Excel (.xlsx)**, archivos **CSV**, ficheros **BibTeX (.bib)** y registros estandarizados **MARC 21 (.mrc)** y **MARCXML (.xml)** con simulación previa (*dry-run*).
 - **Gestión Integral de Circulación e Inventario**: Control de ejemplares físicos, ubicaciones topográficas en sala, supervisión de préstamos activos con cálculo de mora y sistema de reservas concurrentes.
 - **Suscripciones y Facturación Institucional**: Integración con pasarela de **MercadoPago** para la contratación de planes bibliotecarios y cobro mensual.
 - **Asistente Virtual Contextual (`FoliumBot` / Tomito)**: Chatbot persistente entre navegaciones que adapta sus respuestas y herramientas interactivas de acuerdo al rol del usuario activo.
-- **Arquitectura de Sesión Segura y RBAC**: Autenticación JWT con cola de refresco transparente y protección jerárquica de vistas (`USER`, `LIBRARIAN`, `ADMIN`).
+- **Arquitectura de Sesión Segura y RBAC**: Autenticación JWT con cola de refresco concurrente, validación de expiración de tokens al cargar y protección jerárquica de vistas (`USER`, `LIBRARIAN`, `ADMIN`).
 
 ---
 
 ## 2. Arquitectura de Frontend y Patrones de Diseño
 
-El proyecto implementa una **Arquitectura Modular Orientada a Responsabilidades (Responsibility-Driven Frontend Architecture)**, garantizando bajo acoplamiento, alta cohesión y testeabilidad.
+El proyecto implementa una **Arquitectura Modular Orientada a Responsabilidades (Responsibility-Driven Frontend Architecture)**, complementada por una capa perimetral de **Vercel Serverless & Edge CDN Proxy**.
 
 ```mermaid
 graph TD
-    User([Lector / Bibliotecario]) -->|Interacción UI| Presentation[Capa de Presentación / Páginas & Componentes]
+    User([Navegador / Lector]) -->|HTTPS| EdgeCDN[Vercel Edge Network / CDN Cache]
     
-    subgraph "Capa de Estado y Contexto Global"
-        AuthProvider[AuthProvider / Sesión & JWT]
-        ThemeProvider[ThemeProvider / Modo Claro & Oscuro]
-        ChatbotContext[FoliumBot Context / Estado Conversacional]
+    subgraph "Vercel Edge & Serverless Layer"
+        EdgeCDN -->|Hit de Portadas WebP| CachedAssets[(Caché Edge Inmutable 1 Año)]
+        EdgeCDN -->|Miss de Media / Peticiones API| ProxyFunc[api/proxy.js Serverless Function]
     end
 
-    subgraph "Capa de Lógica de Dominio y Custom Hooks"
-        Hooks[useBooks, useBook, useInventory, useGenres, useUserProfile]
+    subgraph "Capa de Presentación y UI SPA"
+        EdgeCDN -->|SPA Bundle 250 kB| Presentation[Páginas & Componentes React 19]
+        Presentation --> SWRHooks[Hooks con SWR Cache: useBooks, useBook, useGenres]
+        Presentation --> Contexts[AuthProvider & ThemeProvider]
     end
 
-    subgraph "Capa de Integración y Red (API Client)"
-        Adapters[Adapters Pattern / Normalización DTO]
-        Services[Services Desacoplados / Book, Item, Loan, Importer, Billing]
-        AxiosConfig[Axios Interceptors / Inyección Bearer & Refresh Queue]
+    subgraph "Capa de Red y Normalización"
+        SWRHooks --> Adapters[Adapters Pattern: sanitizeMediaUrl & adaptBook]
+        Adapters --> AxiosConfig[Axios Interceptors: JWT Queue & Expiration Check]
     end
 
-    Presentation --> Hooks
-    Presentation --> AuthProvider
-    Presentation --> ThemeProvider
-    Hooks --> Services
-    Services --> Adapters
-    Services --> AxiosConfig
-    AxiosConfig -->|HTTPS REST| BackendAPI[(Folium Django API)]
+    ProxyFunc -->|HTTP Streaming / Red Privada| AWSBackend[(Folium Django API en AWS EC2)]
+    AxiosConfig -->|/api/v1/*| ProxyFunc
 ```
 
-### Patrones de Diseño Arquitectónicos
+### Patrones de Diseño y Optimizaciones Arquitectónicas
 
-1. **Patrón Adapter (`src/api/adapters.js`)**:
-   Desacopla la interfaz de usuario de las estructuras de datos devueltas por la API en Python (evitando la fuga de atributos en formato `snake_case` hacia los componentes). Transforma objetos crudos del backend en modelos de datos uniformes de frontend en `camelCase`, proveyendo valores por defecto seguros para portadas faltantes, listas de autores y disponibilidad.
-2. **Patrón Concurrency-Safe Token Refresh Queue (`src/api/axiosConfig.js`)**:
-   Implementa un interceptor de respuestas de Axios con cola de promesas. Cuando múltiples componentes disparan peticiones simultáneas y el token de acceso expira (`401 Unauthorized`), solo la primera petición gatilla el refresh contra `/token/refresh/`. Las demás peticiones se encolan automáticamente en memoria y se reintentan de forma transparente una vez recibido el nuevo token, sin forzar re-logins innecesarios.
-3. **Patrón Composition con Layouts Anidados (`React Router v7`)**:
-   Estructuración jerárquica de rutas mediante layouts especializados (`BotLayout`, `UserLayout`, `LibrarianLayout`, `AuthLayout`). `BotLayout` se sitúa en la raíz manteniendo la conversación y el estado del asistente virtual activos sin importar los cambios de ruta internos.
-4. **Code-Splitting y Carga Perezosa (`React.lazy` + `Suspense`)**:
-   Todas las páginas principales se cargan bajo demanda mediante importaciones dinámicas, reduciendo el tamaño del bundle inicial y alcanzando puntuaciones óptimas en Core Web Vitals (LCP e INP).
-5. **Máquina de Estados Finita para Formularios Multietapa (`CatalogImporter`)**:
-   El importador masivo modela su ciclo de vida en estados estrictos e irreversibles (`1: Selección de Archivo` → `2: Mapeo de Columnas` → `3: Simulación Dry-Run` → `4: Persistencia Final`), imposibilitando inconsistencias operativas.
+1. **Proxy Reverso Serverless y Edge CDN Caching (`api/proxy.js`)**:
+   - **Prevención de Mixed Content**: El backend en AWS EC2 se aloja bajo HTTP (`http://54.160.130.29`), mientras que el frontend en Vercel opera bajo HTTPS estricto. La función serveless en streaming actúa como pasarela segura.
+   - **Caché en el Borde Inmutable**: Las portadas `/media/books/covers/*` se entregan con `Cache-Control: public, max-age=31536000, s-maxage=31536000, stale-while-revalidate=2592000, immutable`, `CDN-Cache-Control` y `Vercel-CDN-Cache-Control`. Una vez consultada por primera vez, la portada se sirve directamente desde el nodo Edge más cercano en ~15 ms sin tocar la Serverless Function ni el servidor EC2.
+   - **Streaming Asíncrono de Bajo Consumo**: Utiliza `Readable.fromWeb()` y `pipeline()` de Node.js, logrando un TTFB mínimo y un consumo casi nulo de memoria RAM.
+2. **Cache-Busting Inteligente (`src/api/adapters.js`)**:
+   [`sanitizeMediaUrl(url, book.updated_at)`](file:///c:/Users/Facundo/Desktop/ReposGit/folium-web-app/src/api/adapters.js) transforma las URLs de portadas y adjunta el parámetro de versión `?v=<timestamp>`. Cuando un bibliotecario edita la portada de una obra, el navegador y el CDN de Vercel descargan de inmediato la nueva versión sin requerir purgas manuales de caché.
+3. **Optimización Extrema del Bundle JS (-71% de Peso)**:
+   - Eliminación de dependencias monolíticas redundantes (`morphicons`, `lucide` vanilla).
+   - Actualización a `lucide-react@^1.66` con árbol de importaciones ESM (`import { ... } from "lucide-react"`), permitiendo a Vite aplicar *tree-shaking* estricto.
+   - El bundle principal de producción (`dist/assets/index.js`) se redujo de **860 kB a 250 kB**.
+4. **Subsetting de Tipografías Web**:
+   En [`src/fonts.css`](file:///c:/Users/Facundo/Desktop/ReposGit/folium-web-app/src/fonts.css), se aislaron exclusivamente los subconjuntos tipográficos `latin` y `latin-ext` para `EB Garamond` y `Hanken Grotesk`, reduciendo los activos de fuentes de 21 archivos `.woff2` a solo 8 archivos `.woff2`.
+5. **Caché en Memoria Stale-While-Revalidate (SWR)**:
+   Los hooks de datos (`useBooks.js`, `useBook.js`, `useGenres.js`, `useRecommendations.js`) implementan un almacén global en memoria con estrategia SWR. Cuando el usuario navega entre libros o vuelve al catálogo, los datos se despliegan de forma instantánea desde la memoria mientras se revalidan en segundo plano de manera no destructiva.
+6. **Búsqueda No Destructiva con Skeletons**:
+   En [`CatalogSearch.jsx`](file:///c:/Users/Facundo/Desktop/ReposGit/folium-web-app/src/components/BookCatalogComponents/CatalogSearch.jsx), se reemplazó el desmontaje del árbol DOM por una cuadrícula de esqueletos animados (`CatalogSkeletonGrid`) y transiciones de opacidad suave durante el refresco (`isFetching`), evitando que el input de búsqueda pierda foco mientras el usuario escribe.
+7. **Tolerancia a Fallos y Fallback de Editoriales**:
+   En [`useEditorials.js`](file:///c:/Users/Facundo/Desktop/ReposGit/folium-web-app/src/hooks/useEditorials.js), si el endpoint `/api/v1/editorial/` responde `404` (por desfase temporal en el despliegue del backend), el hook extrae automáticamente las editoriales únicas a partir del catálogo de libros (`bookService.getAll({ page_size: 50 })`), garantizando que los desplegables de alta de libro nunca queden vacíos.
 
 ---
 
@@ -78,6 +83,8 @@ graph TD
 
 ```text
 folium-web-app/
+├── api/
+│   └── proxy.js                          # Vercel Serverless Function (Proxy API y Edge CDN Media)
 ├── public/                               # Activos estáticos públicos y favicons
 │   └── folium-logo-variants/             # Logotipos oficiales (blanco, negro, oro)
 ├── src/                                  # Código fuente de la aplicación
@@ -87,40 +94,38 @@ folium-web-app/
 │   │   │   ├── authorService.js          # CRUD de autores
 │   │   │   ├── billingService.js         # Planes institucionales y checkout MercadoPago
 │   │   │   ├── bookService.js            # Obras literarias, portadas y recomendaciones
-│   │   │   ├── genreService.js           # Géneros y categorías
-│   │   │   ├── importerService.js        # Endpoints de importación masiva (preview, simulate, execute)
+│   │   │   ├── editorialService.js       # Endpoints de editoriales registradas
+│   │   │   ├── genreService.js           # Géneros y materias
+│   │   │   ├── importerService.js        # Motor de importación masiva
 │   │   │   ├── itemService.js            # Ejemplares físicos e inventario en sala
 │   │   │   ├── loanService.js            # Circulación, préstamos y devoluciones
 │   │   │   ├── reservationService.js     # Solicitudes y cancelación de reservas
 │   │   │   └── userService.js            # Registro, perfil y gestión de cuentas
-│   │   ├── adapters.js                   # Adaptadores de datos Backend -> Frontend
-│   │   ├── axiosConfig.js                # Instancia de Axios e interceptores JWT
+│   │   ├── adapters.js                   # Adaptadores DTO, saneamiento de URLs y cache-busting
+│   │   ├── axiosConfig.js                # Instancia de Axios con cola de refresco concurrente
 │   │   └── constants.js                  # Constantes globales de dominio (estados de ítems, etc.)
 │   ├── auth/                             # Módulo de autenticación y autorización
-│   │   ├── AuthProvider.jsx              # Contexto global de sesión, decodificación de claims y estado
-│   │   └── ProtectedRoute.jsx            # Guardia de rutas protegidas y filtro por rol (RBAC)
+│   │   ├── AuthProvider.jsx              # Contexto de sesión, validación de exp y decodificación
+│   │   └── ProtectedRoute.jsx            # Guardia de rutas protegidas y filtro RBAC
 │   ├── chatbot/                          # Asistente virtual contextual FoliumBot (Tomito)
-│   │   ├── ActionProvider.js             # Generador de respuestas y despachador de widgets
-│   │   ├── FoliumBot.jsx                 # Contenedor flotante e inyección de contexto por rol
-│   │   ├── MessageParser.js              # Procesador de lenguaje natural con reglas temáticas
-│   │   ├── NavWidget.jsx                 # Botonera interactiva para redirección en un clic
-│   │   └── config.jsx                    # Estilos visuales del bot y registro de widgets
 │   ├── components/                       # Componentes visuales organizados por dominio
 │   │   ├── BasicUIComponents/            # Primitivas de UI (Toast, FieldError, GoBackButton, etc.)
-│   │   ├── BookCatalogComponents/        # Carrusel 3D (BookCoverFlow), BookCard y buscador
+│   │   ├── BookCatalogComponents/        # Carrusel 3D (BookCoverFlow), BookCard y CatalogSearch
 │   │   ├── BookDetailComponents/         # Metadatos, disponibilidad de stock físico y reseñas
 │   │   ├── CatalogSearchComponents/      # Tarjetas de lista, cajón y barra lateral de filtros
 │   │   ├── FoliumLandingComponents/      # Secciones de la Landing Page institucional
-│   │   ├── InventoryComponents/          # Tabla de inventario, formularios de alta de libro y ejemplar
+│   │   ├── InventoryComponents/          # Tabla de inventario, LoadBookForm y modal de ejemplar
 │   │   ├── Layouts/                      # BotLayout, UserLayout, LibrarianLayout, AuthLayout
 │   │   ├── Login&RegisterComponents/     # Formularios de acceso y creación de cuentas
 │   │   ├── ProfileComponents/            # Vista y edición de información de usuario
 │   │   └── SideBar.jsx                   # Barra de navegación colapsable adaptativa por rol
-│   ├── hooks/                            # Custom Hooks para fetching y lógica de negocio
-│   │   ├── useBook.js                    # Consulta de obra individual por ID
-│   │   ├── useBooks.js                   # Consulta paginada y filtrada del catálogo
-│   │   ├── useGenres.js                  # Consulta de géneros
+│   ├── hooks/                            # Custom Hooks con soporte de caché SWR
+│   │   ├── useBook.js                    # Consulta de obra individual por ID con SWR
+│   │   ├── useBooks.js                   # Consulta paginada y filtrada del catálogo con SWR
+│   │   ├── useEditorials.js              # Consulta de editoriales con fallback inteligente
+│   │   ├── useGenres.js                  # Consulta de géneros con SWR
 │   │   ├── useInventory.js               # Consulta de ejemplares físicos
+│   │   ├── useRecommendations.js         # Recomendaciones literarias con SWR
 │   │   └── useUserProfile.js             # Consulta y mutación del perfil en sesión
 │   ├── pages/                            # Vistas principales asociadas al Router
 │   │   ├── AddAnItem.jsx                 # Alta de nuevo ejemplar físico
@@ -136,20 +141,14 @@ folium-web-app/
 │   │   ├── LoansDashboard.jsx            # Panel de supervisión de préstamos y mora (Staff)
 │   │   ├── Profile.jsx                   # Perfil del usuario autenticado
 │   │   ├── ReservationDashboard.jsx      # Panel de reservas activas (Staff)
-│   │   ├── Test.jsx                      # Sandbox de pruebas (disponible solo en DEV)
 │   │   ├── UserLoans.jsx                 # Historial y préstamos activos del lector
 │   │   └── UserReservations.jsx          # Reservas activas del lector
 │   ├── theme/                            # Sistema de tematización (Claro / Oscuro)
-│   │   ├── ThemeProvider.jsx             # Contexto de tema, persistencia en localStorage y media query
-│   │   └── ThemeToggle.jsx               # Selector interactivo animado Sol/Luna
-│   ├── App.css                           # Estilos auxiliares y animaciones clave
 │   ├── App.jsx                           # Declaración central de rutas de React Router
-│   ├── index.css                         # Definición de tokens de diseño en Tailwind v4 (@theme)
+│   ├── fonts.css                         # Subsetting selectivo de fuentes Latin y Latin-Ext
+│   ├── index.css                         # Tokens de diseño en Tailwind v4 (@theme)
 │   └── main.jsx                          # Punto de entrada del árbol DOM
-├── eslint.config.js                      # Configuración de ESLint (Flat Config)
-├── index.html                            # Plantilla HTML raíz
-├── package.json                          # Dependencias de npm y scripts
-├── vercel.json                           # Configuración de rewrites y CSP para Vercel
+├── vercel.json                           # Configuración de CSP, Rewrites y Edge CDN Caching
 └── vite.config.js                        # Configuración de Vite y plugins oficiales
 ```
 
@@ -157,7 +156,7 @@ folium-web-app/
 
 ## 4. Sistema de Diseño "Dark Academia" y Design Tokens
 
-Folium utiliza un sistema de diseño propio basado en **Tailwind CSS v4** mediante directivas `@theme`, evitando clases arbitrarias y unificando el lenguaje visual en toda la plataforma.
+Folium utiliza un sistema de diseño propio basado en **Tailwind CSS v4** mediante directivas `@theme`:
 
 ### Paleta Dual: Biblioteca Clásica vs. Espresso Profundo
 
@@ -175,15 +174,8 @@ Folium utiliza un sistema de diseño propio basado en **Tailwind CSS v4** median
 
 ### Tipografía Curatorial
 
-- **Titulares y Literatura (`--font-serif`)**: `EB Garamond Variable`, tipografía serif de inspiración clásica que aporta distinción editorial y calidez a los títulos, sinopsis y cabeceras.
-- **Datos y Controles de Interfaz (`--font-sans`)**: `Hanken Grotesk Variable`, tipografía sans-serif de trazo geométrico y alta legibilidad para tablas de inventario, formularios densos y etiquetas de estado.
-
-### Matemáticas del Carrusel 3D CoverFlow (`BookCoverFlow.jsx`)
-
-El carrusel tridimensional calcula dinámicamente la posición espacial de cada libro en función de su distancia relativa al índice central activo (`offset = index - activeIndex`):
-$$\text{transform} = \text{translateX}(offset \times 160\text{px}) \;\; \text{translateZ}(-|offset| \times 120\text{px}) \;\; \text{rotateY}(offset \times -28^\circ) \;\; \text{scale}(1 - |offset| \times 0.15)$$
-- **Efecto de Profundidad**: Los libros laterales se comprimen visualmente en el eje Z y rotan hacia el centro como tomos en una estantería circular.
-- **Soporte Móvil**: Detección de eventos táctiles `onTouchStart` y `onTouchEnd` para deslizamiento natural por gestos (*Swipe*).
+- **Titulares y Literatura (`--font-serif`)**: `EB Garamond Variable` (subconjuntos `latin` y `latin-ext`).
+- **Datos y Controles de Interfaz (`--font-sans`)**: `Hanken Grotesk Variable` (subconjuntos `latin` y `latin-ext`).
 
 ---
 
@@ -198,7 +190,7 @@ graph TD
     BotLayout --> PublicArea[Rutas Públicas]
     PublicArea --> Landing["/ (FoliumLanding)"]
     PublicArea --> Pricing["/pricing (Planes MercadoPago)"]
-    PublicArea --> AuthViews["/login y /register (AuthLayout)"]
+    PublicArea --> AuthViews["/login y /register (AuthLayout Lazy)"]
     PublicArea --> GuestCatalog["/catalog y /book/:id (UserLayout)"]
 
     BotLayout --> ProtectedUser[ProtectedRoute: USER, LIBRARIAN, ADMIN]
@@ -209,9 +201,9 @@ graph TD
     UserArea --> UserProfilePage["/user/profile"]
 
     BotLayout --> ProtectedStaff[ProtectedRoute: LIBRARIAN, ADMIN]
-    ProtectedStaff --> StaffArea[LibrarianLayout con Herramientas de Gestión]
+    ProtectedStaff --> StaffArea[LibrarianLayout Lazy con Herramientas de Gestión]
     StaffArea --> InventoryView["/librarian/inventory"]
-    StaffArea --> LoadBookView["/librarian/inventory/newBook"]
+    StaffArea --> LoadBookView["/librarian/newBook (Ruta Independiente)"]
     StaffArea --> AddItemView["/librarian/inventory/newItem"]
     StaffArea --> ImporterView["/librarian/importer (Importador Masivo)"]
     StaffArea --> LoansDashboardView["/librarian/loans (Circulación y Mora)"]
@@ -224,57 +216,41 @@ graph TD
 | :--- | :--- | :--- | :--- | :--- |
 | `/` | `FoliumLanding` | Directo | Público | Página de bienvenida con recomendaciones aleatorias y accesos rápidos. |
 | `/pricing` | `LibraryPricingPage` | `BotLayout` | Público | Catálogo interactivo de suscripciones y checkout directo con MercadoPago. |
-| `/login` | `LoginForm` | `BotLayout` > `AuthLayout` | Público | Autenticación JWT para lectores y personal. |
-| `/register` | `RegisterForm` | `BotLayout` > `AuthLayout` | Público | Creación de cuenta de lector con DNI único. |
-| `/catalog` | `BookCatalog` | `BotLayout` > `UserLayout` | Público / Todos | Catálogo con carrusel 3D, filtros laterales y paginación de 20 obras. |
+| `/login` | `LoginForm` | `BotLayout` > `AuthLayout` (Lazy) | Público | Autenticación JWT para lectores y personal. |
+| `/register` | `RegisterForm` | `BotLayout` > `AuthLayout` (Lazy) | Público | Creación de cuenta de lector con DNI único. |
+| `/catalog` | `BookCatalog` | `BotLayout` > `UserLayout` | Público / Todos | Catálogo con carrusel 3D, filtros laterales y navegación directa a detalle. |
 | `/book/:id` | `BookDetail` | `BotLayout` > `UserLayout` | Público / Todos | Ficha técnica, disponibilidad física en sala y valoraciones. |
 | `/user/favourites` | `Favourites` | `BotLayout` > `UserLayout` | `USER`, `LIBRARIAN`, `ADMIN` | Colección personal de libros guardados por el lector. |
 | `/user/loans` | `UserLoans` | `BotLayout` > `UserLayout` | `USER`, `LIBRARIAN`, `ADMIN` | Listado de libros en poder del lector con días restantes para devolución. |
 | `/user/reservations` | `UserReservations` | `BotLayout` > `UserLayout` | `USER`, `LIBRARIAN`, `ADMIN` | Reservas pendientes y confirmadas del lector con opción de cancelación. |
 | `/user/profile` | `Profile` | `BotLayout` > `UserLayout` | `USER`, `LIBRARIAN`, `ADMIN` | Datos de cuenta, estadísticas de lectura y edición de perfil. |
-| `/librarian/inventory` | `Inventory` | `BotLayout` > `LibrarianLayout` | `LIBRARIAN`, `ADMIN` | Tabla de ejemplares físicos, códigos de inventario y estado. |
-| `/librarian/inventory/newBook` | `LoadBook` | `BotLayout` > `LibrarianLayout` | `LIBRARIAN`, `ADMIN` | Formulario de alta con previsualización de portada y creación en línea de autores/géneros. |
-| `/librarian/inventory/newItem` | `AddAnItem` | `BotLayout` > `LibrarianLayout` | `LIBRARIAN`, `ADMIN` | Asignación de un nuevo ejemplar físico con ubicación en sala. |
-| `/librarian/importer` | `CatalogImporter` | `BotLayout` > `LibrarianLayout` | `LIBRARIAN`, `ADMIN` | Asistente en 4 pasos para importación de Excel, CSV, BibTeX y MARC 21 / MARCXML. |
-| `/librarian/loans` | `LoansDashboard` | `BotLayout` > `LibrarianLayout` | `LIBRARIAN`, `ADMIN` | Supervisión de préstamos activos, cálculo de mora y devolución de ejemplares en un clic. |
-| `/librarian/reservations` | `ReservationDashboard` | `BotLayout` > `LibrarianLayout` | `LIBRARIAN`, `ADMIN` | Monitoreo y resolución de solicitudes de reserva de la biblioteca. |
+| `/librarian/inventory` | `Inventory` | `BotLayout` > `LibrarianLayout` (Lazy) | `LIBRARIAN`, `ADMIN` | Tabla de ejemplares físicos, códigos de inventario y estado. |
+| `/librarian/newBook` | `LoadBook` | `BotLayout` > `LibrarianLayout` (Lazy) | `LIBRARIAN`, `ADMIN` | Formulario de alta con selector de editoriales, previsualización y compresión WebP. |
+| `/librarian/inventory/newItem` | `AddAnItem` | `BotLayout` > `LibrarianLayout` (Lazy) | `LIBRARIAN`, `ADMIN` | Asignación de un nuevo ejemplar físico con ubicación en sala. |
+| `/librarian/importer` | `CatalogImporter` | `BotLayout` > `LibrarianLayout` (Lazy) | `LIBRARIAN`, `ADMIN` | Asistente en 4 pasos para importación de Excel, CSV, BibTeX y MARC 21 / MARCXML. |
+| `/librarian/loans` | `LoansDashboard` | `BotLayout` > `LibrarianLayout` (Lazy) | `LIBRARIAN`, `ADMIN` | Supervisión de préstamos activos, cálculo de mora y devolución de ejemplares en un clic. |
+| `/librarian/reservations` | `ReservationDashboard` | `BotLayout` > `LibrarianLayout` (Lazy) | `LIBRARIAN`, `ADMIN` | Monitoreo y resolución de solicitudes de reserva de la biblioteca. |
 | `*` | `Error404` | `BotLayout` | Público | Pantalla de error con diseño editorial y botón de retorno. |
 
 ---
 
-## 6. Módulos Funcionales Destacados
-
-### 1. Importador Masivo de Catálogos (`CatalogImporter.jsx`)
-- **Paso 1: Selección y Detección de Formato**: Zona de carga por arrastre (*drag-and-drop*) con soporte universal para `.xlsx`, `.csv`, `.tsv`, `.txt`, `.bib`, `.mrc`, `.marc`, `.xml`, `.marcxml`. Cuenta con botones de descarga de plantillas de ejemplo listas para usar (incluyendo binarios MARC 21 codificados en Base64 y MARCXML oficiales).
-- **Paso 2: Vista Previa y Mapeo Inteligente**: Lee las primeras filas del archivo y preasigna automáticamente las columnas a los campos obligatorios de Folium (`title`, `author`, `isbn`, `editorial`, `year`, `genre`, `inventory_code`, `location`, `description`).
-- **Paso 3: Simulación Dry-Run**: Muestra un desglose previo del total de filas procesadas, registros válidos, filas con advertencias y errores críticos antes de tocar la base de datos.
-- **Paso 4: Confirmación y Resumen Transaccional**: Ejecución atómica que informa la cantidad exacta de obras nuevas incorporadas, ejemplares físicos etiquetados y filas omitidas.
-
-### 2. Circulación y Préstamos (`LoansDashboard.jsx`)
-- **Control de Vencimientos en Tiempo Real**: Cálculo visual con insignias de estado (Verde: *Más de 3 días*, Amarillo: *Próximo a vencer*, Rojo pulsante: *Vencido con mora calculada*).
-- **Devolución Rápida**: Botón de confirmación que invoca `POST /loan/{id}/return_book/`, liberando el ejemplar a estado `AVAILABLE` de forma inmediata.
-
-### 3. Asistente Virtual Inteligente (`FoliumBot.jsx`)
-- **Conciencia de Rol**: Si el usuario es un lector (`USER`), ofrece sugerencias literarias, ayuda para renovar préstamos y búsqueda en el catálogo. Si es bibliotecario (`LIBRARIAN`), habilita accesos directos al importador masivo, auditoría de inventario y panel de mora.
-- **Persistencia**: Diseñado sobre `BotLayout`, manteniendo el historial de la conversación intacto aunque el usuario cambie de ruta en la aplicación.
-
----
-
-## 7. Configuración de Entorno y Variables
+## 6. Configuración de Entorno y Variables
 
 Crear un archivo `.env` en la raíz de `folium-web-app` basándose en `.env.example`:
 
 ```bash
-# URL Base de la API REST de Django
+# URL Base de la API REST (en desarrollo local)
 VITE_API_BASE_URL=http://localhost:8080/api/v1
 
-# Clave pública de MercadoPago (para inicialización del SDK de frontend si aplica)
+# Clave pública de MercadoPago (para checkout)
 VITE_MERCADOPAGO_PUBLIC_KEY=APP_USR-xxxx-xxxx-xxxx
 ```
 
+En entornos de producción desplegados en Vercel, la variable `BACKEND_HOST` se configura en el panel de control de Vercel apuntando al servidor backend (por defecto `http://54.160.130.29`), mientras que el frontend consume la API a través del proxy relativo `/api/v1` y las imágenes por `/media/...`.
+
 ---
 
-## 8. Guía de Instalación, Desarrollo y Compilación
+## 7. Guía de Instalación, Desarrollo y Compilación
 
 ### Requisitos Previos
 - **Node.js**: Versión `20.x` o superior.
@@ -289,7 +265,7 @@ npm install
 # 2. Iniciar servidor de desarrollo con Hot Module Replacement (HMR)
 npm run dev
 
-# 3. Compilar la aplicación para producción (Bundle optimizado en dist/)
+# 3. Compilar la aplicación para producción (Bundle optimizado de ~250 kB en dist/)
 npm run build
 
 # 4. Previsualizar localmente el build de producción
@@ -301,9 +277,12 @@ npm run lint
 
 ---
 
-## 9. Despliegue en Producción (Vercel)
+## 8. Despliegue en Producción (Vercel)
 
-La aplicación está preparada para su despliegue continuo en **Vercel** mediante el archivo de configuración [`vercel.json`](file:///c:/Users/Facundo/Desktop/ReposGit/folium-web-app/vercel.json):
-- **Reglas de Reescritura SPA**: Redirige todas las rutas solicitadas hacia `index.html` para permitir el enrutamiento del lado del cliente (`client-side routing`).
-- **Políticas de Seguridad de Contenido (CSP)**: Permite la conexión segura con los servidores de la API REST, CDNs de fuentes tipográficas (`Google Fonts`, `Fontsource`) y el SDK de MercadoPago.
-- **Control de Caché de Activos**: Los archivos estáticos versionados dentro de `assets/` cuentan con encabezados de caché inmutable (`max-age=31536000, immutable`), mientras que `index.html` se sirve siempre actualizado para evitar estados desfasados tras nuevos despliegues.
+La aplicación está completamente configurada para despliegue continuo en **Vercel** mediante [`vercel.json`](file:///c:/Users/Facundo/Desktop/ReposGit/folium-web-app/vercel.json):
+- **Edge CDN Caching para Imágenes**: Las rutas `/media/(.*)` se reescriben a `api/proxy.js` y cuentan con cabeceras `Cache-Control: public, max-age=31536000, s-maxage=31536000, stale-while-revalidate=2592000, immutable`.
+- **Content Security Policy (CSP) Permisiva y Segura**:
+  - `font-src`: Autoriza fuentes locales, `https://fonts.gstatic.com`, `https://assets.vercel.com` y `https://*.vercel.live` (evitando bloqueos en Vercel Preview Toolbar).
+  - `connect-src`: Habilita la IP del backend, dominios Vercel y WebSockets de Pusher (`wss://*.pusher.com`).
+  - `script-src` y `frame-src`: Habilita scripts esenciales y herramientas de auditoría en vivo.
+- **Reglas de Reescritura SPA**: Cualquier ruta que no sea un recurso estático ni una llamada a `/api/` o `/media/` se redirige a `/index.html` para el correcto funcionamiento del router del cliente.

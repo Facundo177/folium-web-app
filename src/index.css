@@ -221,6 +221,11 @@
     --color-surface-container-highest: #543d41;
     
     --color-surface-variant: #433033;
+    /* ERROR */
+    --color-error: #ef4444;
+    --color-on-error: #ffffff;
+    --color-error-container: #7f1d1d;
+    --color-on-error-container: #fecaca;
 
     /* PRIMARY */
     --color-primary: #ba874b; /* ANTIQUE GOLD (Brilla espectacular sobre fondo oscuro) */
@@ -387,4 +392,13 @@ dialog:modal {
 dialog::backdrop {
   overflow: hidden;
   overscroll-behavior: contain;
+}
+
+
+/* =======================================================
+   BOOK COVER 3D INTERACTIVE TILT (FICHA DE OBRA)
+   ======================================================= */
+.book-interactive-tilt {
+  transform-style: preserve-3d;
+  will-change: transform, filter;
 }

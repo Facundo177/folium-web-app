@@ -299,7 +299,7 @@ export default function BookDetail() {
         <div className="pointer-events-none absolute -right-12 -top-12 w-56 h-56 rounded-full border border-outline/20" />
 
         <div className="relative grid grid-cols-1 md:grid-cols-[18rem_1fr] gap-8 md:gap-12 p-6 md:p-10 items-center">
-          <div className="w-64 md:w-72 mx-auto -rotate-2 hover:rotate-0 transition-transform duration-500 drop-shadow-2xl">
+          <div className="w-64 md:w-72 mx-auto">
             <BookCover imageSrc={data.cover} title={data.title} />
           </div>
 

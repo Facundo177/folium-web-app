@@ -1,17 +1,31 @@
 /**
  * Convierte URLs absolutas de medios (ej. http://54.160.130.29/media/...) en rutas relativas (/media/...)
- * para que sean servidas de forma segura por el proxy de Vercel bajo HTTPS, previniendo Mixed Content.
+ * para que sean servidas de forma segura por el Edge CDN de Vercel bajo HTTPS, previniendo Mixed Content.
+ * Si se provee `versionKey` (ej. `book.updated_at`), adjunta `?v=<epoch_s>` para habilitar caché
+ * inmutable de 1 año en el CDN con invalidación inmediata cuando se edita una portada.
  */
-export function sanitizeMediaUrl(url) {
+export function sanitizeMediaUrl(url, versionKey = null) {
   if (!url || typeof url !== "string") return url;
   const mediaIdx = url.indexOf("/media/");
   if (mediaIdx === -1) return url;
 
+  let normalized = url;
   // En producción (Vercel HTTPS) o cuando apunta a la IP de AWS sobre HTTP inseguro
   if (url.startsWith("http://") || import.meta.env?.PROD) {
-    return url.slice(mediaIdx);
+    normalized = url.slice(mediaIdx);
   }
-  return url;
+
+  if (versionKey && !normalized.includes("?v=") && !normalized.includes("&v=")) {
+    const parsedMs = typeof versionKey === "number" ? versionKey : Date.parse(versionKey);
+    const ver = Number.isFinite(parsedMs)
+      ? Math.floor(parsedMs / 1000)
+      : String(versionKey).replace(/[^a-zA-Z0-9_-]/g, "");
+    if (ver) {
+      normalized += (normalized.includes("?") ? "&" : "?") + `v=${ver}`;
+    }
+  }
+
+  return normalized;
 }
 
 export const adaptBook = (b) => {
@@ -70,7 +84,7 @@ export const adaptBook = (b) => {
     genres,
     category,
     year: b.publication_year ?? b.year ?? "—",
-    cover: sanitizeMediaUrl(b.cover_image ?? b.cover ?? null),
+    cover: sanitizeMediaUrl(b.cover_image ?? b.cover ?? null, b.updated_at),
     availableItems,
     totalItems,
   };
@@ -117,11 +131,14 @@ export const adaptBookDetail = (b) => {
 export const adaptItem = (item, booksById = {}) => {
   if (!item) return {};
   const rawBookId = typeof item.book === "object" && item.book !== null ? item.book.id : item.book;
-  const book = booksById[rawBookId] || (typeof item.book === "object" ? item.book : null);
+  const nestedBookAdapted =
+    typeof item.book === "object" && item.book !== null ? adaptBook(item.book) : null;
+  const book = booksById[rawBookId] || nestedBookAdapted || null;
 
-  const author = typeof book?.author === "object" && book.author !== null
-    ? (book.author.name || "—")
-    : (book?.author ?? "—");
+  const author =
+    typeof book?.author === "object" && book.author !== null
+      ? book.author.name || "—"
+      : book?.author || "—";
 
   return {
     id: item.id,
@@ -130,13 +147,13 @@ export const adaptItem = (item, booksById = {}) => {
     status: item.status,
     statusLabel: item.status_display || item.status || "—",
     location: item.location || "Sin asignar",
-    title: book?.title ?? "—",
-    author,
+    title: book?.title || "—",
+    author: author || "—",
     isbn: book?.isbn ? String(book.isbn) : "—",
     genres: Array.isArray(book?.genres)
       ? book.genres.map((g) => (typeof g === "object" && g !== null ? g.name : String(g || "")))
       : [],
-    cover: sanitizeMediaUrl(book?.cover ?? book?.cover_image ?? null),
+    cover: sanitizeMediaUrl(book?.cover ?? book?.cover_image ?? null, book?.updated_at),
   };
 };
 
@@ -247,10 +264,10 @@ function normalizeBookInPlace(book) {
     book.year = book.publication_year;
   }
   if (book.cover_image) {
-    book.cover_image = sanitizeMediaUrl(book.cover_image);
+    book.cover_image = sanitizeMediaUrl(book.cover_image, book.updated_at);
   }
   if (book.cover) {
-    book.cover = sanitizeMediaUrl(book.cover);
+    book.cover = sanitizeMediaUrl(book.cover, book.updated_at);
   }
   if (book.cover === undefined && book.cover_image !== undefined) {
     book.cover = book.cover_image;

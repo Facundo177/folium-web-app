@@ -219,7 +219,7 @@ export function NavigationMenuWidget(props) {
   const links = isStaff
     ? [
         { label: "Inventario General", route: "/librarian/inventory", icon: Package },
-        { label: "Cargar Nuevo Libro", route: "/librarian/inventory/newBook", icon: PlusCircle },
+        { label: "Cargar Nuevo Libro", route: "/librarian/newBook", icon: PlusCircle },
         { label: "Añadir Ejemplar Físico", route: "/librarian/inventory/newItem", icon: PlusCircle },
         { label: "Panel de Préstamos", route: "/librarian/loans", icon: BookMarked },
         { label: "Panel de Reservas", route: "/librarian/reservations", icon: BookmarkCheck },
@@ -577,7 +577,7 @@ export function LiveLoansStatusWidget(props) {
     const fetchLoans = async () => {
       setIsLoading(true);
       try {
-        const { data } = await loanService.getAll();
+        const data = await loanService.getAllRecords();
         if (mounted) setLoans(data);
       } catch (err) {
         console.error("Error al consultar préstamos desde el bot:", err);

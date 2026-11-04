@@ -1,12 +1,92 @@
+import { useRef } from "react";
+
 export default function BookCover({ imageSrc, title }) {
+  const cardRef = useRef(null);
+  const glareRef = useRef(null);
+  const rafRef = useRef(null);
+
+  const handleMouseMove = (e) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+
+    rafRef.current = requestAnimationFrame(() => {
+      // Coordenadas normalizadas [-1, 1] respecto al centro del rectángulo
+      const normX = Math.max(-1, Math.min(1, (x / rect.width) * 2 - 1));
+      const normY = Math.max(-1, Math.min(1, (y / rect.height) * 2 - 1));
+
+      const maxRotateX = 12; // Grados máximos de inclinación vertical
+      const maxRotateY = 14; // Grados máximos de inclinación horizontal
+
+      // Inclinación dinámica hacia la posición del cursor
+      const rotX = (-normY * maxRotateX).toFixed(2);
+      const rotY = (normX * maxRotateY).toFixed(2);
+
+      // Desplazamiento dinámico de la sombra
+      const shadowX = (-normX * 16).toFixed(1);
+      const shadowY = (16 - normY * 10).toFixed(1);
+
+      if (cardRef.current) {
+        cardRef.current.style.transition = "transform 0.08s ease-out, filter 0.08s ease-out";
+        cardRef.current.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale3d(1.025, 1.025, 1.025)`;
+        cardRef.current.style.filter = `drop-shadow(${shadowX}px ${shadowY}px 28px rgba(0, 0, 0, 0.35))`;
+      }
+
+      if (glareRef.current) {
+        glareRef.current.style.opacity = "0.35";
+        glareRef.current.style.background = `radial-gradient(circle 260px at ${x}px ${y}px, rgba(255, 255, 255, 0.32) 0%, rgba(255, 255, 255, 0) 70%)`;
+      }
+    });
+  };
+
+  const handleMouseLeave = () => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+
+    if (cardRef.current) {
+      cardRef.current.style.transition = "transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s cubic-bezier(0.16, 1, 0.3, 1)";
+      cardRef.current.style.transform = "perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)";
+      cardRef.current.style.filter = "drop-shadow(0 14px 24px rgba(0, 0, 0, 0.22))";
+    }
+
+    if (glareRef.current) {
+      glareRef.current.style.opacity = "0";
+      glareRef.current.style.transition = "opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1)";
+    }
+  };
+
   return (
-    <div className="border border-outline-variant rounded-DEFAULT bg-surface-container-lowest p-gutter flex flex-col justify-center items-center h-full shadow-sm">
+    <div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      onTouchEnd={handleMouseLeave}
+      className="relative select-none cursor-pointer book-interactive-tilt border border-outline-variant rounded-DEFAULT bg-surface-container-lowest p-gutter flex flex-col justify-center items-center h-full overflow-hidden"
+      style={{
+        transformStyle: "preserve-3d",
+        transformOrigin: "center center",
+        transform: "perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)",
+        transition: "transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
+        filter: "drop-shadow(0 14px 24px rgba(0, 0, 0, 0.22))",
+        willChange: "transform, filter",
+      }}
+    >
+      {/* Capa de reflejo especular reactivo al cursor */}
+      <div
+        ref={glareRef}
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-30 rounded-DEFAULT opacity-0 transition-opacity duration-300"
+        style={{ mixBlendMode: "overlay" }}
+      />
+
       {imageSrc ? (
         <img
           src={imageSrc}
           alt={title}
           decoding="async"
-          className="w-full max-w-62 object-contain drop-shadow-md aspect-[2/3]"
+          className="w-full max-w-62 object-contain drop-shadow-md aspect-[2/3] pointer-events-none"
         />
       ) : (
         /* Portada Clásica Ornamental cuando no hay imagen */

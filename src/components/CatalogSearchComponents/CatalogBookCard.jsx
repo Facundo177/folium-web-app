@@ -1,5 +1,6 @@
 import { useState, useEffect, memo } from "react";
-import { useNavigate } from "react-router-dom";
+import { createPortal } from "react-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../auth/AuthProvider";
 import { reservationService } from "../../api/services/reservationService";
 import { favoriteService } from "../../api/services/favoriteService";
@@ -10,7 +11,9 @@ function CatalogBookCard({
   isFavorite = false,
   favoriteId = null,
   isReservedByUser = false,
+  reservationId = null,
   onReservationSuccess,
+  onCancelSuccess,
   onToggleFavorite,
   onRequireAuth,
 }) {
@@ -18,6 +21,8 @@ function CatalogBookCard({
   const { user } = useAuth();
   const [favorited, setFavorited] = useState(isFavorite);
   const [currentFavId, setCurrentFavId] = useState(favoriteId);
+  const [confirmAction, setConfirmAction] = useState(null); // null | "reserve" | "cancel"
+  const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
     setFavorited(isFavorite);
@@ -74,16 +79,12 @@ function CatalogBookCard({
     }
   };
 
-  const handleQuickView = (e) => {
-    e.stopPropagation();
-    if (!user || !user.id) {
-      promptGuestRegistration("consultar la ficha detallada, historia y reseñas de este ejemplar");
-      return;
-    }
+  const handleQuickView = () => {
     navigate(`/book/${book.id}`);
   };
 
-  const handleReserve = async (e) => {
+  // El botón solo abre el modal de confirmación
+  const handleActionClick = (e) => {
     e.stopPropagation();
 
     if (!user || !user.id) {
@@ -91,14 +92,37 @@ function CatalogBookCard({
       return;
     }
 
+    setConfirmAction(isReservedByUser ? "cancel" : "reserve");
+  };
+
+  // La reserva real se hace al confirmar en el modal
+  const handleConfirmReserve = async () => {
+    setProcessing(true);
     try {
-      await reservationService.create({
+      const { data: newReservation } = await reservationService.create({
         book: book.id,
         expires_at: getInitialDateTime(14),
       });
-      onReservationSuccess?.(book.id);
+      onReservationSuccess?.(book.id, newReservation?.id);
+      setConfirmAction(null);
     } catch (err) {
       console.error("Error al reservar:", err);
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  // La cancelación real se hace al confirmar en el modal
+  const handleConfirmCancel = async () => {
+    setProcessing(true);
+    try {
+      await reservationService.remove(reservationId);
+      onCancelSuccess?.(book.id);
+      setConfirmAction(null);
+    } catch (err) {
+      console.error("Error al cancelar la reserva:", err);
+    } finally {
+      setProcessing(false);
     }
   };
 
@@ -130,7 +154,7 @@ function CatalogBookCard({
       </div>
 
       {/* --- IMAGEN DE PORTADA / PORTADA EDITORIAL CON FRAME --- */}
-      <div className="relative w-full aspect-[2/3] max-h-56 mb-4 flex items-center justify-center bg-surface-container-low border border-outline-variant/40 rounded-sm overflow-hidden z-10">
+      <div className="relative w-full aspect-[2/3] max-h-80 mb-4 flex items-start justify-start bg-surface-container-low border border-outline-variant/40 rounded-sm overflow-hidden z-10">
         {book.cover && (
           <img
             src={book.cover}
@@ -176,7 +200,13 @@ function CatalogBookCard({
           className="font-serif text-lg text-on-surface font-medium leading-snug line-clamp-2 mb-1 group-hover:text-primary transition-colors"
           title={book.title}
         >
-          {book.title}
+          <Link
+            to={`/book/${book.id}`}
+            onClick={(e) => e.stopPropagation()}
+            className="hover:text-primary transition-colors no-underline text-inherit"
+          >
+            {book.title}
+          </Link>
         </h3>
 
         <p className="font-serif italic text-sm text-on-surface-variant line-clamp-1 mb-2">
@@ -216,20 +246,26 @@ function CatalogBookCard({
               ? false
               : true;
 
+          const isGuestUser = !user || !user.id;
           const isReservable = hasAvailableCopies && !isReservedByUser;
+          const canClick = isGuestUser ? hasAvailableCopies : (isReservable || isReservedByUser);
 
           return (
             <button
-              onClick={handleReserve}
-              disabled={!isReservable}
+              onClick={handleActionClick}
+              disabled={!canClick}
               className={`mt-auto w-full border py-2.5 rounded-sm flex items-center justify-center gap-2 text-xs font-bold tracking-widest uppercase transition-colors ${
-                !isReservable
+                !canClick
                   ? "bg-surface-container-highest text-on-surface-variant/40 border-outline-variant/30 cursor-not-allowed pointer-events-none opacity-60"
                   : "bg-secondary text-on-secondary hover:bg-secondary-container hover:text-on-secondary-container border-outline-variant/30 cursor-pointer"
               }`}
             >
-              {isReservedByUser
-                ? "Ya reservado"
+              {isGuestUser
+                ? hasAvailableCopies
+                  ? "Iniciá sesión para reservar"
+                  : "Sin ejemplares"
+                : isReservedByUser
+                ? "Cancelar reserva"
                 : hasAvailableCopies
                 ? "Reservar"
                 : "Sin ejemplares"}
@@ -240,6 +276,55 @@ function CatalogBookCard({
           );
         })()}
       </div>
+
+      {/* --- MODAL DE CONFIRMACIÓN (reservar / cancelar) --- */}
+      {confirmAction &&
+        createPortal(
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              if (!processing) setConfirmAction(null);
+            }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 px-4"
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="bg-surface-container border border-outline-variant/60 rounded-md p-6 w-full max-w-sm shadow-lg"
+            >
+              <h4 className="font-serif text-lg text-on-surface mb-2">
+                {confirmAction === "cancel" ? "Cancelar reserva" : "Confirmar reserva"}
+              </h4>
+              <p className="text-sm text-on-surface-variant mb-6">
+                {confirmAction === "cancel"
+                  ? `¿Seguro que querés cancelar la reserva de "${book.title}"?`
+                  : `¿Querés reservar "${book.title}"?`}
+              </p>
+              <div className="flex gap-2 justify-end">
+                <button
+                  onClick={() => setConfirmAction(null)}
+                  disabled={processing}
+                  className="px-4 py-2 text-xs font-bold tracking-widest uppercase border border-outline-variant/40 rounded-sm text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  Volver
+                </button>
+                <button
+                  onClick={
+                    confirmAction === "cancel" ? handleConfirmCancel : handleConfirmReserve
+                  }
+                  disabled={processing}
+                  className="px-4 py-2 text-xs font-bold tracking-widest uppercase rounded-sm bg-secondary text-on-secondary hover:bg-secondary-container hover:text-on-secondary-container transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  {processing
+                    ? "Procesando..."
+                    : confirmAction === "cancel"
+                    ? "Sí, cancelar"
+                    : "Sí, reservar"}
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
     </article>
   );
 }
