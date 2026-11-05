@@ -7,6 +7,7 @@ export default function Ayuda() {
   useDocumentMetadata({
     title: "Centro de Ayuda — Folium",
     description: "Guía paso a paso para crear tu cuenta, buscar libros y solicitar reservas.",
+    canonicalPath: "/ayuda",
   });
 
   return (

@@ -34,6 +34,19 @@ export default function FAQ() {
   useDocumentMetadata({
     title: "Preguntas Frecuentes — Folium",
     description: "Respuestas a las dudas más comunes sobre reservas, préstamos y catálogo en Folium.",
+    canonicalPath: "/preguntas-frecuentes",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: FAQS.map((item) => ({
+        "@type": "Question",
+        name: item.q,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: item.a,
+        },
+      })),
+    },
   });
 
   return (
