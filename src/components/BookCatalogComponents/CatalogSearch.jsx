@@ -102,7 +102,7 @@ export default function CatalogSearch({
 
       <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-8 pb-16">
         {/* Barra Lateral Izquierda (Filtros) */}
-        <aside className="w-full lg:w-64 flex-shrink-0">
+        <aside className="w-full lg:w-64 flex-shrink-0 lg:sticky lg:top-6 self-start z-10 lg:max-h-[calc(100dvh-3rem)] lg:overflow-y-auto">
           <FilterSidebar
             categories={categories}
             activeCategory={filters?.genre || null}
