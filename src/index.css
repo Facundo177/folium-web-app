@@ -328,7 +328,8 @@
   @media (min-width: 1024px) {
     .folium-sidebar {
       width: 84px;
-      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: width;
     }
     .folium-sidebar:hover,
     .folium-sidebar.is-modal-open {
@@ -337,46 +338,49 @@
     .folium-sidebar .hide-on-collapse {
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.15s ease;
+      transition: opacity 0.15s ease-out;
     }
     .folium-sidebar:hover .hide-on-collapse,
     .folium-sidebar.is-modal-open .hide-on-collapse {
       opacity: 1;
       pointer-events: auto;
-      transition: opacity 0.2s 0.08s ease;
+      transition: opacity 0.22s 0.1s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .folium-sidebar .actions-container {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      align-items: flex-start;
-      transition: gap 0.2s ease;
+      position: relative;
+      height: 98px;
+      width: 100%;
+      transition: height 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    /* En reposo (sidebar cerrada / colapsada): Logout arriba (order: 1), ThemeToggle abajo (order: 2) */
-    .folium-sidebar .action-btn-auth {
-      order: 1;
+    .folium-sidebar .action-btn {
+      position: absolute;
+      transition: bottom 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                  left 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     }
+    /* En reposo (sidebar colapsada): ThemeToggle abajo (bottom: 0, left: 0), Logout arriba (bottom: 54px, left: 0) */
     .folium-sidebar .action-btn-theme {
-      order: 2;
+      bottom: 0;
+      left: 0;
     }
-    /* Al abrir (hover / modal abierta): Fila con ThemeToggle a la izquierda (order: 1) y Logout a la derecha (order: 2) */
+    .folium-sidebar .action-btn-auth {
+      bottom: 54px;
+      left: 0;
+    }
+    /* Al abrir (hover / modal abierta): ThemeToggle se queda INMOVIL en (bottom: 0, left: 0) */
     .folium-sidebar:hover .actions-container,
     .folium-sidebar.is-modal-open .actions-container {
-      flex-direction: row;
-      align-items: center;
+      height: 44px;
     }
     .folium-sidebar:hover .action-btn-theme,
     .folium-sidebar.is-modal-open .action-btn-theme {
-      order: 1;
+      bottom: 0;
+      left: 0;
     }
+    /* Al abrir: Logout se ubica a la derecha de ThemeToggle (bottom: 0, left: 54px) */
     .folium-sidebar:hover .action-btn-auth,
     .folium-sidebar.is-modal-open .action-btn-auth {
-      order: 2;
-    }
-    .folium-sidebar .action-btn {
-      position: static;
-      display: flex;
-      flex-shrink: 0;
+      bottom: 0;
+      left: 54px;
     }
   }
 
@@ -384,28 +388,30 @@
   @media (max-width: 1023px) {
     .folium-sidebar {
       width: 264px;
-      transition: transform 0.3s ease-out;
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .folium-sidebar .hide-on-collapse {
       opacity: 1;
       pointer-events: auto;
     }
     .folium-sidebar .actions-container {
+      position: relative;
+      height: 44px;
       display: flex;
       flex-direction: row;
       align-items: center;
       gap: 10px;
+    }
+    .folium-sidebar .action-btn {
+      position: static;
+      display: flex;
+      flex-shrink: 0;
     }
     .folium-sidebar .action-btn-theme {
       order: 1;
     }
     .folium-sidebar .action-btn-auth {
       order: 2;
-    }
-    .folium-sidebar .action-btn {
-      position: static;
-      display: flex;
-      flex-shrink: 0;
     }
   }
 
