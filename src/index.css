@@ -137,6 +137,7 @@
      ======================================================= */
   --animate-fade-in: fade-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   --animate-overlay-in: overlay-in 0.25s ease-out forwards;
+  --animate-spring-bounce: spring-bounce 1.25s infinite;
 
   @keyframes overlay-in {
     0% {
@@ -155,6 +156,28 @@
     100% {
       opacity: 1;
       transform: none; /* 'none' (no translateY(0)) para no crear un containing block que rompa los modales fixed */
+    }
+  }
+
+  @keyframes spring-bounce {
+    0% {
+      transform: translateY(0);
+      animation-timing-function: cubic-bezier(0.16, 0.84, 0.44, 1);
+    }
+    35% {
+      transform: translateY(6px);
+      animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    65% {
+      transform: translateY(-2px);
+      animation-timing-function: cubic-bezier(0.34, 1.2, 0.64, 1);
+    }
+    85% {
+      transform: translateY(1.5px);
+      animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+    100% {
+      transform: translateY(0);
     }
   }
 }
