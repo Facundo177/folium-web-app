@@ -4,6 +4,9 @@ Allow: /
 Allow: /catalog
 Allow: /pricing
 Allow: /book/
+Allow: /nosotros
+Allow: /ayuda
+Allow: /preguntas-frecuentes
 
 # Preservación de Crawl Budget y Privacidad
 Disallow: /login
