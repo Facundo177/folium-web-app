@@ -39,9 +39,9 @@ export default function LibraryPricingCards({
           <span className="text-label-caps text-primary tracking-[0.2em] uppercase block mb-3">
             Suscripciones 
           </span>
-          <h2 className="font-serif text-3xl sm:text-5xl text-on-surface font-medium leading-tight mb-4">
+          <h1 className="font-serif text-3xl sm:text-5xl text-on-surface font-medium leading-tight mb-4">
             Planes pensados para cada escala de biblioteca
-          </h2>
+          </h1>
           <p className="text-body-lg text-on-surface-variant leading-relaxed mb-8">
             Comienza con nuestra modalidad sin cargo para pequeños archivos o
             amplía la capacidad operativa de tu institución con facturación

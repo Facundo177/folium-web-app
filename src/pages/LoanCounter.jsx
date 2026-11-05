@@ -634,7 +634,9 @@ export default function LoanCounter() {
                     {selectedBookForSelectedItem?.cover_image ? (
                       <img
                         src={selectedBookForSelectedItem.cover_image}
-                        alt=""
+                        alt={selectedBookForSelectedItem?.title || "Portada de libro"}
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -784,7 +786,9 @@ export default function LoanCounter() {
                             {book.cover_image ? (
                               <img
                                 src={book.cover_image}
-                                alt=""
+                        alt={book.title || "Portada"}
+                        loading="lazy"
+                        decoding="async"
                                 className="w-full h-full object-cover"
                               />
                             ) : (

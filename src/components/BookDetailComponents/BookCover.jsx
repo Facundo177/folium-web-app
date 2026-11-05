@@ -86,6 +86,7 @@ export default function BookCover({ imageSrc, title }) {
           src={imageSrc}
           alt={title}
           decoding="async"
+          fetchPriority="high"
           className="w-full max-w-62 object-contain drop-shadow-md aspect-[2/3] pointer-events-none"
         />
       ) : (
