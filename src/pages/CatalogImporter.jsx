@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import GoBackButton from "../components/BasicUIComponents/GoBackButton";
 import { importerService, validateImporterFile } from "../api/services/importerService";
+import { useDocumentMetadata } from "../hooks/useDocumentMetadata";
 
 const FOLIUM_FIELDS = [
   { id: "title", label: "Título de la Obra", required: true, description: "Nombre principal de la obra bibliográfica" },
@@ -137,6 +138,12 @@ const SAMPLE_MARCXML = `<?xml version="1.0" encoding="UTF-8"?>
 const SAMPLE_MRC_B64 = "MDA0MjFuYW0gYTIyMDAxMzMgdSA0NTAwMDAxMDAwOTAwMDAwMDA4MDA0MTAwMDA5MDIwMDAxODAwMDUwMTAwMDAzMTAwMDY4MjQ1MDA1NTAwMDk5MjY0MDAyNTAwMTU0NjUwMDAyMjAwMTc5ODUyMDAzNTAwMjAxNTIwMDA1MTAwMjM2HkZPTC0wMDAxHjg1MDMxNHMxOTY3ICAgIGNrICAgICAgICAgICAgMDAwIDAgc3BhICAeICAfYTk3ODAzMDc0NzQ3MjgeMSAfYUdhcmPDrWEgTcOhcnF1ZXosIEdhYnJpZWwsHjEwH2FDaWVuIGHDsW9zIGRlIHNvbGVkYWQgLx9jR2FicmllbCBHYXJjw61hIE3DoXJxdWV6Lh4gMR9iU3VkYW1lcmljYW5hLB9jMTk2Ny4eIDAfYVJlYWxpc21vIG3DoWdpY28uHiAgH3BJTlYtR0FCTy0wMR9jU2FsYSBBH2hFc3RhbnRlIDMeICAfYU9icmEgY3VtYnJlIGRlIGxhIGxpdGVyYXR1cmEgaGlzcGFub2FtZXJpY2FuYS4eHTAwNDA5bmFtIGEyMjAwMTMzIHUgNDUwMDAwMTAwMDkwMDAwMDAwODAwNDEwMDAwOTAyMDAwMTgwMDA1MDEwMDAwMjQwMDA2ODI0NTAwMzYwMDA5MjI2NDAwMTYwMDEyODY1MDAwMjYwMDE0NDg1MjAwNDkwMDE3MDUyMDAwNTYwMDIxOR5GT0wtMDAwMh44NTAzMTRzMTk0NCAgICBhZyAgICAgICAgICAgIDAwMCAwIHNwYSAgHiAgH2E5Nzg5NTAwNDE5NTc0HjEgH2FCb3JnZXMsIEpvcmdlIEx1aXMsHjEwH2FGaWNjaW9uZXMgLx9jSm9yZ2UgTHVpcyBCb3JnZXMuHiAxH2JTdXIsH2MxOTQ0Lh4gMB9hRmljY2nDs24gRmlsb3PDs2ZpY2EuHiAgH3BJTlYtQk9SR0VTLTAxH2NTZWN0b3IgQXJjaGl2bx9oRXN0YW50ZXLDrWEgNB4gIB9hQ29sZWNjacOzbiBkZSByZWxhdG9zIHNvYnJlIGxhYmVyaW50b3MgZSBpbmZpbml0dWQuHh0wMDM5N25hbSBhMjIwMDEzMyB1IDQ1MDAwMDEwMDA5MDAwMDAwMDgwMDQxMDAwMDkwMjAwMDE4MDAwNTAxMDAwMDIyMDAwNjgyNDUwMDMyMDAwOTAyNjQwMDI1MDAxMjI2NTAwMDI1MDAxNDc4NTIwMDM5MDAxNzI1MjAwMDUyMDAyMTEeRk9MLTAwMDMeODUwMzE0czE5NjMgICAgZnIgICAgICAgICAgICAwMDAgMCBzcGEgIB4gIB9hOTc4ODQ2NjMzMTkwNh4xIB9hQ29ydMOhemFyLCBKdWxpbyweMTAfYVJheXVlbGEgLx9jSnVsaW8gQ29ydMOhemFyLh4gMR9iU3VkYW1lcmljYW5hLB9jMTk2My4eIDAfYU5vdmVsYSBFeHBlcmltZW50YWwuHiAgH3BJTlYtQ09SVEFaQVItMDEfY1NhbGEgQR9oRXN0YW50ZSAyHiAgH2FDb250cmFycmVsYXRvIGzDumRpY28gZW4gUGFyw61zIHkgQnVlbm9zIEFpcmVzLh4d";
 
 export default function CatalogImporter() {
+  useDocumentMetadata({
+    title: "Ingesta y Catálogo Masivo — Folium",
+    description: "Mesa técnica de procesamiento e importación masiva de fondos bibliográficos.",
+    noIndex: true,
+    canonicalPath: "/librarian/importer",
+  });
   const [currentStep, setCurrentStep] = useState(1);
   const [file, setFile] = useState(null);
   const [fileMeta, setFileMeta] = useState({ isChunked: false, estimatedChunks: 1 });
