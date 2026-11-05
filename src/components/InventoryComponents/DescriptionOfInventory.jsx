@@ -86,7 +86,7 @@ export default function DescriptionOfInventory({ items = [], totalCount }) {
             <span className="text-[11px] font-semibold uppercase tracking-wider font-sans">
               Disponibles en Sala
             </span>
-            <BookOpenCheck className="w-4 h-4 text-on-surface-variant/70" />
+            <BookOpenCheck className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
           </div>
           <div className="flex items-baseline gap-2">
             <span className="font-serif text-3xl md:text-4xl font-medium tracking-tight text-on-surface tabular-nums">

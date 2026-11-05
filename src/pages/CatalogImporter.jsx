@@ -459,7 +459,7 @@ export default function CatalogImporter() {
                         isActive
                           ? "text-primary font-bold"
                           : isPast
-                          ? "text-primary font-bold"
+                          ? "text-emerald-700 dark:text-emerald-400 font-bold"
                           : "text-on-surface-variant/40"
                       }`}
                     >
@@ -843,11 +843,11 @@ export default function CatalogImporter() {
                               {field.label}
                             </span>
                             {selectedCol ? (
-                              <span className="text-xs font-sans font-medium text-on-surface bg-surface-container px-2 py-0.5 rounded border border-outline-variant/60 font-semibold">
+                              <span className="text-xs font-sans font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-xs border border-emerald-500/25 whitespace-nowrap shrink-0 inline-flex items-center">
                                 ✓ Asignado
                               </span>
                             ) : field.required ? (
-                              <span className="text-xs font-sans font-medium text-amber-700 dark:text-amber-400 font-bold bg-amber-500/10 px-1.5 py-0.5 rounded-xs border border-amber-500/20">
+                              <span className="text-xs font-sans font-medium text-amber-700 dark:text-amber-400 font-bold bg-amber-500/10 px-2 py-0.5 rounded-xs border border-amber-500/25 whitespace-nowrap shrink-0 inline-flex items-center">
                                 [Requerido]
                               </span>
                             ) : null}
