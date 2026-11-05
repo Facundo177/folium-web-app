@@ -489,10 +489,10 @@ export default function ReservationDashboard() {
             <span className="text-[11px] font-semibold uppercase tracking-wider font-sans">
               Formalizadas
             </span>
-            <Check className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+            <Check className="w-4 h-4 text-on-surface-variant/70" />
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="font-serif text-3xl md:text-4xl font-medium tracking-tight text-emerald-700 dark:text-emerald-400 tabular-nums">
+            <span className="font-serif text-3xl md:text-4xl font-medium tracking-tight text-on-surface tabular-nums">
               {summary.completed}
             </span>
             <span className="text-xs text-on-surface-variant">préstamos</span>

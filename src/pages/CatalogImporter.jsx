@@ -459,7 +459,7 @@ export default function CatalogImporter() {
                         isActive
                           ? "text-primary font-bold"
                           : isPast
-                          ? "text-emerald-700 dark:text-emerald-400 font-bold"
+                          ? "text-primary font-bold"
                           : "text-on-surface-variant/40"
                       }`}
                     >
@@ -470,7 +470,7 @@ export default function CatalogImporter() {
                         isActive
                           ? "font-bold text-on-surface"
                           : isPast
-                          ? "font-semibold text-emerald-800 dark:text-emerald-300"
+                          ? "font-semibold text-on-surface"
                           : "text-on-surface-variant/60"
                       }`}
                     >
@@ -589,7 +589,7 @@ export default function CatalogImporter() {
                             [Transmisión fraccionada: {fileMeta.estimatedChunks} tandas]
                           </span>
                         )}
-                        <span className="text-emerald-700 dark:text-emerald-400 font-semibold">— Documento listo para cotejo</span>
+                        <span className="text-on-surface-variant font-medium">— Documento listo para cotejo</span>
                       </div>
                     </div>
                   </div>
@@ -843,7 +843,7 @@ export default function CatalogImporter() {
                               {field.label}
                             </span>
                             {selectedCol ? (
-                              <span className="text-xs font-sans font-medium text-emerald-700 dark:text-emerald-400 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded-xs border border-emerald-500/20">
+                              <span className="text-xs font-sans font-medium text-on-surface bg-surface-container px-2 py-0.5 rounded border border-outline-variant/60 font-semibold">
                                 ✓ Asignado
                               </span>
                             ) : field.required ? (
@@ -863,7 +863,7 @@ export default function CatalogImporter() {
                             onChange={(e) => handleMappingChange(field.id, e.target.value)}
                             className={`w-full text-xs font-sans border rounded-sm px-3 py-2 text-on-surface bg-surface-container-lowest focus:outline-none focus:border-primary ${
                               selectedCol
-                                ? "border-emerald-600/50 dark:border-emerald-500/50 font-semibold"
+                                ? "border-outline-variant font-medium"
                                 : field.required
                                 ? "border-amber-500/60 bg-amber-500/[0.02]"
                                 : "border-outline-variant/60"
@@ -880,7 +880,7 @@ export default function CatalogImporter() {
 
                         <td className="py-3.5 px-6 align-top font-sans tabular-nums text-xs">
                           {sampleValue ? (
-                            <span className="text-on-surface bg-surface-container-low px-2.5 py-1 rounded-sm border-l-2 border-emerald-600 dark:border-emerald-400 border-t border-r border-b border-outline-variant/40 inline-block max-w-xs truncate shadow-2xs">
+                            <span className="text-on-surface bg-surface-container-low px-2.5 py-1 rounded-sm border border-outline-variant/60 inline-block max-w-xs truncate shadow-2xs">
                               {sampleValue}
                             </span>
                           ) : selectedCol ? (
@@ -985,7 +985,7 @@ export default function CatalogImporter() {
           <div className="bg-surface-container-lowest border border-outline-variant/80 rounded-sm">
             <div className="px-6 py-4 border-b border-outline-variant/60 flex items-center justify-between bg-surface-container-low/40">
               <div className="flex items-center gap-2 text-xs font-sans font-semibold text-on-surface-variant">
-                <FileCheck className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+                <FileCheck className="w-4 h-4 text-on-surface-variant" />
                 <span>Auditoría de Ingesta · Balance Técnico</span>
               </div>
               <span className="text-xs font-sans tabular-nums text-on-surface-variant">
@@ -1006,13 +1006,13 @@ export default function CatalogImporter() {
 
               {/* Obras Nuevas en Verde de Éxito / Incorporación */}
               <div className="p-6">
-                <span className="text-xs font-sans font-semibold text-emerald-800 dark:text-emerald-400">
+                <span className="text-xs font-sans font-medium text-on-surface-variant">
                   Obras Nuevas (Alta)
                 </span>
-                <p className="font-serif text-3xl tabular-nums text-emerald-700 dark:text-emerald-400 mt-2 font-normal">
+                <p className="font-serif text-3xl tabular-nums text-on-surface mt-2 font-normal">
                   {simulationData.new_books ?? simulationData.new_books_count ?? 0}
                 </p>
-                <span className="text-xs text-emerald-800/80 dark:text-emerald-400/80 mt-1 block">
+                <span className="text-xs text-on-surface-variant mt-1 block">
                   Títulos para incorporar al fondo
                 </span>
               </div>
@@ -1096,7 +1096,7 @@ export default function CatalogImporter() {
                           className={`text-xs font-sans font-medium px-2 py-0.5 border rounded-xs shrink-0 ${
                             item.status === "EXISTING"
                               ? "border-outline-variant text-on-surface-variant bg-surface-container"
-                              : "border-emerald-600/40 text-emerald-800 dark:text-emerald-300 bg-emerald-500/10 font-bold"
+                              : "border-outline-variant text-on-surface bg-surface-container font-semibold"
                           }`}
                         >
                           {item.status === "EXISTING" ? "Ejemplar Extra" : "Nueva Obra"}
@@ -1169,7 +1169,7 @@ export default function CatalogImporter() {
                 </>
               ) : (
                 <>
-                  <Check className="w-3.5 h-3.5 text-emerald-300" />
+                  <Check className="w-3.5 h-3.5" />
                   <span>Incorporar al Catálogo ({simulationData.valid_rows} obras válidas)</span>
                 </>
               )}
@@ -1203,10 +1203,10 @@ export default function CatalogImporter() {
           {/* Cuadrante de Balance Final con Colores Semánticos */}
           <div className="grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-outline-variant/60 my-8 py-2 border-y border-outline-variant/60">
             <div className="p-4 text-center">
-              <p className="font-serif text-3xl tabular-nums text-emerald-700 dark:text-emerald-400 font-normal">
+              <p className="font-serif text-3xl tabular-nums text-on-surface font-normal">
                 {executionResult.imported_books}
               </p>
-              <span className="text-xs font-sans font-semibold text-emerald-800 dark:text-emerald-400 mt-1 block">
+              <span className="text-xs font-sans font-medium text-on-surface-variant mt-1 block">
                 Nuevas Obras
               </span>
             </div>
