@@ -365,19 +365,19 @@ export const InventoryTable = ({
                 PORTADA
               </th>
               <th scope="col" className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">
-                TITULO & AUTOR
+                TÍTULO & AUTOR
               </th>
               <th scope="col" className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">
                 ESTADO
               </th>
               <th scope="col" className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">
-                UBICACION
+                UBICACIÓN
               </th>
               <th scope="col" className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">
                 ISBN
               </th>
               <th scope="col" className="py-stack-sm px-gutter text-label-caps text-on-surface-variant">
-                GENERO
+                GÉNERO
               </th>
               <th scope="col" className="py-stack-sm px-gutter text-label-caps text-on-surface-variant text-right">
                 ACCIONES
