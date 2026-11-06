@@ -515,7 +515,7 @@ export default function BookDetail() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => navigate("/librarian/inventory/newItem")}
+                  onClick={() => navigate(`/librarian/addItem?bookId=${data.id}`)}
                   className="w-full py-2 px-3 rounded-DEFAULT text-label-caps bg-primary text-on-primary hover:bg-inverse-surface transition-colors inline-flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
                 >
                   <Plus className="w-3.5 h-3.5" />
@@ -556,7 +556,7 @@ export default function BookDetail() {
                 </h3>
                 <button
                   type="button"
-                  onClick={() => navigate("/librarian/inventory/newItem")}
+                  onClick={() => navigate(`/librarian/addItem?bookId=${data.id}`)}
                   className="text-label-caps text-primary hover:underline cursor-pointer inline-flex items-center gap-1"
                 >
                   <Plus className="w-3.5 h-3.5" />

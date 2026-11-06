@@ -86,43 +86,41 @@ export default function MercadoPagoCheckoutModal({
       const checkoutData = response.checkout;
       setCheckoutResult(checkoutData);
 
-      // Si estamos conectados al API real de MercadoPago, redirigimos a init_point
+      // Determinar la URL de redirección según el modo de checkout y la clave pública
+      const publicKey = import.meta.env.VITE_MP_PUBLIC_KEY || checkoutData?.public_key || "";
+
+      const isTestKey = publicKey.startsWith("TEST-");
+      const checkoutUrl = isTestKey
+        ? checkoutData?.sandbox_init_point || checkoutData?.init_point
+        : checkoutData?.init_point;
+
+      // Redirigir al usuario a la URL de pago si está disponible
       if (
         checkoutData?.mode === "LIVE_OR_SANDBOX_API" &&
-        checkoutData?.init_point
+        checkoutUrl
       ) {
-        window.location.href = checkoutData.init_point;
+        window.location.assign(checkoutUrl);
+        return;
       }
+
+      if (checkoutData?.mode === "LOCAL_SIMULATION") {
+        setCheckoutResult(checkoutData);
+        return;
+      }
+
+      setErrorMsg("El servidor no devolvió una URL de pago válida.");
     } catch (err) {
-      // Si el backend aún no tiene registrada la ruta en urls.py (404),
-      // generamos una vista previa local del flujo de MercadoPago para demostración
-      if (err.response?.status === 404 || err.code === "ERR_NETWORK") {
-        const mockRef = `FOLIUM-${selectedPlan.code}-${billingCycle}-${Date.now()
-          .toString()
-          .slice(-6)}`;
-        setCheckoutResult({
-          mode: "LOCAL_SIMULATION",
-          preference_id: `PREF-SANDBOX-${Math.random()
-            .toString(36)
-            .substring(2, 10)
-            .toUpperCase()}`,
-          external_reference: mockRef,
-          amount: totalAmount,
-          currency_id: "ARS",
-          plan_name: selectedPlan.name,
-          billing_cycle: billingCycle,
-          simulation_notice:
-            "Vista previa de integración: Conecta billing_urls.py en Django y configura MP_ACCESS_TOKEN para redirigir a la pasarela real de MercadoPago.",
-        });
-      } else {
-        const apiDetail =
-          err.response?.data?.detail ||
-          Object.values(err.response?.data || {})
-            .flat()
-            .join(" ") ||
-          "No se pudo generar la orden de pago con MercadoPago.";
-        setErrorMsg(apiDetail);
-      }
+
+      // Extraer mensaje de error detallado del backend
+          const apiDetail =
+        err.response?.data?.detail ||
+        Object.values(err.response?.data || {})
+          .flat()
+          .join(" ") ||
+        "No se pudo conectar con el servicio de pagos. Intenta nuevamente.";
+
+      setErrorMsg(apiDetail);
+      
     } finally {
       setIsSubmitting(false);
     }

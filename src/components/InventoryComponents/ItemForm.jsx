@@ -6,7 +6,7 @@ import FeedbackModal from "../BasicUIComponents/FeedbackModal";
 import { ITEM_STATUS } from "../../api/constants";
 import { ChevronDown, PlusCircle, Search } from "lucide-react";
 import FieldError from "../BasicUIComponents/FieldError";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function ItemForm() {
   const navigate = useNavigate();
@@ -30,6 +30,10 @@ export default function ItemForm() {
   const [searchTerm, setSearchTerm] = useState("");
   const deferredSearchTerm = useDeferredValue(searchTerm);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  // Obtener el parámetro de búsqueda "bookId" de la URL para preseleccionar un libro
+  const [searchParams] = useSearchParams();
+  const initialBookId = searchParams.get("bookId");
 
   // Feedback Modal
   const [feedbackModal, setFeedbackModal] = useState({
@@ -71,6 +75,49 @@ export default function ItemForm() {
       isMounted = false;
     };
   }, []);
+
+  // Cargar el libro preseleccionado si se proporciona un bookId en la URL
+  useEffect(() => {
+  if (!initialBookId) return;
+
+  let isMounted = true;
+
+  bookService
+    .getById(initialBookId)
+    .then((res) => {
+      if (!isMounted || !res.data) return;
+
+      const selectedBook = res.data;
+
+      setBooks((previousBooks) => {
+        const exists = previousBooks.some(
+          (book) => Number(book.id) === Number(selectedBook.id)
+        );
+
+        return exists ? previousBooks : [...previousBooks, selectedBook];
+      });
+
+      setFormData((previous) => ({
+        ...previous,
+        book: selectedBook.id,
+      }));
+
+      setSearchTerm(`${selectedBook.title} (#${selectedBook.id})`);
+    })
+    .catch((error) => {
+      console.error("No se pudo cargar el libro seleccionado:", error);
+      if (isMounted) {
+        setErrors((previous) => ({
+          ...previous,
+          book: ["No se pudo cargar el libro seleccionado."],
+        }));
+      }
+    });
+
+  return () => {
+    isMounted = false;
+  };
+}, [initialBookId]);
 
   // Búsqueda dinámica remota con debounce (400ms) al escribir en el buscador
   useEffect(() => {
