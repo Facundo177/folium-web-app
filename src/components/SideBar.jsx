@@ -149,9 +149,8 @@ export default function Sidebar() {
           folium-sidebar flex flex-col gap-4 p-5 overflow-hidden flex-shrink-0 bg-surface-container shadow-2xl z-50
           lg:sticky lg:top-6 lg:h-[calc(100dvh-48px)] lg:ml-6 lg:rounded-xl lg:border lg:border-outline-variant/50 lg:translate-x-0
           fixed top-0 left-0 h-[100dvh] rounded-r-2xl border-r border-outline-variant/20 
-          max-lg:transition-transform max-lg:duration-350 max-lg:ease-out max-lg:will-change-transform
-          ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'}
-          ${showLogoutModal ? 'is-modal-open' : ''}
+          transform 
+          ${isMobileOpen ? 'translate-x-0 transition-transform duration-300 ease-out will-change-transform' : '-translate-x-full'}
         `}
       >
         {/* Cabecera Móvil con Botón Cerrar */}
@@ -229,13 +228,13 @@ export default function Sidebar() {
         <hr className="border-0 h-px bg-outline-variant/40 my-2" />
 
         {/* Acciones y Tema */}
-        <div className="actions-container mt-auto shrink-0 w-full">
+        <div className="actions-container mt-auto flex flex-row shrink-0 w-full">
           {user ? (
             <button
               type="button"
               title="Cerrar Sesión"
               aria-label="Cerrar sesión"
-              className="action-btn action-btn-auth w-11 h-11 bg-surface-variant rounded-xl flex items-center justify-center text-on-surface hover:bg-error hover:text-on-error transition-colors shadow-sm border border-outline-variant/30 shrink-0 cursor-pointer"
+              className="action-btn w-11 h-11 bg-surface-variant rounded-xl flex items-center justify-center text-on-surface hover:bg-error hover:text-on-error transition-colors shadow-sm border border-outline-variant/30 shrink-0 cursor-pointer"
               onClick={() => setShowLogoutModal(true)}
             >
               <LogOut className="w-6 h-6" />
@@ -245,7 +244,7 @@ export default function Sidebar() {
               type="button"
               title="Iniciar Sesión"
               aria-label="Iniciar sesión"
-              className="action-btn action-btn-auth w-11 h-11 bg-primary text-on-primary rounded-xl flex items-center justify-center hover:opacity-90 transition-colors shadow-sm border border-outline-variant/30 shrink-0 cursor-pointer"
+              className="action-btn w-11 h-11 bg-primary text-on-primary rounded-xl flex items-center justify-center hover:opacity-90 transition-colors shadow-sm border border-outline-variant/30 shrink-0 cursor-pointer"
               onClick={() => {
                 setIsMobileOpen(false);
                 navigate('/login');
