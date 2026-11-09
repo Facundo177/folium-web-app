@@ -201,7 +201,7 @@ export default function LoansDashboard() {
     }
     return {
       text: `${diffDays}d restantes`,
-      badgeStyle: "bg-surface-container-low text-on-surface border-outline-variant/40 font-mono",
+      badgeStyle: "bg-surface-container-low text-on-surface border-outline-variant/40 font-sans font-medium",
     };
   };
 
@@ -223,7 +223,7 @@ export default function LoansDashboard() {
     return (
       <div className="w-full min-h-[50vh] flex flex-col items-center justify-center gap-4 animate-fade-in font-sans">
         <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-        <p className="text-on-surface-variant font-mono tracking-widest uppercase text-xs">
+        <p className="text-on-surface-variant font-sans text-xs">
           Consultando libro mayor de circulación...
         </p>
       </div>
@@ -233,7 +233,7 @@ export default function LoansDashboard() {
   if (error) {
     return (
       <div className="w-full min-h-[50vh] flex items-center justify-center animate-fade-in font-sans p-6">
-        <p className="text-on-error bg-error px-6 py-3 rounded-sm font-mono text-xs uppercase tracking-wider shadow-sm">
+        <p className="text-on-error bg-error px-6 py-3 rounded-sm font-sans text-xs font-medium shadow-sm">
           {error}
         </p>
       </div>
@@ -248,9 +248,9 @@ export default function LoansDashboard() {
       <div className="border-b border-outline-variant/60 pb-6 mb-8">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
           <GoBackButton />
-          <div className="flex items-center gap-2 text-[11px] font-mono tracking-widest uppercase text-on-surface-variant">
+          <div className="flex items-center gap-2 text-xs font-sans text-on-surface-variant">
             <Archive className="w-3.5 h-3.5 text-primary" />
-            <span>Folio Cir-12 // Libro Mayor de Circulación</span>
+            <span>Libro Mayor de Circulación</span>
           </div>
         </div>
 
@@ -284,10 +284,10 @@ export default function LoansDashboard() {
         className="mb-8 bg-surface-container-lowest border border-outline-variant/80 rounded-sm"
       >
         <div className="px-6 py-3 border-b border-outline-variant/60 flex items-center justify-between bg-surface-container-low/40">
-          <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-on-surface-variant">
+          <div className="flex items-center gap-2 text-xs font-sans font-medium text-on-surface-variant">
             <span>Balance Técnico de Circulación</span>
           </div>
-          <span className="text-[11px] font-mono text-on-surface-variant">
+          <span className="text-xs font-sans tabular-nums text-on-surface-variant">
             {totalCount} asientos registrados
           </span>
         </div>
@@ -295,10 +295,10 @@ export default function LoansDashboard() {
         <div className="grid grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-outline-variant/60">
           {/* 1. Total Préstamos */}
           <div className="p-5 md:p-6">
-            <span className="text-[11px] font-mono uppercase tracking-widest text-on-surface-variant block">
+            <span className="text-xs font-sans font-medium text-on-surface-variant block">
               Préstamos Registrados
             </span>
-            <p className="font-serif text-3xl text-on-surface mt-1.5 font-normal">
+            <p className="font-serif text-3xl text-on-surface mt-1.5 font-normal tabular-nums">
               {totalCount}
             </p>
             <span className="text-xs text-on-surface-variant mt-0.5 block">
@@ -308,10 +308,10 @@ export default function LoansDashboard() {
 
           {/* 2. En Circulación Activa */}
           <div className="p-5 md:p-6">
-            <span className="text-[11px] font-mono uppercase tracking-widest text-on-surface-variant block">
+            <span className="text-xs font-sans font-medium text-on-surface-variant block">
               En Circulación Activa
             </span>
-            <p className="font-serif text-3xl text-on-surface mt-1.5 font-normal">
+            <p className="font-serif text-3xl text-on-surface mt-1.5 font-normal tabular-nums">
               {summary.due_total}
             </p>
             <span className="text-xs text-on-surface-variant mt-0.5 block">
@@ -321,10 +321,10 @@ export default function LoansDashboard() {
 
           {/* 3. A Devolver Hoy */}
           <div className="p-5 md:p-6">
-            <span className="text-[11px] font-mono uppercase tracking-widest text-on-surface-variant block">
+            <span className="text-xs font-sans font-medium text-on-surface-variant block">
               Vencen en la Jornada
             </span>
-            <p className="font-serif text-3xl text-tertiary mt-1.5 font-normal">
+            <p className="font-serif text-3xl text-tertiary mt-1.5 font-normal tabular-nums">
               {summary.due_today}
             </p>
             <span className="text-xs text-on-surface-variant mt-0.5 block">
@@ -334,10 +334,10 @@ export default function LoansDashboard() {
 
           {/* 4. En Mora / Vencidos */}
           <div className="p-5 md:p-6">
-            <span className="text-[11px] font-mono uppercase tracking-widest text-amber-800 dark:text-amber-400 font-semibold block">
+            <span className="text-xs font-sans font-medium text-amber-800 dark:text-amber-400 block">
               En Estado de Mora
             </span>
-            <p className="font-serif text-3xl text-amber-700 dark:text-amber-400 mt-1.5 font-normal">
+            <p className="font-serif text-3xl text-amber-700 dark:text-amber-400 mt-1.5 font-normal tabular-nums">
               {summary.overdue}
             </p>
             <span className="text-xs text-amber-800/80 dark:text-amber-400/80 mt-0.5 block">
@@ -356,7 +356,7 @@ export default function LoansDashboard() {
       >
         {/* Barra Técnica de Filtros */}
         <div className="p-5 border-b border-outline-variant/60 bg-surface-container-low/30">
-          <div className="flex items-center gap-2 mb-3 text-xs font-mono uppercase tracking-wider text-on-surface-variant">
+          <div className="flex items-center gap-2 mb-3 text-xs font-sans font-semibold text-on-surface-variant">
             <Filter className="w-3.5 h-3.5 text-primary" />
             <span>Criterios de Inspección y Ordenamiento</span>
           </div>
@@ -364,7 +364,7 @@ export default function LoansDashboard() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {/* Filtro Lector */}
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="loans-user-filter" className="text-[11px] font-mono uppercase tracking-wider text-on-surface">
+              <label htmlFor="loans-user-filter" className="text-xs font-sans font-medium text-on-surface">
                 Lector (Nombre o ID)
               </label>
               <div className="relative">
@@ -375,14 +375,14 @@ export default function LoansDashboard() {
                   value={filters.user}
                   onChange={(event) => updateFilter("user", event.target.value)}
                   placeholder="Filtrar por lector..."
-                  className="w-full pl-8 pr-3 py-2 bg-surface-container-lowest border border-outline-variant rounded-sm text-xs font-mono text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary"
+                  className="w-full pl-8 pr-3 py-2 bg-surface-container-lowest border border-outline-variant rounded-sm text-xs font-sans text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary"
                 />
               </div>
             </div>
 
             {/* Filtro Ejemplar */}
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="loans-item-filter" className="text-[11px] font-mono uppercase tracking-wider text-on-surface">
+              <label htmlFor="loans-item-filter" className="text-xs font-sans font-medium text-on-surface">
                 Ejemplar (Título o Signatura)
               </label>
               <div className="relative">
@@ -393,21 +393,21 @@ export default function LoansDashboard() {
                   value={filters.item}
                   onChange={(event) => updateFilter("item", event.target.value)}
                   placeholder="Filtrar por obra o código..."
-                  className="w-full pl-8 pr-3 py-2 bg-surface-container-lowest border border-outline-variant rounded-sm text-xs font-mono text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary"
+                  className="w-full pl-8 pr-3 py-2 bg-surface-container-lowest border border-outline-variant rounded-sm text-xs font-sans text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary"
                 />
               </div>
             </div>
 
             {/* Selector de Estado */}
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="loans-status-select" className="text-[11px] font-mono uppercase tracking-wider text-on-surface">
+              <label htmlFor="loans-status-select" className="text-xs font-sans font-medium text-on-surface">
                 Estado de Préstamo
               </label>
               <select
                 id="loans-status-select"
                 value={filters.status}
                 onChange={(event) => updateFilter("status", event.target.value)}
-                className="w-full bg-surface-container-lowest border border-outline-variant rounded-sm px-3 py-2 text-xs font-mono text-on-surface focus:outline-none focus:border-primary"
+                className="w-full bg-surface-container-lowest border border-outline-variant rounded-sm px-3 py-2 text-xs font-sans text-on-surface focus:outline-none focus:border-primary"
               >
                 <option value="">Todos los asientos</option>
                 <option value="active">En circulación (con tiempo)</option>
@@ -418,14 +418,14 @@ export default function LoansDashboard() {
 
             {/* Ordenamiento */}
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="loans-ordering-select" className="text-[11px] font-mono uppercase tracking-wider text-on-surface">
+              <label htmlFor="loans-ordering-select" className="text-xs font-sans font-medium text-on-surface">
                 Criterio de Orden
               </label>
               <select
                 id="loans-ordering-select"
                 value={filters.ordering}
                 onChange={(event) => updateFilter("ordering", event.target.value)}
-                className="w-full bg-surface-container-lowest border border-outline-variant rounded-sm px-3 py-2 text-xs font-mono text-on-surface focus:outline-none focus:border-primary"
+                className="w-full bg-surface-container-lowest border border-outline-variant rounded-sm px-3 py-2 text-xs font-sans text-on-surface focus:outline-none focus:border-primary"
               >
                 <option value="-loaned_at">Retiro más reciente</option>
                 <option value="loaned_at">Retiro más antiguo</option>
@@ -444,7 +444,7 @@ export default function LoansDashboard() {
           {isFetching ? (
             <div
               role="status"
-              className="flex min-h-32 items-center justify-center gap-2 p-8 text-xs font-mono text-primary"
+              className="flex min-h-32 items-center justify-center gap-2 p-8 text-xs font-sans text-primary"
             >
               <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
               <span>Actualizando asientos...</span>
@@ -466,11 +466,11 @@ export default function LoansDashboard() {
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono text-xs font-bold text-on-surface">
+                    <span className="font-sans tabular-nums text-xs font-bold text-on-surface">
                       Folio #{loan.id}
                     </span>
                     <span
-                      className={`text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 border rounded-xs ${status.badgeStyle}`}
+                      className={`text-xs font-sans font-medium px-2 py-0.5 border rounded-xs ${status.badgeStyle}`}
                     >
                       {status.text}
                     </span>
@@ -482,13 +482,13 @@ export default function LoansDashboard() {
                       <h2 className="font-serif text-base font-medium leading-snug">
                         {loan.book?.title || `Libro #${loan.book}`}
                       </h2>
-                      <span className="text-xs font-mono text-on-surface-variant">
+                      <span className="text-xs font-sans tabular-nums text-on-surface-variant">
                         Ejemplar signatura #{loan.item}
                       </span>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 text-xs font-mono text-on-surface-variant pt-2 border-t border-outline-variant/40">
+                  <div className="grid grid-cols-2 gap-2 text-xs font-sans tabular-nums text-on-surface-variant pt-2 border-t border-outline-variant/40">
                     <div className="flex items-center gap-1.5 truncate">
                       <User className="w-3.5 h-3.5 text-on-surface-variant shrink-0" />
                       <span className="truncate">
@@ -506,10 +506,10 @@ export default function LoansDashboard() {
                       type="button"
                       onClick={() => openInterruptModal(loan)}
                       disabled={isReturned}
-                      className={`w-full py-2 text-xs font-mono uppercase tracking-wider rounded-sm transition-colors ${
+                      className={`w-full py-2 text-xs font-sans font-bold rounded-sm transition-colors ${
                         isReturned
                           ? "bg-surface-container text-on-surface-variant/40 cursor-not-allowed border border-outline-variant/40"
-                          : "bg-primary text-on-primary hover:opacity-95 cursor-pointer shadow-xs font-bold"
+                          : "bg-primary text-on-primary hover:opacity-95 cursor-pointer shadow-xs"
                       }`}
                     >
                       {isReturned ? "Asiento Cerrado" : "Registrar Devolución"}
@@ -529,7 +529,7 @@ export default function LoansDashboard() {
           className="hidden w-full overflow-x-auto focus:outline-none focus:ring-1 focus:ring-primary/40 md:block"
         >
           <table className="w-full text-left border-collapse min-w-[840px]">
-            <thead className="bg-surface-container-low text-on-surface-variant border-b border-outline-variant font-mono text-[11px] uppercase tracking-wider">
+            <thead className="bg-surface-container-low text-on-surface-variant border-b border-outline-variant font-sans text-xs font-semibold">
               <tr>
                 <th scope="col" className="py-3 px-5 w-20">Folio</th>
                 <th scope="col" className="py-3 px-5">Lector Titular</th>
@@ -542,7 +542,7 @@ export default function LoansDashboard() {
             <tbody className="divide-y divide-outline-variant/40 text-xs">
               {isFetching ? (
                 <tr>
-                  <td colSpan="6" className="py-10 text-center font-mono text-xs text-primary">
+                  <td colSpan="6" className="py-10 text-center font-sans text-xs text-primary">
                     <div className="inline-flex items-center gap-2">
                       <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                       <span>Actualizando libro mayor...</span>
@@ -568,7 +568,7 @@ export default function LoansDashboard() {
                       }`}
                     >
                       {/* Folio */}
-                      <td className="py-3.5 px-5 font-mono text-xs text-on-surface-variant font-semibold">
+                      <td className="py-3.5 px-5 font-sans tabular-nums text-xs text-on-surface-variant font-semibold">
                         #{loan.id}
                       </td>
 
@@ -577,7 +577,7 @@ export default function LoansDashboard() {
                         <div className="font-sans font-medium text-on-surface">
                           {loan.user?.full_name || `Lector #${loan.user}`}
                         </div>
-                        <span className="font-mono text-[11px] text-on-surface-variant block mt-0.5">
+                        <span className="font-sans tabular-nums text-xs text-on-surface-variant block mt-0.5">
                           ID: {loan.user?.id || loan.user}
                         </span>
                       </td>
@@ -587,20 +587,20 @@ export default function LoansDashboard() {
                         <div className="font-serif text-sm font-medium text-on-surface leading-snug">
                           {loan.book?.title || `Libro #${loan.book}`}
                         </div>
-                        <span className="font-mono text-[11px] text-on-surface-variant block mt-0.5">
+                        <span className="font-sans tabular-nums text-xs text-on-surface-variant block mt-0.5">
                           Signatura Ejemplar: #{loan.item}
                         </span>
                       </td>
 
                       {/* Fecha Retiro */}
-                      <td className="py-3.5 px-5 font-mono text-xs text-on-surface-variant">
+                      <td className="py-3.5 px-5 font-sans tabular-nums text-xs text-on-surface-variant">
                         {new Date(loan.loaned_at).toLocaleDateString("es-AR")}
                       </td>
 
                       {/* Estado */}
                       <td className="py-3.5 px-5">
                         <span
-                          className={`inline-block text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 border rounded-xs ${status.badgeStyle}`}
+                          className={`inline-block text-xs font-sans font-medium px-2 py-0.5 border rounded-xs ${status.badgeStyle}`}
                         >
                           {status.text}
                         </span>
@@ -612,7 +612,7 @@ export default function LoansDashboard() {
                           type="button"
                           onClick={() => openInterruptModal(loan)}
                           disabled={isReturned}
-                          className={`px-3 py-1.5 text-xs font-mono uppercase tracking-wider rounded-sm transition-colors ${
+                          className={`px-3 py-1.5 text-xs font-sans font-medium rounded-sm transition-colors ${
                             isReturned
                               ? "text-on-surface-variant/40 italic cursor-not-allowed"
                               : "bg-primary text-on-primary hover:opacity-95 cursor-pointer shadow-2xs font-bold"
@@ -629,13 +629,13 @@ export default function LoansDashboard() {
           </table>
         </div>
 
-        {/* Paginación Sobria Monospaced */}
+        {/* Paginación */}
         {totalPages > 1 && (
           <nav
             aria-label="Paginación de préstamos"
             className="flex items-center justify-between border-t border-outline-variant/60 px-6 py-4 bg-surface-container-low/20"
           >
-            <div className="text-xs font-mono text-on-surface-variant">
+            <div className="text-xs font-sans tabular-nums text-on-surface-variant">
               Página <strong className="text-on-surface">{page}</strong> de <strong className="text-on-surface">{totalPages}</strong>
             </div>
 
@@ -653,7 +653,7 @@ export default function LoansDashboard() {
               {pageNumbers.map((pageNumber, index) => (
                 <span key={pageNumber} className="inline-flex items-center gap-1">
                   {index > 0 && pageNumber - pageNumbers[index - 1] > 1 && (
-                    <span className="text-outline text-xs px-1 font-mono" aria-hidden="true">
+                    <span className="text-outline text-xs px-1 font-sans" aria-hidden="true">
                       …
                     </span>
                   )}
@@ -662,7 +662,7 @@ export default function LoansDashboard() {
                     onClick={() => setPage(pageNumber)}
                     disabled={isFetching}
                     aria-current={page === pageNumber ? "page" : undefined}
-                    className={`min-w-7 h-7 px-1.5 rounded-sm text-xs font-mono transition-colors cursor-pointer disabled:opacity-50 ${
+                    className={`min-w-7 h-7 px-1.5 rounded-sm text-xs font-sans tabular-nums transition-colors cursor-pointer disabled:opacity-50 ${
                       page === pageNumber
                         ? "bg-primary text-on-primary font-bold"
                         : "border border-outline-variant text-on-surface-variant hover:text-on-surface hover:border-primary"

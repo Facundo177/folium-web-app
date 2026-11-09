@@ -10,6 +10,7 @@ import {
   Edit2,
   Save,
   X,
+  IdCard,
 } from "lucide-react";
 
 export default function UserProfile() {
@@ -40,7 +41,13 @@ export default function UserProfile() {
   };
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    if (name === "dni") {
+      const numericValue = value.replace(/\D/g, "");
+      setFormData((prev) => ({ ...prev, [name]: numericValue }));
+      return;
+    }
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleEditClick = () => {
@@ -49,6 +56,10 @@ export default function UserProfile() {
       last_name: profile.last_name || "",
       username: profile.username || "",
       email: profile.email || "",
+      dni:
+        profile.dni !== undefined && profile.dni !== null
+          ? String(profile.dni)
+          : "",
     });
     setEditError("");
     setIsEditing(true);
@@ -60,7 +71,11 @@ export default function UserProfile() {
     setEditError("");
 
     try {
-      const { data } = await userService.updateProfile(formData);
+      const payload = {
+        ...formData,
+        dni: formData.dni ? parseInt(formData.dni, 10) : undefined,
+      };
+      const { data } = await userService.updateProfile(payload);
       setProfile(data);
       setIsEditing(false);
     } catch (err) {
@@ -125,9 +140,16 @@ export default function UserProfile() {
           <h2 className="text-title-lg text-on-surface font-bold mb-1">
             {profile.first_name} {profile.last_name}
           </h2>
-          <p className="text-body-md text-on-surface-variant mb-6 font-mono text-xs">
+          <p className="text-body-md text-on-surface-variant mb-2 font-sans tabular-nums text-xs">
             @{profile.username}
           </p>
+
+          {profile.dni && (
+            <p className="text-xs text-on-surface-variant/90 font-sans tabular-nums mb-5 bg-surface-container px-3 py-1 rounded-full border border-outline-variant/60 inline-flex items-center gap-1.5">
+              <IdCard className="w-3.5 h-3.5 text-primary" />
+              <span>DNI {profile.dni}</span>
+            </p>
+          )}
 
           <span className="bg-primary/10 text-primary border border-primary/30 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest flex items-center gap-2 mb-4">
             <ShieldCheck className="w-4 h-4" />
@@ -169,23 +191,32 @@ export default function UserProfile() {
                 <p className="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">
                   Nombre de Usuario
                 </p>
-                <p className="text-body-lg text-on-surface font-medium font-mono text-sm">
-                  {profile.username}
+                <p className="text-body-lg text-on-surface font-medium font-sans tabular-nums text-sm">
+                  @{profile.username}
                 </p>
               </div>
 
-              <div className="flex flex-col gap-1 sm:col-span-2">
+              <div className="flex flex-col gap-1">
                 <p className="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest flex items-center gap-1.5">
-                  <Mail className="w-3 h-3 text-primary" /> Correo Electrónico
+                  <IdCard className="w-3.5 h-3.5 text-primary" /> Documento (DNI)
                 </p>
-                <p className="text-body-lg text-on-surface font-medium">
+                <p className="text-body-lg text-on-surface font-medium font-sans tabular-nums">
+                  {profile.dni || "No especificado"}
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <p className="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest flex items-center gap-1.5">
+                  <Mail className="w-3.5 h-3.5 text-primary" /> Correo Electrónico
+                </p>
+                <p className="text-body-lg text-on-surface font-medium break-all">
                   {profile.email}
                 </p>
               </div>
 
               <div className="flex flex-col gap-1 sm:col-span-2">
                 <p className="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest flex items-center gap-1.5">
-                  <CalendarDays className="w-3 h-3 text-primary" /> Miembro desde
+                  <CalendarDays className="w-3.5 h-3.5 text-primary" /> Miembro desde
                 </p>
                 <p className="text-body-lg text-on-surface font-medium">
                   {formatDate(profile.date_joined)}
@@ -237,23 +268,40 @@ export default function UserProfile() {
                     value={formData.username}
                     onChange={handleChange}
                     required
-                    className="px-4 py-2.5 bg-surface-container border border-outline-variant rounded-sm text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors font-mono text-sm"
+                    className="px-4 py-2.5 bg-surface-container border border-outline-variant rounded-sm text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors font-sans tabular-nums text-sm"
                   />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label htmlFor="profile-email" className="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">
-                    Correo Electrónico *
+                  <label htmlFor="profile-dni" className="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">
+                    DNI *
                   </label>
                   <input
-                    id="profile-email"
-                    type="email"
-                    name="email"
-                    value={formData.email}
+                    id="profile-dni"
+                    type="text"
+                    inputMode="numeric"
+                    name="dni"
+                    value={formData.dni}
                     onChange={handleChange}
                     required
-                    className="px-4 py-2.5 bg-surface-container border border-outline-variant rounded-sm text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors"
+                    placeholder="Sin puntos ni espacios"
+                    className="px-4 py-2.5 bg-surface-container border border-outline-variant rounded-sm text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors font-sans tabular-nums text-sm"
                   />
                 </div>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label htmlFor="profile-email" className="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">
+                  Correo Electrónico *
+                </label>
+                <input
+                  id="profile-email"
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  className="px-4 py-2.5 bg-surface-container border border-outline-variant rounded-sm text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors"
+                />
               </div>
 
               {editError && (

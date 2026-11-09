@@ -27,19 +27,11 @@ export default function DescriptionOfInventory({ items = [], totalCount }) {
       {/* Encabezado Notarial del Acervo */}
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-outline-variant/60 pb-6 mb-8">
         <div>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-[11px] font-mono uppercase tracking-widest text-primary/80 font-bold bg-primary/10 px-2 py-0.5 rounded-xs">
-              Custodia Notarial de Fondos
-            </span>
-            <span className="text-[11px] font-mono text-on-surface-variant">
-              Folio #{new Date().getFullYear()} · Depósito General
-            </span>
-          </div>
           <h1 className="text-3xl md:text-4xl font-serif font-medium text-on-surface tracking-tight">
-            Registro del Acervo y Fondos de Depósito
+            Depósito General
           </h1>
           <p className="text-sm md:text-base text-on-surface-variant mt-1.5 max-w-3xl leading-relaxed">
-            Control archivístico de copias físicas, signatura topográfica, estado de conservación y disponibilidad en sala.
+            Control de copias físicas, estado de conservación y disponibilidad en sala.
           </p>
         </div>
 
@@ -65,7 +57,7 @@ export default function DescriptionOfInventory({ items = [], totalCount }) {
         <div className="p-5 md:p-6 flex flex-col justify-between">
           <div className="flex items-center justify-between text-on-surface-variant mb-2">
             <span className="text-[11px] font-semibold uppercase tracking-wider font-sans">
-              Fondo Total Acervo
+              Inventario total
             </span>
             <BookMarked className="w-4 h-4 text-on-surface-variant/70" />
           </div>
@@ -89,7 +81,7 @@ export default function DescriptionOfInventory({ items = [], totalCount }) {
             <BookOpenCheck className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="font-serif text-3xl md:text-4xl font-medium tracking-tight text-emerald-700 dark:text-emerald-400 tabular-nums">
+            <span className="font-serif text-3xl md:text-4xl font-medium tracking-tight text-on-surface tabular-nums">
               {available}
             </span>
             <span className="text-xs text-on-surface-variant">en estantería</span>

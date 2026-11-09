@@ -4,9 +4,17 @@ import PasswordEye from "../BasicUIComponents/PasswordEye";
 import FeedbackModal from "../BasicUIComponents/FeedbackModal";
 import { UserPlus } from "lucide-react";
 import { userService } from "../../api/services/userService";
+import { useDocumentMetadata } from "../../hooks/useDocumentMetadata";
 
 export default function RegisterForm() {
   const navigate = useNavigate();
+
+  useDocumentMetadata({
+    title: "Crear Cuenta de Lector — Folium",
+    description: "Crea tu cuenta de lector en Folium para consultar y reservar ejemplares del catálogo patrimonial.",
+    noIndex: true,
+    canonicalPath: "/register",
+  });
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);

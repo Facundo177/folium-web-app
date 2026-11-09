@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation, useOutletContext } from "react-router-d
 import PasswordEye from "../BasicUIComponents/PasswordEye";
 import { useAuth } from "../../auth/AuthProvider";
 import { LogIn, CheckCircle2 } from "lucide-react";
+import { useDocumentMetadata } from "../../hooks/useDocumentMetadata";
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -13,6 +14,13 @@ export default function LoginForm() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  useDocumentMetadata({
+    title: "Iniciar Sesión — Folium",
+    description: "Accede a tu cuenta de Folium para consultar préstamos, reservas y catálogo patrimonial.",
+    noIndex: true,
+    canonicalPath: "/login",
+  });
 
   const successNotice = location.state?.message;
 

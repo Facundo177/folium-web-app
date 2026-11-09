@@ -64,7 +64,7 @@ export default function FoliumLandingHero() {
             strokeWidth="2" 
             strokeLinecap="round" 
             strokeLinejoin="round"
-            className="transition-transform group-hover:translate-y-1"
+            className="transition-transform duration-300 ease-out group-hover:animate-spring-bounce motion-reduce:animate-none will-change-transform"
             aria-hidden="true"
           >
             <line x1="12" y1="5" x2="12" y2="19"></line>

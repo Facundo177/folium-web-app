@@ -279,7 +279,7 @@ export default function UserLoans() {
                       <span className="font-bold uppercase tracking-wider text-on-surface">
                         {statusInfo.subtext}
                       </span>
-                      <span className="text-on-surface-variant font-mono">
+                      <span className="text-on-surface-variant font-sans tabular-nums font-medium">
                         #{loan.id}
                       </span>
                     </div>
@@ -288,7 +288,7 @@ export default function UserLoans() {
 
                 {/* Información del Libro y del Préstamo */}
                 <div className="flex flex-col flex-1">
-                  <h2 className="text-sm text-on-surface font-bold uppercase tracking-widest mb-1 line-clamp-1">
+                  <h2 className="font-serif text-base font-medium text-on-surface mb-1 line-clamp-1 leading-snug">
                     {bookData.title}
                   </h2>
                   <p className="text-xs text-on-surface-variant mb-3 font-serif italic line-clamp-1">
@@ -301,7 +301,7 @@ export default function UserLoans() {
                         <Calendar className="w-3.5 h-3.5 text-primary" />
                         Retirado:
                       </span>
-                      <span className="font-medium text-on-surface font-mono">
+                      <span className="font-medium text-on-surface font-sans tabular-nums">
                         {new Date(loan.loaned_at).toLocaleDateString("es-AR")}
                       </span>
                     </div>
@@ -310,7 +310,7 @@ export default function UserLoans() {
                         <Clock className="w-3.5 h-3.5 text-tertiary" />
                         {isReturned ? "Devuelto:" : "Vencimiento:"}
                       </span>
-                      <span className="font-medium text-on-surface font-mono">
+                      <span className="font-medium text-on-surface font-sans tabular-nums">
                         {new Date(loan.returned_at || loan.due_at).toLocaleDateString("es-AR")}
                       </span>
                     </div>
@@ -318,7 +318,7 @@ export default function UserLoans() {
 
                   <div className="mt-auto pt-2 border-t border-outline-variant/30 flex items-center justify-between text-xs text-on-surface-variant">
                     <span>Ejemplar físico</span>
-                    <span className="font-mono font-medium text-primary">
+                    <span className="font-sans tabular-nums font-medium text-primary">
                       #{loan.item}
                     </span>
                   </div>

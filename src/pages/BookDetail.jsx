@@ -395,7 +395,7 @@ export default function BookDetail() {
                     isReservedByUser
                       ? "bg-secondary"
                       : data.availableItems > 0
-                      ? "bg-primary animate-pulse"
+                      ? "bg-primary"
                       : "bg-error"
                   }`}
                 />
@@ -515,7 +515,7 @@ export default function BookDetail() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => navigate("/librarian/inventory/newItem")}
+                  onClick={() => navigate(`/librarian/addItem?bookId=${data.id}`)}
                   className="w-full py-2 px-3 rounded-DEFAULT text-label-caps bg-primary text-on-primary hover:bg-inverse-surface transition-colors inline-flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
                 >
                   <Plus className="w-3.5 h-3.5" />
@@ -556,7 +556,7 @@ export default function BookDetail() {
                 </h3>
                 <button
                   type="button"
-                  onClick={() => navigate("/librarian/inventory/newItem")}
+                  onClick={() => navigate(`/librarian/addItem?bookId=${data.id}`)}
                   className="text-label-caps text-primary hover:underline cursor-pointer inline-flex items-center gap-1"
                 >
                   <Plus className="w-3.5 h-3.5" />
@@ -584,7 +584,7 @@ export default function BookDetail() {
                         const isAvailable = item.status === "AVAILABLE";
                         return (
                           <tr key={item.id} className="hover:bg-surface-container/30 transition-colors">
-                            <td className="py-2.5 px-3 font-mono font-medium text-primary">
+                            <td className="py-2.5 px-3 font-sans tabular-nums font-medium text-primary">
                               {item.inventory_code}
                             </td>
                             <td className="py-2.5 px-3 text-on-surface-variant">
@@ -595,7 +595,7 @@ export default function BookDetail() {
                                 className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
                                   isAvailable
                                     ? "bg-surface-container text-on-surface border-outline-variant"
-                                    : "bg-tertiary-fixed text-on-tertiary-fixed-variant border-transparent"
+                                    : "bg-secondary-container/40 text-on-surface border border-secondary/30"
                                 }`}
                               >
                                 {item.status_display || item.status}

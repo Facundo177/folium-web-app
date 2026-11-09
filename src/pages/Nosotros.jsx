@@ -7,6 +7,20 @@ export default function Nosotros() {
   useDocumentMetadata({
     title: "Sobre Nosotros — Folium",
     description: "Conocé la misión de Folium y cómo conectamos a lectores con las bibliotecas.",
+    canonicalPath: "/nosotros",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "AboutPage",
+      name: "Sobre Nosotros — Folium",
+      description: "Conocé la misión de Folium y cómo conectamos a lectores con las bibliotecas.",
+      mainEntity: {
+        "@type": "Organization",
+        name: "Folium",
+        url: "https://folium-psi.vercel.app",
+        logo: "https://folium-psi.vercel.app/favicon.svg",
+        slogan: "Archivo y Biblioteca de Patrimonio Cultural",
+      },
+    },
   });
 
   return (

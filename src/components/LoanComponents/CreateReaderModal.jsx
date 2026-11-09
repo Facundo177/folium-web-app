@@ -219,7 +219,7 @@ export default function CreateReaderModal({
               value={formData.dni}
               onChange={handleChange}
               placeholder="Ej: 42123456"
-              className="w-full px-3.5 py-2.5 bg-surface-container-low border border-outline-variant rounded-lg text-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary font-mono"
+              className="w-full px-3.5 py-2.5 bg-surface-container-low border border-outline-variant rounded-lg text-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary font-sans tabular-nums"
               required
             />
             {fieldErrors.dni && <FieldError error={fieldErrors.dni} />}
@@ -309,7 +309,7 @@ export default function CreateReaderModal({
               value={formData.username}
               onChange={handleChange}
               placeholder="lector_42123456"
-              className="w-full px-3.5 py-2.5 bg-surface-container-low border border-outline-variant rounded-lg text-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary font-mono text-xs"
+              className="w-full px-3.5 py-2.5 bg-surface-container-low border border-outline-variant rounded-lg text-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary font-sans tabular-nums text-xs"
             />
             {fieldErrors.username && <FieldError error={fieldErrors.username} />}
           </div>

@@ -225,7 +225,7 @@ export default function BookCoverFlow({
           <button
             onClick={handlePrev}
             aria-label="Tomo anterior"
-            className="opacity-75 hover:opacity-100 absolute left-1 sm:left-8 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-[#ede6d3] border border-[#d8d0bb] text-[#5c1616] rounded-md shadow-md flex items-center justify-center hover:bg-[#e4dcbc] transition-all z-40 cursor-pointer active:scale-95"
+            className="opacity-80 hover:opacity-100 absolute left-1 sm:left-8 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-surface-container border border-outline-variant text-primary rounded-md shadow-md flex items-center justify-center hover:bg-surface-container-high transition-colors z-40 cursor-pointer active:scale-95"
           >
             <ChevronLeftIcon />
           </button>
@@ -233,7 +233,7 @@ export default function BookCoverFlow({
           <button
             onClick={handleNext}
             aria-label="Tomo siguiente"
-            className="opacity-75 hover:opacity-100 absolute right-1 sm:right-8 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-[#ede6d3] border border-[#d8d0bb] text-[#5c1616] rounded-md shadow-md flex items-center justify-center hover:bg-[#e4dcbc] transition-all z-40 cursor-pointer active:scale-95"
+            className="opacity-80 hover:opacity-100 absolute right-1 sm:right-8 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-surface-container border border-outline-variant text-primary rounded-md shadow-md flex items-center justify-center hover:bg-surface-container-high transition-colors z-40 cursor-pointer active:scale-95"
           >
             <ChevronRightIcon />
           </button>
@@ -269,8 +269,8 @@ export default function BookCoverFlow({
                   aria-label={`Ir al tomo ${idx + 1}`}
                   className={`h-1.5 rounded-full cursor-pointer transition-all duration-300 ${
                     idx === currentIndex
-                      ? "w-7 sm:w-8 bg-[#5c1616] dark:bg-[#f4ecd8]"
-                      : "w-2 sm:w-2.5 bg-[#5c1616] dark:bg-[#f4ecd8] opacity-50 hover:opacity-85"
+                      ? "w-7 sm:w-8 bg-primary"
+                      : "w-2 sm:w-2.5 bg-outline-variant opacity-60 hover:opacity-100"
                   }`}
                   onClick={() => setCurrentIndex(idx)}
                 />

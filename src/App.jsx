@@ -6,6 +6,7 @@ import "./App.css";
 import UserLayout from "./components/Layouts/UserLayout";
 import BotLayout from "./components/Layouts/BotLayout";
 import ProtectedRoute from "./auth/ProtectedRoute";
+import ScrollToTop from "./components/BasicUIComponents/ScrollToTop";
 
 // Layouts específicos cargados bajo demanda
 const LibrarianLayout = lazy(() => import("./components/Layouts/LibrarianLayout"));
@@ -58,6 +59,7 @@ function PageLoader() {
 function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* Rutas Públicas con Botón de Asistente */}

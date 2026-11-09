@@ -4,7 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../auth/AuthProvider";
 import { reservationService } from "../../api/services/reservationService";
 import { favoriteService } from "../../api/services/favoriteService";
-import { Heart, LockKeyhole } from "lucide-react";
+import { Bookmark, BookmarkOff, Heart } from "lucide-react";
 
 function CatalogBookCard({
   book,
@@ -270,7 +270,16 @@ function CatalogBookCard({
                 ? "Reservar"
                 : "Sin ejemplares"}
               <span className="text-[16px]">
-                <LockKeyhole />
+          
+                {isGuestUser
+                ? hasAvailableCopies
+                  ?  <Bookmark />
+                  :  <Bookmark />
+                : isReservedByUser
+                ?  <BookmarkOff />
+                : hasAvailableCopies
+                ?  <Bookmark />
+                :  <Bookmark />}
               </span>
             </button>
           );

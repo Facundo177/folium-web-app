@@ -16,10 +16,7 @@ export default function FoliumLandingNavbar() {
 
       {/* Acciones (Login y Registro) */}
       <div className="flex items-center gap-gutter">
-        <Link
-          to="/login"
-          className="hidden sm:block cursor-pointer text-label-caps text-on-surface-variant hover:text-tertiary-container transition-colors no-underline"
-        >
+        <Link to="/login" className="inline-flex px-3 py-2 text-xs sm:px-5 sm:text-sm ...">
           Acceso
         </Link>
         <Link

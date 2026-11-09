@@ -17,7 +17,7 @@
   /* SURFACES */
   --color-surface: #e0ceb4; /* PARCHMENT */
   --color-on-surface: #322325; /* ESPRESSO */
-  --color-on-surface-variant: #4f6577; /* SLATE BLUE para textos secundarios/sutiles */
+  --color-on-surface-variant: #4a383b; /* ESPRESSO ATENUADO (Calidez armónica y contraste WCAG AAA > 7:1) */
 
   --color-surface-container-lowest: #fbf6ec; /* Blanco antiguo */
   --color-surface-container-low: #f0e3cc;
@@ -137,6 +137,7 @@
      ======================================================= */
   --animate-fade-in: fade-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   --animate-overlay-in: overlay-in 0.25s ease-out forwards;
+  --animate-spring-bounce: spring-bounce 1.25s infinite;
 
   @keyframes overlay-in {
     0% {
@@ -155,6 +156,38 @@
     100% {
       opacity: 1;
       transform: none; /* 'none' (no translateY(0)) para no crear un containing block que rompa los modales fixed */
+    }
+  }
+
+  @keyframes spring-bounce {
+    0% {
+      transform: translateY(0);
+      animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    28% {
+      /* Carga el resorte arriba con tensión acumulada */
+      transform: translateY(-4px);
+      /* Disparo rápido hacia abajo con aceleración y fuerza */
+      animation-timing-function: cubic-bezier(0.12, 0.8, 0.32, 1.2);
+    }
+    48% {
+      /* Desciende con fuerza e impacto */
+      transform: translateY(7px);
+      /* Rebote elástico de recuperación hacia arriba */
+      animation-timing-function: cubic-bezier(0.34, 1.4, 0.64, 1);
+    }
+    68% {
+      /* Retroceso elástico amortiguado */
+      transform: translateY(1.5px);
+      animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+    84% {
+      /* Micro oscilación residual */
+      transform: translateY(4px);
+      animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+    100% {
+      transform: translateY(0);
     }
   }
 }
@@ -212,7 +245,7 @@
     /* SURFACES */
     --color-surface: #322325; /* ESPRESSO */
     --color-on-surface: #e0ceb4; /* PARCHMENT */
-    --color-on-surface-variant: #ba874b; /* ANTIQUE GOLD para destacar textos secundarios */
+    --color-on-surface-variant: #c8b79f; /* PARCHMENT SUAVE (Contraste WCAG AA > 7:1 en modo oscuro) */
     
     --color-surface-container-lowest: #140d0e;
     --color-surface-container-low: #221719;
@@ -268,7 +301,7 @@
     /* SURFACES */
     --color-surface: #e0ceb4; /* PARCHMENT */
     --color-on-surface: #322325; /* ESPRESSO */
-    --color-on-surface-variant: #4f6577; /* SLATE BLUE */
+    --color-on-surface-variant: #4a383b; /* ESPRESSO ATENUADO */
 
     --color-surface-container-lowest: #fbf6ec; /* Blanco antiguo */
     --color-surface-container-low: #f0e3cc;

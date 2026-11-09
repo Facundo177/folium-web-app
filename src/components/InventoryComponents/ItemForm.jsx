@@ -6,7 +6,7 @@ import FeedbackModal from "../BasicUIComponents/FeedbackModal";
 import { ITEM_STATUS } from "../../api/constants";
 import { ChevronDown, PlusCircle, Search } from "lucide-react";
 import FieldError from "../BasicUIComponents/FieldError";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function ItemForm() {
   const navigate = useNavigate();
@@ -30,6 +30,10 @@ export default function ItemForm() {
   const [searchTerm, setSearchTerm] = useState("");
   const deferredSearchTerm = useDeferredValue(searchTerm);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  // Obtener el parámetro de búsqueda "bookId" de la URL para preseleccionar un libro
+  const [searchParams] = useSearchParams();
+  const initialBookId = searchParams.get("bookId");
 
   // Feedback Modal
   const [feedbackModal, setFeedbackModal] = useState({
@@ -71,6 +75,49 @@ export default function ItemForm() {
       isMounted = false;
     };
   }, []);
+
+  // Cargar el libro preseleccionado si se proporciona un bookId en la URL
+  useEffect(() => {
+  if (!initialBookId) return;
+
+  let isMounted = true;
+
+  bookService
+    .getById(initialBookId)
+    .then((res) => {
+      if (!isMounted || !res.data) return;
+
+      const selectedBook = res.data;
+
+      setBooks((previousBooks) => {
+        const exists = previousBooks.some(
+          (book) => Number(book.id) === Number(selectedBook.id)
+        );
+
+        return exists ? previousBooks : [...previousBooks, selectedBook];
+      });
+
+      setFormData((previous) => ({
+        ...previous,
+        book: selectedBook.id,
+      }));
+
+      setSearchTerm(`${selectedBook.title} (#${selectedBook.id})`);
+    })
+    .catch((error) => {
+      console.error("No se pudo cargar el libro seleccionado:", error);
+      if (isMounted) {
+        setErrors((previous) => ({
+          ...previous,
+          book: ["No se pudo cargar el libro seleccionado."],
+        }));
+      }
+    });
+
+  return () => {
+    isMounted = false;
+  };
+}, [initialBookId]);
 
   // Búsqueda dinámica remota con debounce (400ms) al escribir en el buscador
   useEffect(() => {
@@ -297,14 +344,14 @@ export default function ItemForm() {
                           onClick={() => handleSelectBook(book)}
                           className="px-4 py-3 cursor-pointer hover:bg-primary/20 hover:text-primary text-on-surface border-b border-outline-variant/30 last:border-0 transition-colors flex items-center gap-3"
                         >
-                          <span className="text-xs font-mono font-bold text-on-surface-variant">
+                          <span className="text-xs font-sans tabular-nums font-bold text-on-surface-variant">
                             #{book.id}
                           </span>
                           <span className="font-serif text-sm">
                             {book.title}
                           </span>
                           {book.isbn && (
-                            <span className="text-xs font-mono text-outline ml-auto">
+                            <span className="text-xs font-sans tabular-nums text-outline ml-auto">
                               {book.isbn}
                             </span>
                           )}
@@ -352,7 +399,7 @@ export default function ItemForm() {
                 required
                 aria-invalid={Boolean(errors.inventory_code)}
                 aria-describedby={errors.inventory_code ? "item-code-error" : undefined}
-                className="w-full px-4 py-3 bg-surface-container border border-outline-variant rounded-sm text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors placeholder:text-on-surface-variant/50 font-mono uppercase"
+                className="w-full px-4 py-3 bg-surface-container border border-outline-variant rounded-sm text-body-md text-on-surface focus:outline-none focus:border-primary transition-colors placeholder:text-on-surface-variant/50 font-sans tabular-nums uppercase"
               />
               <FieldError id="item-code-error" messages={errors.inventory_code} />
             </div>

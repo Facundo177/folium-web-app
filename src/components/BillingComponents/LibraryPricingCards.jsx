@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BadgeCheck, Check, Sparkle, ShieldCheck, Building2 } from "lucide-react";
+import { BadgeCheck, Check, ShieldCheck, Building2 } from "lucide-react";
 import { DEFAULT_LIBRARY_PLANS } from "../../api/services/billingService";
 
 /**
@@ -39,9 +39,9 @@ export default function LibraryPricingCards({
           <span className="text-label-caps text-primary tracking-[0.2em] uppercase block mb-3">
             Suscripciones 
           </span>
-          <h2 className="font-serif text-3xl sm:text-5xl text-on-surface font-medium leading-tight mb-4">
+          <h1 className="font-serif text-3xl sm:text-5xl text-on-surface font-medium leading-tight mb-4">
             Planes pensados para cada escala de biblioteca
-          </h2>
+          </h1>
           <p className="text-body-lg text-on-surface-variant leading-relaxed mb-8">
             Comienza con nuestra modalidad sin cargo para pequeños archivos o
             amplía la capacidad operativa de tu institución con facturación
@@ -226,11 +226,7 @@ export default function LibraryPricingCards({
                   <div className="pt-5 flex flex-col gap-6">
                     {(plan.feature_groups || []).map((group, gIdx) => (
                       <div key={gIdx} className="flex flex-col gap-3">
-                        <div className="flex items-center gap-2.5">
-                          <Sparkle
-                            className="w-4 h-4 text-on-surface shrink-0"
-                            fill="currentColor"
-                          />
+                        <div className="flex items-center gap-2">
                           <h4 className="text-body-md font-bold text-on-surface">
                             {group.category}
                           </h4>

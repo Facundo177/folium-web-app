@@ -1,9 +1,16 @@
 import { Link, useNavigate } from 'react-router-dom';
 import ArrowLeftIcon from '../components/BasicUIComponents/ArrowLeftIcon';
 import BookOpenIcon from '../components/BasicUIComponents/BookOpenIcon';
+import { useDocumentMetadata } from '../hooks/useDocumentMetadata';
 
 export default function Error404() {
   const navigate = useNavigate();
+
+  useDocumentMetadata({
+    title: "Página no encontrada (404) — Folium",
+    description: "La página o registro bibliográfico solicitado no existe o ha sido trasladado.",
+    noIndex: true,
+  });
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-gutter relative overflow-hidden font-sans">
@@ -60,7 +67,7 @@ export default function Error404() {
           
           <button
             onClick={() => navigate(-1)}
-            className="px-6 py-3 border border-outline-variant text-on-surface rounded-DEFAULT font-medium text-body-md hover:bg-surface-container transition-colors flex items-center justify-center gap-2"
+            className="px-6 py-3 border border-outline-variant text-on-surface rounded-DEFAULT font-medium text-body-md hover:bg-surface-container transition-colors flex items-center justify-center gap-2 cursor-pointer"
           >
             <ArrowLeftIcon />
             Regresar a la página anterior
@@ -68,7 +75,7 @@ export default function Error404() {
 
           <Link
             to="/catalog"
-            className="px-6 py-3 bg-tertiary-container text-on-tertiary rounded-DEFAULT font-medium text-body-md hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-sm"
+            className="px-6 py-3 bg-primary text-on-primary rounded-DEFAULT font-medium text-body-md hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-sm cursor-pointer"
           >
             Explorar el catálogo
             <BookOpenIcon />

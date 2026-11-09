@@ -40,6 +40,18 @@ export default function LibraryPricingPage() {
     description:
       "Conoce los planes institucionales de Folium para bibliotecas populares, escolares, universitarias y archivos patrimoniales con MercadoPago.",
     canonicalPath: "/pricing",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: FAQ_ITEMS.map((item) => ({
+        "@type": "Question",
+        name: item.q,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: item.a,
+        },
+      })),
+    },
   });
 
   const [searchParams, setSearchParams] = useSearchParams();
