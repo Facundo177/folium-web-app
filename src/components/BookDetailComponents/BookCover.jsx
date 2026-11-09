@@ -63,7 +63,7 @@ export default function BookCover({ imageSrc, title }) {
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       onTouchEnd={handleMouseLeave}
-      className="relative select-none cursor-pointer book-interactive-tilt border border-outline-variant rounded-DEFAULT bg-surface-container-lowest p-gutter flex flex-col justify-center items-center h-full overflow-hidden"
+      className="relative select-none cursor-pointer book-interactive-tilt rounded-DEFAULT w-full aspect-[2/3] overflow-hidden flex items-center justify-center"
       style={{
         transformStyle: "preserve-3d",
         transformOrigin: "center center",
@@ -87,11 +87,11 @@ export default function BookCover({ imageSrc, title }) {
           alt={title}
           decoding="async"
           fetchPriority="high"
-          className="w-full max-w-62 object-contain drop-shadow-md aspect-[2/3] pointer-events-none"
+          className="w-full h-full object-cover rounded-DEFAULT pointer-events-none"
         />
       ) : (
         /* Portada Clásica Ornamental cuando no hay imagen */
-        <div className="w-70 h-100 flex flex-col justify-between p-5 bg-primary-container text-on-primary-container relative select-none">
+        <div className="w-full h-full flex flex-col justify-between p-5 bg-primary-container text-on-primary-container relative select-none">
           {/* Marco dorado interno de encuadernación */}
           <div className="pointer-events-none absolute inset-2.5 border border-outline/40 rounded-[2px]" />
           <div className="pointer-events-none absolute inset-3.5 border border-outline/20 rounded-[1px]" />
