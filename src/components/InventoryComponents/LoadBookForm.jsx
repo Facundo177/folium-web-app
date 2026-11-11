@@ -799,16 +799,10 @@ export default function LoadBookForm() {
       selectedAuthors.forEach((author) =>
         submitData.append("authors", author.id)
       );
-      if (selectedAuthors.length === 1) {
-        submitData.append("authors", selectedAuthors[0].id);
-      }
 
       formData.genres.forEach((genreId) =>
         submitData.append("genres", genreId)
       );
-      if (formData.genres.length === 1) {
-        submitData.append("genres", formData.genres[0]);
-      }
 
       await bookService.create(submitData, {
         headers: { "Content-Type": "multipart/form-data" },
