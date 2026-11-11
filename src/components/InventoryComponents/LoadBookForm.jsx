@@ -113,8 +113,8 @@ const EditorialSection = memo(function EditorialSection({
               {isLoadingEditorials
                 ? "Cargando editoriales..."
                 : availableEditorials.length === 0
-                ? "No hay editoriales registradas (crea una a la derecha)"
-                : "Buscar en el archivo..."}
+                  ? "No hay editoriales registradas (crea una a la derecha)"
+                  : "Buscar en el archivo..."}
             </option>
             {editorialOptions}
           </select>
@@ -791,7 +791,7 @@ export default function LoadBookForm() {
       formData.genres.forEach((genreId) =>
         submitData.append("genres", genreId)
       );
-      
+
 
       await bookService.create(submitData, {
         headers: { "Content-Type": "multipart/form-data" },
