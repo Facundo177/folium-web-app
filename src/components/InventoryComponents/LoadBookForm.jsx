@@ -113,8 +113,8 @@ const EditorialSection = memo(function EditorialSection({
               {isLoadingEditorials
                 ? "Cargando editoriales..."
                 : availableEditorials.length === 0
-                ? "No hay editoriales registradas (crea una a la derecha)"
-                : "Buscar en el archivo..."}
+                  ? "No hay editoriales registradas (crea una a la derecha)"
+                  : "Buscar en el archivo..."}
             </option>
             {editorialOptions}
           </select>
@@ -709,28 +709,16 @@ export default function LoadBookForm() {
         return true;
       } catch (error) {
         console.error("Error al crear editorial:", error);
-        // Fallback: si el backend no tiene POST /api/v1/editorial/ desplegado aún (404),
-        // registrarla localmente para que el formulario no se bloquee
-        if (error.response?.status === 404) {
-          console.warn(
-            "Endpoint POST /editorial/ no disponible (404). Registrando editorial localmente."
-          );
-          const fallbackEditorial = { id: cleanName, name: cleanName };
-          setAvailableEditorials((prev) =>
-            [...prev, fallbackEditorial].sort((a, b) =>
-              String(a.name || "").localeCompare(String(b.name || ""), "es")
-            )
-          );
-          setSelectedEditorial(fallbackEditorial);
-          return true;
-        }
         setFeedbackModal({
           isOpen: true,
           type: "error",
           title: "Error al crear editorial",
-          message: error.response?.data
-            ? Object.values(error.response.data).flat().join(" ")
-            : "No se pudo registrar la editorial. Verifique si ya existe.",
+          message:
+            error.response?.status === 404
+              ? "El servidor no encontró la ruta para crear editoriales. No se agregó la editorial."
+              : error.response?.data
+                ? Object.values(error.response.data).flat().join(" ")
+                : "No se pudo registrar la editorial. Verificá la conexión o si ya existe.",
         });
         return false;
       } finally {
@@ -799,16 +787,11 @@ export default function LoadBookForm() {
       selectedAuthors.forEach((author) =>
         submitData.append("authors", author.id)
       );
-      if (selectedAuthors.length === 1) {
-        submitData.append("authors", selectedAuthors[0].id);
-      }
 
       formData.genres.forEach((genreId) =>
         submitData.append("genres", genreId)
       );
-      if (formData.genres.length === 1) {
-        submitData.append("genres", formData.genres[0]);
-      }
+
 
       await bookService.create(submitData, {
         headers: { "Content-Type": "multipart/form-data" },

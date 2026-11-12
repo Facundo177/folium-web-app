@@ -35,12 +35,14 @@ export function useBooks(initialFilters = {}) {
   const [error, setError] = useState(null);
 
   const isMountedRef = useRef(true);
+  const requestIdRef = useRef(0);
   useEffect(() => {
     isMountedRef.current = true;
     return () => { isMountedRef.current = false; };
   }, []);
 
   const fetchBooks = useCallback(async (currentFilters, force = false) => {
+    const requestId = ++requestIdRef.current;
     const key = buildKey(currentFilters);
     const existingCache = catalogCache.get(key);
     const hasValidCache = !force && existingCache && Date.now() - existingCache.timestamp < CACHE_TTL;
@@ -49,6 +51,8 @@ export function useBooks(initialFilters = {}) {
       setBooks(existingCache.books);
       setTotalCount(existingCache.totalCount);
       setIsLoading(false);
+      setIsFetching(false);
+      setError(null);
       return;
     }
 
@@ -72,9 +76,11 @@ export function useBooks(initialFilters = {}) {
     params.page_size = currentFilters.page_size;
 
     try {
+
+      
       const { data } = await bookService.getAll(params);
 
-      if (!isMountedRef.current) return;
+      if (!isMountedRef.current || requestId !== requestIdRef.current) return;
 
       const newBooks = Array.isArray(data) ? data : data?.results || [];
       const newTotal = Array.isArray(data) ? data.length : data?.count ?? 0;
@@ -88,10 +94,11 @@ export function useBooks(initialFilters = {}) {
       setBooks(newBooks);
       setTotalCount(newTotal);
     } catch (err) {
+      if (!isMountedRef.current || requestId !== requestIdRef.current) return;
       if (!isMountedRef.current) return;
       setError(err.response?.data?.detail || 'Error al cargar los libros.');
     } finally {
-      if (isMountedRef.current) {
+      if (isMountedRef.current && requestId === requestIdRef.current) {
         setIsLoading(false);
         setIsFetching(false);
       }
