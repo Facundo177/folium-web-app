@@ -1,4 +1,10 @@
-import { useState, useEffect, useDeferredValue, useMemo } from "react";
+import {
+  useState,
+  useEffect,
+  useDeferredValue,
+  useMemo,
+  useCallback,
+} from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDocumentMetadata } from "../hooks/useDocumentMetadata";
 import { userService } from "../api/services/userService";
@@ -22,12 +28,16 @@ import {
   AlertCircle,
   ChevronDown,
   ChevronUp,
+  ChevronLeft,
+  ChevronRight,
   X,
   Loader2,
   Layers,
   ArrowRight,
   ShieldCheck,
 } from "lucide-react";
+
+const AVAILABLE_BOOKS_PAGE_SIZE = 50;
 
 export default function LoanCounter() {
   useDocumentMetadata({
@@ -52,9 +62,13 @@ export default function LoanCounter() {
   // ESTADOS DEL CATÁLOGO DE EJEMPLARES
   // ==========================================
   const [availableBooks, setAvailableBooks] = useState([]);
+  const [availableBooksCount, setAvailableBooksCount] = useState(0);
   const [isLoadingBooks, setIsLoadingBooks] = useState(true);
   const [bookSearchTerm, setBookSearchTerm] = useState("");
   const deferredBookSearch = useDeferredValue(bookSearchTerm);
+  const [availableBooksPage, setAvailableBooksPage] = useState(1);
+  const [hasNextAvailableBooks, setHasNextAvailableBooks] = useState(false);
+  const [hasPreviousAvailableBooks, setHasPreviousAvailableBooks] = useState(false);
   const [expandedBookId, setExpandedBookId] = useState(null);
 
   // Selección directa por código de inventario (código de barras)
@@ -83,21 +97,29 @@ export default function LoanCounter() {
   // ==========================================
   // CARGA INICIAL DE LIBROS CON EJEMPLARES DISPONIBLES
   // ==========================================
-  const fetchAvailableBooks = async (query = "") => {
-    setIsLoadingBooks(true);
+  const fetchAvailableBooks = useCallback(async (query = "", page = 1) => {
     try {
-      const { data } = await bookService.getAvailable(query ? { search: query } : {});
+      const { data } = await bookService.getAvailable({
+        ...(query ? { search: query } : {}),
+        page,
+        page_size: AVAILABLE_BOOKS_PAGE_SIZE,
+      });
       setAvailableBooks(Array.isArray(data) ? data : data?.results || []);
+      setAvailableBooksCount(
+        Array.isArray(data) ? data.length : data?.count ?? 0
+      );
+      setHasNextAvailableBooks(Boolean(data?.next));
+      setHasPreviousAvailableBooks(Boolean(data?.previous));
     } catch (err) {
       console.error("Error al cargar libros con ejemplares disponibles:", err);
     } finally {
       setIsLoadingBooks(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchAvailableBooks(deferredBookSearch);
-  }, [deferredBookSearch]);
+    fetchAvailableBooks(deferredBookSearch, availableBooksPage);
+  }, [deferredBookSearch, availableBooksPage, fetchAvailableBooks]);
 
   // ==========================================
   // BÚSQUEDA DE LECTOR POR DNI
@@ -244,7 +266,8 @@ export default function LoanCounter() {
       });
 
       // Refrescar catálogo de ejemplares disponibles
-      fetchAvailableBooks(bookSearchTerm);
+      setIsLoadingBooks(true);
+      fetchAvailableBooks(deferredBookSearch, availableBooksPage);
     } catch (err) {
       console.error("Error al registrar préstamo:", err);
       const data = err.response?.data;
@@ -720,7 +743,7 @@ export default function LoanCounter() {
               >
                 <span>Catálogo con Ejemplares Disponibles</span>
                 <span className="text-[11px] font-normal text-on-surface-variant">
-                  {availableBooks.length} libro(s) con stock
+                  {availableBooksCount} libro(s) con stock
                 </span>
               </label>
               <div className="relative">
@@ -729,14 +752,24 @@ export default function LoanCounter() {
                   id="input-book-search"
                   type="text"
                   value={bookSearchTerm}
-                  onChange={(e) => setBookSearchTerm(e.target.value)}
+                  onChange={(e) => {
+                    setBookSearchTerm(e.target.value);
+                    setAvailableBooksPage(1);
+                    setExpandedBookId(null);
+                    setIsLoadingBooks(true);
+                  }}
                   placeholder="Filtrar por título, autor, ISBN o código..."
                   className="w-full pl-9 pr-9 py-2 bg-surface-container-low border border-outline-variant rounded-lg text-xs text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
                 />
                 {bookSearchTerm && (
                   <button
                     type="button"
-                    onClick={() => setBookSearchTerm("")}
+                    onClick={() => {
+                      setBookSearchTerm("");
+                      setAvailableBooksPage(1);
+                      setExpandedBookId(null);
+                      setIsLoadingBooks(true);
+                    }}
                     className="absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface"
                     aria-label="Limpiar filtro"
                   >
@@ -877,6 +910,45 @@ export default function LoanCounter() {
                 })
               )}
             </div>
+            {(hasPreviousAvailableBooks || hasNextAvailableBooks) && (
+              <nav
+                aria-label="Paginación del catálogo de ejemplares"
+                className="flex items-center justify-between border-t border-outline-variant/60 px-3 py-3"
+              >
+                <span className="text-xs font-sans tabular-nums text-on-surface-variant">
+                  Página {availableBooksPage} de{" "}
+                  {Math.ceil(availableBooksCount / AVAILABLE_BOOKS_PAGE_SIZE)}
+                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAvailableBooksPage((page) => Math.max(1, page - 1));
+                      setExpandedBookId(null);
+                      setIsLoadingBooks(true);
+                    }}
+                    disabled={!hasPreviousAvailableBooks || isLoadingBooks}
+                    className="inline-flex items-center gap-1 rounded-md border border-outline-variant px-3 py-1.5 text-xs font-semibold text-on-surface-variant transition-colors hover:border-primary hover:text-on-surface disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    <ChevronLeft className="h-3.5 w-3.5" />
+                    Anterior
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAvailableBooksPage((page) => page + 1);
+                      setExpandedBookId(null);
+                      setIsLoadingBooks(true);
+                    }}
+                    disabled={!hasNextAvailableBooks || isLoadingBooks}
+                    className="inline-flex items-center gap-1 rounded-md border border-outline-variant px-3 py-1.5 text-xs font-semibold text-on-surface-variant transition-colors hover:border-primary hover:text-on-surface disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    Siguiente
+                    <ChevronRight className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </nav>
+            )}
           </section>
         </div>
       </div>
