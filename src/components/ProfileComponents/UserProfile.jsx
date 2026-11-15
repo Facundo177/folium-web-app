@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useUserProfile } from "../../hooks/useUserProfile";
 import { userService } from "../../api/services/userService";
 import GoBackButton from "../BasicUIComponents/GoBackButton";
+import PasswordEye from "../BasicUIComponents/PasswordEye";
 import {
   User,
   Mail,
@@ -11,6 +13,7 @@ import {
   Save,
   X,
   IdCard,
+  KeyRound,
 } from "lucide-react";
 
 export default function UserProfile() {
@@ -21,6 +24,30 @@ export default function UserProfile() {
   const [isSaving, setIsSaving] = useState(false);
   const [editError, setEditError] = useState("");
   const [formData, setFormData] = useState({});
+  const [passwordForm, setPasswordForm] = useState({
+    current_password: "",
+    new_password: "",
+    confirm_new_password: "",
+  });
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [passwordChangeError, setPasswordChangeError] = useState("");
+  const [passwordChangeSuccess, setPasswordChangeSuccess] = useState("");
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
+  const passwordDialogRef = useRef(null);
+
+  useEffect(() => {
+    const dialog = passwordDialogRef.current;
+    if (!dialog) return;
+
+    if (isPasswordModalOpen && !dialog.open) {
+      dialog.showModal();
+    } else if (!isPasswordModalOpen && dialog.open) {
+      dialog.close();
+    }
+  }, [isPasswordModalOpen]);
 
   const formatDate = (dateString) => {
     if (!dateString) return "Fecha desconocida";
@@ -92,6 +119,74 @@ export default function UserProfile() {
     }
   };
 
+  const handlePasswordFormChange = (e) => {
+    const { name, value } = e.target;
+    setPasswordForm((previous) => ({ ...previous, [name]: value }));
+    setPasswordChangeError("");
+    setPasswordChangeSuccess("");
+  };
+
+  const openPasswordModal = () => {
+    setPasswordForm({
+      current_password: "",
+      new_password: "",
+      confirm_new_password: "",
+    });
+    setPasswordChangeError("");
+    setPasswordChangeSuccess("");
+    setShowCurrentPassword(false);
+    setShowNewPassword(false);
+    setShowConfirmNewPassword(false);
+    setIsPasswordModalOpen(true);
+  };
+
+  const closePasswordModal = () => {
+    if (isChangingPassword) return;
+
+    setPasswordForm({
+      current_password: "",
+      new_password: "",
+      confirm_new_password: "",
+    });
+    setPasswordChangeError("");
+    setShowCurrentPassword(false);
+    setShowNewPassword(false);
+    setShowConfirmNewPassword(false);
+    setIsPasswordModalOpen(false);
+  };
+
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
+    setIsChangingPassword(true);
+    setPasswordChangeError("");
+    setPasswordChangeSuccess("");
+
+    try {
+      await userService.changePassword(passwordForm);
+      setPasswordForm({
+        current_password: "",
+        new_password: "",
+        confirm_new_password: "",
+      });
+      setPasswordChangeSuccess("Tu contraseña se actualizó correctamente.");
+      setIsPasswordModalOpen(false);
+    } catch (err) {
+      const errorData = err.response?.data;
+      if (errorData && typeof errorData === "object") {
+        setPasswordChangeError(
+          Object.values(errorData).flat().join("\n") ||
+            "No se pudo actualizar la contraseña."
+        );
+      } else {
+        setPasswordChangeError(
+          "Ocurrió un error inesperado al actualizar la contraseña."
+        );
+      }
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="w-full min-h-[50vh] flex flex-col items-center justify-center gap-4 animate-fade-in font-sans">
@@ -119,13 +214,35 @@ export default function UserProfile() {
         <GoBackButton />
       </div>
 
-      <div className="mb-8">
-        <h1 className="text-headline-md font-serif text-on-surface mb-2">
-          Mi Credencial
-        </h1>
-        <p className="text-body-md text-on-surface-variant">
-          Consulta y actualiza tu información dentro del archivo de Folium.
-        </p>
+      <div className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-headline-md font-serif text-on-surface mb-2">
+            Mi Credencial
+          </h1>
+          <p className="text-body-md text-on-surface-variant">
+            Consulta y actualiza tu información dentro del archivo de Folium.
+          </p>
+        </div>
+        {!isEditing && (
+          <div className="flex flex-col items-start gap-2 sm:items-end">
+            <button
+              type="button"
+              onClick={openPasswordModal}
+              className="flex items-center justify-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-on-primary shadow-xs transition-all hover:opacity-90 cursor-pointer"
+            >
+              <KeyRound className="h-4 w-4" />
+              Cambiar contraseña
+            </button>
+            {passwordChangeSuccess && (
+              <p
+                role="status"
+                className="rounded-sm bg-secondary/10 px-3 py-2 text-body-sm font-medium text-secondary"
+              >
+                {passwordChangeSuccess}
+              </p>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -336,6 +453,186 @@ export default function UserProfile() {
           )}
         </div>
       </div>
+
+      {isPasswordModalOpen &&
+        createPortal(
+          <dialog
+            ref={passwordDialogRef}
+            onCancel={(event) => {
+              event.preventDefault();
+              closePasswordModal();
+            }}
+            aria-labelledby="change-password-title"
+            className="m-auto max-h-[calc(100%-2rem)] w-[calc(100%-2rem)] max-w-2xl overflow-y-auto rounded-sm border-0 bg-transparent p-0 shadow-2xl backdrop:bg-black/65 backdrop:backdrop-blur-xs focus:outline-none"
+          >
+            <div className="overflow-hidden rounded-sm border border-outline-variant bg-surface font-sans">
+              <div className="flex items-center justify-between border-b border-outline-variant bg-surface-container px-6 py-4">
+                <div className="flex items-center gap-2.5">
+                  <KeyRound className="h-5 w-5 text-primary" />
+                  <h2
+                    id="change-password-title"
+                    className="text-headline-sm font-serif text-on-surface"
+                  >
+                    Cambiar contraseña
+                  </h2>
+                </div>
+                <button
+                  type="button"
+                  onClick={closePasswordModal}
+                  disabled={isChangingPassword}
+                  aria-label="Cerrar ventana"
+                  className="cursor-pointer p-1 text-on-surface-variant transition-colors hover:text-on-surface disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handlePasswordChange} className="space-y-5 p-6">
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                  <div className="flex flex-col gap-2 sm:col-span-2">
+                    <label
+                      htmlFor="current-password"
+                      className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant"
+                    >
+                      Contraseña actual
+                    </label>
+                    <div className="relative">
+                      <input
+                        id="current-password"
+                        type={showCurrentPassword ? "text" : "password"}
+                        name="current_password"
+                        value={passwordForm.current_password}
+                        onChange={handlePasswordFormChange}
+                        autoComplete="current-password"
+                        required
+                        className="w-full rounded-sm border border-outline-variant bg-surface-container px-4 py-2.5 pr-12 text-body-md text-on-surface transition-colors focus:border-primary focus:outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setShowCurrentPassword((visible) => !visible)
+                        }
+                        aria-label={
+                          showCurrentPassword
+                            ? "Ocultar contraseña actual"
+                            : "Ver contraseña actual"
+                        }
+                        aria-pressed={showCurrentPassword}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer p-1 text-on-surface-variant transition-colors hover:text-primary"
+                      >
+                        <PasswordEye open={showCurrentPassword} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <label
+                      htmlFor="new-password"
+                      className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant"
+                    >
+                      Nueva contraseña
+                    </label>
+                    <div className="relative">
+                      <input
+                        id="new-password"
+                        type={showNewPassword ? "text" : "password"}
+                        name="new_password"
+                        value={passwordForm.new_password}
+                        onChange={handlePasswordFormChange}
+                        autoComplete="new-password"
+                        minLength={8}
+                        required
+                        className="w-full rounded-sm border border-outline-variant bg-surface-container px-4 py-2.5 pr-12 text-body-md text-on-surface transition-colors focus:border-primary focus:outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowNewPassword((visible) => !visible)}
+                        aria-label={
+                          showNewPassword
+                            ? "Ocultar nueva contraseña"
+                            : "Ver nueva contraseña"
+                        }
+                        aria-pressed={showNewPassword}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer p-1 text-on-surface-variant transition-colors hover:text-primary"
+                      >
+                        <PasswordEye open={showNewPassword} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <label
+                      htmlFor="confirm-new-password"
+                      className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant"
+                    >
+                      Confirmar nueva contraseña
+                    </label>
+                    <div className="relative">
+                      <input
+                        id="confirm-new-password"
+                        type={showConfirmNewPassword ? "text" : "password"}
+                        name="confirm_new_password"
+                        value={passwordForm.confirm_new_password}
+                        onChange={handlePasswordFormChange}
+                        autoComplete="new-password"
+                        minLength={8}
+                        required
+                        className="w-full rounded-sm border border-outline-variant bg-surface-container px-4 py-2.5 pr-12 text-body-md text-on-surface transition-colors focus:border-primary focus:outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setShowConfirmNewPassword((visible) => !visible)
+                        }
+                        aria-label={
+                          showConfirmNewPassword
+                            ? "Ocultar confirmación de contraseña"
+                            : "Ver confirmación de contraseña"
+                        }
+                        aria-pressed={showConfirmNewPassword}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer p-1 text-on-surface-variant transition-colors hover:text-primary"
+                      >
+                        <PasswordEye open={showConfirmNewPassword} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {passwordChangeError && (
+                  <p
+                    role="alert"
+                    aria-live="polite"
+                    className="whitespace-pre-wrap rounded-sm bg-error px-3 py-2 text-body-sm font-medium text-on-error"
+                  >
+                    {passwordChangeError}
+                  </p>
+                )}
+
+                <div className="flex flex-col-reverse gap-3 border-t border-outline-variant/50 pt-5 sm:flex-row sm:justify-end">
+                  <button
+                    type="button"
+                    onClick={closePasswordModal}
+                    disabled={isChangingPassword}
+                    className="flex items-center justify-center gap-2 rounded-sm border border-outline-variant px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-on-surface transition-colors hover:bg-surface-container disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+                  >
+                    <X className="h-4 w-4" /> Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isChangingPassword}
+                    className="flex items-center justify-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-on-primary shadow-xs transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+                  >
+                    <Save className="h-4 w-4" />
+                    {isChangingPassword
+                      ? "Actualizando..."
+                      : "Actualizar contraseña"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </dialog>,
+          document.body
+        )}
     </div>
   );
 }
