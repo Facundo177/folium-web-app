@@ -4,6 +4,7 @@ import {
   useDeferredValue,
   useMemo,
   useCallback,
+  useRef,
 } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDocumentMetadata } from "../hooks/useDocumentMetadata";
@@ -70,6 +71,7 @@ export default function LoanCounter() {
   const [hasNextAvailableBooks, setHasNextAvailableBooks] = useState(false);
   const [hasPreviousAvailableBooks, setHasPreviousAvailableBooks] = useState(false);
   const [expandedBookId, setExpandedBookId] = useState(null);
+  const availableBooksRequestId = useRef(0);
 
   // Selección directa por código de inventario (código de barras)
   const [directItemCode, setDirectItemCode] = useState("");
@@ -98,27 +100,45 @@ export default function LoanCounter() {
   // CARGA INICIAL DE LIBROS CON EJEMPLARES DISPONIBLES
   // ==========================================
   const fetchAvailableBooks = useCallback(async (query = "", page = 1) => {
+    const requestId = ++availableBooksRequestId.current;
     try {
       const { data } = await bookService.getAvailable({
         ...(query ? { search: query } : {}),
         page,
         page_size: AVAILABLE_BOOKS_PAGE_SIZE,
       });
-      setAvailableBooks(Array.isArray(data) ? data : data?.results || []);
+
+      if (requestId !== availableBooksRequestId.current) return;
+
+      const books = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.results)
+          ? data.results
+          : [];
+      const uniqueBooks = Array.from(
+        new Map(books.map((book) => [book.id, book])).values()
+      );
+      setAvailableBooks(uniqueBooks);
       setAvailableBooksCount(
         Array.isArray(data) ? data.length : data?.count ?? 0
       );
       setHasNextAvailableBooks(Boolean(data?.next));
       setHasPreviousAvailableBooks(Boolean(data?.previous));
     } catch (err) {
+      if (requestId !== availableBooksRequestId.current) return;
       console.error("Error al cargar libros con ejemplares disponibles:", err);
     } finally {
-      setIsLoadingBooks(false);
+      if (requestId === availableBooksRequestId.current) {
+        setIsLoadingBooks(false);
+      }
     }
   }, []);
 
   useEffect(() => {
     fetchAvailableBooks(deferredBookSearch, availableBooksPage);
+    return () => {
+      availableBooksRequestId.current += 1;
+    };
   }, [deferredBookSearch, availableBooksPage, fetchAvailableBooks]);
 
   // ==========================================
