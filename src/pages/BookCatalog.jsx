@@ -24,6 +24,7 @@ export default function BookCatalog() {
     setPage,
     totalCount,
     totalPages,
+    refetch: refetchBooks,
   } = useBooks({}, { syncUrl: true });
   const { recommendations } = useRecommendations();
   const { user, isGuest } = useAuth();
@@ -79,16 +80,35 @@ export default function BookCatalog() {
   );
 
   const handleReservationSuccess = useCallback((bookId, reservationId) => {
-  setUserReservationsMap((prev) => ({ ...prev, [bookId]: reservationId ?? true }));
-}, []);
+    setUserReservationsMap((prev) => ({ ...prev, [bookId]: reservationId ?? true }));
+    showToast("Reserva confirmada con éxito");
+    // Refrescar el catálogo para actualizar la cantidad de ejemplares disponibles en tiempo real
+    refetchBooks();
+  }, [showToast, refetchBooks]);
 
-const handleCancelSuccess = useCallback((bookId) => {
-  setUserReservationsMap((prev) => {
-    const next = { ...prev };
-    delete next[bookId];
-    return next;
-  });
-}, []);
+  const handleReservationError = useCallback((errorMessage) => {
+    setModal({
+      isOpen: true,
+      type: "error",
+      title: "No se pudo realizar la reserva",
+      message: errorMessage || "Ocurrió un error al procesar tu solicitud de reserva.",
+      confirmText: "Entendido",
+      cancelText: null,
+      onConfirm: () => setModal((prev) => ({ ...prev, isOpen: false })),
+    });
+    // Si falló por stock, refrescar para sincronizar los botones
+    refetchBooks();
+  }, [refetchBooks]);
+
+  const handleCancelSuccess = useCallback((bookId) => {
+    setUserReservationsMap((prev) => {
+      const next = { ...prev };
+      delete next[bookId];
+      return next;
+    });
+    showToast("Reserva cancelada correctamente");
+    refetchBooks();
+  }, [showToast, refetchBooks]);
 
   useEffect(() => {
     if (!user) {
@@ -272,6 +292,7 @@ const handleCancelSuccess = useCallback((bookId) => {
         favoritesMap={favoritesMap}
         userReservationsMap={userReservationsMap}
         onReservationSuccess={handleReservationSuccess}
+        onReservationError={handleReservationError}
         onCancelSuccess={handleCancelSuccess}
         onToggleFavorite={handleToggleFavorite}
         onRequireAuth={openGuestPrompt}

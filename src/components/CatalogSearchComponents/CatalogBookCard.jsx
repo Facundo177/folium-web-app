@@ -13,6 +13,7 @@ function CatalogBookCard({
   isReservedByUser = false,
   reservationId = null,
   onReservationSuccess,
+  onReservationError,
   onCancelSuccess,
   onToggleFavorite,
   onRequireAuth,
@@ -107,6 +108,11 @@ function CatalogBookCard({
       setConfirmAction(null);
     } catch (err) {
       console.error("Error al reservar:", err);
+      const detail = err.response?.data
+        ? Object.values(err.response.data).flat().join(" ")
+        : "No se pudo procesar la reserva. Puede que no queden ejemplares disponibles.";
+      onReservationError?.(detail);
+      setConfirmAction(null);
     } finally {
       setProcessing(false);
     }
