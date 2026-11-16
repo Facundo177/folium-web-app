@@ -436,10 +436,21 @@ export function BookSearchWidget(props) {
 
   useEffect(() => {
     let mounted = true;
+    const cleanQuery = query.trim();
+    if (!cleanQuery) {
+      setBooks([]);
+      setIsLoading(false);
+      return;
+    }
+
     const fetchBooks = async () => {
       setIsLoading(true);
       try {
-        const { data } = await bookService.getAll();
+        const params =
+          searchMode === "genre"
+            ? { genre: cleanQuery, page_size: 20 }
+            : { search: cleanQuery, page_size: 20 };
+        const { data } = await bookService.getAll(params);
         if (mounted) {
           const list = Array.isArray(data) ? data : (data?.results || []);
           setBooks(list.map(adaptBook));
@@ -455,40 +466,12 @@ export function BookSearchWidget(props) {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [query, searchMode]);
 
   const matches = useMemo(() => {
-    const cleanQuery = query
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .trim();
-
-    if (!cleanQuery) return [];
-
-    return books
-      .filter((b) => {
-        const title = (b.title || "")
-          .toLowerCase()
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "");
-        const author = (b.author || "")
-          .toLowerCase()
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "");
-        const genres = (b.genres || [])
-          .join(" ")
-          .toLowerCase()
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "");
-
-        if (searchMode === "genre") {
-          return genres.includes(cleanQuery);
-        }
-        return title.includes(cleanQuery) || author.includes(cleanQuery);
-      })
-      .slice(0, 4);
-  }, [books, query, searchMode]);
+    if (!query.trim()) return [];
+    return books.slice(0, 4);
+  }, [books, query]);
 
   if (isLoading) {
     return (

@@ -24,7 +24,7 @@ export default function BookCatalog() {
     setPage,
     totalCount,
     totalPages,
-  } = useBooks();
+  } = useBooks({}, { syncUrl: true });
   const { recommendations } = useRecommendations();
   const { user, isGuest } = useAuth();
 

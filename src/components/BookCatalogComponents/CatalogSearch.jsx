@@ -61,13 +61,14 @@ export default function CatalogSearch({
     setSearchQuery(filters?.search || "");
   }, [filters?.search]);
 
-  // Debounce de 350ms al teclear
+  // Debounce de 350ms al teclear (evita resetear la página si el valor no cambió)
   useEffect(() => {
+    if (searchQuery === (filters?.search || "")) return;
     const timer = setTimeout(() => {
       setFilters({ search: searchQuery });
     }, 350);
     return () => clearTimeout(timer);
-  }, [searchQuery, setFilters]);
+  }, [searchQuery, filters?.search, setFilters]);
 
   const handlePageChange = (newPage) => {
     setPage(newPage);

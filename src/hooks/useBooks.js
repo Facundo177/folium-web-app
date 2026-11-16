@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { bookService } from '../api/services/bookService';
 
 // Caché en memoria para páginas y combinaciones de filtros del catálogo
@@ -8,14 +9,27 @@ const CACHE_TTL = 3 * 60 * 1000; // 3 minutos de retención
 const buildKey = (f) =>
   `${f.search || ''}|${f.genre || ''}|${f.year || ''}|${f.page || 1}|${f.page_size || 20}`;
 
+const readFiltersFromSearchParams = (searchParams, defaults) => {
+  const parsedPage = parseInt(searchParams.get('page'), 10);
+  return {
+    genre: searchParams.get('genre') ?? defaults.genre,
+    year: searchParams.get('year') ?? defaults.year,
+    search: searchParams.get('search') ?? defaults.search,
+    page: Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : defaults.page,
+    page_size: defaults.page_size,
+  };
+};
+
 /**
  * Hook para gestionar el catálogo de libros con filtros, paginación server-side
  * y soporte de caché en memoria Stale-While-Revalidate (SWR).
  *
  * Elimina las recargas innecesarias al navegar entre el catálogo y el detalle de un libro.
  */
-export function useBooks(initialFilters = {}) {
-  const [filters, setFiltersState] = useState({
+export function useBooks(initialFilters = {}, { syncUrl = false } = {}) {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const defaultFiltersRef = useRef({
     genre: '',
     year: '',
     search: '',
@@ -23,6 +37,12 @@ export function useBooks(initialFilters = {}) {
     page_size: 20,
     ...initialFilters,
   });
+
+  const [filters, setFiltersState] = useState(() =>
+    syncUrl
+      ? readFiltersFromSearchParams(searchParams, defaultFiltersRef.current)
+      : defaultFiltersRef.current
+  );
 
   const currentKey = buildKey(filters);
   const cached = catalogCache.get(currentKey);
@@ -105,21 +125,67 @@ export function useBooks(initialFilters = {}) {
     }
   }, []);
 
+  const syncFiltersToUrl = useCallback(
+    (nextFilters) => {
+      if (!syncUrl) return;
+      const nextParams = new URLSearchParams();
+      if (nextFilters.search) nextParams.set('search', nextFilters.search);
+      if (nextFilters.genre) nextParams.set('genre', nextFilters.genre);
+      if (nextFilters.year) nextParams.set('year', String(nextFilters.year));
+      if (nextFilters.page && nextFilters.page > 1) {
+        nextParams.set('page', String(nextFilters.page));
+      }
+      setSearchParams(nextParams, { replace: true });
+    },
+    [syncUrl, setSearchParams]
+  );
+
+  // Sincronizar si la URL cambia externamente (ej. botón Atrás/Adelante del navegador)
+  useEffect(() => {
+    if (!syncUrl) return;
+    const fromUrl = readFiltersFromSearchParams(searchParams, defaultFiltersRef.current);
+    setFiltersState((prev) => {
+      if (
+        prev.search === fromUrl.search &&
+        prev.genre === fromUrl.genre &&
+        prev.year === fromUrl.year &&
+        prev.page === fromUrl.page
+      ) {
+        return prev;
+      }
+      return fromUrl;
+    });
+  }, [syncUrl, searchParams]);
+
   useEffect(() => {
     fetchBooks(filters);
   }, [filters, fetchBooks]);
 
-  const setFilters = useCallback((newFilters) => {
-    setFiltersState(prev => ({
-      ...prev,
-      ...newFilters,
-      page: 1,
-    }));
-  }, []);
+  const setFilters = useCallback(
+    (newFilters) => {
+      setFiltersState((prev) => {
+        const next = {
+          ...prev,
+          ...newFilters,
+          page: 1,
+        };
+        syncFiltersToUrl(next);
+        return next;
+      });
+    },
+    [syncFiltersToUrl]
+  );
 
-  const setPage = useCallback((newPage) => {
-    setFiltersState(prev => ({ ...prev, page: newPage }));
-  }, []);
+  const setPage = useCallback(
+    (newPage) => {
+      setFiltersState((prev) => {
+        const next = { ...prev, page: newPage };
+        syncFiltersToUrl(next);
+        return next;
+      });
+    },
+    [syncFiltersToUrl]
+  );
 
   const totalPages = Math.ceil(totalCount / filters.page_size) || 1;
 
