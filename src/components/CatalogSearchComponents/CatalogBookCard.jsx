@@ -4,7 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../auth/AuthProvider";
 import { reservationService } from "../../api/services/reservationService";
 import { favoriteService } from "../../api/services/favoriteService";
-import { Bookmark, BookmarkOff, Heart } from "lucide-react";
+import { Heart } from "lucide-react";
 
 function CatalogBookCard({
   book,
@@ -13,6 +13,7 @@ function CatalogBookCard({
   isReservedByUser = false,
   reservationId = null,
   onReservationSuccess,
+  onReservationError,
   onCancelSuccess,
   onToggleFavorite,
   onRequireAuth,
@@ -107,6 +108,11 @@ function CatalogBookCard({
       setConfirmAction(null);
     } catch (err) {
       console.error("Error al reservar:", err);
+      const detail = err.response?.data
+        ? Object.values(err.response.data).flat().join(" ")
+        : "No se pudo procesar la reserva. Puede que no queden ejemplares disponibles.";
+      onReservationError?.(detail);
+      setConfirmAction(null);
     } finally {
       setProcessing(false);
     }
@@ -254,7 +260,7 @@ function CatalogBookCard({
             <button
               onClick={handleActionClick}
               disabled={!canClick}
-              className={`mt-auto w-full border py-2.5 rounded-sm flex items-center justify-center gap-2 text-xs font-bold tracking-widest uppercase transition-colors ${
+              className={`mt-auto w-full border py-2.5 rounded-sm flex items-center justify-center text-center text-xs font-bold tracking-widest uppercase transition-colors ${
                 !canClick
                   ? "bg-surface-container-highest text-on-surface-variant/40 border-outline-variant/30 cursor-not-allowed pointer-events-none opacity-60"
                   : "bg-secondary text-on-secondary hover:bg-secondary-container hover:text-on-secondary-container border-outline-variant/30 cursor-pointer"
@@ -269,18 +275,6 @@ function CatalogBookCard({
                 : hasAvailableCopies
                 ? "Reservar"
                 : "Sin ejemplares"}
-              <span className="text-[16px]">
-          
-                {isGuestUser
-                ? hasAvailableCopies
-                  ?  <Bookmark />
-                  :  <Bookmark />
-                : isReservedByUser
-                ?  <BookmarkOff />
-                : hasAvailableCopies
-                ?  <Bookmark />
-                :  <Bookmark />}
-              </span>
             </button>
           );
         })()}

@@ -66,18 +66,20 @@ export default function UserReservations() {
   // Combinamos cada reserva con los datos visuales del libro
   const enrichedReservations = useMemo(() => {
     return reservations.map((res) => {
-      const fullBook = booksById[res.book];
-      const detail = res.book_detail || {};
+      const bookId = typeof res.book === "object" && res.book !== null ? res.book.id : res.book;
+      const fullBook = booksById[bookId];
+      const nestedBook = typeof res.book === "object" && res.book !== null ? res.book : null;
+      const detail = res.book_detail || nestedBook || {};
 
       return {
         ...res,
         bookData: fullBook || {
-          id: detail.id || res.book,
-          title: detail.title || `Volumen #${res.book}`,
-          author: detail.editorial || "Archivo Folium",
-          category: "Archivo",
-          year: "",
-          cover: detail.cover_image || null,
+          id: detail.id || bookId || res.id,
+          title: detail.title || `Volumen #${bookId || res.id}`,
+          author: detail.author || detail.author_name || detail.editorial || "Archivo Folium",
+          category: detail.genre || detail.genre_name || "Archivo",
+          year: detail.year || "",
+          cover: detail.cover_image || detail.cover || null,
         },
       };
     });

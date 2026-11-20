@@ -1,6 +1,13 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { userService } from "../../api/services/userService";
-import { X, UserPlus, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
+import {
+  X,
+  UserPlus,
+  AlertCircle,
+  CheckCircle,
+  Copy,
+  Loader2,
+} from "lucide-react";
 import FieldError from "../BasicUIComponents/FieldError";
 
 export default function CreateReaderModal({
@@ -20,37 +27,63 @@ export default function CreateReaderModal({
   const [fieldErrors, setFieldErrors] = useState({});
   const [generalError, setGeneralError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [createdReader, setCreatedReader] = useState(null);
+  const [copyStatus, setCopyStatus] = useState("");
   const firstInputRef = useRef(null);
+  const wasOpenRef = useRef(false);
+
+  const handleClose = useCallback(() => {
+    setCreatedReader(null);
+    setCopyStatus("");
+    onClose();
+  }, [onClose]);
 
   // Al abrir, inicializar con el DNI buscado
   useEffect(() => {
-    if (isOpen) {
-      setFormData({
-        dni: initialDni ? String(initialDni).trim() : "",
-        first_name: "",
-        last_name: "",
-        email: "",
-        username: "",
-      });
-      setFieldErrors({});
-      setGeneralError("");
-      setTimeout(() => {
-        firstInputRef.current?.focus();
-      }, 50);
+    if (!isOpen) {
+      wasOpenRef.current = false;
+      return;
     }
+
+    if (wasOpenRef.current) return;
+    wasOpenRef.current = true;
+
+    setFormData({
+      dni: initialDni ? String(initialDni).trim() : "",
+      first_name: "",
+      last_name: "",
+      email: "",
+      username: "",
+    });
+    setFieldErrors({});
+    setGeneralError("");
+    setCreatedReader(null);
+    setCopyStatus("");
+    setTimeout(() => {
+      firstInputRef.current?.focus();
+    }, 50);
   }, [isOpen, initialDni]);
 
   // Cerrar con Escape
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") handleClose();
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, onClose]);
+  }, [isOpen, handleClose]);
 
   if (!isOpen) return null;
+
+  const handleCopyPassword = async () => {
+    try {
+      await navigator.clipboard.writeText(createdReader.temporaryPassword);
+      setCopyStatus("Contraseña copiada.");
+    } catch {
+      setCopyStatus("No se pudo copiar. Selecciona la contraseña para copiarla manualmente.");
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -123,10 +156,14 @@ export default function CreateReaderModal({
     try {
       const response = await userService.createReader(payload);
       const newReader = response.data;
-      if (onReaderCreated) {
-        onReaderCreated(newReader);
+      const { temporary_password: temporaryPassword, ...reader } = newReader;
+      onReaderCreated?.(reader);
+      setCreatedReader({ reader, temporaryPassword });
+      if (!temporaryPassword) {
+        setGeneralError(
+          "El lector fue creado, pero el servidor no devolvió una contraseña temporal. No vuelvas a crearlo; contacta al administrador."
+        );
       }
-      onClose();
     } catch (err) {
       console.error("Error al registrar lector:", err);
       const errorData = err.response?.data;
@@ -186,7 +223,7 @@ export default function CreateReaderModal({
           </div>
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             className="p-1.5 text-on-surface-variant hover:text-on-surface rounded-lg hover:bg-surface-variant transition-colors cursor-pointer"
             aria-label="Cerrar modal"
           >
@@ -195,6 +232,68 @@ export default function CreateReaderModal({
         </div>
 
         {/* Contenido / Formulario */}
+        {createdReader ? (
+          <div className="p-6 flex flex-col gap-4">
+            <div className="flex items-center gap-2 text-secondary">
+              <CheckCircle className="w-5 h-5" />
+              <h3 className="font-bold text-sm">Lector creado y seleccionado</h3>
+            </div>
+            <p className="text-xs text-on-surface-variant">
+              Comparte esta contraseña temporal con el lector para que pueda
+              iniciar sesión. Podrá cambiarla desde su perfil.
+            </p>
+            <div className="rounded-lg border border-outline-variant bg-surface-container-low p-3">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">
+                Usuario
+              </p>
+              <p className="mb-3 text-sm font-semibold text-on-surface">
+                {createdReader.reader.username}
+              </p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">
+                Contraseña temporal
+              </p>
+              {createdReader.temporaryPassword ? (
+                <div className="mt-1 flex items-center gap-2">
+                  <code className="min-w-0 flex-1 select-all break-all rounded bg-surface-container px-2 py-1.5 text-sm text-on-surface">
+                    {createdReader.temporaryPassword}
+                  </code>
+                  <button
+                    type="button"
+                    onClick={handleCopyPassword}
+                    className="inline-flex shrink-0 items-center gap-1 rounded-md border border-outline-variant px-2.5 py-2 text-xs font-semibold text-on-surface hover:border-primary"
+                  >
+                    <Copy className="h-3.5 w-3.5" />
+                    Copiar
+                  </button>
+                </div>
+              ) : (
+                <p className="mt-1 text-xs text-error">
+                  No se recibió la contraseña. Contacta al administrador antes
+                  de cerrar esta ventana.
+                </p>
+              )}
+            </div>
+            {copyStatus && (
+              <p role="status" className="text-xs text-on-surface-variant">
+                {copyStatus}
+              </p>
+            )}
+            {generalError && (
+              <div role="alert" className="text-xs text-error">
+                {generalError}
+              </div>
+            )}
+            <div className="flex justify-end border-t border-outline-variant/50 pt-4">
+              <button
+                type="button"
+                onClick={handleClose}
+                className="rounded-lg bg-primary px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-on-primary hover:opacity-90"
+              >
+                Listo
+              </button>
+            </div>
+          </div>
+        ) : (
         <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-4">
           {generalError && (
             <div className="p-3 bg-error/10 border border-error/30 rounded-lg flex items-start gap-2 text-error text-xs">
@@ -318,7 +417,7 @@ export default function CreateReaderModal({
           <div className="mt-2 pt-4 border-t border-outline-variant/50 flex items-center justify-end gap-3">
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleClose}
               disabled={isSubmitting}
               className="px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-on-surface hover:bg-surface-container rounded-lg transition-colors cursor-pointer"
             >
@@ -344,6 +443,7 @@ export default function CreateReaderModal({
             </button>
           </div>
         </form>
+        )}
       </div>
     </div>
   );

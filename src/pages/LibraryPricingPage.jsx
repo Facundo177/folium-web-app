@@ -62,6 +62,25 @@ export default function LibraryPricingPage() {
   const [paymentBanner, setPaymentBanner] = useState(null);
   const [isFaqOpen, setIsFaqOpen] = useState(false);
 
+  // Forzar modo claro al ingresar a la página y restaurar al salir si correspondía
+  useEffect(() => {
+    const root = document.documentElement;
+    const hadDark = root.classList.contains("dark");
+
+    root.classList.remove("dark");
+
+    return () => {
+      // Al salir de la página de precios, restauramos el modo oscuro si correspondía
+      const savedTheme = localStorage.getItem("theme") || localStorage.getItem("folium-theme");
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const shouldBeDark = savedTheme ? savedTheme === "dark" : (hadDark || prefersDark);
+
+      if (shouldBeDark) {
+        root.classList.add("dark");
+      }
+    };
+  }, []);
+
   // Cargar catálogo de planes desde el backend (con fallback local)
   useEffect(() => {
     let isMounted = true;
@@ -162,7 +181,7 @@ export default function LibraryPricingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-on-background font-sans flex flex-col">
+    <div className="force-light min-h-screen bg-background text-on-background font-sans flex flex-col">
       {/* Barra Superior de Navegación */}
       <header className="sticky top-0 z-30 w-full flex justify-between items-center py-4 px-6 sm:px-10 border-b border-outline-variant/40 bg-background/90 backdrop-blur-md">
         <Link

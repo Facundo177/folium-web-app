@@ -33,6 +33,7 @@ export default function CatalogSearch({
   favoritesMap = {},
   userReservationsMap = {},
   onReservationSuccess,
+  onReservationError,
   onCancelSuccess,
   onToggleFavorite,
   onRequireAuth,
@@ -61,13 +62,14 @@ export default function CatalogSearch({
     setSearchQuery(filters?.search || "");
   }, [filters?.search]);
 
-  // Debounce de 350ms al teclear
+  // Debounce de 350ms al teclear (evita resetear la página si el valor no cambió)
   useEffect(() => {
+    if (searchQuery === (filters?.search || "")) return;
     const timer = setTimeout(() => {
       setFilters({ search: searchQuery });
     }, 350);
     return () => clearTimeout(timer);
-  }, [searchQuery, setFilters]);
+  }, [searchQuery, filters?.search, setFilters]);
 
   const handlePageChange = (newPage) => {
     setPage(newPage);
@@ -170,6 +172,7 @@ export default function CatalogSearch({
                   isReservedByUser={Boolean(userReservationsMap?.[book.id])}
                   reservationId={userReservationsMap?.[book.id] ?? null}
                   onReservationSuccess={onReservationSuccess}
+                  onReservationError={onReservationError}
                   onCancelSuccess={onCancelSuccess}
                   onToggleFavorite={onToggleFavorite}
                   onRequireAuth={onRequireAuth}

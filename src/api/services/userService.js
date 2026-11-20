@@ -7,6 +7,7 @@ export const userService = {
   // === ENDPOINTS DEL USUARIO AUTENTICADO (/me/) ===
   getProfile: () => api.get('/me/'),
   updateProfile: (data) => api.patch('/me/', data), 
+  changePassword: (data) => api.post('/me/change-password/', data),
 
   // Endpoints de gestión de usuarios (Bibliotecarios / Admin)
   getAll: (params) => api.get('/user/', { params }),

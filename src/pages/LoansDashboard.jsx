@@ -348,14 +348,14 @@ export default function LoansDashboard() {
       </section>
 
       {/* =========================================================
-          CONSOLA DE FILTROS & TABLA DE REGISTROS
+          CONSOLA DE FILTROS
       ========================================================= */}
       <section
-        aria-label="Filtros y resultados de préstamos"
+        aria-label="Filtros de préstamos"
         className="mb-8 w-full bg-surface-container-lowest border border-outline-variant/80 rounded-sm"
       >
         {/* Barra Técnica de Filtros */}
-        <div className="p-5 border-b border-outline-variant/60 bg-surface-container-low/30">
+        <div className="p-5 bg-surface-container-low/30">
           <div className="flex items-center gap-2 mb-3 text-xs font-sans font-semibold text-on-surface-variant">
             <Filter className="w-3.5 h-3.5 text-primary" />
             <span>Criterios de Inspección y Ordenamiento</span>
@@ -364,36 +364,36 @@ export default function LoansDashboard() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {/* Filtro Lector */}
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="loans-user-filter" className="text-xs font-sans font-medium text-on-surface">
+              <label htmlFor="loans-user-filter" className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant">
                 Lector (Nombre o ID)
               </label>
-              <div className="relative">
-                <Search className="w-3.5 h-3.5 text-on-surface-variant absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <div className="flex items-center gap-2 border-b border-outline/40 hover:border-outline focus-within:border-primary transition-colors py-1">
+                <User className="w-4 h-4 text-on-surface-variant/60 shrink-0" />
                 <input
                   id="loans-user-filter"
                   type="search"
                   value={filters.user}
                   onChange={(event) => updateFilter("user", event.target.value)}
                   placeholder="Filtrar por lector..."
-                  className="w-full pl-8 pr-3 py-2 bg-surface-container-lowest border border-outline-variant rounded-sm text-xs font-sans text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary"
+                  className="w-full bg-transparent text-sm text-on-surface placeholder:text-on-surface-variant/50 outline-none"
                 />
               </div>
             </div>
 
             {/* Filtro Ejemplar */}
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="loans-item-filter" className="text-xs font-sans font-medium text-on-surface">
+              <label htmlFor="loans-item-filter" className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant">
                 Ejemplar (Título o Signatura)
               </label>
-              <div className="relative">
-                <Search className="w-3.5 h-3.5 text-on-surface-variant absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <div className="flex items-center gap-2 border-b border-outline/40 hover:border-outline focus-within:border-primary transition-colors py-1">
+                <Search className="w-4 h-4 text-on-surface-variant/60 shrink-0" />
                 <input
                   id="loans-item-filter"
                   type="search"
                   value={filters.item}
                   onChange={(event) => updateFilter("item", event.target.value)}
                   placeholder="Filtrar por obra o código..."
-                  className="w-full pl-8 pr-3 py-2 bg-surface-container-lowest border border-outline-variant rounded-sm text-xs font-sans text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary"
+                  className="w-full bg-transparent text-sm text-on-surface placeholder:text-on-surface-variant/50 outline-none"
                 />
               </div>
             </div>
@@ -438,7 +438,12 @@ export default function LoansDashboard() {
             </div>
           </div>
         </div>
+      </section>
 
+      <section
+        aria-label="Resultados de préstamos"
+        className="w-full bg-surface-container-lowest border border-outline-variant/80 rounded-sm"
+      >
         {/* Vista Móvil (Fichas de Asiento para pantallas pequeñas) */}
         <div className="block divide-y divide-outline-variant/60 md:hidden">
           {isFetching ? (
@@ -529,14 +534,14 @@ export default function LoansDashboard() {
           className="hidden w-full overflow-x-auto focus:outline-none focus:ring-1 focus:ring-primary/40 md:block"
         >
           <table className="w-full text-left border-collapse min-w-[840px]">
-            <thead className="bg-surface-container-low text-on-surface-variant border-b border-outline-variant font-sans text-xs font-semibold">
+            <thead className="bg-surface-container/60 border-b border-outline-variant">
               <tr>
-                <th scope="col" className="py-3 px-5 w-20">Folio</th>
-                <th scope="col" className="py-3 px-5">Lector Titular</th>
-                <th scope="col" className="py-3 px-5">Obra & Ejemplar</th>
-                <th scope="col" className="py-3 px-5">Fecha Retiro</th>
-                <th scope="col" className="py-3 px-5">Vencimiento / Estado</th>
-                <th scope="col" className="py-3 px-5 text-right">Trámite</th>
+                <th scope="col" className="px-4 py-3.5 text-[11px] uppercase tracking-wider font-semibold text-on-surface-variant font-sans w-20">Folio</th>
+                <th scope="col" className="px-4 py-3.5 text-[11px] uppercase tracking-wider font-semibold text-on-surface-variant font-sans">Lector Titular</th>
+                <th scope="col" className="px-4 py-3.5 text-[11px] uppercase tracking-wider font-semibold text-on-surface-variant font-sans">Obra & Ejemplar</th>
+                <th scope="col" className="px-4 py-3.5 text-[11px] uppercase tracking-wider font-semibold text-on-surface-variant font-sans text-center">Fecha Retiro</th>
+                <th scope="col" className="px-4 py-3.5 text-[11px] uppercase tracking-wider font-semibold text-on-surface-variant font-sans text-center">Vencimiento / Estado</th>
+                <th scope="col" className="px-4 py-3.5 text-[11px] uppercase tracking-wider font-semibold text-on-surface-variant font-sans text-center">Trámite</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant/40 text-xs">
@@ -593,12 +598,12 @@ export default function LoansDashboard() {
                       </td>
 
                       {/* Fecha Retiro */}
-                      <td className="py-3.5 px-5 font-sans tabular-nums text-xs text-on-surface-variant">
+                      <td className="py-3.5 px-5 font-sans tabular-nums text-xs text-on-surface-variant text-center">
                         {new Date(loan.loaned_at).toLocaleDateString("es-AR")}
                       </td>
 
                       {/* Estado */}
-                      <td className="py-3.5 px-5">
+                      <td className="py-3.5 px-5 text-center">
                         <span
                           className={`inline-block text-xs font-sans font-medium px-2 py-0.5 border rounded-xs ${status.badgeStyle}`}
                         >
@@ -607,15 +612,15 @@ export default function LoansDashboard() {
                       </td>
 
                       {/* Acción */}
-                      <td className="py-3.5 px-5 text-right">
+                      <td className="py-3.5 px-5 text-center">
                         <button
                           type="button"
                           onClick={() => openInterruptModal(loan)}
                           disabled={isReturned}
-                          className={`px-3 py-1.5 text-xs font-sans font-medium rounded-sm transition-colors ${
+                          className={`w-24 py-1.5 text-xs font-semibold uppercase tracking-wider rounded-xs text-center ${
                             isReturned
-                              ? "text-on-surface-variant/40 italic cursor-not-allowed"
-                              : "bg-primary text-on-primary hover:opacity-95 cursor-pointer shadow-2xs font-bold"
+                              ? "text-on-surface-variant/40 italic cursor-not-allowed disabled:opacity-50"
+                              : "bg-primary text-on-primary hover:opacity-90 transition-opacity shadow-2xs cursor-pointer"
                           }`}
                         >
                           {isReturned ? "Cerrado" : "Finalizar"}
