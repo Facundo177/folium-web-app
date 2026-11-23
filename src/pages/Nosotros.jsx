@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import GoBackButton from "../components/BasicUIComponents/GoBackButton";
 import { useDocumentMetadata } from "../hooks/useDocumentMetadata";
@@ -23,8 +24,32 @@ export default function Nosotros() {
     },
   });
 
+  // Forzar modo claro al ingresar a la página y restaurar al salir si correspondía
+  useEffect(() => {
+    const root = document.documentElement;
+    const hadDark = root.classList.contains("dark");
+
+    root.classList.remove("dark");
+
+    return () => {
+      const savedTheme =
+        localStorage.getItem("theme") || localStorage.getItem("folium-theme");
+      const prefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)",
+      ).matches;
+      const shouldBeDark = savedTheme
+        ? savedTheme === "dark"
+        : hadDark || prefersDark;
+
+      if (shouldBeDark) {
+        root.classList.add("dark");
+      }
+    };
+  }, []);
+
   return (
-    <main className="max-w-4xl mx-auto px-6 py-8 lg:py-12 text-on-background animate-fade-in">
+    <div className="force-light min-h-screen bg-background text-on-background font-sans">
+      <main className="max-w-4xl mx-auto px-6 py-8 lg:py-12 animate-fade-in">
       <div className="mb-6">
         <GoBackButton />
       </div>
@@ -97,5 +122,6 @@ export default function Nosotros() {
         </div>
       </div>
     </main>
+    </div>
   );
 }
