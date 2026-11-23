@@ -67,6 +67,10 @@ function App() {
           <Route element={<BotLayout />}>
             {/* Página pública de planes y suscripciones para bibliotecas (MercadoPago) - Sin Sidebar */}
             <Route path="pricing" element={<LibraryPricingPage />} />
+            {/* Páginas informativas del footer */}
+            <Route path="nosotros" element={<Nosotros />} />
+            <Route path="ayuda" element={<Ayuda />} />
+            <Route path="preguntas-frecuentes" element={<FAQ />} />
 
             {/* Shell público con Sidebar y navegación responsiva */}
             <Route element={<UserLayout />}>
@@ -79,10 +83,6 @@ function App() {
                 <Route path=":id" element={<BookDetail />} />
               </Route>
 
-              {/* Páginas informativas del footer */}
-              <Route path="nosotros" element={<Nosotros />} />
-              <Route path="ayuda" element={<Ayuda />} />
-              <Route path="preguntas-frecuentes" element={<FAQ />} />
             </Route>
 
             <Route element={<AuthLayout />}>
