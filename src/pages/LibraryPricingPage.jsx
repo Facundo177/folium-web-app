@@ -11,7 +11,10 @@ import {
 } from "lucide-react";
 import LibraryPricingCards from "../components/BillingComponents/LibraryPricingCards";
 import MercadoPagoCheckoutModal from "../components/BillingComponents/MercadoPagoCheckoutModal";
-import { billingService, DEFAULT_LIBRARY_PLANS } from "../api/services/billingService";
+import {
+  billingService,
+  DEFAULT_LIBRARY_PLANS,
+} from "../api/services/billingService";
 import { useDocumentMetadata } from "../hooks/useDocumentMetadata";
 import FoliumSmallLogo from "../components/BasicUIComponents/FoliumSmallLogo";
 
@@ -71,9 +74,14 @@ export default function LibraryPricingPage() {
 
     return () => {
       // Al salir de la página de precios, restauramos el modo oscuro si correspondía
-      const savedTheme = localStorage.getItem("theme") || localStorage.getItem("folium-theme");
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      const shouldBeDark = savedTheme ? savedTheme === "dark" : (hadDark || prefersDark);
+      const savedTheme =
+        localStorage.getItem("theme") || localStorage.getItem("folium-theme");
+      const prefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)",
+      ).matches;
+      const shouldBeDark = savedTheme
+        ? savedTheme === "dark"
+        : hadDark || prefersDark;
 
       if (shouldBeDark) {
         root.classList.add("dark");
@@ -86,7 +94,9 @@ export default function LibraryPricingPage() {
     let isMounted = true;
     billingService.getPlans().then((data) => {
       if (isMounted && data?.plans?.length) {
-        const hasValidTiers = data.plans.some((p) => p.code === "BASIC" || p.code === "PREMIUM");
+        const hasValidTiers = data.plans.some(
+          (p) => p.code === "BASIC" || p.code === "PREMIUM",
+        );
         if (hasValidTiers) {
           setPlans(data.plans);
         }
@@ -184,17 +194,15 @@ export default function LibraryPricingPage() {
     <div className="force-light min-h-screen bg-background text-on-background font-sans flex flex-col">
       {/* Barra Superior de Navegación */}
       <header className="sticky top-0 z-30 w-full flex justify-between items-center py-4 px-6 sm:px-10 border-b border-outline-variant/40 bg-background/90 backdrop-blur-md">
-        <Link
-          to="/"
-          className="flex items-center gap-3 text-inherit no-underline group"
-        >
-          <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-on-primary shadow-xs">
+        {/* Logo y Marca */}
+        <div className="flex items-center gap-base group text-inherit no-underline">
+          <div className="w-10 h-10 rounded-full bg-tertiary-container flex items-center justify-center text-on-tertiary shadow-sm">
             <FoliumSmallLogo />
           </div>
-          <span className="font-serif text-2xl text-on-surface group-hover:text-primary transition-colors">
+          <span className="font-serif text-headline-md text-on-surface group-hover:text-tertiary-container transition-colors">
             folium
           </span>
-        </Link>
+        </div>
 
         <div className="flex items-center gap-4">
           <Link
@@ -215,8 +223,8 @@ export default function LibraryPricingPage() {
               paymentBanner.type === "success"
                 ? "bg-surface-container-lowest border-primary text-on-surface"
                 : paymentBanner.type === "pending"
-                ? "bg-surface-container border-outline text-on-surface"
-                : "bg-error-container/30 border-error text-on-surface"
+                  ? "bg-surface-container border-outline text-on-surface"
+                  : "bg-error-container/30 border-error text-on-surface"
             }`}
           >
             <div className="flex items-start gap-3.5">
@@ -252,10 +260,7 @@ export default function LibraryPricingPage() {
 
       {/* Componente Principal de Tarjetas de Planes */}
       <main className="flex-1">
-        <LibraryPricingCards
-          plans={plans}
-          onSelectPlan={handleOpenCheckout}
-        />
+        <LibraryPricingCards plans={plans} onSelectPlan={handleOpenCheckout} />
 
         {/* Sección de Preguntas Frecuentes Institucionales */}
         <section
@@ -263,7 +268,6 @@ export default function LibraryPricingPage() {
           className="max-w-4xl mx-auto px-4 sm:px-8 py-10 border-t border-outline-variant/40"
         >
           <div className={`text-center ${isFaqOpen ? "mb-8" : "mb-2"}`}>
-           
             <div className="flex justify-center">
               <button
                 type="button"
@@ -310,7 +314,9 @@ export default function LibraryPricingPage() {
 
       {/* Pie de Página */}
       <footer className="py-6 px-6 border-t border-outline-variant/30 text-center text-xs text-on-surface-variant flex flex-col sm:flex-row items-center justify-between max-w-5xl w-full mx-auto gap-3">
-        <span>© {new Date().getFullYear()} Folium — Gestión de Archivo y Patrimonio</span>
+        <span>
+          © {new Date().getFullYear()} Folium — Gestión de Archivo y Patrimonio
+        </span>
         <span className="inline-flex items-center gap-1.5">
           <ShieldCheck className="w-4 h-4 text-primary" />
           Pagos procesados de forma segura con MercadoPago
