@@ -198,11 +198,11 @@ export default function LibraryPricingPage() {
 
         <div className="flex items-center gap-4">
           <Link
-            to="/catalog"
+            to="/"
             className="text-xs font-bold uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors no-underline inline-flex items-center gap-1.5"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            Volver al Catálogo
+            Volver a la página principal
           </Link>
         </div>
       </header>
