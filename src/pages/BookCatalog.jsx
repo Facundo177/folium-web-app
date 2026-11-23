@@ -11,6 +11,7 @@ import { useAuth } from "../auth/AuthProvider";
 import { favoriteService } from "../api/services/favoriteService";
 import { reservationService } from "../api/services/reservationService";
 import { useDocumentMetadata } from "../hooks/useDocumentMetadata";
+import FoliumLandingBackground from "../components/FoliumLandingComponents/FoliumLandingBackground";
 
 export default function BookCatalog() {
   const navigate = useNavigate();
@@ -211,6 +212,7 @@ export default function BookCatalog() {
 
   return (
     <div className="min-h-screen bg-background font-sans">
+      <FoliumLandingBackground/>
       {/* Encabezado semántico H1 accesible para buscadores y lectores de pantalla */}
       <h1 className="sr-only">Catálogo General de Libros y Archivo — Folium</h1>
 

@@ -16,7 +16,10 @@ export default function FoliumLandingHero() {
       {/* Sello de procedencia bibliográfica */}
       <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-outline-variant/60 bg-surface-container-lowest/70 backdrop-blur-xs text-[11px] font-bold uppercase tracking-[0.14em] text-on-surface-variant mb-stack-md font-sans shadow-xs">
         <span className="w-1.5 h-1.5 rounded-full bg-tertiary shrink-0"></span>
-        <span>Fondo Bibliográfico &middot; Consulta Pública</span>
+        <span>Plataforma de gestión bibliotecaria</span>
+        <span className="w-1.5 h-1.5 rounded-full bg-tertiary shrink-0"></span>
+        <span> Catalogo de acceso para lectores</span>
+        
       </div>
 
       {/* Tipografía Principal con texto accesible para SEO */}
