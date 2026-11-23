@@ -193,7 +193,7 @@ export default function LibraryPricingPage() {
   return (
     <div className="force-light min-h-screen bg-background text-on-background font-sans flex flex-col">
       {/* Barra Superior de Navegación */}
-      <header className="sticky top-0 z-30 w-full flex justify-between items-center py-4 px-6 sm:px-10 border-b border-outline-variant/40 bg-background/90 backdrop-blur-md">
+      <header className="sticky top-0 z-30 w-full flex justify-between items-center py-stack-sm px-margin-edge sm:px-10 border-b border-outline-variant/40 bg-background/90 backdrop-blur-md">
         {/* Logo y Marca */}
         <div className="flex items-center gap-base group text-inherit no-underline">
           <div className="w-10 h-10 rounded-full bg-tertiary-container flex items-center justify-center text-on-tertiary shadow-sm">
