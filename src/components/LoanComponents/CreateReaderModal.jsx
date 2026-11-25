@@ -318,10 +318,12 @@ export default function CreateReaderModal({
               value={formData.dni}
               onChange={handleChange}
               placeholder="Ej: 42123456"
+              aria-invalid={Boolean(fieldErrors.dni)}
+              aria-describedby={fieldErrors.dni ? "reader-dni-error" : undefined}
               className="w-full px-3.5 py-2.5 bg-surface-container-low border border-outline-variant rounded-lg text-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary font-sans tabular-nums"
               required
             />
-            {fieldErrors.dni && <FieldError error={fieldErrors.dni} />}
+            {fieldErrors.dni && <FieldError id="reader-dni-error" messages={fieldErrors.dni} />}
           </div>
 
           {/* Nombre y Apellido */}
@@ -340,10 +342,14 @@ export default function CreateReaderModal({
                 value={formData.first_name}
                 onChange={handleChange}
                 placeholder="Ej: María"
+                aria-invalid={Boolean(fieldErrors.first_name)}
+                aria-describedby={fieldErrors.first_name ? "reader-firstname-error" : undefined}
                 className="w-full px-3.5 py-2.5 bg-surface-container-low border border-outline-variant rounded-lg text-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
                 required
               />
-              {fieldErrors.first_name && <FieldError error={fieldErrors.first_name} />}
+              {fieldErrors.first_name && (
+                <FieldError id="reader-firstname-error" messages={fieldErrors.first_name} />
+              )}
             </div>
 
             <div>
@@ -360,10 +366,14 @@ export default function CreateReaderModal({
                 value={formData.last_name}
                 onChange={handleChange}
                 placeholder="Ej: Gonzalez"
+                aria-invalid={Boolean(fieldErrors.last_name)}
+                aria-describedby={fieldErrors.last_name ? "reader-lastname-error" : undefined}
                 className="w-full px-3.5 py-2.5 bg-surface-container-low border border-outline-variant rounded-lg text-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
                 required
               />
-              {fieldErrors.last_name && <FieldError error={fieldErrors.last_name} />}
+              {fieldErrors.last_name && (
+                <FieldError id="reader-lastname-error" messages={fieldErrors.last_name} />
+              )}
             </div>
           </div>
 
@@ -382,10 +392,12 @@ export default function CreateReaderModal({
               value={formData.email}
               onChange={handleChange}
               placeholder="ejemplo@correo.com"
+              aria-invalid={Boolean(fieldErrors.email)}
+              aria-describedby={fieldErrors.email ? "reader-email-error" : undefined}
               className="w-full px-3.5 py-2.5 bg-surface-container-low border border-outline-variant rounded-lg text-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
               required
             />
-            {fieldErrors.email && <FieldError error={fieldErrors.email} />}
+            {fieldErrors.email && <FieldError id="reader-email-error" messages={fieldErrors.email} />}
           </div>
 
           {/* Nombre de Usuario (Opcional con auto-generación) */}
@@ -408,9 +420,13 @@ export default function CreateReaderModal({
               value={formData.username}
               onChange={handleChange}
               placeholder="lector_42123456"
+              aria-invalid={Boolean(fieldErrors.username)}
+              aria-describedby={fieldErrors.username ? "reader-username-error" : undefined}
               className="w-full px-3.5 py-2.5 bg-surface-container-low border border-outline-variant rounded-lg text-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary font-sans tabular-nums text-xs"
             />
-            {fieldErrors.username && <FieldError error={fieldErrors.username} />}
+            {fieldErrors.username && (
+              <FieldError id="reader-username-error" messages={fieldErrors.username} />
+            )}
           </div>
 
           {/* Footer de Acciones */}
