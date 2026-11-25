@@ -636,13 +636,13 @@ export default function BookDetail() {
       <FeedbackModal
         isOpen={showDeleteConfirm}
         type="warning"
-        title="¿Eliminar este libro?"
+        title="¿Dar de baja este libro?"
         message={
           data
-            ? `Estás por eliminar permanentemente "${data.title}" y sus ejemplares asociados del catálogo. Esta acción no se puede deshacer.`
+            ? `Estás por dar de baja "${data.title}" del catálogo público. Sus ejemplares dejarán de estar disponibles para préstamo o reserva, aunque el registro histórico se conserva en archivo.`
             : ""
         }
-        confirmText="Sí, Eliminar Libro"
+        confirmText="Sí, Dar de Baja"
         cancelText="Cancelar"
         isLoading={isDeleting}
         onConfirm={handleDeleteBook}
