@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../auth/AuthProvider";
 import { reservationService } from "../../api/services/reservationService";
 import { favoriteService } from "../../api/services/favoriteService";
+import BookCoverImage from "../BasicUIComponents/BookCoverImage";
 import { Heart } from "lucide-react";
 
 function CatalogBookCard({
@@ -174,43 +175,37 @@ function CatalogBookCard({
 
       {/* --- IMAGEN DE PORTADA / PORTADA EDITORIAL CON FRAME --- */}
       <div className="relative w-full aspect-[2/3] max-h-80 mb-4 flex items-start justify-start bg-surface-container-low border border-outline-variant/40 rounded-sm overflow-hidden z-10">
-        {book.cover && (
-          <img
-            src={book.cover}
-            alt={book.title}
-            loading="lazy"
-            decoding="async"
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-        )}
+        <BookCoverImage
+          src={book.cover}
+          alt={book.title}
+          loading="lazy"
+          decoding="async"
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          overlay={<div className="absolute inset-0 bg-black/10 z-0 pointer-events-none" />}
+          fallback={
+            <>
+              <div className="pointer-events-none absolute inset-2 border border-outline-variant/40 rounded-[2px]" />
+              <div className="pointer-events-none absolute inset-3 border border-outline-variant/20 rounded-[1px]" />
 
-        {book.cover && (
-          <div className="absolute inset-0 bg-black/10 z-0 pointer-events-none" />
-        )}
+              <div className="p-4 text-center z-10 flex flex-col items-center justify-center h-full w-full">
+                <span className="font-serif italic text-lg text-on-surface line-clamp-3 leading-snug">
+                  {book.title}
+                </span>
+                <span className="font-sans text-[10px] uppercase tracking-widest text-on-surface-variant mt-2 line-clamp-1">
+                  {book.author}
+                </span>
+              </div>
 
-        {!book.cover && (
-          <>
-            <div className="pointer-events-none absolute inset-2 border border-outline-variant/40 rounded-[2px]" />
-            <div className="pointer-events-none absolute inset-3 border border-outline-variant/20 rounded-[1px]" />
-
-            <div className="p-4 text-center z-10 flex flex-col items-center justify-center h-full">
-              <span className="font-serif italic text-lg text-on-surface line-clamp-3 leading-snug">
-                {book.title}
-              </span>
-              <span className="font-sans text-[10px] uppercase tracking-widest text-on-surface-variant mt-2 line-clamp-1">
-                {book.author}
-              </span>
-            </div>
-
-            <div
-              className="pointer-events-none absolute inset-y-0 left-0 w-4 z-10"
-              style={{
-                background:
-                  "linear-gradient(90deg, rgba(0,0,0,0.3) 0%, rgba(255,255,255,0.15) 35%, transparent 100%)",
-              }}
-            />
-          </>
-        )}
+              <div
+                className="pointer-events-none absolute inset-y-0 left-0 w-4 z-10"
+                style={{
+                  background:
+                    "linear-gradient(90deg, rgba(0,0,0,0.3) 0%, rgba(255,255,255,0.15) 35%, transparent 100%)",
+                }}
+              />
+            </>
+          }
+        />
       </div>
 
       {/* --- INFORMACIÓN: Título, Autor, Editorial, Ejemplares --- */}

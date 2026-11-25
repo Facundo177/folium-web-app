@@ -5,6 +5,7 @@ import { authorService } from "../../api/services/authorService";
 import { genreService } from "../../api/services/genreService";
 import { bookService } from "../../api/services/bookService";
 import FeedbackModal from "../BasicUIComponents/FeedbackModal";
+import BookCoverImage from "../BasicUIComponents/BookCoverImage";
 
 /**
  * Modal accesible de edición de libro basado en el elemento nativo <dialog>.
@@ -558,13 +559,18 @@ export default function BookEditModal({ isOpen, book, onClose, onSaved }) {
             </label>
             <div className="flex items-center gap-4">
               {coverPreview && (
-                <img
+                <BookCoverImage
                   src={coverPreview}
                   alt="Vista previa de portada"
                   width={64}
                   height={96}
                   decoding="async"
                   className="w-16 h-24 object-cover rounded-sm border border-outline-variant shrink-0 aspect-[2/3]"
+                  fallback={
+                    <div className="w-16 h-24 rounded-sm border border-outline-variant bg-surface-container flex items-center justify-center text-[10px] text-on-surface-variant text-center px-1 shrink-0 aspect-[2/3]">
+                      Sin vista previa
+                    </div>
+                  }
                 />
               )}
               <input

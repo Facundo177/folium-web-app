@@ -12,6 +12,7 @@ import { genreService } from "../../api/services/genreService";
 import { editorialService } from "../../api/services/editorialService";
 import GoBackButton from "../BasicUIComponents/GoBackButton";
 import FeedbackModal from "../BasicUIComponents/FeedbackModal";
+import BookCoverImage from "../BasicUIComponents/BookCoverImage";
 import { useNavigate } from "react-router-dom";
 import { useGenres } from "../../hooks/useGenres";
 import { useEditorials } from "../../hooks/useEditorials";
@@ -946,14 +947,19 @@ export default function LoadBookForm() {
         </div>
 
         {imagePreview && (
-          <div className="w-32 aspect-[2/3] border border-outline-variant rounded-md overflow-hidden shadow-md mx-auto my-2 relative group">
-            <img
+          <div className="w-32 aspect-[2/3] border border-outline-variant rounded-md overflow-hidden shadow-md mx-auto my-2 relative group bg-surface-container flex items-center justify-center">
+            <BookCoverImage
               src={imagePreview}
               alt="Vista previa de portada seleccionada"
               width={128}
               height={192}
               decoding="async"
               className="w-full h-full object-cover"
+              fallback={
+                <span className="text-xs text-on-surface-variant text-center px-2">
+                  Vista previa no disponible
+                </span>
+              }
             />
             <button
               type="button"

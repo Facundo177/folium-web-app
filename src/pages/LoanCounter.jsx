@@ -13,6 +13,7 @@ import { bookService } from "../api/services/bookService";
 import { itemService } from "../api/services/itemService";
 import { loanService } from "../api/services/loanService";
 import GoBackButton from "../components/BasicUIComponents/GoBackButton";
+import BookCoverImage from "../components/BasicUIComponents/BookCoverImage";
 import FeedbackModal from "../components/BasicUIComponents/FeedbackModal";
 import CreateReaderModal from "../components/LoanComponents/CreateReaderModal";
 import {
@@ -674,17 +675,14 @@ export default function LoanCounter() {
               <div className="p-4 mb-6 bg-primary/5 border-2 border-primary/40 rounded-xl flex items-center justify-between gap-4 animate-fade-in">
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-12 h-16 bg-surface-container rounded border border-outline-variant/60 shrink-0 overflow-hidden flex items-center justify-center">
-                    {selectedBookForSelectedItem?.cover_image ? (
-                      <img
-                        src={selectedBookForSelectedItem.cover_image}
-                        alt={selectedBookForSelectedItem?.title || "Portada de libro"}
-                        loading="lazy"
-                        decoding="async"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <BookOpen className="w-6 h-6 text-outline" />
-                    )}
+                    <BookCoverImage
+                      src={selectedBookForSelectedItem?.cover_image}
+                      alt={selectedBookForSelectedItem?.title || "Portada de libro"}
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-cover"
+                      fallback={<BookOpen className="w-6 h-6 text-outline" />}
+                    />
                   </div>
                   <div className="min-w-0">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
@@ -836,17 +834,14 @@ export default function LoanCounter() {
                       >
                         <div className="flex items-center gap-3 min-w-0">
                           <div className="w-9 h-12 bg-surface-container rounded border border-outline-variant/60 shrink-0 overflow-hidden flex items-center justify-center">
-                            {book.cover_image ? (
-                              <img
-                                src={book.cover_image}
-                        alt={book.title || "Portada"}
-                        loading="lazy"
-                        decoding="async"
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <BookOpen className="w-5 h-5 text-outline" />
-                            )}
+                            <BookCoverImage
+                              src={book.cover_image}
+                              alt={book.title || "Portada"}
+                              loading="lazy"
+                              decoding="async"
+                              className="w-full h-full object-cover"
+                              fallback={<BookOpen className="w-5 h-5 text-outline" />}
+                            />
                           </div>
                           <div className="min-w-0">
                             <h4 className="font-serif text-sm font-bold text-on-surface truncate leading-tight">

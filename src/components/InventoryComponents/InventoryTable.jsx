@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import FeedbackModal from "../BasicUIComponents/FeedbackModal";
 import ItemEditModal from "./ItemEditModal";
+import BookCoverImage from "../BasicUIComponents/BookCoverImage";
 
 const STATUS_OPTIONS = [
   { value: "", label: "Todos los estados" },
@@ -285,21 +286,20 @@ export const InventoryTable = ({
               {/* Cuerpo: Portada en miniatura con prevención de CLS + Título y Autor */}
               <div className="flex items-start gap-3">
                 <div className="w-12 h-16 bg-surface-container border border-outline-variant overflow-hidden p-0.5 shrink-0 rounded-xs shadow-xs flex items-center justify-center aspect-[3/4]">
-                  {row.cover ? (
-                    <img
-                      src={row.cover}
-                      alt={`Portada de ${row.title}`}
-                      width={48}
-                      height={64}
-                      loading="lazy"
-                      decoding="async"
-                      className="w-full h-full object-cover aspect-[3/4]"
-                    />
-                  ) : (
-                    <span className="font-serif text-lg text-on-surface-variant">
-                      {row.title?.[0] || "—"}
-                    </span>
-                  )}
+                  <BookCoverImage
+                    src={row.cover}
+                    alt={`Portada de ${row.title}`}
+                    width={48}
+                    height={64}
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-cover aspect-[3/4]"
+                    fallback={
+                      <span className="font-serif text-lg text-on-surface-variant">
+                        {row.title?.[0] || "—"}
+                      </span>
+                    }
+                  />
                 </div>
 
                 <div className="flex-1 min-w-0">
@@ -409,21 +409,20 @@ export const InventoryTable = ({
                   {/* Cover con prevención de CLS */}
                   <td className="py-stack-sm px-gutter">
                     <div className="w-12 h-16 bg-surface-container border border-outline-variant overflow-hidden p-1 shadow-xs aspect-[3/4] flex items-center justify-center">
-                      {row.cover ? (
-                        <img
-                          src={row.cover}
-                          alt={`Portada de ${row.title}`}
-                          width={48}
-                          height={64}
-                          loading="lazy"
-                          decoding="async"
-                          className="w-full h-full object-cover aspect-[3/4]"
-                        />
-                      ) : (
-                        <span className="font-serif text-xl text-on-surface-variant">
-                          {row.title[0]}
-                        </span>
-                      )}
+                      <BookCoverImage
+                        src={row.cover}
+                        alt={`Portada de ${row.title}`}
+                        width={48}
+                        height={64}
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover aspect-[3/4]"
+                        fallback={
+                          <span className="font-serif text-xl text-on-surface-variant">
+                            {row.title?.[0] || "—"}
+                          </span>
+                        }
+                      />
                     </div>
                   </td>
                   {/* Title & Author */}

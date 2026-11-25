@@ -5,6 +5,7 @@ import { useBooks } from "../hooks/useBooks";
 import { adaptBook } from "../api/adapters";
 import FeedbackModal from "../components/BasicUIComponents/FeedbackModal";
 import GoBackButton from "../components/BasicUIComponents/GoBackButton";
+import BookCoverImage from "../components/BasicUIComponents/BookCoverImage";
 import { useDocumentMetadata } from "../hooks/useDocumentMetadata";
 import { BookLock, Calendar, Clock, XCircle, CheckCircle2, AlertCircle } from "lucide-react";
 
@@ -291,20 +292,6 @@ export default function UserReservations() {
               >
                 {/* Portada del Libro con prevención de CLS */}
                 <div className="relative w-full aspect-[2/3] bg-surface-container-highest border border-outline-variant/30 mb-4 flex flex-col justify-between p-3 overflow-hidden shadow-inner rounded-sm">
-                  {bookData.cover && (
-                    <img
-                      src={bookData.cover}
-                      alt={bookData.title}
-                      loading="lazy"
-                      decoding="async"
-                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  )}
-
-                  {bookData.cover && (
-                    <div className="absolute inset-0 bg-black/20 z-0 pointer-events-none" />
-                  )}
-
                   {/* Fila superior: Categoría y Estado de Reserva */}
                   <div className="flex items-start justify-between gap-2 z-10">
                     <span className="bg-surface-container-lowest/90 backdrop-blur-xs text-on-surface px-2 py-1 text-[9px] font-bold uppercase tracking-widest rounded-sm shadow-xs truncate">
@@ -318,20 +305,27 @@ export default function UserReservations() {
                     </span>
                   </div>
 
-                  {/* Portada tipográfica cuando no hay imagen */}
-                  {!bookData.cover && (
-                    <>
-                      <div className="my-auto text-center z-10">
-                        <span className="font-serif text-2xl text-on-surface italic font-normal px-2 block leading-snug line-clamp-3">
-                          {bookData.title}
-                        </span>
-                      </div>
+                  <BookCoverImage
+                    src={bookData.cover}
+                    alt={bookData.title}
+                    loading="lazy"
+                    decoding="async"
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    overlay={<div className="absolute inset-0 bg-black/20 z-0 pointer-events-none" />}
+                    fallback={
+                      <>
+                        <div className="my-auto text-center z-10">
+                          <span className="font-serif text-2xl text-on-surface italic font-normal px-2 block leading-snug line-clamp-3">
+                            {bookData.title}
+                          </span>
+                        </div>
 
-                      <span className="text-[9px] text-on-surface-variant uppercase tracking-[0.2em] text-center font-bold z-10">
-                        {bookData.year}
-                      </span>
-                    </>
-                  )}
+                        <span className="text-[9px] text-on-surface-variant uppercase tracking-[0.2em] text-center font-bold z-10">
+                          {bookData.year}
+                        </span>
+                      </>
+                    }
+                  />
 
                   {/* Cinta inferior de vigencia sobre la portada */}
                   <div className="z-10 mt-auto pt-2">

@@ -4,6 +4,7 @@ import { bookService } from "../api/services/bookService";
 import { loanService } from "../api/services/loanService";
 import { reservationService } from "../api/services/reservationService";
 import { adaptBook } from "../api/adapters";
+import BookCoverImage from "../components/BasicUIComponents/BookCoverImage";
 import {
   Sparkles,
   RefreshCw,
@@ -357,17 +358,16 @@ export function BookRecommendationWidget(props) {
           onClick={() => navigate(`/book/${currentBook.id}`)}
           className="w-14 h-20 shrink-0 bg-surface-container-highest border border-outline-variant/40 rounded-sm overflow-hidden flex items-center justify-center cursor-pointer"
         >
-          {currentBook.cover ? (
-            <img
-              src={currentBook.cover}
-              alt={currentBook.title}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <span className="font-serif italic text-xs text-center px-1 text-on-surface line-clamp-3">
-              {currentBook.title}
-            </span>
-          )}
+          <BookCoverImage
+            src={currentBook.cover}
+            alt={currentBook.title}
+            className="w-full h-full object-cover"
+            fallback={
+              <span className="font-serif italic text-xs text-center px-1 text-on-surface line-clamp-3">
+                {currentBook.title}
+              </span>
+            }
+          />
         </div>
 
         <div className="flex-1 min-w-0">

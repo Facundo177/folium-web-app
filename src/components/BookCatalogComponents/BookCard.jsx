@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { useBook } from "../../hooks/useBook";
 import HeartIcon from "../BasicUIComponents/HeartIcon";
+import BookCoverImage from "../BasicUIComponents/BookCoverImage";
 
 function BookCard({
   book: initialBook,
@@ -192,50 +193,49 @@ function BookCard({
       <div className="relative w-full py-2 sm:py-3 mb-2 sm:mb-3 flex items-center justify-center bg-surface-container-low/45 border border-outline-variant/30 rounded-sm shadow-inner">
         {/* Contenedor del Tomo 3D */}
         <div className="relative w-44 h-68 sm:w-54 sm:h-82 overflow-hidden transition-transform duration-500 group-hover/card:scale-[1.03]">
-          {image ? (
-            <img
-              src={image}
-              alt={title}
-              loading={isActive ? "eager" : "lazy"}
-              decoding="async"
-              className="w-full h-full object-cover object-top"
-            />
-          ) : (
-            /* Portada Clásica Ornamental cuando no hay imagen */
-            <div className="w-full h-full flex flex-col justify-between p-4 sm:p-5 bg-primary-container text-on-primary-container relative select-none">
-              {/* Marco dorado interno de encuadernación */}
-              <div className="pointer-events-none absolute inset-2.5 border border-outline/40 rounded-[2px]" />
-              <div className="pointer-events-none absolute inset-3.5 border border-outline/20 rounded-[1px]" />
+          <BookCoverImage
+            src={image}
+            alt={title}
+            loading={isActive ? "eager" : "lazy"}
+            decoding="async"
+            className="w-full h-full object-cover object-top"
+            fallback={
+              /* Portada Clásica Ornamental cuando no hay imagen o falla */
+              <div className="w-full h-full flex flex-col justify-between p-4 sm:p-5 bg-primary-container text-on-primary-container relative select-none">
+                {/* Marco dorado interno de encuadernación */}
+                <div className="pointer-events-none absolute inset-2.5 border border-outline/40 rounded-[2px]" />
+                <div className="pointer-events-none absolute inset-3.5 border border-outline/20 rounded-[1px]" />
 
-              <span className="text-[9px] tracking-[0.25em] uppercase text-outline text-center font-bold z-10 mt-1">
-                Edición de Archivo
-              </span>
+                <span className="text-[9px] tracking-[0.25em] uppercase text-outline text-center font-bold z-10 mt-1">
+                  Edición de Archivo
+                </span>
 
-              <div className="my-auto text-center z-10 px-2">
-                <div className="w-6 h-[1px] bg-outline/50 mx-auto mb-3" />
-                <span className="font-serif italic text-xl sm:text-2xl text-on-primary-container leading-snug line-clamp-3 block">
-                  {title}
+                <div className="my-auto text-center z-10 px-2">
+                  <div className="w-6 h-[1px] bg-outline/50 mx-auto mb-3" />
+                  <span className="font-serif italic text-xl sm:text-2xl text-on-primary-container leading-snug line-clamp-3 block">
+                    {title}
+                  </span>
+                  <span className="font-sans text-[10px] uppercase tracking-widest text-outline/80 mt-2 block line-clamp-1">
+                    {author}
+                  </span>
+                  <div className="w-6 h-[1px] bg-outline/50 mx-auto mt-3" />
+                </div>
+
+                <span className="text-[9px] tracking-[0.2em] uppercase text-outline/75 text-center font-bold z-10 mb-1">
+                  {year || tag}
                 </span>
-                <span className="font-sans text-[10px] uppercase tracking-widest text-outline/80 mt-2 block line-clamp-1">
-                  {author}
-                </span>
-                <div className="w-6 h-[1px] bg-outline/50 mx-auto mt-3" />
+                {/* Efecto de Lomo y Pliegue de Encuadernación */}
+                <div
+                  className="pointer-events-none absolute inset-y-0 left-0 w-6 z-20"
+                  style={{
+                    background:
+                      "linear-gradient(90deg, rgba(0,0,0,0.42) 0%, rgba(255,255,255,0.18) 28%, rgba(0,0,0,0.22) 52%, rgba(255,255,255,0.08) 70%, transparent 100%)",
+                  }}
+                />
+                <div className="pointer-events-none absolute inset-y-0 left-3 w-[1px] bg-black/30 shadow-[1px_0_0_rgba(255,255,255,0.2)] z-20" />
               </div>
-
-              <span className="text-[9px] tracking-[0.2em] uppercase text-outline/75 text-center font-bold z-10 mb-1">
-                {year || tag}
-              </span>
-              {/* Efecto de Lomo y Pliegue de Encuadernación */}
-              <div
-                className="pointer-events-none absolute inset-y-0 left-0 w-6 z-20"
-                style={{
-                  background:
-                    "linear-gradient(90deg, rgba(0,0,0,0.42) 0%, rgba(255,255,255,0.18) 28%, rgba(0,0,0,0.22) 52%, rgba(255,255,255,0.08) 70%, transparent 100%)",
-                }}
-              />
-              <div className="pointer-events-none absolute inset-y-0 left-3 w-[1px] bg-black/30 shadow-[1px_0_0_rgba(255,255,255,0.2)] z-20" />
-            </div>
-          )}
+            }
+          />
 
           {/* Brillo ambiental sutil sobre la cubierta */}
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-black/20 via-transparent to-white/15 z-10" />
