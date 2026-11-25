@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate, useLocation, useOutletContext } from "react-router-dom";
 import PasswordEye from "../BasicUIComponents/PasswordEye";
 import { useAuth } from "../../auth/AuthProvider";
+import { formatApiError } from "../../api/errorUtils";
 import { LogIn, CheckCircle2 } from "lucide-react";
 import { useDocumentMetadata } from "../../hooks/useDocumentMetadata";
 
@@ -40,8 +41,10 @@ export default function LoginForm() {
       }
     } catch (err) {
       setError(
-        err.response?.data?.detail ||
-          "Credenciales incorrectas. Verificá tu usuario y contraseña.",
+        formatApiError(
+          err,
+          "Credenciales incorrectas. Verificá tu usuario y contraseña."
+        )
       );
     } finally {
       setIsLoading(false);

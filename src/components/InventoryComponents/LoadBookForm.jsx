@@ -10,6 +10,7 @@ import { bookService } from "../../api/services/bookService";
 import { authorService } from "../../api/services/authorService";
 import { genreService } from "../../api/services/genreService";
 import { editorialService } from "../../api/services/editorialService";
+import { formatApiError } from "../../api/errorUtils";
 import GoBackButton from "../BasicUIComponents/GoBackButton";
 import FeedbackModal from "../BasicUIComponents/FeedbackModal";
 import BookCoverImage from "../BasicUIComponents/BookCoverImage";
@@ -581,9 +582,10 @@ export default function LoadBookForm() {
           isOpen: true,
           type: "error",
           title: "Error al crear género",
-          message: error.response?.data
-            ? Object.values(error.response.data).flat().join(" ")
-            : "No se pudo registrar el nuevo género. Verifique si ya existe.",
+          message: formatApiError(
+            error,
+            "No se pudo registrar el nuevo género. Verifique si ya existe."
+          ),
         });
         return false;
       } finally {
@@ -635,9 +637,10 @@ export default function LoadBookForm() {
         isOpen: true,
         type: "error",
         title: "Error al crear autor",
-        message: error.response?.data
-          ? Object.values(error.response.data).flat().join(" ")
-          : "No se pudo registrar el autor. Intente nuevamente.",
+        message: formatApiError(
+          error,
+          "No se pudo registrar el autor. Intente nuevamente."
+        ),
       });
       return false;
     } finally {
@@ -717,9 +720,10 @@ export default function LoadBookForm() {
           message:
             error.response?.status === 404
               ? "El servidor no encontró la ruta para crear editoriales. No se agregó la editorial."
-              : error.response?.data
-                ? Object.values(error.response.data).flat().join(" ")
-                : "No se pudo registrar la editorial. Verificá la conexión o si ya existe.",
+              : formatApiError(
+                  error,
+                  "No se pudo registrar la editorial. Verificá la conexión o si ya existe."
+                ),
         });
         return false;
       } finally {
@@ -825,12 +829,11 @@ export default function LoadBookForm() {
       });
     } catch (error) {
       console.error("Error al guardar libro:", error);
-      let errorMsg = "Ocurrió un error inesperado al registrar el libro.";
-      if (error.response?.data && typeof error.response.data === "object") {
-        errorMsg = Object.entries(error.response.data)
-          .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(" ") : v}`)
-          .join("\n");
-      }
+      const errorMsg = formatApiError(
+        error,
+        "Ocurrió un error inesperado al registrar el libro.",
+        { separator: "\n" }
+      );
       setFeedbackModal({
         isOpen: true,
         type: "error",

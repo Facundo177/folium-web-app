@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../auth/AuthProvider";
 import { reservationService } from "../../api/services/reservationService";
 import { favoriteService } from "../../api/services/favoriteService";
+import { formatApiError } from "../../api/errorUtils";
 import BookCoverImage from "../BasicUIComponents/BookCoverImage";
 import { Heart } from "lucide-react";
 
@@ -110,9 +111,10 @@ function CatalogBookCard({
       setConfirmAction(null);
     } catch (err) {
       console.error("Error al reservar:", err);
-      const detail = err.response?.data
-        ? Object.values(err.response.data).flat().join(" ")
-        : "No se pudo procesar la reserva. Puede que no queden ejemplares disponibles.";
+      const detail = formatApiError(
+        err,
+        "No se pudo procesar la reserva. Puede que no queden ejemplares disponibles."
+      );
       onReservationError?.(detail);
       setConfirmAction(null);
     } finally {
@@ -136,9 +138,10 @@ function CatalogBookCard({
       setConfirmAction(null);
     } catch (err) {
       console.error("Error al cancelar la reserva:", err);
-      const detail = err.response?.data
-        ? Object.values(err.response.data).flat().join(" ")
-        : "No se pudo cancelar la reserva. Intenta nuevamente.";
+      const detail = formatApiError(
+        err,
+        "No se pudo cancelar la reserva. Intenta nuevamente."
+      );
       setConfirmAction(null);
       (onCancelError || onReservationError)?.(detail);
     } finally {

@@ -4,6 +4,7 @@ import { X, Plus } from "lucide-react";
 import { authorService } from "../../api/services/authorService";
 import { genreService } from "../../api/services/genreService";
 import { bookService } from "../../api/services/bookService";
+import { formatApiError } from "../../api/errorUtils";
 import FeedbackModal from "../BasicUIComponents/FeedbackModal";
 import BookCoverImage from "../BasicUIComponents/BookCoverImage";
 
@@ -213,9 +214,9 @@ export default function BookEditModal({ isOpen, book, onClose, onSaved }) {
         isOpen: true,
         type: "error",
         title: "Error al crear autor",
-        message: err.response?.data
-          ? Object.values(err.response.data).flat().join("\n")
-          : "No se pudo registrar el nuevo autor.",
+        message: formatApiError(err, "No se pudo registrar el nuevo autor.", {
+          separator: "\n",
+        }),
       });
     } finally {
       setIsCreatingAuthor(false);
@@ -238,9 +239,9 @@ export default function BookEditModal({ isOpen, book, onClose, onSaved }) {
         isOpen: true,
         type: "error",
         title: "Error al crear género",
-        message: err.response?.data
-          ? Object.values(err.response.data).flat().join("\n")
-          : "No se pudo registrar el nuevo género.",
+        message: formatApiError(err, "No se pudo registrar el nuevo género.", {
+          separator: "\n",
+        }),
       });
     } finally {
       setIsCreatingGenre(false);
@@ -298,14 +299,13 @@ export default function BookEditModal({ isOpen, book, onClose, onSaved }) {
       onClose?.();
     } catch (err) {
       console.error("Error actualizando el libro:", err);
-      if (err.response?.data && typeof err.response.data === "object") {
-        const messages = Object.entries(err.response.data)
-          .map(([field, msgs]) => `${field}: ${Array.isArray(msgs) ? msgs.join(" ") : msgs}`)
-          .join(" | ");
-        setSaveError(messages || "No se pudieron guardar los cambios del libro.");
-      } else {
-        setSaveError("Error de conexión al intentar actualizar el libro.");
-      }
+      setSaveError(
+        formatApiError(
+          err,
+          "Error de conexión al intentar actualizar el libro.",
+          { separator: " | " }
+        )
+      );
     } finally {
       setIsSaving(false);
     }

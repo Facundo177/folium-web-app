@@ -4,6 +4,7 @@ import FeedbackModal from "../components/BasicUIComponents/FeedbackModal";
 import GoBackButton from "../components/BasicUIComponents/GoBackButton";
 import { useDocumentMetadata } from "../hooks/useDocumentMetadata";
 import { itemService } from "../api/services/itemService";
+import { formatApiError } from "../api/errorUtils";
 import { ITEM_STATUS } from "../api/constants";
 import { Link } from "react-router-dom";
 import ReturnLoanModal from "../components/LoanComponents/ReturnLoanModal";
@@ -162,11 +163,11 @@ export default function LoansDashboard() {
             "El préstamo se cerró, pero no se pudo actualizar el estado del ejemplar. Actualícelo desde el inventario.",
         });
       } else {
-        const data = err.response?.data;
-        const backendMessage =
-          data && typeof data === "object" ? Object.values(data).flat().join(" ") : "";
         setReturnError(
-          backendMessage || "No se pudo cerrar el préstamo. Verifique la conexión con el servidor."
+          formatApiError(
+            err,
+            "No se pudo cerrar el préstamo. Verifique la conexión con el servidor."
+          )
         );
       }
     } finally {

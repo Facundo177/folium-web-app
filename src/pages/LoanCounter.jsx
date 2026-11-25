@@ -12,6 +12,7 @@ import { userService } from "../api/services/userService";
 import { bookService } from "../api/services/bookService";
 import { itemService } from "../api/services/itemService";
 import { loanService } from "../api/services/loanService";
+import { formatApiError } from "../api/errorUtils";
 import GoBackButton from "../components/BasicUIComponents/GoBackButton";
 import BookCoverImage from "../components/BasicUIComponents/BookCoverImage";
 import FeedbackModal from "../components/BasicUIComponents/FeedbackModal";
@@ -291,12 +292,9 @@ export default function LoanCounter() {
       fetchAvailableBooks(deferredBookSearch, availableBooksPage);
     } catch (err) {
       console.error("Error al registrar préstamo:", err);
-      const data = err.response?.data;
-      const errorMsg =
-        data && typeof data === "object"
-          ? Object.values(data).flat().join(" ")
-          : "Error al registrar el préstamo en el sistema.";
-      setLoanSubmitError(errorMsg);
+      setLoanSubmitError(
+        formatApiError(err, "Error al registrar el préstamo en el sistema.")
+      );
     } finally {
       setIsSubmittingLoan(false);
     }

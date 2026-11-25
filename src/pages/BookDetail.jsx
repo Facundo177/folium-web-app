@@ -22,6 +22,7 @@ import { adaptBookDetail } from "../api/adapters";
 import { bookService } from "../api/services/bookService";
 import { reservationService } from "../api/services/reservationService";
 import { favoriteService } from "../api/services/favoriteService";
+import { formatApiError } from "../api/errorUtils";
 import { useAuth } from "../auth/AuthProvider";
 import { useDocumentMetadata } from "../hooks/useDocumentMetadata";
 
@@ -163,8 +164,10 @@ export default function BookDetail() {
     } catch (err) {
       console.error("Error eliminando el libro:", err);
       setDeleteError(
-        err.response?.data?.detail ||
+        formatApiError(
+          err,
           "No se pudo eliminar el libro. Verificá que no tenga préstamos o reservas activas."
+        )
       );
       setShowDeleteConfirm(false);
     } finally {
@@ -227,9 +230,10 @@ export default function BookDetail() {
       await refetch();
     } catch (err) {
       console.error("Error al procesar la reserva:", err);
-      const errorMsg = err.response?.data
-        ? Object.values(err.response.data).flat().join(" ")
-        : "Ocurrió un error al procesar tu solicitud de reserva.";
+      const errorMsg = formatApiError(
+        err,
+        "Ocurrió un error al procesar tu solicitud de reserva."
+      );
       setFeedbackModal({
         isOpen: true,
         type: "error",

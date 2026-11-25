@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { reviewService } from "../../api/services/reviewService";
+import { formatApiError } from "../../api/errorUtils";
 import { useAuth } from "../../auth/AuthProvider";
 import FeedbackModal from "../BasicUIComponents/FeedbackModal";
 import { Star, Trash2, Edit3, Send, MessageSquare } from "lucide-react";
@@ -130,12 +131,9 @@ export default function BookReviews({ bookId }) {
       setComment("");
     } catch (err) {
       console.error("Error al guardar reseña:", err);
-      if (err.response && err.response.data) {
-        const messages = Object.values(err.response.data).flat().join(" ");
-        setFormError(messages);
-      } else {
-        setFormError("Ocurrió un error al publicar tu reseña.");
-      }
+      setFormError(
+        formatApiError(err, "Ocurrió un error al publicar tu reseña.")
+      );
     } finally {
       setIsSubmitting(false);
     }

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useUserProfile } from "../../hooks/useUserProfile";
 import { userService } from "../../api/services/userService";
+import { formatApiError } from "../../api/errorUtils";
 import GoBackButton from "../BasicUIComponents/GoBackButton";
 import PasswordEye from "../BasicUIComponents/PasswordEye";
 import {
@@ -106,14 +107,13 @@ export default function UserProfile() {
       setProfile(data);
       setIsEditing(false);
     } catch (err) {
-      if (err.response && err.response.data) {
-        const errorMessages = Object.values(err.response.data)
-          .flat()
-          .join("\n");
-        setEditError(errorMessages);
-      } else {
-        setEditError("Ocurrió un error inesperado al actualizar el perfil.");
-      }
+      setEditError(
+        formatApiError(
+          err,
+          "Ocurrió un error inesperado al actualizar el perfil.",
+          { separator: "\n" }
+        )
+      );
     } finally {
       setIsSaving(false);
     }
@@ -171,17 +171,13 @@ export default function UserProfile() {
       setPasswordChangeSuccess("Tu contraseña se actualizó correctamente.");
       setIsPasswordModalOpen(false);
     } catch (err) {
-      const errorData = err.response?.data;
-      if (errorData && typeof errorData === "object") {
-        setPasswordChangeError(
-          Object.values(errorData).flat().join("\n") ||
-            "No se pudo actualizar la contraseña."
-        );
-      } else {
-        setPasswordChangeError(
-          "Ocurrió un error inesperado al actualizar la contraseña."
-        );
-      }
+      setPasswordChangeError(
+        formatApiError(
+          err,
+          "Ocurrió un error inesperado al actualizar la contraseña.",
+          { separator: "\n" }
+        )
+      );
     } finally {
       setIsChangingPassword(false);
     }

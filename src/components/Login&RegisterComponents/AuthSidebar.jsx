@@ -2,7 +2,7 @@ import FoliumSmallLogo from "../BasicUIComponents/FoliumSmallLogo";
 import ArrowLeftIcon from "../BasicUIComponents/ArrowLeftIcon";
 
 const demoAccounts = [
-  { name: "María Fernández", role: "Librarian", username: "mfernandez", password: "biblio1234" },
+  { name: "María Fernández", role: "Bibliotecario", username: "mfernandez", password: "biblio1234" },
   { name: "Lucas Rodríguez", role: "Lector", username: "lrodriguez", password: "lector1234" },
 ];
 

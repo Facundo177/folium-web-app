@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { userService } from "../../api/services/userService";
+import { formatFieldErrors } from "../../api/errorUtils";
 import {
   X,
   UserPlus,
@@ -166,26 +167,15 @@ export default function CreateReaderModal({
       }
     } catch (err) {
       console.error("Error al registrar lector:", err);
-      const errorData = err.response?.data;
-      if (errorData && typeof errorData === "object") {
-        const errors = {};
-        let unhandledMsg = "";
-
-        Object.entries(errorData).forEach(([key, val]) => {
-          const message = Array.isArray(val) ? val.join(" ") : String(val);
-          if (["dni", "first_name", "last_name", "email", "username"].includes(key)) {
-            errors[key] = message;
-          } else {
-            unhandledMsg += `${key}: ${message} `;
-          }
-        });
-
-        setFieldErrors(errors);
-        if (unhandledMsg || Object.keys(errors).length === 0) {
-          setGeneralError(unhandledMsg || "Ocurrió un error al registrar el lector en el servidor.");
-        }
-      } else {
-        setGeneralError("No se pudo conectar con el servidor para registrar al lector.");
+      const { fieldErrors: parsedFieldErrors, generalError: parsedGeneral } =
+        formatFieldErrors(
+          err,
+          ["dni", "first_name", "last_name", "email", "username"],
+          "Ocurrió un error al registrar el lector en el servidor."
+        );
+      setFieldErrors(parsedFieldErrors);
+      if (parsedGeneral) {
+        setGeneralError(parsedGeneral);
       }
     } finally {
       setIsSubmitting(false);

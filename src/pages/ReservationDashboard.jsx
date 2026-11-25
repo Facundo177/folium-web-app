@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { reservationService } from "../api/services/reservationService";
 import { loanService } from "../api/services/loanService";
 import { itemService } from "../api/services/itemService";
+import { formatApiError } from "../api/errorUtils";
 import FeedbackModal from "../components/BasicUIComponents/FeedbackModal";
 import GoBackButton from "../components/BasicUIComponents/GoBackButton";
 import { useDocumentMetadata } from "../hooks/useDocumentMetadata";
@@ -214,9 +215,11 @@ export default function ReservationDashboard() {
       console.error("Error al aceptar la reserva:", err);
       setReservationToAccept(null);
       if (err.response?.data) {
-        const errorMessages = Object.values(err.response.data)
-          .flat()
-          .join("\n");
+        const errorMessages = formatApiError(
+          err,
+          "No se pudo formalizar el préstamo.",
+          { separator: "\n" }
+        );
         setFeedbackModal({
           isOpen: true,
           type: "error",
@@ -228,7 +231,10 @@ export default function ReservationDashboard() {
           isOpen: true,
           type: "error",
           title: "Error de comunicación",
-          message: err.message || "Verifica la conexión con el servidor bibliotecario.",
+          message: formatApiError(
+            err,
+            "Verifica la conexión con el servidor bibliotecario."
+          ),
         });
       }
     } finally {
@@ -269,9 +275,11 @@ export default function ReservationDashboard() {
       });
     } catch (err) {
       console.error("Error al cancelar la reserva:", err);
-      const errorMessages = err.response?.data
-        ? Object.values(err.response.data).flat().join("\n")
-        : err.message || "Verifica la conexión con el servidor.";
+      const errorMessages = formatApiError(
+        err,
+        "Verifica la conexión con el servidor.",
+        { separator: "\n" }
+      );
 
       setReservationToCancel(null);
       setFeedbackModal({

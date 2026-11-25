@@ -13,6 +13,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { billingService } from "../../api/services/billingService";
+import { formatApiError } from "../../api/errorUtils";
 import { useAuth } from "../../auth/AuthProvider";
 
 function formatArs(value) {
@@ -110,17 +111,12 @@ export default function MercadoPagoCheckoutModal({
 
       setErrorMsg("El servidor no devolvió una URL de pago válida.");
     } catch (err) {
-
-      // Extraer mensaje de error detallado del backend
-          const apiDetail =
-        err.response?.data?.detail ||
-        Object.values(err.response?.data || {})
-          .flat()
-          .join(" ") ||
-        "No se pudo conectar con el servicio de pagos. Intenta nuevamente.";
-
-      setErrorMsg(apiDetail);
-      
+      setErrorMsg(
+        formatApiError(
+          err,
+          "No se pudo conectar con el servicio de pagos. Intenta nuevamente."
+        )
+      );
     } finally {
       setIsSubmitting(false);
     }

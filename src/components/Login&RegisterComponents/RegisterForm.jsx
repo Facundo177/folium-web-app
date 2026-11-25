@@ -4,6 +4,7 @@ import PasswordEye from "../BasicUIComponents/PasswordEye";
 import FeedbackModal from "../BasicUIComponents/FeedbackModal";
 import { UserPlus } from "lucide-react";
 import { userService } from "../../api/services/userService";
+import { formatApiError } from "../../api/errorUtils";
 import { useDocumentMetadata } from "../../hooks/useDocumentMetadata";
 
 export default function RegisterForm() {
@@ -70,11 +71,14 @@ export default function RegisterForm() {
       await userService.register(payload);
       setSuccessModalOpen(true);
     } catch (err) {
-      if (err.response && err.response.data) {
-        const errorMessages = Object.values(err.response.data).flat().join("\n");
-        setError(errorMessages);
-      } else {
-        setError("Ocurrió un error inesperado al intentar registrarte.");
+      setError(
+        formatApiError(
+          err,
+          "Ocurrió un error inesperado al intentar registrarte.",
+          { separator: "\n" }
+        )
+      );
+      if (!err.response?.data) {
         console.error(err);
       }
     } finally {

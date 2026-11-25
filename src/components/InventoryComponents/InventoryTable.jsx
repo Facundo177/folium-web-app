@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { ITEM_STATUS } from "../../api/constants";
 import { itemService } from "../../api/services/itemService";
+import { formatApiError } from "../../api/errorUtils";
 import {
   ChevronDown,
   Search,
@@ -142,17 +143,13 @@ export const InventoryTable = ({
       setTimeout(() => setSuccessMessage(null), 3500);
     } catch (err) {
       console.error("Error al actualizar ejemplar:", err);
-      if (err.response?.data && typeof err.response.data === "object") {
-        const messages = Object.entries(err.response.data)
-          .map(
-            ([field, msgs]) =>
-              `${field}: ${Array.isArray(msgs) ? msgs.join(" ") : msgs}`
-          )
-          .join(" | ");
-        setEditError(messages || "No se pudo actualizar el ejemplar.");
-      } else {
-        setEditError("Error al intentar guardar los cambios del ejemplar.");
-      }
+      setEditError(
+        formatApiError(
+          err,
+          "Error al intentar guardar los cambios del ejemplar.",
+          { separator: " | " }
+        )
+      );
     } finally {
       setIsSaving(false);
     }
@@ -173,8 +170,10 @@ export const InventoryTable = ({
     } catch (err) {
       console.error("Error al eliminar ejemplar:", err);
       setDeleteError(
-        err.response?.data?.detail ||
+        formatApiError(
+          err,
           "No se pudo eliminar el ejemplar. Verifique que no tenga préstamos activos asociados."
+        )
       );
       setDeletingItem(null);
     } finally {

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import ScrollIndicator from "../BasicUIComponents/ScrollIndicator";
 import { favoriteService } from "../../api/services/favoriteService";
 import { reservationService } from "../../api/services/reservationService";
+import { formatApiError } from "../../api/errorUtils";
 import { useAuth } from "../../auth/AuthProvider";
 
 export default function BookCoverFlow({
@@ -187,9 +188,7 @@ export default function BookCoverFlow({
         onReservationSuccess?.(book.id, newReservation?.id);
         showToast(`Reserva confirmada para "${book.title}"`);
       } catch (err) {
-        const detail = err.response?.data
-          ? Object.values(err.response.data).flat().join(" ")
-          : "No se pudo procesar la reserva";
+        const detail = formatApiError(err, "No se pudo procesar la reserva.");
         showToast(detail);
       }
     },
