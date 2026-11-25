@@ -180,11 +180,11 @@ export default function BookCoverFlow({
         return;
       }
       try {
-        await reservationService.create({
+        const { data: newReservation } = await reservationService.create({
           book: book.id,
           expires_at: getInitialDateTime(14),
         });
-        onReservationSuccess?.(book.id);
+        onReservationSuccess?.(book.id, newReservation?.id);
         showToast(`Reserva confirmada para "${book.title}"`);
       } catch (err) {
         const detail = err.response?.data

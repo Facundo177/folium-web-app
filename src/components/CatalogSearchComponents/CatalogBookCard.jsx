@@ -15,6 +15,7 @@ function CatalogBookCard({
   onReservationSuccess,
   onReservationError,
   onCancelSuccess,
+  onCancelError,
   onToggleFavorite,
   onRequireAuth,
 }) {
@@ -120,13 +121,25 @@ function CatalogBookCard({
 
   // La cancelación real se hace al confirmar en el modal
   const handleConfirmCancel = async () => {
+    if (!reservationId || typeof reservationId === "boolean") {
+      setConfirmAction(null);
+      (onCancelError || onReservationError)?.(
+        "No se encontró el identificador de la reserva. Actualiza el catálogo e intenta nuevamente."
+      );
+      return;
+    }
     setProcessing(true);
     try {
-      await reservationService.remove(reservationId);
+      await reservationService.cancel(reservationId);
       onCancelSuccess?.(book.id);
       setConfirmAction(null);
     } catch (err) {
       console.error("Error al cancelar la reserva:", err);
+      const detail = err.response?.data
+        ? Object.values(err.response.data).flat().join(" ")
+        : "No se pudo cancelar la reserva. Intenta nuevamente.";
+      setConfirmAction(null);
+      (onCancelError || onReservationError)?.(detail);
     } finally {
       setProcessing(false);
     }

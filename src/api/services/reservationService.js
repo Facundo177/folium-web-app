@@ -9,5 +9,5 @@ export const reservationService = {
   create:  (data)     => api.post(BASE, data),
   update:  (id, data) => api.put(`${BASE}${id}/`, data),
   patch:   (id, data) => api.patch(`${BASE}${id}/`, data),
-  remove:  (id)       => api.delete(`${BASE}${id}/`),
+  cancel:  (id)       => api.post(`${BASE}${id}/cancel/`),
 };

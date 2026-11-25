@@ -80,18 +80,43 @@ export default function BookCatalog() {
     [navigate]
   );
 
+  const syncUserReservations = useCallback(async () => {
+    if (!user) {
+      setUserReservationsMap({});
+      return;
+    }
+    try {
+      const res = await reservationService.getAll();
+      const list = res.data?.results || res.data || [];
+      const map = {};
+      list.forEach((r) => {
+        if (r.status === "PENDING") {
+          const bId = r.book?.id ?? r.book;
+          if (bId) map[bId] = r.id;
+        }
+      });
+      setUserReservationsMap(map);
+    } catch (err) {
+      console.warn("No se pudieron cargar las reservas en el catálogo:", err);
+    }
+  }, [user]);
+
   const handleReservationSuccess = useCallback((bookId, reservationId) => {
-    setUserReservationsMap((prev) => ({ ...prev, [bookId]: reservationId ?? true }));
+    if (reservationId && typeof reservationId !== "boolean") {
+      setUserReservationsMap((prev) => ({ ...prev, [bookId]: reservationId }));
+    } else {
+      syncUserReservations();
+    }
     showToast("Reserva confirmada con éxito");
     // Refrescar el catálogo para actualizar la cantidad de ejemplares disponibles en tiempo real
     refetchBooks();
-  }, [showToast, refetchBooks]);
+  }, [showToast, refetchBooks, syncUserReservations]);
 
-  const handleReservationError = useCallback((errorMessage) => {
+  const handleReservationError = useCallback((errorMessage, title = "No se pudo realizar la reserva") => {
     setModal({
       isOpen: true,
       type: "error",
-      title: "No se pudo realizar la reserva",
+      title,
       message: errorMessage || "Ocurrió un error al procesar tu solicitud de reserva.",
       confirmText: "Entendido",
       cancelText: null,
@@ -100,6 +125,11 @@ export default function BookCatalog() {
     // Si falló por stock, refrescar para sincronizar los botones
     refetchBooks();
   }, [refetchBooks]);
+
+  const handleCancelError = useCallback(
+    (errorMessage) => handleReservationError(errorMessage, "No se pudo cancelar la reserva"),
+    [handleReservationError]
+  );
 
   const handleCancelSuccess = useCallback((bookId) => {
     setUserReservationsMap((prev) => {
@@ -296,6 +326,7 @@ export default function BookCatalog() {
         onReservationSuccess={handleReservationSuccess}
         onReservationError={handleReservationError}
         onCancelSuccess={handleCancelSuccess}
+        onCancelError={handleCancelError}
         onToggleFavorite={handleToggleFavorite}
         onRequireAuth={openGuestPrompt}
         filters={filters}

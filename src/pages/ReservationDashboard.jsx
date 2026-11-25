@@ -244,10 +244,8 @@ export default function ReservationDashboard() {
 
     setIsCancelling(true);
     try {
-      const { data: updatedReservation } = await reservationService.patch(
-        reservation.id,
-        { status: "CANCELLED" }
-      );
+      const { data } = await reservationService.cancel(reservation.id);
+      const updatedReservation = data?.reservation ?? data;
 
       setReservations((prev) =>
         prev.map((res) =>

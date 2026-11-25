@@ -103,12 +103,8 @@ export default function UserReservations() {
     setIsCancelling(true);
 
     try {
-      const { data: updated } = await reservationService.patch(
-        reservationToCancel.id,
-        {
-          status: "CANCELLED",
-        }
-      );
+      const { data } = await reservationService.cancel(reservationToCancel.id);
+      const updated = data?.reservation ?? data;
 
       setReservations((prev) =>
         prev.map((res) =>

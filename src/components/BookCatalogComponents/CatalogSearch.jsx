@@ -35,6 +35,7 @@ export default function CatalogSearch({
   onReservationSuccess,
   onReservationError,
   onCancelSuccess,
+  onCancelError,
   onToggleFavorite,
   onRequireAuth,
   filters,
@@ -174,6 +175,7 @@ export default function CatalogSearch({
                   onReservationSuccess={onReservationSuccess}
                   onReservationError={onReservationError}
                   onCancelSuccess={onCancelSuccess}
+                  onCancelError={onCancelError}
                   onToggleFavorite={onToggleFavorite}
                   onRequireAuth={onRequireAuth}
                 />
