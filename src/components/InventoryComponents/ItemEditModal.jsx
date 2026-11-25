@@ -18,6 +18,7 @@ export default function ItemEditModal({
   isSaving = false,
   error = null,
   onSave,
+  onMarkReviewed,
   onClose,
 }) {
   const dialogRef = useRef(null);
@@ -208,31 +209,75 @@ export default function ItemEditModal({
           </div>
 
           {/* Estado */}
-          <div>
-            <label htmlFor="edit-item-status" className="block text-label-caps text-on-surface-variant mb-1.5">
-              Estado del Ejemplar *
-            </label>
-            <div className="relative flex items-center">
-              <select
-                id="edit-item-status"
-                required
-                value={editForm.status}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, status: e.target.value })
-                }
-                className="w-full pl-3 pr-10 py-2.5 bg-surface-container-lowest border border-outline-variant rounded-sm text-sm text-on-surface focus:outline-none focus:border-primary appearance-none cursor-pointer"
-              >
-                <option value={ITEM_STATUS.AVAILABLE}>Disponible</option>
-                <option value={ITEM_STATUS.LOANED}>Prestado</option>
-                <option value={ITEM_STATUS.RESERVED}>Reservado</option>
-                <option value={ITEM_STATUS.DAMAGED}>Dañado</option>
-                <option value={ITEM_STATUS.LOST}>Perdido</option>
-              </select>
-              <div className="absolute right-3 pointer-events-none text-on-surface-variant flex items-center justify-center">
-                <ChevronDown className="w-4 h-4" />
+          {(() => {
+            const needsReview =
+              item.status === ITEM_STATUS.DAMAGED ||
+              item.status === ITEM_STATUS.LOST;
+            const isSystemManaged =
+              item.status === ITEM_STATUS.LOANED ||
+              item.status === ITEM_STATUS.RESERVED;
+
+            return (
+              <div>
+                <label htmlFor="edit-item-status" className="block text-label-caps text-on-surface-variant mb-1.5">
+                  Estado del Ejemplar *
+                </label>
+                <div className="relative flex items-center">
+                  <select
+                    id="edit-item-status"
+                    required
+                    value={editForm.status}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, status: e.target.value })
+                    }
+                    className="w-full pl-3 pr-10 py-2.5 bg-surface-container-lowest border border-outline-variant rounded-sm text-sm text-on-surface focus:outline-none focus:border-primary appearance-none cursor-pointer"
+                  >
+                    <option
+                      value={ITEM_STATUS.AVAILABLE}
+                      disabled={needsReview || isSystemManaged}
+                    >
+                      Disponible{needsReview ? " (requiere revisión)" : ""}
+                    </option>
+                    <option
+                      value={ITEM_STATUS.LOANED}
+                      disabled={item.status !== ITEM_STATUS.LOANED}
+                    >
+                      Prestado (gestionado por préstamos)
+                    </option>
+                    <option
+                      value={ITEM_STATUS.RESERVED}
+                      disabled={item.status !== ITEM_STATUS.RESERVED}
+                    >
+                      Reservado (gestionado por reservas)
+                    </option>
+                    <option value={ITEM_STATUS.DAMAGED}>Dañado</option>
+                    <option value={ITEM_STATUS.LOST}>Perdido</option>
+                  </select>
+                  <div className="absolute right-3 pointer-events-none text-on-surface-variant flex items-center justify-center">
+                    <ChevronDown className="w-4 h-4" />
+                  </div>
+                </div>
+
+                {needsReview && (
+                  <div className="mt-2.5 p-3 rounded-sm bg-surface-container border border-outline-variant/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs">
+                    <span className="text-on-surface-variant">
+                      Un ejemplar dañado o extraviado requiere confirmación de revisión para volver a estar disponible.
+                    </span>
+                    {onMarkReviewed && (
+                      <button
+                        type="button"
+                        onClick={() => onMarkReviewed(item)}
+                        disabled={isSaving}
+                        className="shrink-0 px-3 py-1.5 rounded-sm bg-primary text-on-primary font-bold uppercase tracking-wider text-[11px] hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50"
+                      >
+                        Habilitar tras revisión
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
-            </div>
-          </div>
+            );
+          })()}
 
           <div className="flex justify-end gap-3 pt-4 border-t border-outline-variant">
             <button

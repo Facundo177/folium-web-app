@@ -12,7 +12,8 @@ export const itemService = {
   getById: (id)       => api.get(`${BASE}${id}/`),
   create:  (data)     => api.post(BASE, data),
   update:  (id, data) => api.put(`${BASE}${id}/`, data),
-  patch:   (id, data) => api.patch(`${BASE}${id}/`, data),
-  remove:  (id)       => api.delete(`${BASE}${id}/`),
+  patch:        (id, data) => api.patch(`${BASE}${id}/`, data),
+  markReviewed: (id)       => api.post(`${BASE}${id}/mark-reviewed/`, {}),
+  remove:       (id)       => api.delete(`${BASE}${id}/`),
 };
 

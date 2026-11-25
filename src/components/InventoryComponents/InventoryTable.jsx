@@ -73,6 +73,11 @@ export const InventoryTable = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState(null);
 
+  // Estados para habilitación tras revisión física (DAMAGED / LOST -> AVAILABLE)
+  const [reviewingItem, setReviewingItem] = useState(null);
+  const [isReviewing, setIsReviewing] = useState(false);
+  const [reviewError, setReviewError] = useState(null);
+
   const filtered = useMemo(() => {
     const term = searchInput.trim().toLowerCase();
     return rows.filter((r) => {
@@ -174,6 +179,31 @@ export const InventoryTable = ({
       setDeletingItem(null);
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  const handleConfirmMarkReviewed = async () => {
+    if (!reviewingItem) return;
+    setIsReviewing(true);
+    setReviewError(null);
+
+    try {
+      await itemService.markReviewed(reviewingItem.id);
+      const reviewedCode = reviewingItem.code;
+      setReviewingItem(null);
+      await onRefetch?.();
+      setSuccessMessage(
+        `Ejemplar ${reviewedCode} habilitado como Disponible tras revisión.`
+      );
+      setTimeout(() => setSuccessMessage(null), 3500);
+    } catch (err) {
+      console.error("Error al habilitar ejemplar tras revisión:", err);
+      setReviewError(
+        formatApiError(err, "No se pudo habilitar el ejemplar tras revisión.")
+      );
+      setReviewingItem(null);
+    } finally {
+      setIsReviewing(false);
     }
   };
 
@@ -315,6 +345,21 @@ export const InventoryTable = ({
                 </div>
 
                 <div className="inline-flex items-center gap-2 shrink-0">
+                  {(row.status === ITEM_STATUS.DAMAGED ||
+                    row.status === ITEM_STATUS.LOST) && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setReviewError(null);
+                        setReviewingItem(row);
+                      }}
+                      title="Habilitar tras revisión"
+                      aria-label={`Habilitar ejemplar ${row.code} tras revisión`}
+                      className="p-2 border border-primary/50 bg-primary/10 text-primary hover:bg-primary hover:text-on-primary hover:border-primary hover:scale-105 active:scale-95 transition-all duration-150 ease-out rounded-sm shadow-xs cursor-pointer"
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={() => handleOpenEdit(row)}
@@ -454,6 +499,21 @@ export const InventoryTable = ({
                   {/* Actions */}
                   <td className="py-stack-sm px-gutter text-right whitespace-nowrap">
                     <div className="inline-flex items-center justify-end gap-2">
+                      {(row.status === ITEM_STATUS.DAMAGED ||
+                        row.status === ITEM_STATUS.LOST) && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setReviewError(null);
+                            setReviewingItem(row);
+                          }}
+                          title="Habilitar tras revisión"
+                          aria-label={`Habilitar ejemplar ${row.code} tras revisión`}
+                          className="p-2 border border-primary/50 bg-primary/10 text-primary hover:bg-primary hover:text-on-primary hover:border-primary hover:scale-105 active:scale-95 transition-all duration-150 ease-out rounded-sm shadow-xs cursor-pointer"
+                        >
+                          <CheckCircle2 className="w-4 h-4" />
+                        </button>
+                      )}
                       <button
                         type="button"
                         onClick={() => handleOpenEdit(row)}
@@ -557,10 +617,47 @@ export const InventoryTable = ({
         isSaving={isSaving}
         error={editError}
         onSave={handleSaveEdit}
+        onMarkReviewed={(targetItem) => {
+          setEditingItem(null);
+          setEditError(null);
+          setReviewError(null);
+          setReviewingItem(targetItem);
+        }}
         onClose={() => {
           setEditingItem(null);
           setEditError(null);
         }}
+      />
+
+      {/* Modal accesible de confirmación de habilitación tras revisión */}
+      <FeedbackModal
+        isOpen={Boolean(reviewingItem)}
+        type="info"
+        title="Habilitar tras revisión"
+        message={
+          reviewingItem
+            ? `¿Confirmás que el ejemplar ${reviewingItem.code} ("${reviewingItem.title}") fue revisado físicamente y vuelve a quedar Disponible para préstamo?`
+            : ""
+        }
+        confirmText="Habilitar tras revisión"
+        cancelText="Cancelar"
+        isLoading={isReviewing}
+        onConfirm={handleConfirmMarkReviewed}
+        onClose={() => {
+          if (!isReviewing) {
+            setReviewingItem(null);
+          }
+        }}
+      />
+
+      {/* Modal accesible de error si falla la habilitación tras revisión */}
+      <FeedbackModal
+        isOpen={Boolean(reviewError)}
+        type="error"
+        title="Error al habilitar ejemplar"
+        message={reviewError || ""}
+        confirmText="Entendido"
+        onClose={() => setReviewError(null)}
       />
 
       {/* Modal accesible de confirmación de eliminación de ejemplar */}

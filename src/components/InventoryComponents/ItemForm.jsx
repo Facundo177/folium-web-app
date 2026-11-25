@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useDeferredValue } from "react";
 import { itemService } from "../../api/services/itemService";
 import { bookService } from "../../api/services/bookService";
+import { formatFieldErrors } from "../../api/errorUtils";
 import GoBackButton from "../BasicUIComponents/GoBackButton";
 import FeedbackModal from "../BasicUIComponents/FeedbackModal";
 import { ITEM_STATUS } from "../../api/constants";
@@ -201,7 +202,11 @@ export default function ItemForm() {
     const validBook =
       Number.isInteger(bookId) &&
       books.some((book) => Number(book.id) === bookId);
-    const validStatuses = Object.values(ITEM_STATUS);
+    const validStatuses = [
+      ITEM_STATUS.AVAILABLE,
+      ITEM_STATUS.DAMAGED,
+      ITEM_STATUS.LOST,
+    ];
 
     const newErrors = {};
 
@@ -257,14 +262,15 @@ export default function ItemForm() {
       });
     } catch (error) {
       console.error("Error al registrar ejemplar:", error);
-      const data = error.response?.data;
-      if (data && typeof data === "object") {
-        setErrors(data);
-      } else {
-        setErrors({
-          general: ["No se pudo registrar el ejemplar. Intente nuevamente."],
-        });
-      }
+      const { fieldErrors, generalError } = formatFieldErrors(
+        error,
+        ["book", "inventory_code", "location", "status"],
+        "No se pudo registrar el ejemplar. Intente nuevamente."
+      );
+      setErrors({
+        ...fieldErrors,
+        ...(generalError ? { general: [generalError] } : {}),
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -440,8 +446,6 @@ export default function ItemForm() {
                 className="w-full pl-4 pr-10 py-3 bg-surface-container border border-outline-variant rounded-sm text-body-md text-on-surface focus:outline-none focus:border-primary appearance-none cursor-pointer transition-colors"
               >
                 <option value={ITEM_STATUS.AVAILABLE}>Disponible</option>
-                <option value={ITEM_STATUS.LOANED}>Prestado</option>
-                <option value={ITEM_STATUS.RESERVED}>Reservado</option>
                 <option value={ITEM_STATUS.DAMAGED}>Dañado</option>
                 <option value={ITEM_STATUS.LOST}>Perdido</option>
               </select>
