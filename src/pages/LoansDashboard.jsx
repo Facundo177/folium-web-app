@@ -265,7 +265,7 @@ export default function LoansDashboard() {
           </div>
 
           <Link
-            to="/librarian/loans/counter"
+            to="/librarian/counter"
             id="btn-goto-counter"
             className="inline-flex items-center gap-2 self-start lg:self-auto px-5 py-2.5 bg-primary text-on-primary font-bold text-xs uppercase tracking-wider rounded-sm shadow-xs hover:opacity-95 transition-opacity cursor-pointer shrink-0"
           >

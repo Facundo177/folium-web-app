@@ -110,7 +110,7 @@ const config = {
         <NavWidget
           {...props}
           payload={{
-            route: "/librarian/inventory/newItem",
+            route: "/librarian/addItem",
             text: "Añadir Ejemplar Físico",
           }}
         />

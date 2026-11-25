@@ -220,10 +220,10 @@ export function NavigationMenuWidget(props) {
     ? [
         { label: "Inventario General", route: "/librarian/inventory", icon: Package },
         { label: "Cargar Nuevo Libro", route: "/librarian/newBook", icon: PlusCircle },
-        { label: "Añadir Ejemplar Físico", route: "/librarian/inventory/newItem", icon: PlusCircle },
+        { label: "Añadir Ejemplar Físico", route: "/librarian/addItem", icon: PlusCircle },
         { label: "Panel de Préstamos", route: "/librarian/loans", icon: BookMarked },
         { label: "Panel de Reservas", route: "/librarian/reservations", icon: BookmarkCheck },
-        { label: "Catálogo de Libros", route: "/librarian/catalog", icon: BookOpen },
+        { label: "Catálogo de Libros", route: "/catalog", icon: BookOpen },
       ]
     : isGuest
     ? [
