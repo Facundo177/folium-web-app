@@ -5,6 +5,12 @@ import FeedbackModal from "../BasicUIComponents/FeedbackModal";
 import { UserPlus } from "lucide-react";
 import { userService } from "../../api/services/userService";
 import { formatApiError } from "../../api/errorUtils";
+import {
+  isNonEmpty,
+  hasMinLength,
+  isValidEmail,
+  isValidDni,
+} from "../../utils/validators";
 import { useDocumentMetadata } from "../../hooks/useDocumentMetadata";
 
 export default function RegisterForm() {
@@ -39,15 +45,31 @@ export default function RegisterForm() {
       ...formData,
       [e.target.name]: e.target.value,
     });
+    if (error) setError("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    // Validaciones de frontend
-    if (formData.password !== formData.confirmPassword) {
-      setError("Las contraseñas no coinciden. Por favor, verifícalas.");
+    // Validaciones programáticas de frontend
+    if (!isNonEmpty(formData.nombre) || !isNonEmpty(formData.apellido)) {
+      setError("El nombre y el apellido son obligatorios.");
+      return;
+    }
+
+    if (!isValidDni(formData.dni)) {
+      setError("Ingresá un DNI válido (entre 6 y 10 dígitos numéricos).");
+      return;
+    }
+
+    if (!hasMinLength(formData.username, 3)) {
+      setError("El nombre de usuario debe tener al menos 3 caracteres.");
+      return;
+    }
+
+    if (!isValidEmail(formData.email)) {
+      setError("Ingresá un correo electrónico con formato válido.");
       return;
     }
 
@@ -56,15 +78,20 @@ export default function RegisterForm() {
       return;
     }
 
+    if (formData.password !== formData.confirmPassword) {
+      setError("Las contraseñas no coinciden. Por favor, verifícalas.");
+      return;
+    }
+
     setIsLoading(true);
 
     const payload = {
-      first_name: formData.nombre,
-      last_name: formData.apellido,
-      username: formData.username,
-      email: formData.email,
+      first_name: formData.nombre.trim(),
+      last_name: formData.apellido.trim(),
+      username: formData.username.trim(),
+      email: formData.email.trim(),
       password: formData.password,
-      dni: formData.dni,
+      dni: formData.dni.trim(),
     };
 
     try {
@@ -122,7 +149,7 @@ export default function RegisterForm() {
       </div>
 
       {/* Formulario de Registro */}
-      <form onSubmit={handleSubmit} className="w-full flex flex-col gap-5">
+      <form onSubmit={handleSubmit} noValidate className="w-full flex flex-col gap-5">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <div className="flex flex-col gap-2">
             <label htmlFor="reg-nombre" className="text-label-caps text-on-surface font-bold">

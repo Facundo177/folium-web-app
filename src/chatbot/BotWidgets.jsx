@@ -140,6 +140,7 @@ export function AwaitingInputWidget(props) {
   const isGenreMode = mode === "SEARCH_GENRE";
 
   const [genres, setGenres] = useState([]);
+  const [genresError, setGenresError] = useState(false);
 
   useEffect(() => {
     if (!isGenreMode) return;
@@ -148,13 +149,17 @@ export function AwaitingInputWidget(props) {
       .getAll()
       .then(({ data }) => {
         if (!mounted) return;
-        const adapted = data.map(adaptBook);
+        const list = Array.isArray(data) ? data : (data?.results || []);
+        const adapted = list.map(adaptBook);
         const allGenres = [
           ...new Set(adapted.flatMap((b) => b.genres || [])),
         ].slice(0, 8);
+        setGenresError(false);
         setGenres(allGenres);
       })
-      .catch(() => {});
+      .catch(() => {
+        if (mounted) setGenresError(true);
+      });
     return () => {
       mounted = false;
     };
@@ -190,6 +195,12 @@ export function AwaitingInputWidget(props) {
             </button>
           ))}
         </div>
+      )}
+
+      {isGenreMode && genresError && (
+        <p role="alert" className="text-[11px] text-error mb-2.5">
+          No se pudieron cargar los géneros sugeridos; podés escribir el género directamente abajo.
+        </p>
       )}
 
       <button
@@ -289,6 +300,7 @@ export function BookRecommendationWidget(props) {
   const [currentBook, setCurrentBook] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isFetchingAnother, setIsFetchingAnother] = useState(false);
+  const [fetchError, setFetchError] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -298,12 +310,14 @@ export function BookRecommendationWidget(props) {
       .getRandom(params)
       .then(({ data }) => {
         if (!isMounted) return;
+        setFetchError(false);
         if (data) {
           setCurrentBook(adaptBook(data));
         }
       })
       .catch((err) => {
         console.error("Error en recomendación del bot:", err);
+        if (isMounted) setFetchError(true);
       })
       .finally(() => {
         if (isMounted) setIsLoading(false);
@@ -317,6 +331,7 @@ export function BookRecommendationWidget(props) {
   const handleAnother = async () => {
     if (isFetchingAnother) return;
     setIsFetchingAnother(true);
+    setFetchError(false);
     try {
       const params = genreHint ? { genre: genreHint } : undefined;
       const { data } = await bookService.getRandom(params);
@@ -325,6 +340,7 @@ export function BookRecommendationWidget(props) {
       }
     } catch (err) {
       console.error("Error al obtener otra recomendación:", err);
+      setFetchError(true);
     } finally {
       setIsFetchingAnother(false);
     }
@@ -334,6 +350,14 @@ export function BookRecommendationWidget(props) {
     return (
       <div className="ml-11 mb-3 p-3 bg-surface-container-lowest border border-outline-variant/60 rounded-lg text-xs text-on-surface-variant italic">
         Buscando una joya literaria en el archivo...
+      </div>
+    );
+  }
+
+  if (fetchError && !currentBook) {
+    return (
+      <div role="alert" className="ml-11 mb-3 p-3 bg-surface-container-lowest border border-error/40 rounded-lg text-xs text-error">
+        No pude consultar el archivo en este momento. Intentá nuevamente.
       </div>
     );
   }
@@ -433,6 +457,7 @@ export function BookSearchWidget(props) {
 
   const [books, setBooks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchError, setSearchError] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -453,10 +478,12 @@ export function BookSearchWidget(props) {
         const { data } = await bookService.getAll(params);
         if (mounted) {
           const list = Array.isArray(data) ? data : (data?.results || []);
+          setSearchError(false);
           setBooks(list.map(adaptBook));
         }
       } catch (err) {
         console.error("Error al buscar libros desde el bot:", err);
+        if (mounted) setSearchError(true);
       } finally {
         if (mounted) setIsLoading(false);
       }
@@ -490,7 +517,11 @@ export function BookSearchWidget(props) {
         </span>
       </div>
 
-      {matches.length === 0 ? (
+      {searchError ? (
+        <p role="alert" className="text-xs text-error mb-2">
+          Ocurrió un error al buscar en el catálogo. Intentá nuevamente.
+        </p>
+      ) : matches.length === 0 ? (
         <p className="text-xs text-on-surface-variant mb-2">
           No encontré ejemplares que coincidan con &ldquo;{query}&rdquo;.
         </p>

@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { billingService } from "../../api/services/billingService";
 import { formatApiError } from "../../api/errorUtils";
+import { hasMinLength, isValidEmail } from "../../utils/validators";
 import { useAuth } from "../../auth/AuthProvider";
 
 function formatArs(value) {
@@ -59,7 +60,7 @@ export default function MercadoPagoCheckoutModal({
     setErrorMsg("");
 
     const cleanOrg = organizationName.trim();
-    if (cleanOrg.length < 3) {
+    if (!hasMinLength(cleanOrg, 3)) {
       setErrorMsg(
         "Por favor ingresa el nombre oficial de la biblioteca o institución (mínimo 3 caracteres)."
       );
@@ -67,7 +68,7 @@ export default function MercadoPagoCheckoutModal({
     }
 
     const cleanEmail = payerEmail.trim();
-    if (!cleanEmail || !cleanEmail.includes("@")) {
+    if (!isValidEmail(cleanEmail)) {
       setErrorMsg("Ingresa un correo electrónico válido para recibir la factura.");
       return;
     }
@@ -165,7 +166,7 @@ export default function MercadoPagoCheckoutModal({
         {/* Cuerpo del Modal */}
         <div className="p-6 sm:p-7">
           {!checkoutResult ? (
-            <form onSubmit={handleCreateCheckout} className="flex flex-col gap-5">
+            <form onSubmit={handleCreateCheckout} noValidate className="flex flex-col gap-5">
               {/* Resumen de Precio y Ciclo */}
               <div className="bg-surface-container/60 border border-outline-variant/60 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
@@ -311,7 +312,11 @@ export default function MercadoPagoCheckoutModal({
               </div>
 
               {errorMsg && (
-                <div className="p-3.5 rounded-lg bg-error/10 border border-error/30 text-error text-xs font-medium flex items-start gap-2.5">
+                <div
+                  role="alert"
+                  aria-live="polite"
+                  className="p-3.5 rounded-lg bg-error/10 border border-error/30 text-error text-xs font-medium flex items-start gap-2.5"
+                >
                   <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                   <span>{errorMsg}</span>
                 </div>

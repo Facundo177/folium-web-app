@@ -19,12 +19,14 @@ function CatalogBookCard({
   onCancelSuccess,
   onCancelError,
   onToggleFavorite,
+  onFavoriteError,
   onRequireAuth,
 }) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [favorited, setFavorited] = useState(isFavorite);
   const [currentFavId, setCurrentFavId] = useState(favoriteId);
+  const [favError, setFavError] = useState("");
   const [confirmAction, setConfirmAction] = useState(null); // null | "reserve" | "cancel"
   const [processing, setProcessing] = useState(false);
 
@@ -64,6 +66,7 @@ function CatalogBookCard({
     }
 
     // 2. Comportamiento autónomo si no se pasa handler externo
+    setFavError("");
     if (favorited && currentFavId) {
       try {
         await favoriteService.remove(currentFavId);
@@ -71,6 +74,12 @@ function CatalogBookCard({
         setCurrentFavId(null);
       } catch (err) {
         console.error("Error al quitar favorito:", err);
+        const detail = formatApiError(err, "No se pudo quitar de favoritos.");
+        if (onFavoriteError) {
+          onFavoriteError(detail);
+        } else {
+          setFavError(detail);
+        }
       }
     } else {
       try {
@@ -79,6 +88,12 @@ function CatalogBookCard({
         setCurrentFavId(newFav.id);
       } catch (err) {
         console.error("Error al añadir favorito:", err);
+        const detail = formatApiError(err, "No se pudo guardar en favoritos.");
+        if (onFavoriteError) {
+          onFavoriteError(detail);
+        } else {
+          setFavError(detail);
+        }
       }
     }
   };
@@ -155,6 +170,12 @@ function CatalogBookCard({
       className="group bg-surface-container border border-outline-variant/60 rounded-md p-5 flex flex-col justify-between hover:border-primary/40 transition-colors duration-200 shadow-sm relative overflow-hidden cursor-pointer"
     >
       <div className="pointer-events-none absolute inset-1 border border-outline-variant/20 rounded-sm" />
+
+      {favError && (
+        <p role="alert" className="relative z-10 mb-2 text-[11px] font-medium text-error">
+          {favError}
+        </p>
+      )}
 
       {/* --- PARTE SUPERIOR: Tag + Favorito --- */}
       <div className="flex justify-between items-start gap-2 mb-4 relative z-10">

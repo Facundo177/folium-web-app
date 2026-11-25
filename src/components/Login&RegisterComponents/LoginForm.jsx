@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation, useOutletContext } from "react-router-d
 import PasswordEye from "../BasicUIComponents/PasswordEye";
 import { useAuth } from "../../auth/AuthProvider";
 import { formatApiError } from "../../api/errorUtils";
+import { isNonEmpty } from "../../utils/validators";
 import { LogIn, CheckCircle2 } from "lucide-react";
 import { useDocumentMetadata } from "../../hooks/useDocumentMetadata";
 
@@ -28,6 +29,12 @@ export default function LoginForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    if (!isNonEmpty(username) || !isNonEmpty(password)) {
+      setError("Ingresá tu usuario y contraseña para continuar.");
+      return;
+    }
+
     setIsLoading(true);
     try {
       const loggedUser = await login(username, password);
@@ -92,7 +99,7 @@ export default function LoginForm() {
       )}
 
       {/* Formulario */}
-      <form className="w-full flex flex-col gap-5" onSubmit={handleSubmit} noValidate={false}>
+      <form className="w-full flex flex-col gap-5" onSubmit={handleSubmit} noValidate>
         {/* Campo Usuario */}
         <div className="flex flex-col gap-2">
           <label htmlFor="login-username" className="text-label-caps text-on-surface font-bold">
@@ -105,7 +112,10 @@ export default function LoginForm() {
             type="text"
             placeholder="Ej: lrodriguez"
             value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            onChange={(e) => {
+              setUsername(e.target.value);
+              if (error) setError("");
+            }}
             autoComplete="username"
             autoCorrect="off"
             autoCapitalize="off"
@@ -129,7 +139,10 @@ export default function LoginForm() {
               type={showPassword ? "text" : "password"}
               placeholder="••••••••"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                if (error) setError("");
+              }}
               autoComplete="current-password"
               aria-invalid={Boolean(error)}
               aria-describedby={error ? "login-error" : undefined}

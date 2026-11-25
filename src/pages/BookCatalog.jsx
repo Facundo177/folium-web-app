@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Sparkles, UserPlus, LogIn, BookOpen, Heart, LockKeyhole } from "lucide-react";
 import BookCoverFlow from "../components/BookCatalogComponents/BookCoverFlow";
@@ -44,7 +44,14 @@ export default function BookCatalog() {
   const [userReservationsMap, setUserReservationsMap] = useState({});
 
   // Estado para el Toast
-  const [toastMessage, setToastMessage] = useState("");
+  const [toast, setToast] = useState({ message: "", type: "success" });
+  const toastTimerRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    };
+  }, []);
 
   // Estado para el modal de autenticación requerida
   const [modal, setModal] = useState({
@@ -57,9 +64,12 @@ export default function BookCatalog() {
     onConfirm: null,
   });
 
-  const showToast = useCallback((message) => {
-    setToastMessage(message);
-    setTimeout(() => setToastMessage(""), 3500);
+  const showToast = useCallback((message, type = "success") => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setToast({ message, type });
+    toastTimerRef.current = setTimeout(() => {
+      setToast({ message: "", type: "success" });
+    }, 3500);
   }, []);
 
   const openGuestPrompt = useCallback(
@@ -221,7 +231,7 @@ export default function BookCatalog() {
           showToast(`Eliminado de tus favoritos: "${book.title}"`);
         } catch (err) {
           console.error("Error al quitar favorito:", err);
-          showToast("No se pudo quitar de favoritos");
+          showToast("No se pudo quitar de favoritos", "error");
         }
       } else {
         try {
@@ -233,7 +243,7 @@ export default function BookCatalog() {
           showToast(`Añadido a tus favoritos: "${book.title}"`);
         } catch (err) {
           console.error("Error al añadir favorito:", err);
-          showToast("No se pudo guardar en favoritos");
+          showToast("No se pudo guardar en favoritos", "error");
         }
       }
     },
@@ -337,7 +347,7 @@ export default function BookCatalog() {
       />
 
       <div className="max-w-[var(--spacing-container-max)] mx-auto px-margin-edge py-stack-lg flex flex-col gap-stack-lg">
-        <Toast message={toastMessage} />
+        <Toast message={toast.message} type={toast.type} />
       </div>
 
       <FeedbackModal

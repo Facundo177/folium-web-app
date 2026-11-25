@@ -189,7 +189,7 @@ export default function BookCoverFlow({
         showToast(`Reserva confirmada para "${book.title}"`);
       } catch (err) {
         const detail = formatApiError(err, "No se pudo procesar la reserva.");
-        showToast(detail);
+        showToast(detail, "error");
       }
     },
     [user, onRequireAuth, onReservationSuccess, showToast]
@@ -204,7 +204,7 @@ export default function BookCoverFlow({
           await favoriteService.create({ book: book.id });
           showToast(`Guardado en favoritos`);
         } catch {
-          showToast(`No se pudo guardar en favoritos`);
+          showToast(`No se pudo guardar en favoritos`, "error");
         }
       }
     },

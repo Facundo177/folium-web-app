@@ -3,6 +3,12 @@ import { createPortal } from "react-dom";
 import { useUserProfile } from "../../hooks/useUserProfile";
 import { userService } from "../../api/services/userService";
 import { formatApiError } from "../../api/errorUtils";
+import {
+  isNonEmpty,
+  hasMinLength,
+  isValidEmail,
+  isValidDni,
+} from "../../utils/validators";
 import GoBackButton from "../BasicUIComponents/GoBackButton";
 import PasswordEye from "../BasicUIComponents/PasswordEye";
 import {
@@ -18,12 +24,13 @@ import {
 } from "lucide-react";
 
 export default function UserProfile() {
-  const { profile, setProfile, isLoading, error } = useUserProfile();
+  const { profile, setProfile, isLoading, error, refetch } = useUserProfile();
 
   // Estados para la edición
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [editError, setEditError] = useState("");
+  const [profileSuccess, setProfileSuccess] = useState("");
   const [formData, setFormData] = useState({});
   const [passwordForm, setPasswordForm] = useState({
     current_password: "",
@@ -70,6 +77,8 @@ export default function UserProfile() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    if (editError) setEditError("");
+    if (profileSuccess) setProfileSuccess("");
     if (name === "dni") {
       const numericValue = value.replace(/\D/g, "");
       setFormData((prev) => ({ ...prev, [name]: numericValue }));
@@ -90,22 +99,50 @@ export default function UserProfile() {
           : "",
     });
     setEditError("");
+    setProfileSuccess("");
     setIsEditing(true);
   };
 
   const handleSave = async (e) => {
     e.preventDefault();
-    setIsSaving(true);
     setEditError("");
+    setProfileSuccess("");
+
+    if (!isNonEmpty(formData.first_name) || !isNonEmpty(formData.last_name)) {
+      setEditError("El nombre y el apellido son obligatorios.");
+      return;
+    }
+
+    if (!hasMinLength(formData.username, 3)) {
+      setEditError("El nombre de usuario debe tener al menos 3 caracteres.");
+      return;
+    }
+
+    if (!isValidDni(formData.dni)) {
+      setEditError("Ingresá un DNI válido (entre 6 y 10 dígitos numéricos).");
+      return;
+    }
+
+    if (!isValidEmail(formData.email)) {
+      setEditError("Ingresá un correo electrónico con formato válido.");
+      return;
+    }
+
+    setIsSaving(true);
 
     try {
       const payload = {
         ...formData,
-        dni: formData.dni ? parseInt(formData.dni, 10) : undefined,
+        first_name: formData.first_name.trim(),
+        last_name: formData.last_name.trim(),
+        username: formData.username.trim(),
+        email: formData.email.trim(),
+        dni: parseInt(formData.dni, 10),
       };
       const { data } = await userService.updateProfile(payload);
       setProfile(data);
       setIsEditing(false);
+      setProfileSuccess("Tus datos personales se actualizaron correctamente.");
     } catch (err) {
       setEditError(
         formatApiError(
@@ -157,9 +194,25 @@ export default function UserProfile() {
 
   const handlePasswordChange = async (e) => {
     e.preventDefault();
-    setIsChangingPassword(true);
     setPasswordChangeError("");
     setPasswordChangeSuccess("");
+
+    if (!passwordForm.current_password) {
+      setPasswordChangeError("Ingresá tu contraseña actual.");
+      return;
+    }
+
+    if (passwordForm.new_password.length < 8) {
+      setPasswordChangeError("La nueva contraseña debe tener al menos 8 caracteres.");
+      return;
+    }
+
+    if (passwordForm.new_password !== passwordForm.confirm_new_password) {
+      setPasswordChangeError("La nueva contraseña y su confirmación no coinciden.");
+      return;
+    }
+
+    setIsChangingPassword(true);
 
     try {
       await userService.changePassword(passwordForm);
@@ -196,10 +249,17 @@ export default function UserProfile() {
 
   if (error || !profile) {
     return (
-      <div className="w-full min-h-[50vh] flex items-center justify-center animate-fade-in font-sans">
-        <p className="text-on-error bg-error px-6 py-3 rounded-md font-bold shadow-md">
+      <div className="w-full min-h-[50vh] flex flex-col items-center justify-center gap-4 animate-fade-in font-sans px-4">
+        <p role="alert" className="text-on-error bg-error px-6 py-3 rounded-md font-bold shadow-md text-center">
           {error || "No se pudo localizar el perfil."}
         </p>
+        <button
+          type="button"
+          onClick={refetch}
+          className="px-5 py-2.5 rounded-sm bg-primary text-on-primary text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-opacity cursor-pointer"
+        >
+          Reintentar
+        </button>
       </div>
     );
   }
@@ -289,6 +349,16 @@ export default function UserProfile() {
             )}
           </div>
 
+          {!isEditing && profileSuccess && (
+            <p
+              role="status"
+              aria-live="polite"
+              className="mb-6 rounded-sm bg-secondary/10 border border-secondary/30 px-3 py-2 text-body-sm font-medium text-secondary"
+            >
+              {profileSuccess}
+            </p>
+          )}
+
           {!isEditing ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-8 gap-x-6">
               <div className="flex flex-col gap-1">
@@ -337,7 +407,7 @@ export default function UserProfile() {
               </div>
             </div>
           ) : (
-            <form onSubmit={handleSave} className="flex flex-col gap-5 animate-fade-in">
+            <form onSubmit={handleSave} noValidate className="flex flex-col gap-5 animate-fade-in">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div className="flex flex-col gap-2">
                   <label htmlFor="profile-first-name" className="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">
@@ -483,7 +553,7 @@ export default function UserProfile() {
                 </button>
               </div>
 
-              <form onSubmit={handlePasswordChange} className="space-y-5 p-6">
+              <form onSubmit={handlePasswordChange} noValidate className="space-y-5 p-6">
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                   <div className="flex flex-col gap-2 sm:col-span-2">
                     <label
