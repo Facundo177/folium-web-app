@@ -9,12 +9,20 @@ const CACHE_TTL = 5 * 60 * 1000; // 5 minutos de caché individual por libro
  * Permite que al abrir un libro ya visitado, este se muestre instantáneamente sin pantallas en blanco.
  */
 export function useBook(id) {
-  const cached = id ? bookCache.get(String(id)) : null;
-  const isCacheValid = Boolean(cached && Date.now() - cached.timestamp < CACHE_TTL);
+  const initialCached = id ? bookCache.get(String(id)) : null;
 
-  const [book, setBook] = useState(isCacheValid ? cached.data : null);
-  const [isLoading, setIsLoading] = useState(!isCacheValid && Boolean(id));
+  const [book, setBook] = useState(initialCached ? initialCached.data : null);
+  const [isLoading, setIsLoading] = useState(!initialCached && Boolean(id));
   const [error, setError] = useState(null);
+  const [prevId, setPrevId] = useState(id);
+
+  if (id !== prevId) {
+    setPrevId(id);
+    const nextCached = id ? bookCache.get(String(id)) : null;
+    setBook(nextCached ? nextCached.data : null);
+    setIsLoading(!nextCached && Boolean(id));
+    setError(null);
+  }
 
   const fetchBook = useCallback(async (force = false) => {
     if (!id) {
@@ -44,7 +52,15 @@ export function useBook(id) {
 
   useEffect(() => {
     if (!id) return;
-    fetchBook();
+    let active = true;
+    Promise.resolve().then(() => {
+      if (active) {
+        fetchBook();
+      }
+    });
+    return () => {
+      active = false;
+    };
   }, [id, fetchBook]);
 
   return { book, isLoading, error, refetch: () => fetchBook(true) };

@@ -57,11 +57,14 @@ export default function CatalogSearch({
   }, [apiGenres]);
 
   // Estado local del buscador con debounce
-  const [searchQuery, setSearchQuery] = useState(filters?.search || "");
+  const externalSearch = filters?.search || "";
+  const [searchQuery, setSearchQuery] = useState(externalSearch);
+  const [prevExternalSearch, setPrevExternalSearch] = useState(externalSearch);
 
-  useEffect(() => {
-    setSearchQuery(filters?.search || "");
-  }, [filters?.search]);
+  if (externalSearch !== prevExternalSearch) {
+    setPrevExternalSearch(externalSearch);
+    setSearchQuery(externalSearch);
+  }
 
   // Debounce de 350ms al teclear (evita resetear la página si el valor no cambió)
   useEffect(() => {

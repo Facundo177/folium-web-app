@@ -152,10 +152,7 @@ export default function BookCatalog() {
   }, [showToast, refetchBooks]);
 
   useEffect(() => {
-    if (!user) {
-      setFavoritesMap({});
-      return;
-    }
+    if (!user) return;
 
     let isMounted = true;
     const fetchFavorites = async () => {
@@ -182,10 +179,7 @@ export default function BookCatalog() {
 
   // Cargar reservas activas del usuario lector
   useEffect(() => {
-    if (!user) {
-      setUserReservationsMap({});
-      return;
-    }
+    if (!user) return;
 
     let isMounted = true;
     const fetchReservations = async () => {
@@ -211,6 +205,9 @@ export default function BookCatalog() {
       isMounted = false;
     };
   }, [user]);
+
+  const effectiveFavoritesMap = user ? favoritesMap : {};
+  const effectiveReservationsMap = user ? userReservationsMap : {};
 
   const handleToggleFavorite = useCallback(
     async (book) => {
@@ -319,8 +316,8 @@ export default function BookCatalog() {
             ? recommendations
             : (Array.isArray(books) ? books : []).slice(0, 10)
         }
-        favoritesMap={favoritesMap}
-        userReservationsMap={userReservationsMap}
+        favoritesMap={effectiveFavoritesMap}
+        userReservationsMap={effectiveReservationsMap}
         onReservationSuccess={handleReservationSuccess}
         onToggleFavorite={handleToggleFavorite}
         onRequireAuth={openGuestPrompt}
@@ -331,8 +328,8 @@ export default function BookCatalog() {
         isLoading={isLoading}
         isFetching={isFetching}
         error={error}
-        favoritesMap={favoritesMap}
-        userReservationsMap={userReservationsMap}
+        favoritesMap={effectiveFavoritesMap}
+        userReservationsMap={effectiveReservationsMap}
         onReservationSuccess={handleReservationSuccess}
         onReservationError={handleReservationError}
         onCancelSuccess={handleCancelSuccess}

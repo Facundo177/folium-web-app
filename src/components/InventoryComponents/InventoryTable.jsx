@@ -40,12 +40,13 @@ export const InventoryTable = ({
   onSearchChange,
 }) => {
   const [searchInput, setSearchInput] = useState(externalSearch);
+  const [prevExternalSearch, setPrevExternalSearch] = useState(externalSearch);
   const isFirstMount = useRef(true);
 
-  // Sincronizar input si externalSearch cambia externamente
-  useEffect(() => {
+  if (externalSearch !== prevExternalSearch) {
+    setPrevExternalSearch(externalSearch);
     setSearchInput(externalSearch);
-  }, [externalSearch]);
+  }
 
   // Debounce de 400ms al escribir: evita saturación y previene reseteo accidental de página en mount
   useEffect(() => {
@@ -71,11 +72,6 @@ export const InventoryTable = ({
   const [deletingItem, setDeletingItem] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState(null);
-
-  const statuses = useMemo(
-    () => [...new Set(rows.map((r) => r.statusLabel))],
-    [rows]
-  );
 
   const filtered = useMemo(() => {
     const term = searchInput.trim().toLowerCase();

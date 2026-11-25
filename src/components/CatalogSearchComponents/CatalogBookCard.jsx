@@ -1,4 +1,4 @@
-import { useState, useEffect, memo } from "react";
+import { useState, memo } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../auth/AuthProvider";
@@ -26,14 +26,16 @@ function CatalogBookCard({
   const { user } = useAuth();
   const [favorited, setFavorited] = useState(isFavorite);
   const [currentFavId, setCurrentFavId] = useState(favoriteId);
+  const [prevSyncedProps, setPrevSyncedProps] = useState({ isFavorite, favoriteId });
   const [favError, setFavError] = useState("");
   const [confirmAction, setConfirmAction] = useState(null); // null | "reserve" | "cancel"
   const [processing, setProcessing] = useState(false);
 
-  useEffect(() => {
+  if (prevSyncedProps.isFavorite !== isFavorite || prevSyncedProps.favoriteId !== favoriteId) {
+    setPrevSyncedProps({ isFavorite, favoriteId });
     setFavorited(isFavorite);
     setCurrentFavId(favoriteId);
-  }, [isFavorite, favoriteId]);
+  }
 
   // Función auxiliar para obtener las fechas en el formato correcto (YYYY-MM-DDTHH:mm)
   const getInitialDateTime = (offsetDays = 0) => {

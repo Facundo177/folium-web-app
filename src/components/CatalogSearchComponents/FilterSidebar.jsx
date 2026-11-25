@@ -8,10 +8,6 @@ export default function FilterSidebar({
   categories,
   activeCategory,
   setActiveCategory,
-  // Editoriales
-  editorials,
-  activeEditorial,
-  setActiveEditorial,
   // Rango de Años
   yearRange,
   setYearRange,
@@ -41,11 +37,6 @@ export default function FilterSidebar({
     }, 350);
     return () => clearTimeout(timer);
   }, [yearInput, externalYear, isYearInputValid, setYearRange]);
-
-  // Manejador del rango de años
-  const handleYearChange = (field, value) => {
-    setYearRange((prev) => ({ ...prev, [field]: value }));
-  };
 
   return (
     <div className="bg-surface-container rounded-md p-5 border border-outline-variant/50 shadow-md">

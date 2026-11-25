@@ -84,7 +84,15 @@ export function useInventory(initialParams = {}) {
   );
 
   useEffect(() => {
-    fetchItems();
+    let active = true;
+    Promise.resolve().then(() => {
+      if (active) {
+        fetchItems();
+      }
+    });
+    return () => {
+      active = false;
+    };
   }, [fetchItems]);
 
   const totalPages = Math.max(1, Math.ceil(count / pageSize));

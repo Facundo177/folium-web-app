@@ -41,28 +41,27 @@ const readFiltersFromSearchParams = (searchParams, defaults) => {
 export function useBooks(initialFilters = {}, { syncUrl = false } = {}) {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const defaultFiltersRef = useRef({
+  const [defaultFilters] = useState(() => ({
     genre: '',
     year: '',
     search: '',
     page: 1,
     page_size: 20,
     ...initialFilters,
-  });
+  }));
 
   const [filters, setFiltersState] = useState(() =>
     syncUrl
-      ? readFiltersFromSearchParams(searchParams, defaultFiltersRef.current)
-      : defaultFiltersRef.current
+      ? readFiltersFromSearchParams(searchParams, defaultFilters)
+      : defaultFilters
   );
 
   const currentKey = buildKey(filters);
   const cached = catalogCache.get(currentKey);
-  const isCacheValid = Boolean(cached && Date.now() - cached.timestamp < CACHE_TTL);
 
-  const [books, setBooks] = useState(isCacheValid ? cached.books : []);
-  const [totalCount, setTotalCount] = useState(isCacheValid ? cached.totalCount : 0);
-  const [isLoading, setIsLoading] = useState(!isCacheValid);
+  const [books, setBooks] = useState(() => (cached ? cached.books : []));
+  const [totalCount, setTotalCount] = useState(() => (cached ? cached.totalCount : 0));
+  const [isLoading, setIsLoading] = useState(() => !cached);
   const [isFetching, setIsFetching] = useState(false);
   const [error, setError] = useState(null);
 
@@ -156,22 +155,32 @@ export function useBooks(initialFilters = {}, { syncUrl = false } = {}) {
   // Sincronizar si la URL cambia externamente (ej. botón Atrás/Adelante del navegador)
   useEffect(() => {
     if (!syncUrl) return;
-    const fromUrl = readFiltersFromSearchParams(searchParams, defaultFiltersRef.current);
-    setFiltersState((prev) => {
-      if (
-        prev.search === fromUrl.search &&
-        prev.genre === fromUrl.genre &&
-        prev.year === fromUrl.year &&
-        prev.page === fromUrl.page
-      ) {
-        return prev;
-      }
-      return fromUrl;
+    const fromUrl = readFiltersFromSearchParams(searchParams, defaultFilters);
+    Promise.resolve().then(() => {
+      setFiltersState((prev) => {
+        if (
+          prev.search === fromUrl.search &&
+          prev.genre === fromUrl.genre &&
+          prev.year === fromUrl.year &&
+          prev.page === fromUrl.page
+        ) {
+          return prev;
+        }
+        return fromUrl;
+      });
     });
-  }, [syncUrl, searchParams]);
+  }, [syncUrl, searchParams, defaultFilters]);
 
   useEffect(() => {
-    fetchBooks(filters);
+    let active = true;
+    Promise.resolve().then(() => {
+      if (active) {
+        fetchBooks(filters);
+      }
+    });
+    return () => {
+      active = false;
+    };
   }, [filters, fetchBooks]);
 
   const setFilters = useCallback(

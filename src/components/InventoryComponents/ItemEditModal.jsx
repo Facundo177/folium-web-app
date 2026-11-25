@@ -30,6 +30,19 @@ export default function ItemEditModal({
     location: "",
     status: ITEM_STATUS.AVAILABLE,
   });
+  const [prevModalSync, setPrevModalSync] = useState({ isOpen: false, item: null });
+
+  if (isOpen !== prevModalSync.isOpen || item !== prevModalSync.item) {
+    setPrevModalSync({ isOpen, item });
+    if (isOpen && item) {
+      setEditForm({
+        book: item.bookId ?? "",
+        inventory_code: item.code || "",
+        location: item.location || "",
+        status: item.status || ITEM_STATUS.AVAILABLE,
+      });
+    }
+  }
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -45,17 +58,6 @@ export default function ItemEditModal({
       }
     }
   }, [isOpen]);
-
-  useEffect(() => {
-    if (item) {
-      setEditForm({
-        book: item.bookId ?? "",
-        inventory_code: item.code || "",
-        location: item.location || "",
-        status: item.status || ITEM_STATUS.AVAILABLE,
-      });
-    }
-  }, [item]);
 
   // Si el libro del ejemplar no está en los primeros 20 (por paginación), se asegura su presencia como opción
   const bookOptions = useMemo(() => {

@@ -9,9 +9,8 @@ const CACHE_TTL = 10 * 60 * 1000; // 10 minutos de caché en memoria
  * Hook para gestionar la lista de géneros literarios con caché en memoria (SWR).
  */
 export function useGenres(initialParams = {}) {
-  const isCacheValid = Boolean(genresCache && Date.now() - genresCacheTimestamp < CACHE_TTL);
-  const [genres, setGenres] = useState(isCacheValid ? genresCache : []);
-  const [isLoading, setIsLoading] = useState(!isCacheValid);
+  const [genres, setGenres] = useState(() => genresCache || []);
+  const [isLoading, setIsLoading] = useState(() => !genresCache);
   const [error, setError] = useState(null);
 
   const fetchGenres = useCallback(async (params = initialParams, force = false) => {
@@ -38,7 +37,15 @@ export function useGenres(initialParams = {}) {
   }, []);
 
   useEffect(() => {
-    fetchGenres();
+    let active = true;
+    Promise.resolve().then(() => {
+      if (active) {
+        fetchGenres();
+      }
+    });
+    return () => {
+      active = false;
+    };
   }, [fetchGenres]);
 
   return { genres, isLoading, error, refetch: (p) => fetchGenres(p, true) };

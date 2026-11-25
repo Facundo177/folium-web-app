@@ -27,7 +27,15 @@ export function useUserProfile() {
   }, []);
 
   useEffect(() => {
-    fetchProfile();
+    let active = true;
+    Promise.resolve().then(() => {
+      if (active) {
+        fetchProfile();
+      }
+    });
+    return () => {
+      active = false;
+    };
   }, [fetchProfile]);
 
   return { profile, setProfile, isLoading, error, refetch: fetchProfile };

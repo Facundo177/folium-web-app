@@ -60,6 +60,34 @@ export default function BookEditModal({ isOpen, book, onClose, onSaved }) {
     message: "",
   });
 
+  const [prevModalSync, setPrevModalSync] = useState({ isOpen: false, book: null });
+
+  if (isOpen !== prevModalSync.isOpen || book !== prevModalSync.book) {
+    setPrevModalSync({ isOpen, book });
+    if (isOpen && book) {
+      setFormDataValues({
+        title: book.title || "",
+        editorial: book.editorial || "",
+        isbn: book.isbn || "",
+        publication_year: book.publication_year ?? "",
+        description: book.description || "",
+      });
+      setSelectedAuthors(book.authors || []);
+      setSelectedGenres(
+        (book.genres || [])
+          .map((g) => (typeof g === "object" && g !== null ? g.id : g))
+          .filter(Boolean)
+      );
+      setCoverFile(null);
+      setCoverPreview(book.cover_image || null);
+      setSaveError(null);
+      setAuthorSearch("");
+      setShowAuthorDropdown(false);
+      setShowNewAuthorModal(false);
+      setShowNewGenreModal(false);
+    }
+  }
+
   // Sincronizar isOpen con native <dialog>
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -75,31 +103,6 @@ export default function BookEditModal({ isOpen, book, onClose, onSaved }) {
       }
     }
   }, [isOpen]);
-
-  // Cargar datos actuales del libro al abrir
-  useEffect(() => {
-    if (!isOpen || !book) return;
-    setFormDataValues({
-      title: book.title || "",
-      editorial: book.editorial || "",
-      isbn: book.isbn || "",
-      publication_year: book.publication_year ?? "",
-      description: book.description || "",
-    });
-    setSelectedAuthors(book.authors || []);
-    setSelectedGenres(
-      (book.genres || [])
-        .map((g) => (typeof g === "object" && g !== null ? g.id : g))
-        .filter(Boolean)
-    );
-    setCoverFile(null);
-    setCoverPreview(book.cover_image || null);
-    setSaveError(null);
-    setAuthorSearch("");
-    setShowAuthorDropdown(false);
-    setShowNewAuthorModal(false);
-    setShowNewGenreModal(false);
-  }, [isOpen, book]);
 
   // Cargar catálogos de autores y géneros
   useEffect(() => {

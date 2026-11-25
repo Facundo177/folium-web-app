@@ -10,13 +10,10 @@ const CACHE_TTL = 5 * 60 * 1000; // 5 minutos de caché
  * Retorna { recommendations, isLoading, error, refetch }.
  */
 export function useRecommendations() {
-  const isCacheValid = Boolean(
-    recommendationsCache && Date.now() - recommendationsTimestamp < CACHE_TTL
-  );
   const [recommendations, setRecommendations] = useState(
-    isCacheValid ? recommendationsCache : []
+    () => recommendationsCache || []
   );
-  const [isLoading, setIsLoading] = useState(!isCacheValid);
+  const [isLoading, setIsLoading] = useState(() => !recommendationsCache);
   const [error, setError] = useState(null);
 
   const fetchRecommendations = useCallback(async (force = false) => {
@@ -43,7 +40,15 @@ export function useRecommendations() {
   }, []);
 
   useEffect(() => {
-    fetchRecommendations();
+    let active = true;
+    Promise.resolve().then(() => {
+      if (active) {
+        fetchRecommendations();
+      }
+    });
+    return () => {
+      active = false;
+    };
   }, [fetchRecommendations]);
 
   return { recommendations, isLoading, error, refetch: () => fetchRecommendations(true) };

@@ -95,7 +95,7 @@ export const adaptBookDetail = (b) => {
   const base = adaptBook(b);
   const items = Array.isArray(b.items) ? b.items : [];
 
-  let totalItems = 0;
+  let totalItems;
   if (typeof b.total_items === "number") {
     totalItems = b.total_items;
   } else if (Array.isArray(b.total_items)) {
@@ -104,7 +104,7 @@ export const adaptBookDetail = (b) => {
     totalItems = items.length;
   }
 
-  let availableItems = 0;
+  let availableItems;
   if (typeof b.available_items === "number") {
     availableItems = b.available_items;
   } else if (Array.isArray(b.available_items)) {

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import BookCard from "./BookCard";
 import { useNavigate } from "react-router-dom";
 import ScrollIndicator from "../BasicUIComponents/ScrollIndicator";
@@ -196,7 +196,7 @@ export default function BookCoverFlow({
   );
 
   const handleCardFavourite = useCallback(
-    (book) => async (e) => {
+    (book) => async () => {
       if (onToggleFavorite) {
         await onToggleFavorite(book);
       } else {

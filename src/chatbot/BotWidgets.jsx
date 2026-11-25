@@ -459,13 +459,14 @@ export function BookSearchWidget(props) {
   const [isLoading, setIsLoading] = useState(true);
   const [searchError, setSearchError] = useState(false);
 
+  const cleanQuery = query.trim();
+
   useEffect(() => {
     let mounted = true;
-    const cleanQuery = query.trim();
     if (!cleanQuery) {
-      setBooks([]);
-      setIsLoading(false);
-      return;
+      return () => {
+        mounted = false;
+      };
     }
 
     const fetchBooks = async () => {
@@ -493,14 +494,14 @@ export function BookSearchWidget(props) {
     return () => {
       mounted = false;
     };
-  }, [query, searchMode]);
+  }, [cleanQuery, searchMode]);
 
   const matches = useMemo(() => {
-    if (!query.trim()) return [];
+    if (!cleanQuery) return [];
     return books.slice(0, 4);
-  }, [books, query]);
+  }, [books, cleanQuery]);
 
-  if (isLoading) {
+  if (Boolean(cleanQuery) && isLoading) {
     return (
       <div className="ml-11 mb-3 p-3 bg-surface-container-lowest border border-outline-variant/60 rounded-lg text-xs text-on-surface-variant italic">
         Buscando &ldquo;{query}&rdquo; en el catálogo...

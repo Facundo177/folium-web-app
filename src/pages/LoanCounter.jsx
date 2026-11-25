@@ -15,7 +15,6 @@ import { loanService } from "../api/services/loanService";
 import { formatApiError } from "../api/errorUtils";
 import GoBackButton from "../components/BasicUIComponents/GoBackButton";
 import BookCoverImage from "../components/BasicUIComponents/BookCoverImage";
-import FeedbackModal from "../components/BasicUIComponents/FeedbackModal";
 import CreateReaderModal from "../components/LoanComponents/CreateReaderModal";
 import {
   BookOpenCheck,
@@ -26,7 +25,6 @@ import {
   BookOpen,
   Barcode,
   Calendar,
-  Clock,
   CheckCircle2,
   AlertCircle,
   ChevronDown,
@@ -35,9 +33,6 @@ import {
   ChevronRight,
   X,
   Loader2,
-  Layers,
-  ArrowRight,
-  ShieldCheck,
 } from "lucide-react";
 
 const AVAILABLE_BOOKS_PAGE_SIZE = 50;
@@ -137,8 +132,14 @@ export default function LoanCounter() {
   }, []);
 
   useEffect(() => {
-    fetchAvailableBooks(deferredBookSearch, availableBooksPage);
+    let active = true;
+    Promise.resolve().then(() => {
+      if (active) {
+        fetchAvailableBooks(deferredBookSearch, availableBooksPage);
+      }
+    });
     return () => {
+      active = false;
       availableBooksRequestId.current += 1;
     };
   }, [deferredBookSearch, availableBooksPage, fetchAvailableBooks]);
