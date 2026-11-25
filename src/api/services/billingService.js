@@ -192,33 +192,12 @@ const BASE = "/billing/";
 
 export const billingService = {
   /**
-   * Obtiene los planes institucionales desde el backend.
-   * Si el endpoint aún no fue registrado en `urls.py`, devuelve el catálogo por defecto.
+   * Obtiene los planes institucionales reales desde el backend (`/billing/plans/`).
+   * Propaga errores de red/servidor para que la UI los maneje explícitamente.
    */
   getPlans: async () => {
-    try {
-      const response = await api.get(`${BASE}plans/`);
-      const plans = response.data?.plans;
-      // Si el backend remoto aún responde con la versión legada anterior (ej: PLUS),
-      // preservamos el catálogo oficial actualizado (BASIC, PRO, PREMIUM)
-      const hasUpdatedCatalog = plans?.some((p) => p.code === "BASIC" || p.code === "PREMIUM");
-      if (!hasUpdatedCatalog) {
-        return {
-          ...response.data,
-          plans: DEFAULT_LIBRARY_PLANS,
-        };
-      }
-      return response.data;
-    } catch {
-      return {
-        plans: DEFAULT_LIBRARY_PLANS,
-        gateway: {
-          provider: "mercadopago",
-          is_live_configured: false,
-          public_key: import.meta.env.VITE_MP_PUBLIC_KEY || null,
-        },
-      };
-    }
+    const response = await api.get(`${BASE}plans/`);
+    return response.data;
   },
 
   /**
