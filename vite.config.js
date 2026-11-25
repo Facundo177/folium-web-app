@@ -2,16 +2,13 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, loadEnv } from 'vite'
 
-const AWS_BACKEND = 'http://54.160.130.29'
-
 // https://vite.dev/config/
 export default defineConfig(({ command, mode }) => {
-  // `npm run dev` (serve) -> localhost; `npm run build` / `vite preview` -> AWS
   const isDev = command === 'serve' && mode !== 'production'
+  const env = loadEnv(mode, process.cwd(), '')
 
-  let backendOrigin = AWS_BACKEND
+  let backendOrigin = env.VITE_PREVIEW_BACKEND_URL || env.BACKEND_HOST || 'http://localhost:8080'
   if (isDev) {
-    const env = loadEnv(mode, process.cwd(), '')
     backendOrigin = 'http://localhost:8080'
     try {
       backendOrigin = new URL(env.VITE_API_BASE_URL).origin

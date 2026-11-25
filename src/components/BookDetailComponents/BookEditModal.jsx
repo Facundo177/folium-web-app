@@ -265,24 +265,25 @@ export default function BookEditModal({ isOpen, book, onClose, onSaved }) {
       return;
     }
 
+    const parsedYear = parseInt(formDataValues.publication_year, 10);
+    const currentYear = new Date().getFullYear();
+    if (Number.isNaN(parsedYear) || parsedYear < 868 || parsedYear > currentYear) {
+      setSaveError(`Ingresa un año de publicación válido entre 868 y ${currentYear}.`);
+      return;
+    }
+
     setIsSaving(true);
     try {
       const formData = new FormData();
       formData.append("title", formDataValues.title.trim());
       formData.append("editorial", formDataValues.editorial.trim());
       formData.append("isbn", cleanIsbn);
-      formData.append("publication_year", parseInt(formDataValues.publication_year, 10));
+      formData.append("publication_year", parsedYear);
       formData.append("description", formDataValues.description);
 
       selectedAuthors.forEach((a) => formData.append("authors", a.id));
-      if (selectedAuthors.length === 1) {
-        formData.append("authors", selectedAuthors[0].id);
-      }
 
       selectedGenres.forEach((gId) => formData.append("genres", gId));
-      if (selectedGenres.length === 1) {
-        formData.append("genres", selectedGenres[0]);
-      }
 
       if (coverFile instanceof File) {
         formData.append("cover_image", coverFile);

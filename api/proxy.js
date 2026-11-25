@@ -38,8 +38,23 @@ const MIME_TYPES = {
 const MEDIA_CDN_CACHE_CONTROL =
   "public, max-age=31536000, s-maxage=31536000, stale-while-revalidate=2592000, immutable";
 
+let warnedMissingBackendHost = false;
+
 export default async function handler(req, res) {
-  const BACKEND_HOST = process.env.BACKEND_HOST || "http://54.160.130.29";
+  const configuredHost = process.env.BACKEND_HOST?.trim();
+  if (!configuredHost && process.env.REQUIRE_BACKEND_HOST === "true") {
+    return res.status(503).json({
+      error: "Service Unavailable",
+      detail: "Variable de entorno BACKEND_HOST no configurada en el proxy.",
+    });
+  }
+  if (!configuredHost && !warnedMissingBackendHost) {
+    warnedMissingBackendHost = true;
+    console.warn(
+      "[Folium Proxy] Variable de entorno BACKEND_HOST no configurada; usando host de respaldo temporal."
+    );
+  }
+  const BACKEND_HOST = configuredHost || "http://54.160.130.29";
 
   try {
     const rawPrefix = String(req.query?.prefix || "api").toLowerCase();
