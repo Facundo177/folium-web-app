@@ -9,11 +9,23 @@ const CACHE_TTL = 3 * 60 * 1000; // 3 minutos de retención
 const buildKey = (f) =>
   `${f.search || ''}|${f.genre || ''}|${f.year || ''}|${f.page || 1}|${f.page_size || 20}`;
 
+export const MIN_PUBLICATION_YEAR = 868;
+
+export const sanitizeYearParam = (value) => {
+  const trimmed = String(value ?? '').trim();
+  if (!/^\d{4}$/.test(trimmed)) return '';
+  const parsed = Number(trimmed);
+  const maxYear = new Date().getFullYear();
+  return Number.isInteger(parsed) && parsed >= MIN_PUBLICATION_YEAR && parsed <= maxYear
+    ? String(parsed)
+    : '';
+};
+
 const readFiltersFromSearchParams = (searchParams, defaults) => {
   const parsedPage = parseInt(searchParams.get('page'), 10);
   return {
     genre: searchParams.get('genre') ?? defaults.genre,
-    year: searchParams.get('year') ?? defaults.year,
+    year: sanitizeYearParam(searchParams.get('year')) || defaults.year,
     search: searchParams.get('search') ?? defaults.search,
     page: Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : defaults.page,
     page_size: defaults.page_size,
@@ -89,9 +101,10 @@ export function useBooks(initialFilters = {}, { syncUrl = false } = {}) {
     setError(null);
 
     const params = {};
+    const validYear = sanitizeYearParam(currentFilters.year);
     if (currentFilters.search)    params.search    = currentFilters.search;
     if (currentFilters.genre)     params.genre     = currentFilters.genre;
-    if (currentFilters.year)      params.year      = currentFilters.year;
+    if (validYear)                params.year      = Number(validYear);
     params.page      = currentFilters.page;
     params.page_size = currentFilters.page_size;
 
@@ -164,9 +177,13 @@ export function useBooks(initialFilters = {}, { syncUrl = false } = {}) {
   const setFilters = useCallback(
     (newFilters) => {
       setFiltersState((prev) => {
+        const sanitizedUpdates = { ...newFilters };
+        if ('year' in sanitizedUpdates) {
+          sanitizedUpdates.year = sanitizeYearParam(sanitizedUpdates.year);
+        }
         const next = {
           ...prev,
-          ...newFilters,
+          ...sanitizedUpdates,
           page: 1,
         };
         syncFiltersToUrl(next);
