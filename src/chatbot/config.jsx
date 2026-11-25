@@ -158,7 +158,7 @@ const config = {
         <NavWidget
           {...props}
           payload={{
-            route: "/admin/dashboard",
+            route: "/librarian/inventory",
             text: "Panel de Administración",
           }}
         />

@@ -32,9 +32,7 @@ export default function LoginForm() {
       const loggedUser = await login(username, password);
 
       // Redirección condicional según rol:
-      if (loggedUser?.role === "ADMIN") {
-        navigate("/admin/dashboard", { replace: true });
-      } else if (loggedUser?.role === "LIBRARIAN") {
+      if (["ADMIN", "LIBRARIAN"].includes(loggedUser?.role)) {
         navigate("/librarian/inventory", { replace: true });
       } else {
         // Lector (USER) o por defecto

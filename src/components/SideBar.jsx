@@ -35,7 +35,7 @@ export default function Sidebar() {
   const { user, logout } = useAuth();
 
   // Verificamos de forma segura si el usuario existe antes de leer el rol
-  const roleLibrarian = user?.role === "LIBRARIAN";
+  const roleLibrarian = ["LIBRARIAN", "ADMIN"].includes(user?.role);
 
   // Cerrar menú móvil con tecla Escape
   useEffect(() => {
@@ -98,7 +98,13 @@ export default function Sidebar() {
   // Nombres seguros para evitar romper la página
   const displayFirstName = profile?.first_name || user?.username || '';
   const displayLastName = profile?.last_name || '';
-  const displayRole = user ? (roleLibrarian ? 'BIBLIOTECARIO/A' : 'LECTOR/A') : 'INVITADO';
+  const displayRole = user
+    ? user?.role === "ADMIN"
+      ? "ADMINISTRADOR/A"
+      : roleLibrarian
+      ? "BIBLIOTECARIO/A"
+      : "LECTOR/A"
+    : "INVITADO";
 
   return (
     <>
