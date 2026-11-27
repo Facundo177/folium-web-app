@@ -10,6 +10,7 @@ import { bookService } from "../../api/services/bookService";
 import { authorService } from "../../api/services/authorService";
 import { genreService } from "../../api/services/genreService";
 import { editorialService } from "../../api/services/editorialService";
+import { importerService } from "../../api/services/importerService";
 import GoBackButton from "../BasicUIComponents/GoBackButton";
 import FeedbackModal from "../BasicUIComponents/FeedbackModal";
 import { useNavigate } from "react-router-dom";
@@ -796,6 +797,14 @@ export default function LoadBookForm() {
       await bookService.create(submitData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
+
+      if (!formData.cover_image && formData.isbn.trim()) {
+        try {
+          await importerService.fetchCoversBatch([formData.isbn.trim()]);
+        } catch (coverError) {
+          console.warn("No se pudo buscar la portada por ISBN:", coverError);
+        }
+      }
 
       const bookTitle = formData.title;
 

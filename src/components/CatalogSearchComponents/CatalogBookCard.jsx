@@ -151,11 +151,10 @@ function CatalogBookCard({
         {/* Botón de Favorito */}
         <button
           onClick={handleToggleFavorite}
-          className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors border cursor-pointer shrink-0 ${
-            favorited
+          className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors border cursor-pointer shrink-0 ${favorited
               ? "bg-primary text-on-primary border-primary"
               : "bg-surface-container-lowest text-on-surface-variant border-outline-variant hover:text-primary hover:border-primary"
-          }`}
+            }`}
           title={favorited ? "Quitar de favoritos" : "Guardar en favoritos"}
         >
           <Heart className={`w-3.5 h-3.5 ${favorited ? "fill-current" : ""}`} />
@@ -235,26 +234,26 @@ function CatalogBookCard({
             typeof book.availableItems === "number"
               ? book.availableItems
               : typeof book.available_items === "number"
-              ? book.available_items
-              : Array.isArray(book.available_items)
-              ? book.available_items.length
-              : null;
+                ? book.available_items
+                : Array.isArray(book.available_items)
+                  ? book.available_items.length
+                  : null;
 
           const totalCount =
             typeof book.totalItems === "number"
               ? book.totalItems
               : typeof book.total_items === "number"
-              ? book.total_items
-              : Array.isArray(book.total_items)
-              ? book.total_items.length
-              : null;
+                ? book.total_items
+                : Array.isArray(book.total_items)
+                  ? book.total_items.length
+                  : null;
 
           const hasAvailableCopies =
             availableCount !== null
               ? availableCount > 0
               : totalCount !== null && totalCount === 0
-              ? false
-              : true;
+                ? false
+                : true;
 
           const isGuestUser = !user || !user.id;
           const isReservable = hasAvailableCopies && !isReservedByUser;
@@ -264,21 +263,20 @@ function CatalogBookCard({
             <button
               onClick={handleActionClick}
               disabled={!canClick}
-              className={`mt-auto w-full border py-2.5 rounded-sm flex items-center justify-center text-center text-xs font-bold tracking-widest uppercase transition-colors ${
-                !canClick
+              className={`mt-auto w-full border py-2.5 rounded-sm flex items-center justify-center text-center text-xs font-bold tracking-widest uppercase transition-colors ${!canClick
                   ? "bg-surface-container-highest text-on-surface-variant/40 border-outline-variant/30 cursor-not-allowed pointer-events-none opacity-60"
                   : "bg-secondary text-on-secondary hover:bg-secondary-container hover:text-on-secondary-container border-outline-variant/30 cursor-pointer"
-              }`}
+                }`}
             >
               {isGuestUser
                 ? hasAvailableCopies
                   ? "Iniciá sesión para reservar"
                   : "Sin ejemplares"
                 : isReservedByUser
-                ? "Cancelar reserva"
-                : hasAvailableCopies
-                ? "Reservar"
-                : "Sin ejemplares"}
+                  ? "Cancelar reserva"
+                  : hasAvailableCopies
+                    ? "Reservar"
+                    : "Sin ejemplares"}
             </button>
           );
         })()}
@@ -324,8 +322,8 @@ function CatalogBookCard({
                   {processing
                     ? "Procesando..."
                     : confirmAction === "cancel"
-                    ? "Sí, cancelar"
-                    : "Sí, reservar"}
+                      ? "Sí, cancelar"
+                      : "Sí, reservar"}
                 </button>
               </div>
             </div>
