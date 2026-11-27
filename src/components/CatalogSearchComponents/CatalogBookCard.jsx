@@ -25,6 +25,9 @@ function CatalogBookCard({
   const [confirmAction, setConfirmAction] = useState(null); // null | "reserve" | "cancel"
   const [processing, setProcessing] = useState(false);
 
+  const [failedCoverUrl, setFailedCoverUrl] = useState(null);
+  const hasCover = Boolean(book.cover) && failedCoverUrl !== book.cover;
+
   useEffect(() => {
     setFavorited(isFavorite);
     setCurrentFavId(favoriteId);
@@ -160,27 +163,28 @@ function CatalogBookCard({
       </div>
 
       {/* --- IMAGEN DE PORTADA / PORTADA EDITORIAL CON FRAME --- */}
-      <div className="relative w-full aspect-[2/3] max-h-80 mb-4 flex items-start justify-start bg-surface-container-low border border-outline-variant/40 rounded-sm overflow-hidden z-10">
-        {book.cover && (
+      <div className="relative w-full aspect-[2/3] max-h-80 mb-4 flex items-center justify-center bg-surface-container-low border border-outline-variant/40 rounded-sm overflow-hidden z-10">
+        {hasCover && (
           <img
             src={book.cover}
             alt={book.title}
             loading="lazy"
             decoding="async"
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            onError={() => setFailedCoverUrl(book.cover)}
           />
         )}
 
-        {book.cover && (
+        {hasCover && (
           <div className="absolute inset-0 bg-black/10 z-0 pointer-events-none" />
         )}
 
-        {!book.cover && (
+        {!hasCover && (
           <>
             <div className="pointer-events-none absolute inset-2 border border-outline-variant/40 rounded-[2px]" />
             <div className="pointer-events-none absolute inset-3 border border-outline-variant/20 rounded-[1px]" />
 
-            <div className="p-4 text-center z-10 flex flex-col items-center justify-center h-full">
+            <div className="p-4 text-center z-10 flex flex-col items-center justify-center h-full w-full">
               <span className="font-serif italic text-lg text-on-surface line-clamp-3 leading-snug">
                 {book.title}
               </span>
