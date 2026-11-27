@@ -1,18 +1,17 @@
 import { Link } from "react-router-dom";
-import FoliumSmallLogo from "../BasicUIComponents/FoliumSmallLogo";
+import FoliumFullLogo from "../BasicUIComponents/FoliumFullLogo";
 
 export default function FoliumLandingNavbar() {
   return (
     <header className="relative z-20 w-full flex justify-between items-center py-stack-sm px-margin-edge border-b border-outline-variant/30 bg-background/80 backdrop-blur-sm">
-      {/* Logo y Marca */}
-      <div className="flex items-center gap-base group text-inherit no-underline">
-        <div className="w-10 h-10 rounded-full bg-tertiary-container flex items-center justify-center text-on-tertiary shadow-sm">
-          <FoliumSmallLogo />
-        </div>
-        <span className="font-serif text-headline-md text-on-surface group-hover:text-tertiary-container transition-colors">
-          folium
-        </span>
-      </div>
+      {/* Logo completo */}
+        <Link
+          to="/"
+          aria-label="Inicio de Folium"
+          className="inline-flex w-28 h-9 sm:w-36 sm:h-11 shrink-0"
+        >
+          <FoliumFullLogo />
+        </Link>
 
       {/* Acciones (Login y Registro) */}
       <div className="flex items-center gap-gutter">
