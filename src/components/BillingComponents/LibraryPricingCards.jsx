@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BadgeCheck, Check, ShieldCheck, Building2 } from "lucide-react";
+import { BadgeCheck, Check, ShieldCheck } from "lucide-react";
 import { DEFAULT_LIBRARY_PLANS } from "../../api/services/billingService";
 
 /**
@@ -37,15 +37,14 @@ export default function LibraryPricingCards({
         {/* Encabezado y Controles de Facturación */}
         <div className="text-center max-w-3xl mx-auto mb-10">
           <span className="text-label-caps text-primary tracking-[0.2em] uppercase block mb-3">
-            Suscripciones 
+            Suscripciones
           </span>
           <h1 className="font-serif text-3xl sm:text-5xl text-on-surface font-medium leading-tight mb-4">
             Planes pensados para cada escala de biblioteca
           </h1>
           <p className="text-body-lg text-on-surface-variant leading-relaxed mb-8">
-            Comienza con nuestra modalidad sin cargo para pequeños archivos o
-            amplía la capacidad operativa de tu institución con facturación
-            local transparente a través de MercadoPago.
+            Elige el plan que mejor se adapte a las necesidades de tu biblioteca, con
+            facturación local a través de MercadoPago.
           </p>
 
           {/* Barra de Selectores: Ciclo Mensual/Anual y Moneda */}
@@ -53,30 +52,27 @@ export default function LibraryPricingCards({
             <button
               type="button"
               onClick={() => setBillingCycle("MONTHLY")}
-              className={`px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                billingCycle === "MONTHLY"
+              className={`px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${billingCycle === "MONTHLY"
                   ? "bg-primary text-on-primary shadow-xs"
                   : "text-on-surface-variant hover:text-on-surface"
-              }`}
+                }`}
             >
               Mensual
             </button>
             <button
               type="button"
               onClick={() => setBillingCycle("ANNUAL")}
-              className={`px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer ${
-                billingCycle === "ANNUAL"
+              className={`px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer ${billingCycle === "ANNUAL"
                   ? "bg-primary text-on-primary shadow-xs"
                   : "text-on-surface-variant hover:text-on-surface"
-              }`}
+                }`}
             >
               <span>Anual</span>
               <span
-                className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
-                  billingCycle === "ANNUAL"
+                className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${billingCycle === "ANNUAL"
                     ? "bg-on-primary text-primary"
                     : "bg-primary/15 text-primary"
-                }`}
+                  }`}
               >
                 -17% OFF
               </span>
@@ -88,22 +84,20 @@ export default function LibraryPricingCards({
               <button
                 type="button"
                 onClick={() => setCurrencyView("ARS")}
-                className={`px-3 py-1 rounded-full transition-colors cursor-pointer ${
-                  currencyView === "ARS"
+                className={`px-3 py-1 rounded-full transition-colors cursor-pointer ${currencyView === "ARS"
                     ? "bg-secondary text-on-secondary"
                     : "text-on-surface-variant hover:text-on-surface"
-                }`}
+                  }`}
               >
                 $ ARS
               </button>
               <button
                 type="button"
                 onClick={() => setCurrencyView("USD")}
-                className={`px-3 py-1 rounded-full transition-colors cursor-pointer ${
-                  currencyView === "USD"
+                className={`px-3 py-1 rounded-full transition-colors cursor-pointer ${currencyView === "USD"
                     ? "bg-secondary text-on-secondary"
                     : "text-on-surface-variant hover:text-on-surface"
-                }`}
+                  }`}
               >
                 USD (Ref.)
               </button>
@@ -128,11 +122,10 @@ export default function LibraryPricingCards({
             return (
               <article
                 key={plan.code}
-                className={`relative rounded-3xl bg-surface-container-lowest p-7 sm:p-9 flex flex-col justify-between transition-all duration-300 ${
-                  isPro
+                className={`relative rounded-3xl bg-surface-container-lowest p-7 sm:p-9 flex flex-col justify-between transition-all duration-300 ${isPro
                     ? "border-2 border-primary shadow-xl ring-1 ring-primary/15"
                     : "border border-outline-variant/80 shadow-md hover:border-outline"
-                }`}
+                  }`}
               >
                 <div>
                   {/* Etiqueta Superior Destacada (Ej: "Incluye Curador IA Avanzado...") */}
@@ -205,11 +198,10 @@ export default function LibraryPricingCards({
                   <button
                     type="button"
                     onClick={() => handlePlanClick(plan)}
-                    className={`w-full py-3.5 px-6 rounded-full text-sm font-bold tracking-wide transition-all cursor-pointer shadow-sm mb-8 ${
-                      isPro
+                    className={`w-full py-3.5 px-6 rounded-full text-sm font-bold tracking-wide transition-all cursor-pointer shadow-sm mb-8 ${isPro
                         ? "bg-primary text-on-primary hover:opacity-95 shadow-md"
                         : "bg-primary/90 text-on-primary hover:bg-primary"
-                    }`}
+                      }`}
                   >
                     {plan.cta_label || "Comenzar"}
                   </button>
@@ -260,30 +252,7 @@ export default function LibraryPricingCards({
             );
           })}
         </div>
-
-        {/* Franja de Modalidad Sin Cargo (Folium Comunidad) */}
-        <div className="mt-8 rounded-2xl bg-surface-container border border-outline-variant/60 p-6 sm:p-7 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div className="flex items-start gap-4">
-            <div className="w-11 h-11 rounded-xl bg-surface-container-lowest border border-outline-variant/50 flex items-center justify-center text-primary shrink-0">
-              <Building2 className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h4 className="font-serif text-xl font-semibold text-on-surface">
-                  Modalidad Sin Cargo — Folium Comunidad
-                </h4>
-                <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-surface-container-lowest text-on-surface border border-outline-variant/50">
-                  Gratis para siempre
-                </span>
-              </div>
-              <p className="text-body-md text-on-surface-variant mt-1">
-                Incluye catálogo público, hasta <strong>250 títulos</strong>,{" "}
-                <strong>500 ejemplares físicos</strong>, 1 cuenta de bibliotecario y
-                gestión básica de préstamos y reservas para pequeñas bibliotecas en formación.
-              </p>
-            </div>
-          </div>
-        </div>
+          
 
         {/* Notas Legales y Aclaraciones al Pie (Superíndices ¹ y ²) */}
         <div className="mt-6 px-2 text-xs text-on-surface-variant space-y-1.5 leading-relaxed">
